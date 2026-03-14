@@ -1,0 +1,30 @@
+services:
+  db:
+    image: postgres:16-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    # Dieser Befehl installiert fehlende Gems im Container und startet dann den Dev-Server
+    command: >
+      bash -c "bundle install &&
+               bin/rails db:prepare &&
+               bin/dev"
+    volumes:
+      - .:/rails
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@db:5432/btv_development
+      - RAILS_ENV=development
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
