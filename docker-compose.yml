@@ -11,15 +11,16 @@ services:
 
   web:
     build: .
-    # Dieser Befehl installiert fehlende Gems im Container und startet dann den Dev-Server
-    command: >
-      bash -c "bundle install &&
-               bin/rails db:prepare &&
-               bin/dev"
+    # Das Kommando bleibt als Fallback, falls du ohne VS Code startest
+    command: bash -c "bundle install && bin/rails db:prepare && rm -f tmp/pids/server.pid && bin/rails s -b '0.0.0.0'"
     volumes:
-      - .:/rails
+      - .:/rails:cached
+      - bundle_data:/usr/local/bundle # Verhindert den Deadlock-Fehler!
     ports:
       - "3000:3000"
+    # Diese beiden Zeilen sind wichtig für Dev Container (halten den Prozess offen)
+    tty: true
+    stdin_open: true
     environment:
       - DATABASE_URL=postgres://postgres:password@db:5432/btv_development
       - RAILS_ENV=development
@@ -28,3 +29,4 @@ services:
 
 volumes:
   postgres_data:
+  bundle_data:

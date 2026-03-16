@@ -1,8 +1,10 @@
-#!/bin/bash -e
+#!/bin/bash
+set -e
 
-# If running the rails server then create or migrate existing database
-if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare
+# Lösche eine alte Server-ID, falls vorhanden
+if [ -f "/rails/tmp/pids/server.pid" ]; then
+  rm /rails/tmp/pids/server.pid
 fi
 
-exec "${@}"
+# Führe das aus, was als Command übergeben wurde (z.B. bin/dev)
+exec "$@"
