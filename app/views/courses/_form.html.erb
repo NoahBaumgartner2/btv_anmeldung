@@ -1,0 +1,62 @@
+<%= form_with(model: course, class: "contents") do |form| %>
+  <% if course.errors.any? %>
+    <div id="error_explanation" class="bg-red-50 text-red-500 px-3 py-2 font-medium rounded-md mt-3">
+      <h2><%= pluralize(course.errors.count, "error") %> prohibited this course from being saved:</h2>
+
+      <ul class="list-disc ml-6">
+        <% course.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="my-5">
+    <%= form.label :title %>
+    <%= form.text_field :title, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": course.errors[:title].none?, "border-red-400 focus:outline-red-600": course.errors[:title].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :description %>
+    <%= form.textarea :description, rows: 4, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": course.errors[:description].none?, "border-red-400 focus:outline-red-600": course.errors[:description].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :location %>
+    <%= form.text_field :location, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": course.errors[:location].none?, "border-red-400 focus:outline-red-600": course.errors[:location].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :start_date %>
+    <%= form.datetime_field :start_date, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": course.errors[:start_date].none?, "border-red-400 focus:outline-red-600": course.errors[:start_date].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :end_date %>
+    <%= form.datetime_field :end_date, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": course.errors[:end_date].none?, "border-red-400 focus:outline-red-600": course.errors[:end_date].any?}] %>
+  </div>
+
+  <div class="my-5 flex items-center gap-2">
+    <%= form.label :allows_holiday_deduction %>
+    <%= form.checkbox :allows_holiday_deduction, class: ["block shadow-sm rounded-md border order-first h-5 w-5", {"border-gray-400 focus:outline-blue-600": course.errors[:allows_holiday_deduction].none?, "border-red-400 focus:outline-red-600": course.errors[:allows_holiday_deduction].any?}] %>
+  </div>
+
+  <div class="my-5">
+    <%= form.label :registration_type %>
+    <%= form.text_field :registration_type, class: ["block shadow-sm rounded-md border px-3 py-2 mt-2 w-full", {"border-gray-400 focus:outline-blue-600": course.errors[:registration_type].none?, "border-red-400 focus:outline-red-600": course.errors[:registration_type].any?}] %>
+  </div>
+
+  <div class="my-5 flex items-center gap-2">
+    <%= form.label :has_ticketing %>
+    <%= form.checkbox :has_ticketing, class: ["block shadow-sm rounded-md border order-first h-5 w-5", {"border-gray-400 focus:outline-blue-600": course.errors[:has_ticketing].none?, "border-red-400 focus:outline-red-600": course.errors[:has_ticketing].any?}] %>
+  </div>
+
+  <div class="my-5 flex items-center gap-2">
+    <%= form.label :has_payment %>
+    <%= form.checkbox :has_payment, class: ["block shadow-sm rounded-md border order-first h-5 w-5", {"border-gray-400 focus:outline-blue-600": course.errors[:has_payment].none?, "border-red-400 focus:outline-red-600": course.errors[:has_payment].any?}] %>
+  </div>
+
+  <div class="inline">
+    <%= form.submit class: "w-full sm:w-auto rounded-md px-3.5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white inline-block font-medium cursor-pointer" %>
+  </div>
+<% end %>
