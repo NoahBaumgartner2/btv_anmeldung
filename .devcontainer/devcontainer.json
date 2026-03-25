@@ -6,7 +6,7 @@
 
   "features": {
     "ghcr.io/devcontainers/features/ruby:1": {
-        "version": "latest"
+        "version": "3.4.8"
     },
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/rails/devcontainer/features/activestorage": {},
