@@ -5,6 +5,9 @@
   "workspaceFolder": "/workspaces/btv_anmeldung",
 
   "features": {
+    "ghcr.io/devcontainers/features/ruby:1": {
+        "version": "latest"
+    },
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/rails/devcontainer/features/activestorage": {},
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {"moby":false},
@@ -18,7 +21,7 @@
 
   "forwardPorts": [3000, 5432],
 
-  "postCreateCommand": "bin/setup --skip-server",
+  "postCreateCommand": "bundle install && bin/setup --skip-server",
   "customizations": {
     "vscode": {
       "extensions": [
