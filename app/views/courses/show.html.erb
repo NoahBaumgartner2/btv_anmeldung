@@ -7,10 +7,12 @@
         <%= @course.registration_type %>
       </span>
     </div>
-    <div class="flex space-x-3">
-      <%= link_to "Zurück zur Übersicht", courses_path, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition" %>
+<div class="flex flex-wrap gap-3">
+      <%= link_to "Kind für diesen Kurs anmelden", new_course_registration_path(course_id: @course.id), class: "bg-green-600 py-2 px-4 border border-transparent shadow-sm text-sm font-bold rounded-md text-white hover:bg-green-700 transition" %>
+
+      <%= link_to "Zurück", courses_path, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition" %>
       <%= link_to "Bearbeiten", edit_course_path(@course), class: "bg-orange-100 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-orange-700 hover:bg-orange-200 transition" %>
-      <%= button_to "Löschen", @course, method: :delete, data: { turbo_confirm: "Bist du sicher, dass du diesen Kurs löschen möchtest?" }, class: "cursor-pointer bg-red-600 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-red-700 transition" %>
+      <%= button_to "Löschen", @course, method: :delete, data: { turbo_confirm: "Wirklich löschen?" }, class: "cursor-pointer bg-red-600 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-red-700 transition" %>
     </div>
   </div>
 
