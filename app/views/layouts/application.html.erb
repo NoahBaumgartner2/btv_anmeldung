@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= content_for(:title) || "Btv Anmeldung" %></title>
+    <title><%= content_for(:title) || "BTV Anmeldung" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Btv Anmeldung">
+    <meta name="application-name" content="BTV Anmeldung">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -18,17 +18,56 @@
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
   </head>
 
-  <body>
-    <% if notice %>
-      <p class="bg-green-100 text-green-800 px-4 py-2 text-center"><%= notice %></p>
-    <% end %>
+  <body class="bg-gray-50 text-gray-900 font-sans antialiased">
 
-    <% if alert %>
-      <p class="bg-red-100 text-red-800 px-4 py-2 text-center"><%= alert %></p>
-    <% end %>
+    <nav class="bg-white shadow-md border-b border-gray-200">
+      <div class="container mx-auto px-5">
+        <div class="flex justify-between h-16">
 
-    <main class="container mx-auto mt-28 px-5">
-      <%= yield %>
+          <div class="flex items-center">
+            <%= link_to "BTV Portal", root_path, class: "text-2xl font-black text-blue-700 tracking-tight" %>
+
+            <div class="hidden md:flex space-x-6 ml-10">
+              <%= link_to "Kurse", courses_path, class: "text-gray-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-md font-medium transition" %>
+              <%= link_to "Teilnehmer", participants_path, class: "text-gray-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-md font-medium transition" %>
+              <%= link_to "Trainer", trainers_path, class: "text-gray-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-md font-medium transition" %>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <% if user_signed_in? %>
+              <div class="hidden sm:block text-sm text-gray-500 mr-2">
+                Eingeloggt als <span class="font-bold text-gray-700"><%= current_user.email %></span>
+              </div>
+              <%= button_to "Logout", destroy_user_session_path, method: :delete, class: "bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md text-sm font-semibold transition shadow-sm" %>
+            <% else %>
+              <%= link_to "Login", new_user_session_path, class: "text-blue-700 hover:text-blue-900 font-semibold" %>
+              <%= link_to "Registrieren", new_user_registration_path, class: "bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-md text-sm font-semibold transition shadow-sm" %>
+            <% end %>
+          </div>
+
+        </div>
+      </div>
+    </nav>
+
+    <div class="container mx-auto px-5 mt-4">
+      <% if notice %>
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-800 p-4 mb-4 rounded shadow-sm" role="alert">
+          <p class="font-medium"><%= notice %></p>
+        </div>
+      <% end %>
+      <% if alert %>
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-800 p-4 mb-4 rounded shadow-sm" role="alert">
+          <p class="font-medium"><%= alert %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <main class="container mx-auto mt-6 px-5 pb-20">
+      <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+        <%= yield %>
+      </div>
     </main>
+
   </body>
 </html>

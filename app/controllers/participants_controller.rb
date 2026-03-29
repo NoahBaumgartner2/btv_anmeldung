@@ -2,8 +2,13 @@ class ParticipantsController < ApplicationController
   before_action :set_participant, only: %i[ show edit update destroy ]
 
   # GET /participants or /participants.json
-  def index
-    @participants = Participant.all
+def index
+    if params[:query].present?
+      # ILIKE ist der Postgres-Befehl für eine Groß-/Kleinschreibung-unabhängige Suche
+      @participants = Participant.where("first_name ILIKE ? OR last_name ILIKE ?", "%#{params[:query]}%", "%#{params[:query]}%")
+    else
+      @participants = Participant.all
+    end
   end
 
   # GET /participants/1 or /participants/1.json

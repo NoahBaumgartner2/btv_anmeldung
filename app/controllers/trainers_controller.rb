@@ -2,8 +2,9 @@ class TrainersController < ApplicationController
   before_action :set_trainer, only: %i[ show edit update destroy ]
 
   # GET /trainers or /trainers.json
-  def index
-    @trainers = Trainer.all
+def index
+    # .includes lädt die verknüpften Tabellen direkt mit, das macht die Seite extrem schnell!
+    @trainers = Trainer.includes(:user, :courses).all
   end
 
   # GET /trainers/1 or /trainers/1.json
