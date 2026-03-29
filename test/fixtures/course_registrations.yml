@@ -2,8 +2,14 @@
 
 one:
   course: one
-  registration: one
+  participant: one
+  status: MyString
+  payment_cleared: false
+  holiday_deduction_claimed: false
 
 two:
   course: two
-  registration: two
+  participant: two
+  status: MyString
+  payment_cleared: false
+  holiday_deduction_claimed: false
