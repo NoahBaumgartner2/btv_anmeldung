@@ -1,0 +1,26 @@
+<div class="max-w-5xl mx-auto mt-10 mb-16 px-4">
+  <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Meine Kurse</h1>
+  <p class="text-gray-500 mb-8">Hier findest du alle Kurse, für die du als Trainer eingeteilt bist.</p>
+
+  <% if @assigned_courses.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <% @assigned_courses.each do |course| %>
+        <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col">
+          <h2 class="text-xl font-bold text-gray-900"><%= course.title %></h2>
+          <p class="text-gray-500 text-sm mt-1"><%= course.registration_type %></p>
+          <div class="mt-4 mb-6 text-sm text-gray-600 font-medium space-y-2">
+            <div>📍 <%= course.location %></div>
+            <div>👶 <%= course.course_registrations.count %> Anmeldungen</div>
+          </div>
+          <div class="mt-auto">
+            <%= link_to "Präsenzkontrolle öffnen 📋", manage_course_path(course), class: "block text-center w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 shadow-sm" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-yellow-50 text-yellow-800 p-6 rounded-xl border border-yellow-200 text-center">
+      Du bist aktuell noch keinem Kurs als Trainer zugewiesen.
+    </div>
+  <% end %>
+</div>

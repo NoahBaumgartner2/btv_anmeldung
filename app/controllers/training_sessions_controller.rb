@@ -1,5 +1,6 @@
 class TrainingSessionsController < ApplicationController
   before_action :authenticate_user!
+  before_action :authorize_trainer!
   before_action :authorize_admin! # Nur Trainer/Admins dürfen das!
   before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance ]
 

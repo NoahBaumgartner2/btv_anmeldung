@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_29_163349) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_30_203422) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -53,6 +53,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_163349) do
     t.boolean "has_payment"
     t.boolean "has_ticketing"
     t.string "location"
+    t.integer "max_participants"
+    t.string "registration_mode"
     t.string "registration_type"
     t.datetime "start_date"
     t.string "title"
@@ -100,6 +102,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_29_163349) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.boolean "admin", default: false
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false

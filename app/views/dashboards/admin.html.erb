@@ -1,0 +1,89 @@
+<div class="max-w-7xl mx-auto mt-10 mb-16 px-4">
+  <div class="flex justify-between items-end mb-8">
+    <div>
+      <h1 class="text-4xl font-extrabold text-gray-900">Kommandozentrale</h1>
+      <p class="text-gray-500 mt-2">Willkommen, Boss! Hier steuerst du den gesamten Verein.</p>
+    </div>
+    <div class="flex gap-3">
+      <%= link_to "👥 Trainer verwalten", trainers_path, class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm font-bold text-gray-700 hover:bg-gray-50" %>
+      <%= link_to "🌴 Ferien verwalten", holidays_path, class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm font-bold text-gray-700 hover:bg-gray-50" %>
+      <%= link_to "+ Neuer Kurs", new_course_path, class: "bg-red-600 text-white py-2 px-4 rounded-lg shadow-sm font-bold hover:bg-red-700" %>
+    </div>
+  </div>
+
+  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kurs</th>
+          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kategorie</th>
+          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Anmeldungen</th>
+          <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase">Aktion</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <% @courses.each do |course| %>
+          <tr class="hover:bg-gray-50">
+            <td class="py-4 px-4 font-bold text-gray-900"><%= course.title %></td>
+            <td class="py-4 px-4 text-sm text-gray-500"><%= course.registration_type %></td>
+            <td class="py-4 px-4 text-sm font-medium text-blue-600"><%= course.course_registrations.count %> Kinder</td>
+            <td class="py-4 px-4 text-right">
+              <%= link_to "Verwalten ⚙️", manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+  <div class="mt-16">
+    <div class="flex justify-between items-end mb-6">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Alle Teilnehmer (<%= @participants.count %>)</h2>
+        <p class="text-gray-500 mt-1 text-sm">Die komplette Datenbank aller im System registrierten Kinder.</p>
+      </div>
+
+      <button disabled class="bg-gray-100 text-gray-400 py-2 px-4 rounded-lg shadow-sm font-bold border border-gray-200 cursor-not-allowed flex items-center gap-2">
+        <span>📥</span> Exportieren (Bald verfügbar)
+      </button>
+    </div>
+
+    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Geburtsdatum</th>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Elternteil (Account)</th>
+            <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktion</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <% if @participants.any? %>
+            <% @participants.each do |participant| %>
+              <tr class="hover:bg-gray-50 transition">
+                <td class="py-4 px-4 font-bold text-gray-900">
+                  <%= participant.last_name %>, <%= participant.first_name %>
+                </td>
+                <td class="py-4 px-4 text-sm text-gray-600">
+                  <%= participant.date_of_birth&.strftime("%d.%m.%Y") || "Nicht angegeben" %>
+                </td>
+                <td class="py-4 px-4 text-sm text-gray-500">
+                  <%= participant.user.email %>
+                </td>
+                <td class="py-4 px-4 text-right">
+                  <%= link_to "Profil ansehen", participant_path(participant), class: "text-blue-600 font-bold hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-md text-sm" %>
+                </td>
+              </tr>
+            <% end %>
+          <% else %>
+            <tr>
+              <td colspan="4" class="py-8 text-center text-sm text-gray-500">
+                Es sind noch keine Teilnehmer im System registriert.
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

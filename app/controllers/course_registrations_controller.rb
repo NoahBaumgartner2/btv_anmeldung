@@ -12,11 +12,26 @@ class CourseRegistrationsController < ApplicationController
 
   def create
     @course_registration = CourseRegistration.new(course_registration_params)
-    @course_registration.status = "warteliste"
     @course_registration.payment_cleared = false
 
+    # 1. Welchen Kurs möchte das Kind buchen?
+    course = @course_registration.course
+
+    # 2. Wie viele BESTÄTIGTE Plätze sind schon weg?
+    bestaetigte_plaetze = course.course_registrations.where(status: 'bestätigt').count
+
+    # 3. Die Wartelisten-Automatik!
+    # Wir prüfen: Hat der Kurs ein Limit? UND Sind schon alle Plätze vergeben?
+    if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
+      @course_registration.status = 'warteliste'
+      erfolgs_nachricht = "Der Kurs ist leider voll. Dein Kind wurde erfolgreich auf die Warteliste gesetzt!"
+    else
+      @course_registration.status = 'bestätigt'
+      erfolgs_nachricht = "Fantastisch! Dein Kind hat einen festen Platz im Kurs."
+    end
+
     if @course_registration.save
-      redirect_to course_path(@course_registration.course), notice: "Das Kind wurde erfolgreich für den Kurs angemeldet!"
+      redirect_to course_path(course), notice: erfolgs_nachricht
     else
       render :new, status: :unprocessable_entity
     end

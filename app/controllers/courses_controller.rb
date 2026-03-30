@@ -1,10 +1,9 @@
 class CoursesController < ApplicationController
-  before_action :set_course, only: %i[ show edit update destroy ]
   # Für neue Kurse oder Bearbeitung MUSS man Admin sein
-  before_action :authorize_admin!, except: [ :index, :show ]
+  before_action :authorize_admin!, except: [:index, :show]
   # GET /courses or /courses.json
-
-  before_action :set_course, only: %i[ show edit update destroy generate_trainings create_generated_trainings ]
+  before_action :authorize_trainer!, only: [:manage]
+  before_action :set_course, only: %i[ show edit update destroy generate_trainings create_generated_trainings manage ]
   def index
     @courses = Course.all
   end
@@ -97,6 +96,10 @@ class CoursesController < ApplicationController
     redirect_to @course, notice: "#{created_count} Trainings wurden automatisch erstellt (Ferien wurden übersprungen)!"
   end
 
+  def manage
+    # Lädt einfach die Verwaltungs-Seite für diesen Kurs
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_course
@@ -104,7 +107,7 @@ class CoursesController < ApplicationController
     end
 
     # Only allow a list of trusted parameters through.
-    def course_params
-      params.expect(course: [ :title, :description, :location, :start_date, :end_date, :allows_holiday_deduction, :registration_type, :has_ticketing, :has_payment ])
-    end
+  def course_params
+  params.require(:course).permit(:title, :description, :start_date, :end_date, :location, :registration_type, :has_payment, :has_ticketing, :registration_mode, :max_participants, trainer_ids: [])
+  end
 end
