@@ -33,11 +33,13 @@
               <% if user_signed_in? %>
                 <%= link_to "Mein Profil", profil_path, class: "text-gray-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-md font-medium transition" %>
 
-                <% if Trainer.exists?(user: current_user) %>
-                  <div class="h-6 w-px bg-gray-300 mx-2"></div> <%= link_to "Alle Teilnehmer (Admin)", participants_path, class: "text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-2 rounded-md font-medium transition" %>
-                  <%= link_to "Trainer (Admin)", trainers_path, class: "text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-2 rounded-md font-medium transition" %>
+                  <% if Trainer.exists?(user: current_user) %>
+                    <div class="h-6 w-px bg-gray-300 mx-2"></div>
+                    <%= link_to "Teilnehmer", participants_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-medium" %>
+                    <%= link_to "Trainer", trainers_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-medium" %>
+                    <%= link_to "Ferien", holidays_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-medium" %>
+                  <% end %>
                 <% end %>
-              <% end %>
             </div>
           </div>
 

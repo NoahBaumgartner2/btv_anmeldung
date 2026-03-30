@@ -1,15 +1,53 @@
-<% content_for :title, "Showing training session" %>
+<div class="max-w-3xl mx-auto w-full mt-8 mb-10">
+  <div class="flex justify-between items-center mb-8">
+    <div>
+      <h1 class="font-bold text-3xl text-gray-900">Training am <%= @training_session.start_time&.strftime("%d.%m.%Y") %></h1>
+      <p class="text-gray-500 mt-1 font-medium">Kurs: <%= @training_session.course.title %></p>
+    </div>
+    <%= link_to "Zurück zum Kurs", course_path(@training_session.course), class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition" %>
+  </div>
 
-<div class="md:w-2/3 w-full">
-  <% if notice.present? %>
-    <p class="py-2 px-3 bg-green-50 mb-5 text-green-500 font-medium rounded-md inline-block" id="notice"><%= notice %></p>
-  <% end %>
+  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
+    <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-bold text-gray-800">Präsenzkontrolle</h2>
+      <p class="text-sm text-gray-500">Klicke auf den Button, um den Status eines Kindes zu ändern.</p>
+    </div>
 
-  <h1 class="font-bold text-4xl">Showing training session</h1>
+    <ul class="divide-y divide-gray-200">
+      <% if @registrations.any? %>
+        <% @registrations.each do |reg| %>
+          <% participant = reg.participant %>
 
-  <%= render @training_session %>
+          <% is_present = @training_session.attendances.exists?(course_registration_id: reg.id) %>
 
-  <%= link_to "Edit this training session", edit_training_session_path(@training_session), class: "w-full sm:w-auto text-center rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to training sessions", training_sessions_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= button_to "Destroy this training session", @training_session, method: :delete, form_class: "sm:inline-block mt-2 sm:mt-0 sm:ml-2", class: "w-full rounded-md px-3.5 py-2.5 text-white bg-red-600 hover:bg-red-500 font-medium cursor-pointer", data: { turbo_confirm: "Are you sure?" } %>
+          <li class="px-6 py-4 flex items-center justify-between hover:bg-gray-50 transition">
+            <div class="flex items-center">
+              <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm mr-4">
+                <%= participant.first_name[0] %><%= participant.last_name[0] %>
+              </div>
+              <div>
+                <p class="text-sm font-bold text-gray-900"><%= participant.first_name %> <%= participant.last_name %></p>
+              </div>
+            </div>
+
+            <div>
+              <% if is_present %>
+                <%= button_to toggle_attendance_training_session_path(@training_session, course_registration_id: reg.id), method: :post, class: "cursor-pointer flex items-center px-4 py-2 bg-green-100 text-green-800 hover:bg-green-200 rounded-full text-sm font-bold transition shadow-sm" do %>
+                  ✅ Anwesend
+                <% end %>
+              <% else %>
+                <%= button_to toggle_attendance_training_session_path(@training_session, course_registration_id: reg.id), method: :post, class: "cursor-pointer flex items-center px-4 py-2 bg-gray-100 text-gray-500 hover:bg-gray-200 rounded-full text-sm font-bold transition shadow-sm" do %>
+                  ❌ Gefehlt
+                <% end %>
+              <% end %>
+            </div>
+          </li>
+        <% end %>
+      <% else %>
+        <li class="px-6 py-8 text-center text-gray-500 text-sm">
+          Noch keine bestätigten Teilnehmer in diesem Kurs.
+        </li>
+      <% end %>
+    </ul>
+  </div>
 </div>

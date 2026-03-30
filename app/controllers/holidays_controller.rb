@@ -22,16 +22,18 @@ class HolidaysController < ApplicationController
   # POST /holidays or /holidays.json
   def create
     @holiday = Holiday.new(holiday_params)
-
-    respond_to do |format|
-      if @holiday.save
-        format.html { redirect_to @holiday, notice: "Holiday was successfully created." }
-        format.json { render :show, status: :created, location: @holiday }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @holiday.errors, status: :unprocessable_entity }
-      end
+    if @holiday.save
+      # Wir leiten einfach "back" (zurück), da du meistens vom Kurs-Dashboard kommst
+      redirect_back fallback_location: holidays_path, notice: "Ferien wurden erfolgreich gespeichert."
+    else
+      render :new, status: :unprocessable_entity
     end
+  end
+
+  def destroy
+    @holiday = Holiday.find(params[:id])
+    @holiday.destroy
+    redirect_back fallback_location: holidays_path, notice: "Ferien wurden entfernt."
   end
 
   # PATCH/PUT /holidays/1 or /holidays/1.json

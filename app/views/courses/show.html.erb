@@ -7,9 +7,8 @@
         <%= @course.registration_type %>
       </span>
     </div>
-<div class="flex flex-wrap gap-3">
+    <div class="flex flex-wrap gap-3">
       <%= link_to "Kind für diesen Kurs anmelden", new_course_registration_path(course_id: @course.id), class: "bg-green-600 py-2 px-4 border border-transparent shadow-sm text-sm font-bold rounded-md text-white hover:bg-green-700 transition" %>
-
       <%= link_to "Zurück", courses_path, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition" %>
       <%= link_to "Bearbeiten", edit_course_path(@course), class: "bg-orange-100 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-orange-700 hover:bg-orange-200 transition" %>
       <%= button_to "Löschen", @course, method: :delete, data: { turbo_confirm: "Wirklich löschen?" }, class: "cursor-pointer bg-red-600 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-red-700 transition" %>
@@ -24,19 +23,16 @@
         <p class="text-sm font-medium text-gray-500">Beschreibung</p>
         <p class="mt-1 text-gray-900"><%= @course.description.presence || "-" %></p>
       </div>
-
       <div>
         <p class="text-sm font-medium text-gray-500">Ort / Halle</p>
         <p class="mt-1 text-gray-900 font-semibold"><%= @course.location %></p>
       </div>
-
       <div>
         <p class="text-sm font-medium text-gray-500">Zeitraum</p>
         <p class="mt-1 text-gray-900">
           <%= @course.start_date&.strftime("%d.%m.%Y") %> – <%= @course.end_date&.strftime("%d.%m.%Y") %>
         </p>
       </div>
-
       <div>
         <p class="text-sm font-medium text-gray-500">Einstellungen</p>
         <ul class="mt-1 text-sm text-gray-700 space-y-1">
@@ -47,19 +43,74 @@
       </div>
     </div>
   </div>
+  <% if Trainer.exists?(user: current_user) %>
+    <div class="mb-12 pt-6 border-t border-gray-200">
+      <div class="flex justify-between items-end mb-4">
+        <h2 class="text-2xl font-bold text-gray-900">Globale Ferien-Termine</h2>
+        <%= link_to "+ Neue Ferien erfassen", new_holiday_path, class: "text-sm font-bold text-red-600 hover:text-red-800" %>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <% if Holiday.any? %>
+          <% Holiday.order(start_date: :asc).each do |holiday| %>
+            <div class="flex justify-between items-center bg-red-50 p-3 rounded-lg border border-red-100">
+              <div>
+                <span class="font-bold text-red-900"><%= holiday.title %></span>
+                <p class="text-xs text-red-700">
+                  <%= holiday.start_date.strftime("%d.%m.") %> bis <%= holiday.end_date.strftime("%d.%m.%Y") %>
+                </p>
+              </div>
+              <%= button_to "X", holiday, method: :delete, data: { turbo_confirm: "Ferien löschen?" }, class: "text-red-400 hover:text-red-600 font-bold px-2" %>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-sm text-gray-500 italic">Noch keine Ferien hinterlegt. Der Generator wird alle Wochen belegen.</p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  <% if Trainer.exists?(user: current_user) %>
+    <div class="mb-12">
+      <div class="flex justify-between items-end mb-4">
+        <h2 class="text-2xl font-bold text-gray-900">Trainings & Präsenzkontrolle</h2>
+        <div class="flex gap-2">
+          <%= link_to "⚙️ Automatisch generieren", generate_trainings_course_path(@course), class: "bg-purple-100 py-2 px-4 rounded-md shadow-sm text-sm font-bold text-purple-700 hover:bg-purple-200 transition border border-purple-200" %>
+          <%= link_to "+ Manuell erfassen", new_training_session_path(course_id: @course.id), class: "bg-blue-600 py-2 px-4 rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 transition" %>
+        </div>
+      </div>
+
+      <% if @course.training_sessions.any? %>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <% @course.training_sessions.order(start_time: :desc).each do |session| %>
+            <%= link_to session, class: "block bg-white p-4 rounded-xl shadow-sm border border-gray-200 hover:border-blue-400 hover:shadow-md transition" do %>
+              <div class="flex justify-between items-center mb-2">
+                <h3 class="font-bold text-gray-900"><%= session.start_time&.strftime("%d.%m.%Y") %></h3>
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-2 py-1 rounded-full"><%= session.attendances.count %> anwesend</span>
+              </div>
+              <p class="text-sm text-blue-600 font-medium">Checkliste öffnen &rarr;</p>
+            <% end %>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 text-center">
+          <p class="text-gray-500 text-sm">Es wurden noch keine Trainingsdaten für diesen Kurs erfasst.</p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 
   <div class="mb-6 flex justify-between items-end">
     <h2 class="text-2xl font-bold text-gray-900">Angemeldete Teilnehmer (<%= @course.course_registrations.count %>)</h2>
   </div>
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-lg overflow-x-auto">
+  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-lg overflow-x-auto mb-10">
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
           <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
           <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
           <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Bezahlt?</th>
-          <th scope="col" class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Profil</th>
+          <th scope="col" class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktionen</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200 bg-white">
@@ -79,7 +130,8 @@
                 <%= registration.payment_cleared ? "✅ Ja" : "⏳ Ausstehend" %>
               </td>
               <td class="py-4 px-4 whitespace-nowrap text-right text-sm font-medium">
-                <%= link_to "Teilnehmer ansehen", participant_path(registration.participant), class: "text-blue-600 hover:text-blue-900" %>
+                <%= link_to "Teilnehmer ansehen", participant_path(registration.participant), class: "text-blue-600 hover:text-blue-900 mr-3" %>
+                <%= link_to "Bearbeiten", edit_course_registration_path(registration), class: "text-orange-500 hover:text-orange-700 font-bold" %>
               </td>
             </tr>
           <% end %>

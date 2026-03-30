@@ -1,7 +1,8 @@
 class ParticipantsController < ApplicationController
   before_action :set_participant, only: %i[ show edit update destroy ]
-
-  # GET /participants or /participants.json
+  before_action :authenticate_user! # Muss eingeloggt sein
+  before_action :authorize_admin!   # MUSS Admin sein!
+# GET /participants or /participants.json
 def index
     if params[:query].present?
       # ILIKE ist der Postgres-Befehl für eine Groß-/Kleinschreibung-unabhängige Suche

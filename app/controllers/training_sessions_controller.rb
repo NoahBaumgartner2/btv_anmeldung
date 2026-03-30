@@ -1,70 +1,76 @@
 class TrainingSessionsController < ApplicationController
-  before_action :set_training_session, only: %i[ show edit update destroy ]
+  before_action :authenticate_user!
+  before_action :authorize_admin! # Nur Trainer/Admins dürfen das!
+  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance ]
 
-  # GET /training_sessions or /training_sessions.json
   def index
     @training_sessions = TrainingSession.all
   end
 
-  # GET /training_sessions/1 or /training_sessions/1.json
   def show
+    # Wir laden für die Checkliste nur die Teilnehmer, deren Status "bestätigt" ist
+    @registrations = @training_session.course.course_registrations.includes(:participant).where(status: "bestätigt")
   end
 
-  # GET /training_sessions/new
   def new
     @training_session = TrainingSession.new
+    if params[:course_id]
+      @training_session.course_id = params[:course_id]
+    end
   end
 
-  # GET /training_sessions/1/edit
+  def create
+    @training_session = TrainingSession.new(training_session_params)
+    if @training_session.save
+      redirect_to @training_session, notice: "Training erfolgreich erstellt. Du kannst jetzt die Anwesenheit eintragen."
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
   def edit
   end
 
-  # POST /training_sessions or /training_sessions.json
-  def create
-    @training_session = TrainingSession.new(training_session_params)
-
-    respond_to do |format|
-      if @training_session.save
-        format.html { redirect_to @training_session, notice: "Training session was successfully created." }
-        format.json { render :show, status: :created, location: @training_session }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @training_session.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
-  # PATCH/PUT /training_sessions/1 or /training_sessions/1.json
   def update
-    respond_to do |format|
-      if @training_session.update(training_session_params)
-        format.html { redirect_to @training_session, notice: "Training session was successfully updated.", status: :see_other }
-        format.json { render :show, status: :ok, location: @training_session }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @training_session.errors, status: :unprocessable_entity }
-      end
+    if @training_session.update(training_session_params)
+      redirect_to @training_session, notice: "Training aktualisiert."
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
-  # DELETE /training_sessions/1 or /training_sessions/1.json
   def destroy
-    @training_session.destroy!
+    course = @training_session.course
+    @training_session.destroy
+    redirect_to course_path(course), notice: "Training gelöscht."
+  end
 
-    respond_to do |format|
-      format.html { redirect_to training_sessions_path, notice: "Training session was successfully destroyed.", status: :see_other }
-      format.json { head :no_content }
+# NEU: Der magische Toggle für die Anwesenheit
+def toggle_attendance
+    # Wir fangen jetzt die ID der Kursanmeldung auf
+    course_registration_id = params[:course_registration_id]
+
+    # Prüfen, ob für diese Anmeldung schon eine Anwesenheit existiert
+    attendance = @training_session.attendances.find_by(course_registration_id: course_registration_id)
+
+    if attendance
+      attendance.destroy # War anwesend -> jetzt auf abwesend setzen
+    else
+      @training_session.attendances.create(course_registration_id: course_registration_id) # Auf anwesend setzen
     end
+
+    redirect_to @training_session
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_training_session
-      @training_session = TrainingSession.find(params.expect(:id))
-    end
 
-    # Only allow a list of trusted parameters through.
-    def training_session_params
-      params.expect(training_session: [ :course_id, :start_time, :end_time, :is_canceled ])
-    end
+  def set_training_session
+    @training_session = TrainingSession.find(params[:id])
+  end
+
+# Hinweis: Ich gehe davon aus, dass deine Spalte in der DB "date" heisst.
+def training_session_params
+    # HIER :start_time statt :date
+    params.require(:training_session).permit(:course_id, :start_time)
+  end
 end
