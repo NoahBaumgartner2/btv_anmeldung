@@ -32,9 +32,9 @@
 
               <% if user_signed_in? %>
                   <div class="h-6 w-px bg-gray-300 mx-2"></div>
-
+                  <%= link_to "Mein Profil", participants_path, class: "text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md font-bold" %>
                   <% if current_user.admin? %>
-                    <%= link_to "👑 Admin-Dashboard", dashboards_admin_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
+                    <%= link_to "Admin-Dashboard", dashboards_admin_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
                   <% end %>
 
                   <% if Trainer.exists?(user: current_user) && !current_user.admin? %>

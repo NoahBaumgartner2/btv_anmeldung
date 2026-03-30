@@ -57,6 +57,37 @@ class CourseRegistrationsController < ApplicationController
     redirect_to course_path(course), notice: "Die Anmeldung wurde gelöscht."
   end
 
+def scan
+    authorize_trainer!
+    
+    @registration = CourseRegistration.find(params[:id])
+    
+    # 1. Wir nehmen EXAKT die Checkliste, aus der der Trainer den Scanner gestartet hat!
+    if params[:session_id].present?
+      @session = TrainingSession.find(params[:session_id])
+    else
+      # Fallback, falls jemand den Link ohne ID aufruft
+      @session = @registration.course.training_sessions.order(start_time: :desc).first
+    end
+    
+    # 2. Kind in dieser Liste abhaken!
+    attendance = @session.attendances.find_or_create_by(course_registration_id: @registration.id)
+    
+    # (Sicherheits-Check: Falls du in der Datenbank ein echtes Feld für den Status hast, aktivieren wir es hier)
+    attendance.update(present: true) if attendance.has_attribute?(:present)
+    attendance.update(status: 'present') if attendance.has_attribute?(:status)
+    
+    respond_to do |format|
+      format.html { redirect_to @session, notice: "✅ BING! #{@registration.participant.first_name} wurde eingecheckt!" }
+      format.json { 
+        render json: { 
+          success: true, 
+          message: "✅ #{@registration.participant.first_name} ist da!" 
+        } 
+      }
+    end
+  end
+
   private
 
   def set_course_registration

@@ -67,7 +67,7 @@
       </div>
     </div>
 
-<div>
+    <div>
       <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">4. Trainer-Zuweisung</h3>
       <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
         <p class="text-sm text-gray-600 mb-4">Wähle aus, welche Trainer diesen Kurs in ihrem Dashboard sehen und verwalten dürfen:</p>
@@ -89,6 +89,20 @@
             <%= link_to "Klicke hier", new_trainer_path, class: "underline hover:text-red-800" %>, um deinen ersten Trainer zu erstellen.
           </div>
         <% end %>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">5. Weitere Einstellungen</h3>
+      <div class="space-y-4">
+        <div class="flex items-center">
+          <%= form.check_box :has_payment, class: "h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" %>
+          <%= form.label :has_payment, "Dieser Kurs ist kostenpflichtig", class: "ml-3 text-sm font-bold text-gray-800 cursor-pointer" %>
+        </div>
+        <div class="flex items-center">
+          <%= form.check_box :has_ticketing, class: "h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" %>
+          <%= form.label :has_ticketing, "Ticketing / QR-Codes für diesen Kurs aktivieren", class: "ml-3 text-sm font-bold text-gray-800 cursor-pointer" %>
+        </div>
       </div>
     </div>
 

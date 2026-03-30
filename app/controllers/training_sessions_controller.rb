@@ -2,7 +2,7 @@ class TrainingSessionsController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_trainer!
   before_action :authorize_admin! # Nur Trainer/Admins dürfen das!
-  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance ]
+  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance scanner ]
 
   def index
     @training_sessions = TrainingSession.all
@@ -46,8 +46,8 @@ class TrainingSessionsController < ApplicationController
     redirect_to course_path(course), notice: "Training gelöscht."
   end
 
-# NEU: Der magische Toggle für die Anwesenheit
-def toggle_attendance
+  # NEU: Der magische Toggle für die Anwesenheit
+  def toggle_attendance
     # Wir fangen jetzt die ID der Kursanmeldung auf
     course_registration_id = params[:course_registration_id]
 
@@ -63,6 +63,9 @@ def toggle_attendance
     redirect_to @training_session
   end
 
+  def scanner
+    # Lädt einfach nur die Kamera-Ansicht für dieses Training
+  end
   private
 
   def set_training_session

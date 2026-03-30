@@ -12,7 +12,9 @@
       <h2 class="text-lg font-bold text-gray-800">Präsenzkontrolle</h2>
       <p class="text-sm text-gray-500">Klicke auf den Button, um den Status eines Kindes zu ändern.</p>
     </div>
-
+    <div class="mb-8">
+      <%= link_to "📸 Live-Scanner starten", scanner_training_session_path(@training_session), class: "w-full flex items-center justify-center bg-purple-600 text-white py-4 rounded-2xl font-bold text-lg hover:bg-purple-700 transition shadow-md" %>
+    </div>
     <ul class="divide-y divide-gray-200">
       <% if @registrations.any? %>
         <% @registrations.each do |reg| %>

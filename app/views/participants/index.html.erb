@@ -1,57 +1,116 @@
-<div class="w-full">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="font-bold text-3xl text-gray-800">Teilnehmer</h1>
-    <%= link_to "Neuer Teilnehmer", new_participant_path, class: "rounded-lg py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium transition shadow-sm" %>
-  </div>
+<div class="max-w-5xl mx-auto w-full px-4 sm:px-6 mt-10 mb-16">
 
-  <div class="mb-6">
-    <%= form_with url: participants_path, method: :get, data: { turbo_frame: "participants_list" }, class: "flex items-center" do |form| %>
-      <div class="relative w-full md:w-1/3">
-        <%= form.text_field :query, value: params[:query], placeholder: "Nach Vor- oder Nachname suchen...", class: "w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pl-10", oninput: "this.form.requestSubmit()" %>
-
-        <svg class="w-5 h-5 text-gray-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-      </div>
-    <% end %>
-  </div>
-
-  <%= turbo_frame_tag "participants_list" do %>
-    <div class="overflow-x-auto bg-white shadow-sm ring-1 ring-gray-200 rounded-lg">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
-            <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Geburtsdatum</th>
-            <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Geschlecht</th>
-            <th scope="col" class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktionen</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200 bg-white">
-          <% @participants.each do |participant| %>
-            <tr class="hover:bg-gray-50 transition duration-150">
-              <td class="py-4 px-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                <%= participant.first_name %> <%= participant.last_name %>
-              </td>
-              <td class="py-4 px-4 whitespace-nowrap text-sm text-gray-500">
-                <%= participant.date_of_birth&.strftime("%d.%m.%Y") %>
-              </td>
-              <td class="py-4 px-4 whitespace-nowrap text-sm text-gray-500">
-                <span class="px-2 py-1 bg-gray-100 rounded-full text-xs font-medium text-gray-600">
-                  <%= participant.gender %>
-                </span>
-              </td>
-              <td class="py-4 px-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                <%= link_to "Anzeigen", participant, class: "text-blue-600 hover:text-blue-900 data-turbo-frame='_top'" %>
-                <%= link_to "Bearbeiten", edit_participant_path(participant), class: "text-orange-500 hover:text-orange-700 data-turbo-frame='_top'" %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
+    <div>
+      <h1 class="font-extrabold text-4xl text-gray-900 tracking-tight">Familien-Profil</h1>
+      <p class="text-gray-500 mt-2 text-lg">Verwalte hier deine Kinder und ihre Kurs-Tickets.</p>
     </div>
+    <%= link_to "+ Neues Kind erfassen", new_participant_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm transition whitespace-nowrap" %>
+  </div>
 
-    <% if @participants.empty? %>
-      <div class="text-center py-10 bg-white shadow-sm ring-1 ring-gray-200 rounded-lg mt-4">
-        <p class="text-gray-500">Keine Teilnehmer für diesen Suchbegriff gefunden.</p>
-      </div>
-    <% end %>
-  <% end %> </div>
+  <% if @participants.any? %>
+    <div class="space-y-10">
+      <% @participants.each do |participant| %>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+
+          <div class="bg-gray-50 px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+              <span class="text-4xl">
+                <%= participant.gender == 'männlich' ? '👦' : (participant.gender == 'weiblich' ? '👧' : '🧒') %>
+              </span>
+              <div>
+                <h2 class="text-2xl font-bold text-gray-900"><%= participant.first_name %> <%= participant.last_name %></h2>
+                <p class="text-sm font-medium text-gray-500">Geboren am: <%= participant.date_of_birth&.strftime("%d.%m.%Y") || "Nicht angegeben" %></p>
+              </div>
+            </div>
+            <%= link_to "Bearbeiten ⚙️", edit_participant_path(participant), class: "text-sm font-bold text-gray-600 hover:text-gray-900 bg-white border border-gray-300 shadow-sm px-4 py-2 rounded-lg transition" %>
+          </div>
+
+          <div class="p-6">
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-5">Angemeldete Kurse & Tickets</h3>
+
+            <% registrations = participant.course_registrations.includes(:course) %>
+
+            <% if registrations.any? %>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <% registrations.each do |reg| %>
+                  <% course = reg.course %>
+
+                  <div class="bg-white border <%= reg.status == 'bestätigt' ? 'border-green-200' : 'border-orange-200' %> rounded-2xl p-5 shadow-sm relative flex flex-col h-full hover:shadow-md transition">
+
+                    <div class="absolute top-4 right-4">
+                      <% if reg.status == 'bestätigt' %>
+                        <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-md">Bestätigt</span>
+                      <% else %>
+                        <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-1 rounded-md">Warteliste</span>
+                      <% end %>
+                    </div>
+
+                    <h4 class="font-bold text-gray-900 pr-16 mb-1 text-lg"><%= course.title %></h4>
+                    <p class="text-xs font-bold text-blue-600 mb-4 uppercase tracking-wide"><%= course.registration_type %></p>
+
+                    <div class="mt-auto pt-5 border-t border-gray-100 flex flex-col items-center">
+                    <% if reg.status == 'bestätigt' && course.has_ticketing %>
+                       <div class="cursor-pointer hover:scale-105 transition transform group w-full flex flex-col items-center" onclick="document.getElementById('qr-modal-<%= reg.id %>').classList.remove('hidden')">
+                        <div class="bg-white p-2 rounded-xl border-2 border-dashed border-gray-300 mb-3 w-32 h-32 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
+                          <%= generate_qr_code(scan_course_registration_url(reg)) %>
+                        </div>
+                        <p class="text-xs text-purple-600 font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1">
+                          <span>🔍</span> Ticket vergrößern
+                        </p>
+                      </div>
+
+                      <div id="qr-modal-<%= reg.id %>" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-gray-900 bg-opacity-80 backdrop-blur-sm p-4" onclick="this.classList.add('hidden')">
+                        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center" onclick="event.stopPropagation()">
+                          <h3 class="text-2xl font-black text-gray-900 mb-1"><%= participant.first_name %>'s Ticket</h3>
+                          <p class="text-gray-500 mb-8 text-center font-medium"><%= course.title %></p>
+
+                          <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-8 w-64 h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
+                            <%= generate_qr_code(scan_course_registration_url(reg)) %>
+                          </div>
+
+                          <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 transition w-full text-lg" onclick="document.getElementById('qr-modal-<%= reg.id %>').classList.add('hidden')">
+                            Schließen
+                          </button>
+                        </div>
+                      </div>
+
+                      <% elsif reg.status == 'bestätigt' && !course.has_ticketing %>
+                        <div class="bg-gray-50 rounded-xl p-4 text-center w-full border border-gray-100">
+                          <span class="text-2xl block mb-1">📅</span>
+                          <span class="text-xs text-gray-500 font-bold uppercase">Kein Ticket benötigt</span>
+                        </div>
+
+                      <% else %>
+                        <div class="bg-orange-50 rounded-xl p-4 text-center w-full border border-orange-100">
+                          <span class="text-2xl block mb-1">⏳</span>
+                          <span class="text-xs text-orange-600 font-bold uppercase">Warten auf Platz</span>
+                        </div>
+                      <% end %>
+                    </div>
+
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="bg-gray-50 rounded-xl p-6 text-center border border-gray-100 border-dashed">
+                <p class="text-gray-500 text-sm font-medium">Dieses Kind ist aktuell noch für keine Kurse angemeldet.</p>
+                <%= link_to "Zu den Kursen", courses_path, class: "mt-3 inline-block text-blue-600 font-bold hover:underline" %>
+              </div>
+            <% end %>
+          </div>
+
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-white p-12 rounded-3xl shadow-sm border border-gray-200 text-center">
+      <span class="text-6xl block mb-6">🤸‍♀️</span>
+      <h2 class="text-2xl font-bold text-gray-900 mb-3">Willkommen im Familien-Profil!</h2>
+      <p class="text-gray-500 mb-8 max-w-md mx-auto text-lg">Du hast noch keine Kinder in deinem Profil hinterlegt. Erfasse jetzt dein erstes Kind, um es für das Training anzumelden.</p>
+      <%= link_to "+ Neues Kind erfassen", new_participant_path, class: "inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-sm transition text-lg" %>
+    </div>
+  <% end %>
+
+</div>

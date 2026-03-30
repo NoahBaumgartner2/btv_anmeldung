@@ -1,15 +1,10 @@
 class ParticipantsController < ApplicationController
   before_action :set_participant, only: %i[ show edit update destroy ]
   before_action :authenticate_user! # Muss eingeloggt sein
-  before_action :authorize_admin!   # MUSS Admin sein!
 # GET /participants or /participants.json
-def index
-    if params[:query].present?
-      # ILIKE ist der Postgres-Befehl für eine Groß-/Kleinschreibung-unabhängige Suche
-      @participants = Participant.where("first_name ILIKE ? OR last_name ILIKE ?", "%#{params[:query]}%", "%#{params[:query]}%")
-    else
-      @participants = Participant.all
-    end
+  def index
+    # Lädt NUR die eigenen Kinder, nicht alle!
+    @participants = current_user.participants
   end
 
   # GET /participants/1 or /participants/1.json
