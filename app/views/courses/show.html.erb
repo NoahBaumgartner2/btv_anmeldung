@@ -7,16 +7,23 @@
         <%= @course.registration_type.presence || "Kurs" %>
       </span>
     </div>
+
     <div class="flex flex-wrap gap-3 w-full md:w-auto">
-      <%= link_to "Zurück zur Übersicht", courses_path, class: "flex-1 md:flex-none text-center bg-white py-3 px-6 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
+      <%= link_to "Zurück", courses_path, class: "flex-1 md:flex-none text-center bg-white py-3 px-6 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
 
-      <% bestaetigte_plaetze = @course.course_registrations.where(status: 'bestätigt').count %>
-      <% is_full = @course.max_participants.present? && bestaetigte_plaetze >= @course.max_participants %>
-
-      <% if is_full %>
-        <%= link_to "Auf die Warteliste setzen", new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-orange-500 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-orange-600 transition" %>
+      <% if @course.registration_mode == 'single_session' %>
+        <a href="#termine" class="flex-1 md:flex-none text-center bg-purple-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-purple-700 transition">
+          👇 Termin auswählen
+        </a>
       <% else %>
-        <%= link_to "Jetzt anmelden", new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-green-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-green-700 transition" %>
+        <% bestaetigte_plaetze = @course.course_registrations.where(status: 'bestätigt').count %>
+        <% is_full = @course.max_participants.present? && bestaetigte_plaetze >= @course.max_participants %>
+
+        <% if is_full %>
+          <%= link_to "Auf die Warteliste", new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-orange-500 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-orange-600 transition" %>
+        <% else %>
+          <%= link_to "Jetzt anmelden", new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-green-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-green-700 transition" %>
+        <% end %>
       <% end %>
     </div>
   </div>
@@ -25,7 +32,6 @@
     <h2 class="text-xl font-bold text-gray-900 border-b border-gray-100 pb-4 mb-6">Details zum Kurs</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-
       <div class="md:col-span-2">
         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Beschreibung</p>
         <p class="text-gray-800 leading-relaxed text-lg"><%= @course.description.presence || "Für diesen Kurs ist keine weitere Beschreibung verfügbar." %></p>
@@ -58,17 +64,92 @@
           </li>
         </ul>
       </div>
-
     </div>
   </div>
 
-  <% if current_user&.admin? %>
-    <div class="mt-8 text-center">
-      <%= link_to "⚙️ Kurs als Admin bearbeiten", edit_course_path(@course), class: "text-sm font-medium text-gray-400 hover:text-gray-700 transition" %>
+  <% if @course.registration_mode == 'single_session' %>
+    <div id="termine" class="mt-8 bg-purple-50 p-8 rounded-3xl border border-purple-200 shadow-sm scroll-mt-6">
+      <h2 class="text-2xl font-extrabold text-purple-900 mb-6 flex items-center gap-2">
+        <span>📅</span> Wähle deinen Termin
+      </h2>
+
+      <% if @course.training_sessions.any? %>
+        <div class="bg-white rounded-2xl border border-purple-100 overflow-hidden shadow-sm">
+          <ul class="divide-y divide-gray-100">
+            <% @course.training_sessions.order(:start_time).each do |session| %>
+              <li class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-purple-50/50 transition">
+                <div>
+                  <p class="font-bold text-gray-900 text-lg">
+                    <%= session.start_time ? session.start_time.strftime("%A, %d.%m.%Y") : "Datum ausstehend" %>
+                  </p>
+                  <p class="text-sm font-medium text-purple-600 mt-1">
+                    ⏰ <%= session.start_time ? session.start_time.strftime("%H:%M") : "--:--" %> Uhr
+                    <span class="text-gray-400 mx-2">|</span>
+                    📍 <%= @course.location %>
+                  </p>
+                </div>
+
+                <div>
+                  <%= link_to "Dafür anmelden", new_course_registration_path(course_id: @course.id, training_session_id: session.id), class: "block w-full sm:w-auto bg-purple-600 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-purple-700 transition text-sm text-center shadow-sm whitespace-nowrap" %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% else %>
+        <div class="text-center py-8 bg-white rounded-2xl border border-purple-100 border-dashed">
+          <p class="text-purple-700 text-sm font-medium">Momentan sind keine Termine für diesen Kurs verfügbar.</p>
+        </div>
+      <% end %>
     </div>
   <% end %>
 
-<% if user_signed_in? && @course.has_ticketing %>
+
+  <% if user_signed_in? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
+    <div class="mt-8 bg-blue-50/50 p-8 rounded-3xl border border-blue-100">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-extrabold text-blue-900 flex items-center gap-2">
+          <span>👨‍🏫</span> Trainer & Admin Bereich
+        </h2>
+
+        <div class="flex gap-2">
+          <% if current_user.admin? %>
+            <%= link_to "⚙️ Kurs bearbeiten", edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition" %>
+          <% end %>
+
+          <%= link_to "➕ Neue Session", new_training_session_path(course_id: @course.id), class: "bg-blue-600 text-white text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-blue-700 transition" %>
+        </div>
+      </div>
+
+      <% if @course.training_sessions.any? %>
+        <div class="bg-white rounded-2xl border border-blue-100 overflow-hidden shadow-sm">
+          <ul class="divide-y divide-gray-100">
+            <% @course.training_sessions.order(:start_time).each do |session| %>
+              <li class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 transition">
+                <div>
+                  <p class="font-bold text-gray-900">
+                    <%= session.start_time ? session.start_time.strftime("%d.%m.%Y - %H:%M") + " Uhr" : "Datum ausstehend" %>
+                  </p>
+                  <p class="text-sm text-gray-500"><%= @course.location.presence || "Kein spezifischer Ort" %></p>
+                </div>
+
+                <div class="flex gap-2">
+                  <%= link_to '📸 Präsenzkontrolle öffnen', scanner_training_session_path(session), class: "bg-indigo-100 text-indigo-700 font-bold py-2 px-4 rounded-xl hover:bg-indigo-200 transition text-sm flex-1 sm:flex-none text-center" %>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% else %>
+        <div class="text-center py-6 bg-white rounded-2xl border border-blue-100 border-dashed">
+          <p class="text-blue-700 text-sm font-medium">Noch keine Trainings-Sessions geplant.</p>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+
+  <% if user_signed_in? && @course.has_ticketing %>
     <% my_registrations = @course.course_registrations.joins(:participant).where(participants: { user_id: current_user.id }, status: 'bestätigt') %>
 
     <% if my_registrations.any? %>
@@ -86,7 +167,7 @@
                   <%= generate_qr_code(scan_course_registration_url(reg)) %>
                 </div>
                 <p class="text-xs text-purple-600 font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1">
-                  <span></span> Ticket vergrößern
+                  Ticket vergrößern
                 </p>
               </div>
 
@@ -110,4 +191,5 @@
       </div>
     <% end %>
   <% end %>
+
 </div>

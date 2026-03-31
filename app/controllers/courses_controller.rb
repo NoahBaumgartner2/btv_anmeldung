@@ -1,6 +1,6 @@
 class CoursesController < ApplicationController
   # Für neue Kurse oder Bearbeitung MUSS man Admin sein
-  before_action :authorize_admin!, except: [:index, :show]
+  before_action :authorize_admin!, except: [:index, :show, :manage]
   # GET /courses or /courses.json
   before_action :authorize_trainer!, only: [:manage]
   before_action :set_course, only: %i[ show edit update destroy generate_trainings create_generated_trainings manage ]
