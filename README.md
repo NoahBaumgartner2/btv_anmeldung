@@ -85,3 +85,11 @@ erDiagram
 ```
 
 ![ER-Diagramm](/Documentation/Bildschirmfoto%202026-03-29%20um%2017.46.59.png)
+
+
+TODO
+
+- Abmeldungen von Eltern aus
+- Abmeldungen von Trainings Trainer/Admin durch E-Mail benachrichtigt
+- Reminder zur anwesenheitsontrolle an Trainer
+- Falls intevall grösser als x dann Mail an Admin

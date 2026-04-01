@@ -5,8 +5,8 @@
       <p class="text-gray-500 mt-2">Willkommen, Boss! Hier steuerst du den gesamten Verein.</p>
     </div>
     <div class="flex gap-3">
-      <%= link_to "👥 Trainer verwalten", trainers_path, class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm font-bold text-gray-700 hover:bg-gray-50" %>
-      <%= link_to "🌴 Ferien verwalten", holidays_path, class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm font-bold text-gray-700 hover:bg-gray-50" %>
+      <%= link_to "Trainer verwalten", trainers_path, class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm font-bold text-gray-700 hover:bg-gray-50" %>
+      <%= link_to "Ferien verwalten", holidays_path, class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm font-bold text-gray-700 hover:bg-gray-50" %>
       <%= link_to "+ Neuer Kurs", new_course_path, class: "bg-red-600 text-white py-2 px-4 rounded-lg shadow-sm font-bold hover:bg-red-700" %>
     </div>
   </div>
@@ -28,7 +28,7 @@
             <td class="py-4 px-4 text-sm text-gray-500"><%= course.registration_type %></td>
             <td class="py-4 px-4 text-sm font-medium text-blue-600"><%= course.course_registrations.count %> Kinder</td>
             <td class="py-4 px-4 text-right">
-              <%= link_to "Verwalten ⚙️", manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md" %>
+              <%= link_to "Verwalten", manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md" %>
             </td>
           </tr>
         <% end %>
@@ -43,7 +43,7 @@
       </div>
 
       <button disabled class="bg-gray-100 text-gray-400 py-2 px-4 rounded-lg shadow-sm font-bold border border-gray-200 cursor-not-allowed flex items-center gap-2">
-        <span>📥</span> Exportieren (Bald verfügbar)
+        <span></span> Exportieren (Bald verfügbar)
       </button>
     </div>
 

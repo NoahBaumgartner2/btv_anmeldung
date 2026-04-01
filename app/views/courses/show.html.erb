@@ -45,7 +45,7 @@
             <span><%= @course.location.presence || "Ort noch unbekannt" %></span>
           </li>
           <li class="flex items-start">
-            <span class="mr-3 text-xl">🗓️</span>
+            <span class="mr-3 text-xl"></span>
             <span><%= @course.start_date&.strftime("%d.%m.%Y") %> – <%= @course.end_date&.strftime("%d.%m.%Y") %></span>
           </li>
         </ul>
@@ -55,11 +55,11 @@
         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Informationen zur Anmeldung</p>
         <ul class="space-y-4 text-gray-900 font-medium">
           <li class="flex items-start">
-            <span class="mr-3 text-xl"><%= @course.registration_mode == 'single_session' ? "🎟️" : "📅" %></span>
+            <span class="mr-3 text-xl"><%= @course.registration_mode == 'single_session' ? "" : "" %></span>
             <span><%= @course.registration_mode == 'single_session' ? "Einzel-Anmeldung (Drop-In)" : "Semester-Anmeldung (Einmalig)" %></span>
           </li>
           <li class="flex items-start">
-            <span class="mr-3 text-xl"><%= @course.has_payment ? "💰" : "🆓" %></span> 
+            <span class="mr-3 text-xl"><%= @course.has_payment ? "" : "" %></span> 
             <span><%= @course.has_payment ? "Kostenpflichtiger Kurs" : "Kostenlos" %></span>
           </li>
         </ul>
@@ -70,7 +70,7 @@
   <% if @course.registration_mode == 'single_session' %>
     <div id="termine" class="mt-8 bg-purple-50 p-8 rounded-3xl border border-purple-200 shadow-sm scroll-mt-6">
       <h2 class="text-2xl font-extrabold text-purple-900 mb-6 flex items-center gap-2">
-        <span>📅</span> Wähle deinen Termin
+        <span></span> Wähle deinen Termin
       </h2>
 
       <% if @course.training_sessions.any? %>
@@ -83,7 +83,7 @@
                     <%= session.start_time ? session.start_time.strftime("%A, %d.%m.%Y") : "Datum ausstehend" %>
                   </p>
                   <p class="text-sm font-medium text-purple-600 mt-1">
-                    ⏰ <%= session.start_time ? session.start_time.strftime("%H:%M") : "--:--" %> Uhr
+                     <%= session.start_time ? session.start_time.strftime("%H:%M") : "--:--" %> Uhr
                     <span class="text-gray-400 mx-2">|</span>
                     📍 <%= @course.location %>
                   </p>
@@ -109,7 +109,7 @@
     <div class="mt-8 bg-blue-50/50 p-8 rounded-3xl border border-blue-100">
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-extrabold text-blue-900 flex items-center gap-2">
-          <span>👨‍🏫</span> Trainer & Admin Bereich
+          <span></span> Trainer & Admin Bereich
         </h2>
 
         <div class="flex gap-2">
@@ -134,7 +134,7 @@
                 </div>
 
                 <div class="flex gap-2">
-                  <%= link_to '📸 Präsenzkontrolle öffnen', scanner_training_session_path(session), class: "bg-indigo-100 text-indigo-700 font-bold py-2 px-4 rounded-xl hover:bg-indigo-200 transition text-sm flex-1 sm:flex-none text-center" %>
+                  <%= link_to 'Präsenzkontrolle öffnen', scanner_training_session_path(session), class: "bg-indigo-100 text-indigo-700 font-bold py-2 px-4 rounded-xl hover:bg-indigo-200 transition text-sm flex-1 sm:flex-none text-center" %>
                 </div>
               </li>
             <% end %>
