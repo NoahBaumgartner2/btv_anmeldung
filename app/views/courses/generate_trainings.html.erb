@@ -1,0 +1,28 @@
+<div class="max-w-xl mx-auto mt-10">
+  <div class="mb-6">
+    <h1 class="font-bold text-3xl text-gray-900">Trainings generieren</h1>
+    <p class="text-gray-500 mt-2">Kurs: <strong><%= @course.title %></strong> (<%= @course.start_date&.strftime("%d.%m.%y") %> - <%= @course.end_date&.strftime("%d.%m.%y") %>)</p>
+  </div>
+
+  <%= form_with url: create_generated_trainings_course_path(@course), method: :post, class: "bg-white p-6 rounded-xl shadow-sm border border-gray-200" do |f| %>
+
+    <div class="mb-4">
+      <%= f.label :day_of_week, "An welchem Wochentag findet das Training statt?", class: "block text-sm font-bold text-gray-700 mb-2" %>
+      <%= f.select :day_of_week, options_for_select([['Montag', 1], ['Dienstag', 2], ['Mittwoch', 3], ['Donnerstag', 4], ['Freitag', 5], ['Samstag', 6], ['Sonntag', 0]]), {}, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white" %>
+    </div>
+
+    <div class="mb-8">
+      <%= f.label :start_time, "Uhrzeit", class: "block text-sm font-bold text-gray-700 mb-2" %>
+      <%= f.time_field :start_time, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", required: true %>
+    </div>
+
+    <div class="flex justify-end gap-3">
+      <%= link_to "Abbrechen", course_path(@course), class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition" %>
+      <%= f.submit "Jetzt generieren 🚀", class: "cursor-pointer bg-blue-600 py-2 px-4 rounded-md shadow-sm text-sm font-bold text-white hover:bg-blue-700 transition" %>
+    </div>
+  <% end %>
+
+  <div class="mt-4 p-4 bg-yellow-50 text-yellow-800 text-sm rounded-lg border border-yellow-200">
+    <strong>Hinweis:</strong> Das System prüft automatisch die Tabelle "Ferien" und wird an Ferientagen keine Trainings eintragen!
+  </div>
+</div>

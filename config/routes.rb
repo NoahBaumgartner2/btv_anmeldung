@@ -1,14 +1,33 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  # NEU: Die Routen für unsere Dashboards
+  get 'dashboards/admin'
+  get 'dashboards/trainer'
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  resources :trainers
+  resources :holidays
+  resources :participants
+  
+  resources :courses do
+    member do
+      get :generate_trainings
+      post :create_generated_trainings
+      get :manage # NEU: Der Maschinenraum für einen einzelnen Kurs!
+    end
+  end
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  resources :course_registrations do
+    member do
+      get :scan # NEU: Der geheime Link zum Scannen des Tickets!
+    end
+  end
+  
+  resources :training_sessions do
+    member do
+      post :toggle_attendance
+      get :scanner # NEU: Die Route für den Kamera-Modus
+    end
+  end
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  devise_for :users
+  root "courses#index"
 end

@@ -1,0 +1,23 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  description: MyText
+  location: MyString
+  start_date: 2026-03-16 12:54:10
+  end_date: 2026-03-16 12:54:10
+  allows_holiday_deduction: false
+  registration_type: MyString
+  has_ticketing: false
+  has_payment: false
+
+two:
+  title: MyString
+  description: MyText
+  location: MyString
+  start_date: 2026-03-16 12:54:10
+  end_date: 2026-03-16 12:54:10
+  allows_holiday_deduction: false
+  registration_type: MyString
+  has_ticketing: false
+  has_payment: false

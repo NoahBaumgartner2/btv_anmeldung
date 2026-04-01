@@ -1,0 +1,63 @@
+<div class="max-w-4xl mx-auto mt-10 w-full mb-16">
+
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+      <h1 class="font-bold text-3xl text-gray-900">Ferien & Sperrdaten</h1>
+      <p class="text-gray-500 mt-1">Verwalte hier die Zeiten, in denen generell kein Training stattfindet.</p>
+    </div>
+    <%= link_to "+ Neue Ferien erfassen", new_holiday_path, class: "bg-red-600 py-2 px-4 shadow-sm text-sm font-bold rounded-md text-white hover:bg-red-700 transition" %>
+  </div>
+
+  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Titel</th>
+          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Zeitraum</th>
+          <th scope="col" class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktionen</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 bg-white">
+        <% if @holidays.any? %>
+          <% @holidays.order(start_date: :asc).each do |holiday| %>
+            <tr class="hover:bg-gray-50 transition duration-150">
+
+              <td class="py-4 px-4 whitespace-nowrap">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 h-8 w-8 bg-red-100 rounded-full flex items-center justify-center text-red-600 mr-3">
+                    🌴
+                  </div>
+                  <div class="text-sm font-bold text-gray-900">
+                    <%= holiday.title %>
+                  </div>
+                </div>
+              </td>
+
+              <td class="py-4 px-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                <%= holiday.start_date&.strftime("%d.%m.%Y") %> – <%= holiday.end_date&.strftime("%d.%m.%Y") %>
+              </td>
+
+              <td class="py-4 px-4 whitespace-nowrap text-right text-sm font-medium">
+                <%= link_to "Bearbeiten", edit_holiday_path(holiday), class: "text-blue-600 hover:text-blue-900 mr-4" %>
+                <%= button_to "Löschen", holiday, method: :delete, data: { turbo_confirm: "Wirklich löschen?" }, class: "inline-block text-red-500 hover:text-red-700 cursor-pointer font-bold" %>
+              </td>
+
+            </tr>
+          <% end %>
+        <% else %>
+          <tr>
+            <td colspan="3" class="py-12 text-center text-sm text-gray-500">
+              <span class="block text-3xl mb-2">📅</span>
+              Es sind noch keine Ferien eingetragen.<br>
+              Der Trainings-Generator wird aktuell keine Daten überspringen.
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="mt-6 p-4 bg-blue-50 text-blue-800 text-sm rounded-lg border border-blue-200">
+    <strong>Hinweis:</strong> Wenn du hier neue Ferien anlegst, werden diese in Zukunft vom <em>Trainings-Generator</em> bei allen Kursen automatisch erkannt und ausgelassen.
+  </div>
+</div>

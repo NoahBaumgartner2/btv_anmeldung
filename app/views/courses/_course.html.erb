@@ -1,0 +1,38 @@
+<div id="<%= dom_id course %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Title:</strong>
+    <%= course.title %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Description:</strong>
+    <%= course.description %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Location:</strong>
+    <%= course.location %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Start date:</strong>
+    <%= course.start_date %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">End date:</strong>
+    <%= course.end_date %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Allows holiday deduction:</strong>
+    <%= course.allows_holiday_deduction? ? "Yes" : "No" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Registration type:</strong>
+    <%= course.registration_type %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Has ticketing:</strong>
+    <%= course.has_ticketing? ? "Yes" : "No" %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Has payment:</strong>
+    <%= course.has_payment? ? "Yes" : "No" %>
+  </div>
+</div>

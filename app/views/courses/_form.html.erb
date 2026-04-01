@@ -1,0 +1,115 @@
+<%= form_with(model: course, class: "contents") do |form| %>
+  <% if course.errors.any? %>
+    <div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg mb-6 border border-red-200">
+      <h2><%= pluralize(course.errors.count, "Fehler") %> verhinderten das Speichern:</h2>
+      <ul class="list-disc ml-5 mt-2 text-sm">
+        <% course.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 mb-8 space-y-8">
+
+    <div>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">1. Benennung & Kategorie</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <%= form.label :registration_type, "Kategorie / Oberbegriff (z.B. Kids Gym)", class: "block text-sm font-bold text-gray-700 mb-2" %>
+          <%= form.text_field :registration_type, placeholder: "z.B. Kids Gym, Krabbel Gym...", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+          <p class="text-xs text-gray-500 mt-1">Kurse mit der gleichen Kategorie werden auf der Startseite gruppiert.</p>
+        </div>
+        <div>
+          <%= form.label :title, "Durchführung / Termin (z.B. Mittwoch Morgen)", class: "block text-sm font-bold text-gray-700 mb-2" %>
+          <%= form.text_field :title, placeholder: "z.B. Mittwoch 09:00 - 10:00", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <%= form.label :description, "Kursbeschreibung", class: "block text-sm font-bold text-gray-700 mb-2" %>
+        <%= form.text_area :description, rows: 3, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">2. Zeitraum & Ort</h3>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div>
+          <%= form.label :start_date, "Startdatum", class: "block text-sm font-bold text-gray-700 mb-2" %>
+          <%= form.date_field :start_date, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= form.label :end_date, "Enddatum", class: "block text-sm font-bold text-gray-700 mb-2" %>
+          <%= form.date_field :end_date, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= form.label :location, "Ort / Halle", class: "block text-sm font-bold text-gray-700 mb-2" %>
+          <%= form.text_field :location, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" %>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">3. Anmeldemodus & Kapazität</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-blue-50 p-5 rounded-xl border border-blue-100">
+        <div>
+          <%= form.label :registration_mode, "Wie melden sich die Kinder an?", class: "block text-sm font-bold text-blue-900 mb-2" %>
+          <%= form.select :registration_mode, [
+            ['Für das gesamte Semester (Einmalige Anmeldung)', 'semester'], 
+            ['Für jedes Training einzeln (Drop-In / Krabbel Gym)', 'single_session']
+          ], { prompt: "Bitte wählen..." }, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white" %>
+        </div>
+        <div>
+          <%= form.label :max_participants, "Maximale Teilnehmerzahl", class: "block text-sm font-bold text-blue-900 mb-2" %>
+          <%= form.number_field :max_participants, min: 1, placeholder: "z.B. 20", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white" %>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">4. Trainer-Zuweisung</h3>
+      <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+        <p class="text-sm text-gray-600 mb-4">Wähle aus, welche Trainer diesen Kurs in ihrem Dashboard sehen und verwalten dürfen:</p>
+
+        <% if Trainer.any? %>
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            <%= form.collection_check_boxes(:trainer_ids, Trainer.includes(:user).all, :id, ->(t) { t.user.email }) do |b| %>
+              <div class="flex items-center bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm hover:border-blue-400 transition">
+                <%= b.check_box class: "h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" %>
+                <%= b.label class: "ml-3 text-sm font-bold text-gray-700 cursor-pointer w-full" do %>
+                  <%= b.text %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-sm text-red-600 font-medium">
+            Es wurden noch keine Trainer im System angelegt.
+            <%= link_to "Klicke hier", new_trainer_path, class: "underline hover:text-red-800" %>, um deinen ersten Trainer zu erstellen.
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">5. Weitere Einstellungen</h3>
+      <div class="space-y-4">
+        <div class="flex items-center">
+          <%= form.check_box :has_payment, class: "h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" %>
+          <%= form.label :has_payment, "Dieser Kurs ist kostenpflichtig", class: "ml-3 text-sm font-bold text-gray-800 cursor-pointer" %>
+        </div>
+        <div class="flex items-center">
+          <%= form.check_box :has_ticketing, class: "h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" %>
+          <%= form.label :has_ticketing, "Ticketing / QR-Codes für diesen Kurs aktivieren", class: "ml-3 text-sm font-bold text-gray-800 cursor-pointer" %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="flex justify-end gap-3">
+    <%= link_to "Abbrechen", courses_path, class: "bg-white py-2.5 px-5 border border-gray-300 rounded-lg shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
+    <%= form.submit "Kurs speichern", class: "cursor-pointer inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-blue-600 hover:bg-blue-700 transition" %>
+  </div>
+<% end %>

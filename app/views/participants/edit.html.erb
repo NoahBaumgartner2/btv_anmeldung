@@ -1,0 +1,8 @@
+<div class="max-w-3xl mx-auto w-full">
+  <div class="mb-6">
+    <h1 class="font-bold text-3xl text-gray-800">Teilnehmer bearbeiten</h1>
+    <p class="text-gray-500 text-sm mt-1">Passe die persönlichen Daten von <%= @participant.first_name %> an.</p>
+  </div>
+
+  <%= render "form", participant: @participant %>
+</div>

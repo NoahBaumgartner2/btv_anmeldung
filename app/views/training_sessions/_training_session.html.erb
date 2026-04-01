@@ -1,0 +1,18 @@
+<div id="<%= dom_id training_session %>" class="w-full sm:w-auto my-5 space-y-5">
+  <div>
+    <strong class="block font-medium mb-1">Course:</strong>
+    <%= training_session.course_id %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Start time:</strong>
+    <%= training_session.start_time %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">End time:</strong>
+    <%= training_session.end_time %>
+  </div>
+  <div>
+    <strong class="block font-medium mb-1">Is canceled:</strong>
+    <%= training_session.is_canceled? ? "Yes" : "No" %>
+  </div>
+</div>
