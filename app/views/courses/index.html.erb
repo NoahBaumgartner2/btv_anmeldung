@@ -1,97 +1,136 @@
-<div class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-10 mb-16">
+<% content_for :title, "Kursangebot" %>
 
-  <div class="flex justify-between items-center mb-12">
+<div class="max-w-5xl mx-auto w-full px-4 sm:px-6 mt-10 mb-16">
+
+  <%# ── Header ─────────────────────────────────────────────────────────── %>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
     <div>
-      <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">Kursangebot</h1>
-      <p class="text-gray-500 mt-2 text-lg">Wähle die passende Kategorie für dein Kind.</p>
+      <h1 class="text-3xl font-extrabold text-gray-900 tracking-tight">Kursangebot</h1>
+      <p class="text-gray-500 mt-1">Wähle die passende Kategorie und melde dich direkt an.</p>
     </div>
-
     <% if current_user&.admin? %>
-      <%= link_to "+ Neuen Kurs erstellen", new_course_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition" %>
+      <%= link_to "+ Neuen Kurs erstellen", new_course_path,
+            class: "shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition text-sm" %>
     <% end %>
   </div>
 
-  <% @courses.group_by { |c| c.title.split('(').first.strip }.sort.each do |category, courses_in_category| %>
+  <%# ── Kategorien ──────────────────────────────────────────────────────── %>
+  <% if @courses.any? %>
+    <% @courses.group_by { |c| c.title.split("(").first.strip }.sort.each do |category, courses_in_category| %>
 
-    <details class="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-6 [&_summary::-webkit-details-marker]:hidden">
+      <details class="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">
 
-      <summary class="flex cursor-pointer items-center justify-between bg-blue-50 px-6 py-5 border-b border-transparent group-open:border-blue-100 transition-colors hover:bg-blue-100/50">
-
-        <div class="flex items-center gap-4">
-          <span class="text-blue-600 transition duration-300 group-open:-rotate-180">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-            </svg>
-          </span>
-
-          <div>
-            <h2 class="text-2xl font-extrabold text-blue-900"><%= category %></h2>
-            <p class="text-blue-700 text-sm mt-0.5 group-open:hidden">Klicken, um Termine anzuzeigen</p>
-            <p class="text-blue-700 text-sm mt-0.5 hidden group-open:block">Wähle deinen bevorzugten Termin aus.</p>
+        <summary class="flex cursor-pointer items-center justify-between px-5 py-4 hover:bg-gray-50 transition select-none">
+          <div class="flex items-center gap-3">
+            <span class="text-gray-400 transition-transform duration-200 group-open:rotate-90">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-4 w-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </span>
+            <div>
+              <h2 class="text-base font-bold text-gray-900"><%= category %></h2>
+              <p class="text-xs text-gray-400 mt-0.5">
+                <%= courses_in_category.count %> <%= courses_in_category.count == 1 ? "Termin verfügbar" : "Termine verfügbar" %>
+              </p>
+            </div>
           </div>
-        </div>
 
-        <span class="bg-blue-200 text-blue-800 py-1.5 px-4 rounded-full text-sm font-bold whitespace-nowrap">
-          <%= courses_in_category.count %> <%= courses_in_category.count == 1 ? 'Option' : 'Optionen' %>
-        </span>
-      </summary>
+          <%# Schnell-Info: Orte in dieser Kategorie %>
+          <div class="hidden sm:flex items-center gap-3 mr-4">
+            <% locations = courses_in_category.map(&:location).compact.uniq.first(2) %>
+            <% locations.each do |loc| %>
+              <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2.5 py-1 rounded-full"><%= loc %></span>
+            <% end %>
+            <% if courses_in_category.map(&:location).compact.uniq.size > 2 %>
+              <span class="text-xs text-gray-400">+<%= courses_in_category.map(&:location).compact.uniq.size - 2 %> weitere</span>
+            <% end %>
+          </div>
+        </summary>
 
-      <div class="divide-y divide-gray-100 border-t border-blue-100 group-open:animate-fadeIn">
-        <% courses_in_category.each do |course| %>
-          <div class="p-6 hover:bg-gray-50 transition flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <%# Kurs-Zeilen %>
+        <div class="border-t border-gray-100">
+          <% courses_in_category.each_with_index do |course, i| %>
+            <%
+              confirmed_count = course.course_registrations.count { |r| r.status == "bestätigt" }
+              total_count     = course.course_registrations.size
+              is_full         = course.max_participants.present? && confirmed_count >= course.max_participants
+              is_single       = course.registration_mode == "single_session"
+            %>
 
-            <div class="flex-grow">
-              <h3 class="text-xl font-bold text-gray-900"><%= course.title %></h3>
-              <p class="text-gray-500 text-sm mt-1 line-clamp-2"><%= course.description %></p>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-5 py-4
+                        <%= i < courses_in_category.size - 1 ? "border-b border-gray-100" : "" %>
+                        hover:bg-gray-50 transition">
 
-              <div class="mt-3 flex flex-wrap gap-4 text-sm text-gray-600 font-medium">
-                <div class="flex items-center bg-gray-100 px-2 py-1 rounded">
-                  <span class="mr-2">📍</span> <%= course.location.presence || "Ort unbekannt" %>
+              <%# Linke Seite: Titel + Metadaten %>
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <h3 class="font-semibold text-gray-900 text-sm"><%= course.title %></h3>
+
+                  <% if is_single %>
+                    <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-2 py-0.5 rounded-full">Drop-In</span>
+                  <% end %>
+
+                  <% if is_full %>
+                    <span class="inline-block bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">Ausgebucht</span>
+                  <% end %>
                 </div>
 
-                <% if course.registration_mode == 'single_session' %>
-                  <div class="flex items-center bg-purple-50 text-purple-700 px-2 py-1 rounded border border-purple-100">
-                    <span class="mr-2">🎟️</span> Einzelanmeldung (Drop-In)
-                  </div>
+                <p class="text-xs text-gray-400 font-medium flex flex-wrap items-center gap-x-2">
+                  <% if course.location.present? %>
+                    <span><%= course.location %></span>
+                    <span class="text-gray-300">·</span>
+                  <% end %>
+                  <% if is_single %>
+                    <span>Einzeltermine, jederzeit einsteigen</span>
+                  <% elsif course.start_date && course.end_date %>
+                    <span><%= course.start_date.strftime("%-d. %b %Y") %> – <%= course.end_date.strftime("%-d. %b %Y") %></span>
+                  <% end %>
+                  <% if course.max_participants.present? %>
+                    <span class="text-gray-300">·</span>
+                    <span class="<%= is_full ? "text-orange-600 font-semibold" : "text-gray-400" %>">
+                      <%= confirmed_count %> / <%= course.max_participants %> Plätze
+                    </span>
+                  <% elsif !is_single %>
+                    <span class="text-gray-300">·</span>
+                    <span><%= confirmed_count %> Anmeldung<%= confirmed_count == 1 ? "" : "en" %></span>
+                  <% end %>
+                </p>
+              </div>
+
+              <%# Rechte Seite: Aktionen %>
+              <div class="flex items-center gap-2 shrink-0">
+                <% if current_user&.admin? %>
+                  <%= link_to "Verwalten", manage_course_path(course),
+                        class: "text-xs font-bold text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition" %>
+                <% end %>
+
+                <% if is_single %>
+                  <%= link_to "Termine ansehen", course_path(course),
+                        class: "text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-lg transition shadow-sm" %>
+                <% elsif is_full %>
+                  <%= link_to "Details", course_path(course),
+                        class: "text-xs font-bold bg-white border border-gray-300 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition" %>
+                  <%= link_to "Warteliste", new_course_registration_path(course_id: course.id),
+                        class: "text-xs font-bold bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded-lg transition shadow-sm" %>
                 <% else %>
-                  <div class="flex items-center bg-gray-100 px-2 py-1 rounded">
-                    <span class="mr-2"></span> <%= course.start_date&.strftime("%d.%m.%y") %> – <%= course.end_date&.strftime("%d.%m.%y") %>
-                  </div>
+                  <%= link_to "Details", course_path(course),
+                        class: "text-xs font-bold bg-white border border-gray-300 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition" %>
+                  <%= link_to "Anmelden", new_course_registration_path(course_id: course.id),
+                        class: "text-xs font-bold bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg transition shadow-sm" %>
                 <% end %>
               </div>
+
             </div>
+          <% end %>
+        </div>
 
-            <div class="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-3 min-w-[220px]">
-              <% if course.registration_mode == 'single_session' %>
-                <div class="text-sm font-medium text-purple-600 mb-1">
-                  Datumsspezifische Anmeldung
-                </div>
-                <div class="flex gap-2 w-full">
-                  <%= link_to "Termine ansehen", course_path(course), class: "flex-1 text-center bg-purple-600 text-white py-2 px-4 rounded-lg text-sm font-bold hover:bg-purple-700 transition shadow-sm" %>
-                </div>
-              <% else %>
-                <div class="text-sm font-medium text-gray-500">
-                  Aktuell <span class="font-bold text-gray-900"><%= course.course_registrations.count %></span> Anmeldungen
-                </div>
-                <div class="flex gap-2 w-full">
-                  <%= link_to "Details", course_path(course), class: "flex-1 text-center bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg text-sm font-bold hover:bg-gray-50 transition" %>
-                  <%= link_to "Anmelden", new_course_registration_path(course_id: course.id), class: "flex-1 text-center bg-green-600 text-white py-2 px-4 rounded-lg text-sm font-bold hover:bg-green-700 transition shadow-sm" %>
-                </div>
-              <% end %>
-            </div>
+      </details>
 
-          </div>
-        <% end %>
-      </div>
-
-    </details>
     <% end %>
-
-  <% if @courses.empty? %>
-    <div class="text-center bg-white p-10 rounded-2xl border border-gray-200 shadow-sm">
-      <span class="text-4xl"></span>
-      <h3 class="text-lg font-bold text-gray-900 mt-4">Noch keine Kurse vorhanden</h3>
-      <p class="text-gray-500 mt-1">Sobald Kurse erstellt werden, erscheinen sie hier.</p>
+  <% else %>
+    <div class="bg-white p-12 rounded-2xl border border-gray-200 shadow-sm text-center">
+      <h3 class="text-lg font-bold text-gray-900 mb-1">Noch keine Kurse vorhanden</h3>
+      <p class="text-gray-500 text-sm">Sobald Kurse erstellt werden, erscheinen sie hier.</p>
     </div>
   <% end %>
 

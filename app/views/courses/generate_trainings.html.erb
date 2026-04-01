@@ -1,28 +1,120 @@
-<div class="max-w-xl mx-auto mt-10">
-  <div class="mb-6">
-    <h1 class="font-bold text-3xl text-gray-900">Trainings generieren</h1>
-    <p class="text-gray-500 mt-2">Kurs: <strong><%= @course.title %></strong> (<%= @course.start_date&.strftime("%d.%m.%y") %> - <%= @course.end_date&.strftime("%d.%m.%y") %>)</p>
+<%
+  existing_count   = @course.training_sessions.count
+  course_holidays  = Holiday.where("start_date <= ? AND end_date >= ?", @course.end_date, @course.start_date).order(:start_date)
+
+  weeks_total = @course.start_date && @course.end_date \
+    ? ((@course.end_date.to_date - @course.start_date.to_date) / 7.0).ceil \
+    : nil
+%>
+
+<div class="max-w-2xl mx-auto mt-10 w-full mb-16 px-4">
+
+  <%# ── Header ─────────────────────────────────────────────────────────── %>
+  <div class="mb-8">
+    <%= link_to "← Zurück zum Maschinenraum", manage_course_path(@course),
+          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+    <h1 class="font-extrabold text-3xl text-gray-900 mt-3">Trainings generieren</h1>
+    <p class="text-gray-500 mt-1">Erstelle automatisch alle Einzel-Sessions für diesen Kurs.</p>
   </div>
 
-  <%= form_with url: create_generated_trainings_course_path(@course), method: :post, class: "bg-white p-6 rounded-xl shadow-sm border border-gray-200" do |f| %>
-
-    <div class="mb-4">
-      <%= f.label :day_of_week, "An welchem Wochentag findet das Training statt?", class: "block text-sm font-bold text-gray-700 mb-2" %>
-      <%= f.select :day_of_week, options_for_select([['Montag', 1], ['Dienstag', 2], ['Mittwoch', 3], ['Donnerstag', 4], ['Freitag', 5], ['Samstag', 6], ['Sonntag', 0]]), {}, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white" %>
+  <%# ── Kurs-Kontext ────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-6">
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Kurs-Informationen</p>
+    <h2 class="text-lg font-bold text-gray-900 mb-3"><%= @course.title %></h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+      <div class="bg-gray-50 rounded-lg p-3">
+        <p class="text-xs font-semibold text-gray-500 mb-0.5">Zeitraum</p>
+        <p class="font-bold text-gray-800">
+          <%= @course.start_date&.strftime("%-d. %b %Y") %> –
+          <%= @course.end_date&.strftime("%-d. %b %Y") %>
+        </p>
+      </div>
+      <% if weeks_total %>
+        <div class="bg-gray-50 rounded-lg p-3">
+          <p class="text-xs font-semibold text-gray-500 mb-0.5">Dauer</p>
+          <p class="font-bold text-gray-800">ca. <%= weeks_total %> Wochen</p>
+        </div>
+      <% end %>
+      <div class="bg-gray-50 rounded-lg p-3">
+        <p class="text-xs font-semibold text-gray-500 mb-0.5">Ort</p>
+        <p class="font-bold text-gray-800"><%= @course.location.presence || "—" %></p>
+      </div>
     </div>
 
-    <div class="mb-8">
-      <%= f.label :start_time, "Uhrzeit", class: "block text-sm font-bold text-gray-700 mb-2" %>
-      <%= f.time_field :start_time, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500", required: true %>
+    <% if existing_count > 0 %>
+      <div class="mt-4 bg-orange-50 border border-orange-200 rounded-lg px-4 py-3 text-sm text-orange-800">
+        <strong>Achtung:</strong> Für diesen Kurs existieren bereits <%= existing_count %> Sessions.
+        Daten, für die bereits eine Session besteht, werden automatisch übersprungen.
+      </div>
+    <% end %>
+  </div>
+
+  <%# ── Formular ────────────────────────────────────────────────────────── %>
+  <%= form_with url: create_generated_trainings_course_path(@course), method: :post do |f| %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+
+      <%# Wochentag %>
+      <div>
+        <p class="text-sm font-bold text-gray-700 mb-3">Wochentag</p>
+        <div class="flex gap-2 flex-wrap">
+          <% [["Mo", 1], ["Di", 2], ["Mi", 3], ["Do", 4], ["Fr", 5], ["Sa", 6], ["So", 0]].each do |label, value| %>
+            <label class="cursor-pointer">
+              <%= f.radio_button :day_of_week, value, class: "sr-only peer", id: "day_#{value}" %>
+              <span class="peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600
+                           block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-blue-300
+                           font-bold px-4 py-2.5 rounded-xl text-sm transition select-none w-14 text-center">
+                <%= label %>
+              </span>
+            </label>
+          <% end %>
+        </div>
+      </div>
+
+      <%# Uhrzeit Von / Bis %>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <%= f.label :start_time, "Beginn", class: "block text-sm font-bold text-gray-700 mb-1" %>
+          <%= f.time_field :start_time, required: true,
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+        <div>
+          <%= f.label :end_time, "Ende (optional)", class: "block text-sm font-bold text-gray-700 mb-1" %>
+          <%= f.time_field :end_time,
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+        </div>
+      </div>
+
+      <%# Ferien im Kurszeitraum %>
+      <div>
+        <p class="text-sm font-bold text-gray-700 mb-2">Ferien im Kurszeitraum</p>
+        <% if course_holidays.any? %>
+          <div class="rounded-lg border border-yellow-200 bg-yellow-50 divide-y divide-yellow-100 overflow-hidden">
+            <% course_holidays.each do |holiday| %>
+              <div class="px-4 py-2.5 flex items-center justify-between text-sm">
+                <span class="font-semibold text-yellow-900"><%= holiday.title %></span>
+                <span class="text-yellow-700 font-medium">
+                  <%= holiday.start_date.strftime("%-d. %b") %> – <%= holiday.end_date.strftime("%-d. %b %Y") %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+          <p class="text-xs text-gray-400 mt-2">Diese Daten werden beim Generieren automatisch übersprungen.</p>
+        <% else %>
+          <div class="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-sm text-gray-500">
+            Keine Ferien im Kurszeitraum eingetragen.
+          </div>
+        <% end %>
+      </div>
+
     </div>
 
-    <div class="flex justify-end gap-3">
-      <%= link_to "Abbrechen", course_path(@course), class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition" %>
-      <%= f.submit "Jetzt generieren 🚀", class: "cursor-pointer bg-blue-600 py-2 px-4 rounded-md shadow-sm text-sm font-bold text-white hover:bg-blue-700 transition" %>
+    <%# Aktionen %>
+    <div class="mt-6 flex flex-col sm:flex-row items-center gap-3">
+      <%= f.submit "Trainings jetzt generieren",
+            class: "w-full sm:w-auto cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition text-sm" %>
+      <%= link_to "Abbrechen", manage_course_path(@course),
+            class: "w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl text-sm transition" %>
     </div>
   <% end %>
 
-  <div class="mt-4 p-4 bg-yellow-50 text-yellow-800 text-sm rounded-lg border border-yellow-200">
-    <strong>Hinweis:</strong> Das System prüft automatisch die Tabelle "Ferien" und wird an Ferientagen keine Trainings eintragen!
-  </div>
 </div>

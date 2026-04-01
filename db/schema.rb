@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_30_203422) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_01_195507) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -80,6 +80,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_203422) do
     t.string "phone_number"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["first_name", "last_name", "date_of_birth", "user_id"], name: "index_participants_unique_per_user", unique: true
     t.index ["user_id"], name: "index_participants_on_user_id"
   end
 

@@ -1,55 +1,79 @@
+<% content_for :title, "Ferien & Sperrdaten" %>
+
 <div class="max-w-4xl mx-auto mt-10 w-full mb-16">
 
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
-      <h1 class="font-bold text-3xl text-gray-900">Ferien & Sperrdaten</h1>
-      <p class="text-gray-500 mt-1">Verwalte hier die Zeiten, in denen generell kein Training stattfindet.</p>
+      <h1 class="font-bold text-3xl text-gray-900">Ferien &amp; Sperrdaten</h1>
+      <p class="text-gray-500 mt-1">Zeiten, in denen kein Training stattfindet. Der Trainings-Generator überspringt diese Daten automatisch.</p>
     </div>
-    <%= link_to "+ Neue Ferien erfassen", new_holiday_path, class: "bg-red-600 py-2 px-4 shadow-sm text-sm font-bold rounded-md text-white hover:bg-red-700 transition" %>
+    <%= link_to "+ Neue Ferien erfassen", new_holiday_path,
+          class: "shrink-0 bg-red-600 py-2 px-4 shadow-sm text-sm font-bold rounded-lg text-white hover:bg-red-700 transition" %>
   </div>
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-lg overflow-hidden">
+  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
-          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Titel</th>
+          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Bezeichnung</th>
           <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Zeitraum</th>
+          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
           <th scope="col" class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktionen</th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200 bg-white">
         <% if @holidays.any? %>
-          <% @holidays.order(start_date: :asc).each do |holiday| %>
+          <% @holidays.each do |holiday| %>
+            <%
+              today = Date.today
+              days = holiday.start_date && holiday.end_date ? (holiday.end_date - holiday.start_date).to_i + 1 : nil
+              if holiday.end_date && holiday.end_date < today
+                status_label = "Vergangen"
+                status_class = "bg-gray-100 text-gray-500"
+              elsif holiday.start_date && holiday.start_date <= today && holiday.end_date && holiday.end_date >= today
+                status_label = "Aktuell"
+                status_class = "bg-green-100 text-green-700"
+              else
+                status_label = "Bevorstehend"
+                status_class = "bg-blue-100 text-blue-700"
+              end
+            %>
             <tr class="hover:bg-gray-50 transition duration-150">
 
-              <td class="py-4 px-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0 h-8 w-8 bg-red-100 rounded-full flex items-center justify-center text-red-600 mr-3">
-                    🌴
-                  </div>
-                  <div class="text-sm font-bold text-gray-900">
-                    <%= holiday.title %>
-                  </div>
-                </div>
+              <td class="py-4 px-4">
+                <span class="text-sm font-semibold text-gray-900"><%= holiday.title %></span>
               </td>
 
-              <td class="py-4 px-4 whitespace-nowrap text-sm text-gray-600 font-medium">
-                <%= holiday.start_date&.strftime("%d.%m.%Y") %> – <%= holiday.end_date&.strftime("%d.%m.%Y") %>
+              <td class="py-4 px-4 text-sm text-gray-600">
+                <span class="font-medium">
+                  <%= holiday.start_date&.strftime("%-d. %b %Y") %> – <%= holiday.end_date&.strftime("%-d. %b %Y") %>
+                </span>
+                <% if days %>
+                  <span class="ml-2 text-xs text-gray-400">(<%= days %> Tage)</span>
+                <% end %>
               </td>
 
-              <td class="py-4 px-4 whitespace-nowrap text-right text-sm font-medium">
-                <%= link_to "Bearbeiten", edit_holiday_path(holiday), class: "text-blue-600 hover:text-blue-900 mr-4" %>
-                <%= button_to "Löschen", holiday, method: :delete, data: { turbo_confirm: "Wirklich löschen?" }, class: "inline-block text-red-500 hover:text-red-700 cursor-pointer font-bold" %>
+              <td class="py-4 px-4">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold <%= status_class %>">
+                  <%= status_label %>
+                </span>
+              </td>
+
+              <td class="py-4 px-4 text-right text-sm font-medium whitespace-nowrap">
+                <%= link_to "Bearbeiten", edit_holiday_path(holiday),
+                      class: "text-blue-600 hover:text-blue-800 font-medium mr-3" %>
+                <%= button_to "Löschen", holiday_path(holiday), method: :delete,
+                      data: { turbo_confirm: "«#{holiday.title}» wirklich löschen?" },
+                      class: "text-red-500 hover:text-red-700 font-medium cursor-pointer bg-transparent border-0 p-0" %>
               </td>
 
             </tr>
           <% end %>
         <% else %>
           <tr>
-            <td colspan="3" class="py-12 text-center text-sm text-gray-500">
-              <span class="block text-3xl mb-2">📅</span>
-              Es sind noch keine Ferien eingetragen.<br>
-              Der Trainings-Generator wird aktuell keine Daten überspringen.
+            <td colspan="4" class="py-14 text-center text-sm text-gray-500">
+              <p class="font-medium text-gray-700 mb-1">Noch keine Ferien eingetragen</p>
+              <p class="text-gray-400">Der Trainings-Generator wird aktuell keine Daten überspringen.</p>
             </td>
           </tr>
         <% end %>
@@ -57,7 +81,4 @@
     </table>
   </div>
 
-  <div class="mt-6 p-4 bg-blue-50 text-blue-800 text-sm rounded-lg border border-blue-200">
-    <strong>Hinweis:</strong> Wenn du hier neue Ferien anlegst, werden diese in Zukunft vom <em>Trainings-Generator</em> bei allen Kursen automatisch erkannt und ausgelassen.
-  </div>
 </div>

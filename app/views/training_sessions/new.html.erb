@@ -1,4 +1,32 @@
-<div class="max-w-2xl mx-auto mt-10">
-  <h1 class="font-bold text-3xl text-gray-900 mb-6">Neues Training erfassen</h1>
-  <%= render "form", training_session: @training_session %>
+<% content_for :title, "Training manuell hinzufügen" %>
+
+<div class="max-w-2xl mx-auto mt-10 w-full px-4 mb-16">
+
+  <div class="mb-8">
+    <% if @course %>
+      <%= link_to "← Zurück zum Maschinenraum", manage_course_path(@course),
+            class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+    <% end %>
+    <h1 class="font-extrabold text-3xl text-gray-900 mt-3">Training manuell hinzufügen</h1>
+    <p class="text-gray-500 mt-1">Erstelle eine einzelne Training-Session für diesen Kurs.</p>
+  </div>
+
+  <% if @course %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-6">
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Kurs</p>
+      <p class="font-bold text-gray-900 text-lg"><%= @course.title %></p>
+      <p class="text-sm text-gray-500 mt-0.5">
+        <%= @course.start_date&.strftime("%-d. %b %Y") %> –
+        <%= @course.end_date&.strftime("%-d. %b %Y") %>
+        <% if @course.location.present? %>
+          <span class="mx-1 text-gray-300">|</span><%= @course.location %>
+        <% end %>
+      </p>
+    </div>
+  <% end %>
+
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <%= render "form", training_session: @training_session %>
+  </div>
+
 </div>
