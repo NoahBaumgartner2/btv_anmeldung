@@ -76,7 +76,7 @@
 
   <%# ── Optionale Kontaktdaten ──────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-4">
-    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5">Kontaktdaten <span class="font-normal normal-case text-gray-400">(optional)</span></p>
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5">Kontaktdaten</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
       <div>
@@ -84,7 +84,11 @@
         <%= form.email_field :email,
               placeholder: "name@beispiel.ch",
               autocomplete: "email",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+                      participant.errors[:email].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-blue-500"] %>
+        <% if participant.errors[:email].any? %>
+          <p class="mt-1 text-xs text-red-600"><%= participant.errors[:email].first %></p>
+        <% end %>
       </div>
 
       <div>
@@ -92,7 +96,11 @@
         <%= form.telephone_field :phone_number,
               placeholder: "+41 79 123 45 67",
               autocomplete: "tel",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+                      participant.errors[:phone_number].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-blue-500"] %>
+        <% if participant.errors[:phone_number].any? %>
+          <p class="mt-1 text-xs text-red-600"><%= participant.errors[:phone_number].first %></p>
+        <% end %>
       </div>
     </div>
 

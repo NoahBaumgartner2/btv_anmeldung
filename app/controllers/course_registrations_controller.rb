@@ -5,8 +5,15 @@ class CourseRegistrationsController < ApplicationController
 
   def new
     @course_registration = CourseRegistration.new
+    @my_participants = current_user.participants
+
     if params[:course_id]
-      @course_registration.course_id = params[:course_id]
+      @course = Course.find_by(id: params[:course_id])
+      @course_registration.course_id = @course&.id
+      # Nur Kurse der gleichen Kategorie anzeigen
+      @selectable_courses = @course ? Course.where(registration_type: @course.registration_type).order(:title) : Course.order(:title)
+    else
+      @selectable_courses = Course.order(:title)
     end
   end
 
@@ -18,15 +25,15 @@ class CourseRegistrationsController < ApplicationController
     course = @course_registration.course
 
     # 2. Wie viele BESTÄTIGTE Plätze sind schon weg?
-    bestaetigte_plaetze = course.course_registrations.where(status: 'bestätigt').count
+    bestaetigte_plaetze = course.course_registrations.where(status: "bestätigt").count
 
     # 3. Die Wartelisten-Automatik!
     # Wir prüfen: Hat der Kurs ein Limit? UND Sind schon alle Plätze vergeben?
     if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
-      @course_registration.status = 'warteliste'
+      @course_registration.status = "warteliste"
       erfolgs_nachricht = "Der Kurs ist leider voll. Dein Kind wurde erfolgreich auf die Warteliste gesetzt!"
     else
-      @course_registration.status = 'bestätigt'
+      @course_registration.status = "bestätigt"
       erfolgs_nachricht = "Fantastisch! Dein Kind hat einen festen Platz im Kurs."
     end
 
@@ -39,6 +46,10 @@ class CourseRegistrationsController < ApplicationController
 
   # NEU: Das Formular zum Bearbeiten laden
   def edit
+    course = @course_registration.course
+    @selectable_courses = Course.where(registration_type: course.registration_type).order(:title)
+    @my_participants = current_user.participants
+    @course = course
   end
 
   # NEU: Die Änderungen in der Datenbank speichern
@@ -59,9 +70,9 @@ class CourseRegistrationsController < ApplicationController
 
 def scan
     authorize_trainer!
-    
+
     @registration = CourseRegistration.find(params[:id])
-    
+
     # 1. Wir nehmen EXAKT die Checkliste, aus der der Trainer den Scanner gestartet hat!
     if params[:session_id].present?
       @session = TrainingSession.find(params[:session_id])
@@ -69,21 +80,21 @@ def scan
       # Fallback, falls jemand den Link ohne ID aufruft
       @session = @registration.course.training_sessions.order(start_time: :desc).first
     end
-    
+
     # 2. Kind in dieser Liste abhaken!
     attendance = @session.attendances.find_or_create_by(course_registration_id: @registration.id)
-    
+
     # (Sicherheits-Check: Falls du in der Datenbank ein echtes Feld für den Status hast, aktivieren wir es hier)
     attendance.update(present: true) if attendance.has_attribute?(:present)
-    attendance.update(status: 'present') if attendance.has_attribute?(:status)
-    
+    attendance.update(status: "present") if attendance.has_attribute?(:status)
+
     respond_to do |format|
       format.html { redirect_to @session, notice: "✅ BING! #{@registration.participant.first_name} wurde eingecheckt!" }
-      format.json { 
-        render json: { 
-          success: true, 
-          message: "✅ #{@registration.participant.first_name} ist da!" 
-        } 
+      format.json {
+        render json: {
+          success: true,
+          message: "✅ #{@registration.participant.first_name} ist da!"
+        }
       }
     end
   end

@@ -1,17 +1,20 @@
 <div class="max-w-7xl mx-auto mt-10 mb-16 px-4">
-  <div class="flex justify-between items-end mb-8">
+
+  <%# ── Header ─────────────────────────────────────────────────────────── %>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
     <div>
       <h1 class="text-4xl font-extrabold text-gray-900">Kommandozentrale</h1>
       <p class="text-gray-500 mt-2">Willkommen, Boss! Hier steuerst du den gesamten Verein.</p>
     </div>
-    <div class="flex gap-3">
-      <%= link_to "Trainer verwalten", trainers_path, class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm font-bold text-gray-700 hover:bg-gray-50" %>
-      <%= link_to "Ferien verwalten", holidays_path, class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm font-bold text-gray-700 hover:bg-gray-50" %>
-      <%= link_to "+ Neuer Kurs", new_course_path, class: "bg-red-600 text-white py-2 px-4 rounded-lg shadow-sm font-bold hover:bg-red-700" %>
+    <div class="flex flex-wrap gap-3">
+      <%= link_to "Trainer verwalten", trainers_path, class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm font-bold text-gray-700 hover:bg-gray-50 text-sm" %>
+      <%= link_to "Ferien verwalten", holidays_path, class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm font-bold text-gray-700 hover:bg-gray-50 text-sm" %>
+      <%= link_to "+ Neuer Kurs", new_course_path, class: "bg-red-600 text-white py-2 px-4 rounded-lg shadow-sm font-bold hover:bg-red-700 text-sm" %>
     </div>
   </div>
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
+  <%# ── Kurs-Tabelle ────────────────────────────────────────────────────── %>
+  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden mb-16">
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
@@ -24,66 +27,92 @@
       <tbody class="divide-y divide-gray-200">
         <% @courses.each do |course| %>
           <tr class="hover:bg-gray-50">
-            <td class="py-4 px-4 font-bold text-gray-900"><%= course.title %></td>
+            <td class="py-4 px-4 font-bold text-gray-900 text-sm"><%= course.title %></td>
             <td class="py-4 px-4 text-sm text-gray-500"><%= course.registration_type %></td>
-            <td class="py-4 px-4 text-sm font-medium text-blue-600"><%= course.course_registrations.count %> Kinder</td>
+            <td class="py-4 px-4 text-sm font-medium text-blue-600"><%= course.course_registrations.size %> Teilnehmende</td>
             <td class="py-4 px-4 text-right">
-              <%= link_to "Verwalten", manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md" %>
+              <%= link_to "Verwalten", manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
             </td>
           </tr>
         <% end %>
       </tbody>
     </table>
   </div>
-  <div class="mt-16">
-    <div class="flex justify-between items-end mb-6">
-      <div>
-        <h2 class="text-2xl font-bold text-gray-900">Alle Teilnehmer (<%= @participants.count %>)</h2>
-        <p class="text-gray-500 mt-1 text-sm">Die komplette Datenbank aller im System registrierten Kinder.</p>
-      </div>
 
-      <button disabled class="bg-gray-100 text-gray-400 py-2 px-4 rounded-lg shadow-sm font-bold border border-gray-200 cursor-not-allowed flex items-center gap-2">
-        <span></span> Exportieren (Bald verfügbar)
-      </button>
+  <%# ── Teilnehmer-Suche ────────────────────────────────────────────────── %>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
+    <div>
+      <h2 class="text-2xl font-bold text-gray-900">Teilnehmer-Suche</h2>
+      <p class="text-gray-500 mt-1 text-sm">Suche nach Name oder E-Mail-Adresse des verknüpften Kontos.</p>
     </div>
+    <button disabled class="shrink-0 bg-gray-100 text-gray-400 py-2 px-4 rounded-lg shadow-sm font-bold border border-gray-200 cursor-not-allowed text-sm">
+      Exportieren (bald verfügbar)
+    </button>
+  </div>
 
-    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
-            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Geburtsdatum</th>
-            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Elternteil (Account)</th>
-            <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktion</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-          <% if @participants.any? %>
+  <%= form_with url: dashboards_admin_path, method: :get, class: "flex gap-2 mb-4" do |f| %>
+    <%= f.text_field :q,
+          value: params[:q],
+          placeholder: "Name oder E-Mail eingeben (min. 2 Zeichen)…",
+          autofocus: params[:q].present?,
+          autocomplete: "off",
+          class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+    <%= f.submit "Suchen",
+          class: "shrink-0 rounded-lg px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
+  <% end %>
+
+  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
+    <% if params[:q].to_s.strip.length >= 2 %>
+      <% if @participants.any? %>
+        <div class="px-5 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+          <p class="text-xs font-semibold text-gray-500">
+            <% if @participants.size == 50 %>
+              Erste 50 Treffer für „<%= params[:q] %>" — Suche verfeinern für genauere Ergebnisse
+            <% else %>
+              <%= @participants.size %> <%= @participants.size == 1 ? "Treffer" : "Treffer" %> für „<%= params[:q] %>"
+            <% end %>
+          </p>
+        </div>
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Geburtsdatum</th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Konto (E-Mail)</th>
+              <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktion</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
             <% @participants.each do |participant| %>
               <tr class="hover:bg-gray-50 transition">
-                <td class="py-4 px-4 font-bold text-gray-900">
+                <td class="py-3.5 px-4 font-semibold text-gray-900 text-sm">
                   <%= participant.last_name %>, <%= participant.first_name %>
                 </td>
-                <td class="py-4 px-4 text-sm text-gray-600">
-                  <%= participant.date_of_birth&.strftime("%d.%m.%Y") || "Nicht angegeben" %>
+                <td class="py-3.5 px-4 text-sm text-gray-600">
+                  <%= participant.date_of_birth&.strftime("%d.%m.%Y") || "—" %>
                 </td>
-                <td class="py-4 px-4 text-sm text-gray-500">
+                <td class="py-3.5 px-4 text-sm text-gray-500">
                   <%= participant.user.email %>
                 </td>
-                <td class="py-4 px-4 text-right">
-                  <%= link_to "Profil ansehen", participant_path(participant), class: "text-blue-600 font-bold hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-md text-sm" %>
+                <td class="py-3.5 px-4 text-right">
+                  <%= link_to "Profil ansehen", participant_path(participant),
+                        class: "text-blue-600 font-bold hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-md text-sm" %>
                 </td>
               </tr>
             <% end %>
-          <% else %>
-            <tr>
-              <td colspan="4" class="py-8 text-center text-sm text-gray-500">
-                Es sind noch keine Teilnehmer im System registriert.
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    </div>
+          </tbody>
+        </table>
+      <% else %>
+        <div class="py-12 text-center">
+          <p class="text-sm font-semibold text-gray-700">Keine Treffer für „<%= params[:q] %>"</p>
+          <p class="text-xs text-gray-400 mt-1">Prüfe die Schreibweise oder suche nach der E-Mail-Adresse.</p>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="py-12 text-center">
+        <p class="text-sm font-medium text-gray-500">Gib mindestens 2 Zeichen ein, um zu suchen.</p>
+      </div>
+    <% end %>
   </div>
+
 </div>

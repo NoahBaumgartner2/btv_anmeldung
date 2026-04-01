@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_01_195507) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_01_202325) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,6 +56,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_195507) do
     t.integer "max_participants"
     t.string "registration_mode"
     t.string "registration_type"
+    t.boolean "requires_ahv_number", default: false, null: false
     t.datetime "start_date"
     t.string "title"
     t.datetime "updated_at", null: false

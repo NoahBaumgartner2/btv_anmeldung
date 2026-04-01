@@ -1,8 +1,8 @@
 <%= form_with(model: course_registration, class: "contents") do |form| %>
   <% if course_registration.errors.any? %>
     <div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg mb-6 border border-red-200">
-      <h2><%= pluralize(course_registration.errors.count, "Fehler") %> gefunden:</h2>
-      <ul class="list-disc ml-5 mt-2 text-sm">
+      <p class="font-semibold mb-1"><%= course_registration.errors.count == 1 ? "Es gibt einen Fehler:" : "Es gibt #{course_registration.errors.count} Fehler:" %></p>
+      <ul class="list-disc ml-5 mt-1 text-sm space-y-0.5">
         <% course_registration.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
@@ -10,22 +10,51 @@
     </div>
   <% end %>
 
-  <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 mb-6 space-y-5">
+  <div class="space-y-5">
 
+    <%# Kurs-Auswahl %>
     <div>
-      <%= form.label :course_id, "Welcher Kurs?", class: "block text-sm font-bold text-gray-700 mb-1" %>
-      <%= form.collection_select :course_id, Course.all, :id, :title, { prompt: "Kurs wählen..." }, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-gray-50", readonly: true %>
+      <%= form.label :course_id, "Kurs", class: "block text-sm font-bold text-gray-700 mb-1" %>
+      <%= form.collection_select :course_id, selectable_courses, :id, :title,
+            { prompt: "Kurs wählen..." },
+            class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-sm py-2.5 px-3" %>
     </div>
 
+    <%# Teilnehmer-Auswahl %>
     <div>
-      <%= form.label :participant_id, "Welches Kind möchtest du anmelden?", class: "block text-sm font-bold text-gray-700 mb-1" %>
-      <% my_participants = Participant.where(user: current_user) %>
+      <%= form.label :participant_id, "Wer soll angemeldet werden?", class: "block text-sm font-bold text-gray-700 mb-1" %>
       <% if my_participants.any? %>
-        <%= form.collection_select :participant_id, my_participants, :id, ->(p) { "#{p.first_name} #{p.last_name}" }, { prompt: "Bitte Kind auswählen..." }, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white" %>
+        <%= form.collection_select :participant_id, my_participants, :id,
+              ->(p) { "#{p.first_name} #{p.last_name}" },
+              { prompt: "Person auswählen..." },
+              class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 bg-white text-sm py-2.5 px-3" %>
+
+        <%# Vorab-Prüfung: fehlende Pflichtfelder pro Teilnehmer %>
+        <% if course&.required_participant_fields.present? %>
+          <% warnings = my_participants.filter_map do |p|
+               missing = p.missing_fields_for(course)
+               [p, missing] if missing.any?
+             end %>
+          <% if warnings.any? %>
+            <div class="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-2">
+              <p class="text-xs font-bold text-amber-800 uppercase tracking-wide">Pflichtangaben fehlen</p>
+              <% warnings.each do |participant, missing_fields| %>
+                <div class="flex items-start justify-between gap-3 text-sm">
+                  <div>
+                    <span class="font-semibold text-amber-900"><%= participant.first_name %> <%= participant.last_name %></span>
+                    <span class="text-amber-700"> – fehlend: <%= missing_fields.map { |f| Participant.field_label(f) }.join(", ") %></span>
+                  </div>
+                  <%= link_to "Profil ergänzen", edit_participant_path(participant),
+                        class: "shrink-0 text-xs font-bold text-amber-700 underline hover:text-amber-900" %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
       <% else %>
-        <div class="p-4 bg-yellow-50 text-yellow-800 rounded-md border border-yellow-200 text-sm">
+        <div class="p-4 bg-yellow-50 text-yellow-800 rounded-lg border border-yellow-200 text-sm">
           Du hast noch keine Teilnehmer in deinem Profil hinterlegt.<br>
-          <%= link_to "Klicke hier, um jetzt ein Kind anzulegen", new_participant_path, class: "font-bold underline hover:text-yellow-900" %>, bevor du es für einen Kurs anmeldest.
+          <%= link_to "Jetzt Person erfassen", new_participant_path, class: "font-bold underline hover:text-yellow-900" %>
         </div>
       <% end %>
     </div>
@@ -33,20 +62,21 @@
     <%= form.hidden_field :holiday_deduction_claimed, value: false %>
 
     <% if course_registration.new_record? %>
-      <%= form.hidden_field :status, value: 'warteliste' %>
+      <%= form.hidden_field :status, value: "warteliste" %>
       <%= form.hidden_field :payment_cleared, value: false %>
     <% else %>
-      <% if Trainer.exists?(user: current_user) %>
-        <div class="pt-6 mt-6 border-t border-gray-200 grid grid-cols-2 gap-4">
+      <% if current_user.admin? || Trainer.exists?(user: current_user) %>
+        <div class="pt-5 border-t border-gray-100 grid grid-cols-2 gap-4">
           <div>
             <%= form.label :status, "Anmelde-Status", class: "block text-sm font-bold text-gray-700 mb-1" %>
-            <%= form.select :status, ['warteliste', 'bestätigt', 'storniert'], {}, class: "block w-full rounded-md border-gray-300 shadow-sm sm:text-sm bg-white focus:ring-blue-500 focus:border-blue-500" %>
+            <%= form.select :status, ["warteliste", "bestätigt", "storniert"], {},
+                  class: "block w-full rounded-lg border border-gray-300 shadow-sm text-sm bg-white focus:ring-blue-500 focus:border-blue-500 py-2.5 px-3" %>
           </div>
-          <div class="flex flex-col space-y-3 mt-6">
-            <div class="flex items-center">
+          <div class="flex items-end pb-0.5">
+            <label class="flex items-center gap-2 cursor-pointer">
               <%= form.check_box :payment_cleared, class: "h-5 w-5 text-green-600 rounded border-gray-300 focus:ring-green-500 cursor-pointer" %>
-              <%= form.label :payment_cleared, "Zahlung ist eingegangen", class: "ml-2 text-sm font-bold text-gray-900 cursor-pointer" %>
-            </div>
+              <span class="text-sm font-bold text-gray-900">Zahlung eingegangen</span>
+            </label>
           </div>
         </div>
       <% end %>
@@ -54,8 +84,10 @@
 
   </div>
 
-  <div class="flex justify-end gap-3">
-    <%= link_to "Abbrechen", :back, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition" %>
-    <%= form.submit "Anmeldung speichern", class: "cursor-pointer inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-bold rounded-md text-white bg-green-600 hover:bg-green-700 transition" %>
+  <div class="flex justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
+    <%= link_to "Abbrechen", :back,
+          class: "bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition" %>
+    <%= form.submit course_registration.new_record? ? "Jetzt anmelden" : "Änderungen speichern",
+          class: "cursor-pointer inline-flex justify-center py-2 px-5 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-green-600 hover:bg-green-700 transition" %>
   </div>
 <% end %>
