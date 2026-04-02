@@ -13,7 +13,7 @@
 
       <% if @course.registration_mode == 'single_session' %>
         <a href="#termine" class="flex-1 md:flex-none text-center bg-purple-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-purple-700 transition">
-          👇 Termin auswählen
+          Termin auswählen
         </a>
       <% else %>
         <% bestaetigte_plaetze = @course.course_registrations.where(status: 'bestätigt').count %>
@@ -41,7 +41,7 @@
         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Wann & Wo</p>
         <ul class="space-y-4 text-gray-900 font-medium">
           <li class="flex items-start">
-            <span class="mr-3 text-xl">📍</span>
+            <span class="mr-3 text-xl"></span>
             <span><%= @course.location.presence || "Ort noch unbekannt" %></span>
           </li>
           <li class="flex items-start">
@@ -59,7 +59,7 @@
             <span><%= @course.registration_mode == 'single_session' ? "Einzel-Anmeldung (Drop-In)" : "Semester-Anmeldung (Einmalig)" %></span>
           </li>
           <li class="flex items-start">
-            <span class="mr-3 text-xl"><%= @course.has_payment ? "" : "" %></span> 
+            <span class="mr-3 text-xl"><%= @course.has_payment ? "" : "" %></span>
             <span><%= @course.has_payment ? "Kostenpflichtiger Kurs" : "Kostenlos" %></span>
           </li>
         </ul>
@@ -85,7 +85,7 @@
                   <p class="text-sm font-medium text-purple-600 mt-1">
                      <%= session.start_time ? session.start_time.strftime("%H:%M") : "--:--" %> Uhr
                     <span class="text-gray-400 mx-2">|</span>
-                    📍 <%= @course.location %>
+                    <%= @course.location %>
                   </p>
                 </div>
 
@@ -114,10 +114,10 @@
 
         <div class="flex gap-2">
           <% if current_user.admin? %>
-            <%= link_to "⚙️ Kurs bearbeiten", edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition" %>
+            <%= link_to "Kurs bearbeiten", edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition" %>
           <% end %>
 
-          <%= link_to "➕ Neue Session", new_training_session_path(course_id: @course.id), class: "bg-blue-600 text-white text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-blue-700 transition" %>
+          <%= link_to "Neue Session", new_training_session_path(course_id: @course.id), class: "bg-blue-600 text-white text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-blue-700 transition" %>
         </div>
       </div>
 
@@ -154,7 +154,7 @@
 
     <% if my_registrations.any? %>
       <div class="mt-12 bg-purple-50 p-8 rounded-3xl border border-purple-200">
-        <h2 class="text-2xl font-extrabold text-purple-900 mb-6 text-center">🎟️ Eure digitalen Tickets</h2>
+        <h2 class="text-2xl font-extrabold text-purple-900 mb-6 text-center">Eure digitalen Tickets</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <% my_registrations.each do |reg| %>

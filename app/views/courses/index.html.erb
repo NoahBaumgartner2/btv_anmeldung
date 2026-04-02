@@ -85,12 +85,13 @@
                   <% elsif course.start_date && course.end_date %>
                     <span><%= course.start_date.strftime("%-d. %b %Y") %> – <%= course.end_date.strftime("%-d. %b %Y") %></span>
                   <% end %>
-                  <% if course.max_participants.present? %>
+                  <% if course.max_participants.present? && !is_full %>
+                    <% remaining = course.max_participants - confirmed_count %>
                     <span class="text-gray-300">·</span>
-                    <span class="<%= is_full ? "text-orange-600 font-semibold" : "text-gray-400" %>">
-                      <%= confirmed_count %> / <%= course.max_participants %> Plätze
+                    <span class="<%= remaining <= 3 ? "text-orange-500 font-semibold" : "text-gray-400" %>">
+                      noch <%= remaining %> <%= remaining == 1 ? "Platz" : "Plätze" %> frei
                     </span>
-                  <% elsif !is_single %>
+                  <% elsif !is_single && !is_full %>
                     <span class="text-gray-300">·</span>
                     <span><%= confirmed_count %> Anmeldung<%= confirmed_count == 1 ? "" : "en" %></span>
                   <% end %>

@@ -65,9 +65,19 @@ class CoursesController < ApplicationController
 
   # Führt die Magie aus!
   def create_generated_trainings
-    wochentag    = params[:day_of_week].to_i
-    start_uhrzeit = params[:start_time]
-    end_uhrzeit   = params[:end_time].presence
+    unless @course.start_date.present? && @course.end_date.present?
+      redirect_to generate_trainings_course_path(@course),
+                  alert: "Dieser Kurs hat kein Start- oder Enddatum. Bitte zuerst den Kurs bearbeiten." and return
+    end
+
+    unless params[:start_hour].present? && params[:day_of_week].present?
+      redirect_to generate_trainings_course_path(@course),
+                  alert: "Bitte Wochentag und Startzeit auswählen." and return
+    end
+
+    wochentag = params[:day_of_week].to_i
+    start_uhrzeit = "#{params[:start_hour]}:#{format('%02d', params[:start_minute].to_i)}"
+    end_uhrzeit   = params[:end_hour].present? ? "#{params[:end_hour]}:#{format('%02d', params[:end_minute].to_i)}" : nil
 
     holidays     = Holiday.all
     current_date = @course.start_date.to_date
@@ -116,6 +126,6 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :description, :start_date, :end_date, :location, :registration_type, :has_payment, :has_ticketing, :registration_mode, :max_participants, :requires_ahv_number, trainer_ids: [])
+      params.require(:course).permit(:title, :description, :start_date, :end_date, :location, :registration_type, :has_payment, :has_ticketing, :registration_mode, :max_participants, :requires_ahv_number, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [])
     end
 end

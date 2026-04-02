@@ -23,12 +23,23 @@ class CourseRegistrationsController < ApplicationController
 
     # 1. Welchen Kurs möchte das Kind buchen?
     course = @course_registration.course
+    participant = @course_registration.participant
 
-    # 2. Wie viele BESTÄTIGTE Plätze sind schon weg?
+    # 2. Pflichtfelder-Check
+    if course && participant
+      missing = participant.missing_fields_for(course)
+      if missing.any?
+        labels = missing.map { |f| Participant.field_label(f) }.join(", ")
+        @course_registration.errors.add(:base, "#{participant.first_name} hat folgende Pflichtangaben nicht hinterlegt: #{labels}. Bitte zuerst das Profil ergänzen.")
+        setup_new_form(course)
+        return render :new, status: :unprocessable_entity
+      end
+    end
+
+    # 3. Wie viele BESTÄTIGTE Plätze sind schon weg?
     bestaetigte_plaetze = course.course_registrations.where(status: "bestätigt").count
 
-    # 3. Die Wartelisten-Automatik!
-    # Wir prüfen: Hat der Kurs ein Limit? UND Sind schon alle Plätze vergeben?
+    # 4. Die Wartelisten-Automatik!
     if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
       @course_registration.status = "warteliste"
       erfolgs_nachricht = "Der Kurs ist leider voll. Dein Kind wurde erfolgreich auf die Warteliste gesetzt!"
@@ -40,6 +51,7 @@ class CourseRegistrationsController < ApplicationController
     if @course_registration.save
       redirect_to course_path(course), notice: erfolgs_nachricht
     else
+      setup_new_form(course)
       render :new, status: :unprocessable_entity
     end
   end
@@ -103,6 +115,12 @@ def scan
 
   def set_course_registration
     @course_registration = CourseRegistration.find(params[:id])
+  end
+
+  def setup_new_form(course = nil)
+    @my_participants = current_user.participants
+    @course = course || @course_registration.course
+    @selectable_courses = @course ? Course.where(registration_type: @course.registration_type).order(:title) : Course.order(:title)
   end
 
   # Der Türsteher: Erlaubt jetzt auch Status und Bezahlung!

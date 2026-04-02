@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_01_202325) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_02_090527) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_01_202325) do
   create_table "courses", force: :cascade do |t|
     t.boolean "allows_holiday_deduction"
     t.datetime "created_at", null: false
+    t.integer "default_end_hour"
+    t.integer "default_end_minute"
+    t.integer "default_start_hour"
+    t.integer "default_start_minute"
     t.text "description"
     t.datetime "end_date"
     t.boolean "has_payment"

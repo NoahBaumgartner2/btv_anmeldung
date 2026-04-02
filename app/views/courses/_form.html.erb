@@ -51,7 +51,55 @@
     </div>
 
     <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">3. Anmeldemodus & Kapazität</h3>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">3. Trainingszeit</h3>
+      <% hours   = (6..22).map { |h| [format("%02d", h), h] } %>
+      <% minutes = [["00", 0], ["15", 15], ["30", 30], ["45", 45]] %>
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <p class="text-sm font-bold text-gray-700 mb-2">Beginn</p>
+          <div class="flex items-center gap-2">
+            <select name="course[default_start_hour]"
+                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="">Std.</option>
+              <% hours.each do |label, val| %>
+                <option value="<%= val %>" <%= "selected" if course.default_start_hour == val %>><%= label %></option>
+              <% end %>
+            </select>
+            <span class="text-gray-500 font-bold">:</span>
+            <select name="course[default_start_minute]"
+                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <% minutes.each do |label, val| %>
+                <option value="<%= val %>" <%= "selected" if course.default_start_minute == val %>><%= label %></option>
+              <% end %>
+            </select>
+            <span class="text-sm text-gray-400">Uhr</span>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-gray-700 mb-2">Ende <span class="font-normal text-gray-400">(optional)</span></p>
+          <div class="flex items-center gap-2">
+            <select name="course[default_end_hour]"
+                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <option value="">Std.</option>
+              <% hours.each do |label, val| %>
+                <option value="<%= val %>" <%= "selected" if course.default_end_hour == val %>><%= label %></option>
+              <% end %>
+            </select>
+            <span class="text-gray-500 font-bold">:</span>
+            <select name="course[default_end_minute]"
+                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+              <% minutes.each do |label, val| %>
+                <option value="<%= val %>" <%= "selected" if course.default_end_minute == val %>><%= label %></option>
+              <% end %>
+            </select>
+            <span class="text-sm text-gray-400">Uhr</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">4. Anmeldemodus & Kapazität</h3>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-blue-50 p-5 rounded-xl border border-blue-100">
         <div>
           <%= form.label :registration_mode, "Wie melden sich die Kinder an?", class: "block text-sm font-bold text-blue-900 mb-2" %>
@@ -68,7 +116,7 @@
     </div>
 
     <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">4. Trainer-Zuweisung</h3>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">5. Trainer-Zuweisung</h3>
       <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
         <p class="text-sm text-gray-600 mb-4">Wähle aus, welche Trainer diesen Kurs in ihrem Dashboard sehen und verwalten dürfen:</p>
 
@@ -93,7 +141,7 @@
     </div>
 
     <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">5. Weitere Einstellungen</h3>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">6. Weitere Einstellungen</h3>
       <div class="space-y-4">
         <div class="flex items-center">
           <%= form.check_box :has_payment, class: "h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" %>
@@ -107,7 +155,7 @@
     </div>
 
     <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-1">6. Pflichtangaben bei Anmeldung</h3>
+      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-1">7. Pflichtangaben bei Anmeldung</h3>
       <p class="text-sm text-gray-500 mb-4">Welche Angaben müssen Teilnehmende zusätzlich zu Vorname, Nachname, Geburtsdatum und Geschlecht zwingend hinterlegt haben?</p>
       <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 space-y-3">
         <% Course::CONFIGURABLE_REQUIRED_FIELDS.each do |field, label| %>

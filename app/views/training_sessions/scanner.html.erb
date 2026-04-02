@@ -1,14 +1,74 @@
-<div class="max-w-xl mx-auto mt-10 p-4 text-center mb-16">
-  <h1 class="text-3xl font-extrabold text-gray-900 mb-2">📸 Live-Scanner</h1>
-  <p class="text-gray-500 mb-8">Klicke unten auf "Request Camera Permissions", um die Kamera zu starten.</p>
+<%
+  session     = @training_session
+  course      = session.course
+  confirmed   = course.course_registrations.where(status: "bestätigt").count
+  attended    = session.attendances.count
+%>
 
-  <div id="reader" class="mx-auto w-full max-w-sm rounded-3xl shadow-md border-4 border-dashed border-purple-200 p-4 bg-white"></div>
+<%# Kein Navigation-Padding auf dieser Seite – volle Höhe für den Scanner %>
+<div class="min-h-screen bg-gray-950 flex flex-col">
 
-  <div id="scan-result" class="mt-8 h-16 flex items-center justify-center rounded-2xl font-bold text-xl transition-all duration-300 bg-gray-100 text-gray-400 border border-gray-200 shadow-sm">
-    Warte auf Kamera...
+  <%# ── Top-Bar ──────────────────────────────────────────────────────────── %>
+  <div class="bg-gray-900 border-b border-gray-800 px-4 py-3 flex items-center justify-between gap-3">
+    <%= link_to manage_course_path(course),
+          class: "flex items-center gap-1.5 text-gray-400 hover:text-white transition text-sm font-semibold shrink-0" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Zurück
+    <% end %>
+
+    <div class="text-center min-w-0">
+      <p class="text-white font-bold text-sm truncate"><%= course.title %></p>
+      <p class="text-gray-400 text-xs">
+        <% if session.start_time %>
+          <%= session.start_time.strftime("%-d. %B") %>
+          <% if session.end_time %>
+            · <%= session.start_time.strftime("%H:%M") %> – <%= session.end_time.strftime("%H:%M") %> Uhr
+          <% else %>
+            · <%= session.start_time.strftime("%H:%M") %> Uhr
+          <% end %>
+        <% end %>
+      </p>
+    </div>
+
+    <%# Anwesenheits-Zähler %>
+    <div class="shrink-0 text-right">
+      <p class="text-white font-extrabold text-sm leading-none" id="attendance-count"><%= attended %></p>
+      <p class="text-gray-500 text-xs">/ <%= confirmed %></p>
+    </div>
   </div>
 
-  <%= link_to "Zurück zur Checkliste", training_session_path(@training_session), class: "mt-8 inline-block bg-white border border-gray-300 py-3 px-6 rounded-xl font-bold text-gray-700 hover:bg-gray-50 shadow-sm" %>
+  <%# ── Kamera-Bereich ───────────────────────────────────────────────────── %>
+  <div class="flex-1 flex flex-col items-center justify-start px-4 pt-5 pb-4">
+
+    <%# Scanner-Rahmen %>
+    <div class="w-full max-w-sm">
+      <div id="reader"
+           class="w-full rounded-2xl overflow-hidden bg-gray-900 border border-gray-700 shadow-xl">
+      </div>
+    </div>
+
+    <%# Ergebnis-Feedback %>
+    <div id="scan-result"
+         class="mt-5 w-full max-w-sm min-h-20 flex flex-col items-center justify-center rounded-2xl px-5 py-4 text-center transition-all duration-300 bg-gray-800 border border-gray-700">
+      <p id="scan-icon"   class="text-3xl mb-1">📷</p>
+      <p id="scan-text"   class="text-gray-400 font-semibold text-base">Kamera starten und QR-Code scannen</p>
+    </div>
+
+    <%# Manuelle Checkliste %>
+    <div class="mt-5 w-full max-w-sm">
+      <%= link_to training_session_path(session),
+            class: "flex items-center justify-center gap-2 w-full bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-bold text-sm py-3.5 rounded-xl transition" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+        </svg>
+        Manuelle Checkliste
+      <% end %>
+    </div>
+
+  </div>
+
 </div>
 
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript" nonce="<%= request.content_security_policy_nonce %>"></script>
@@ -17,67 +77,84 @@
   setTimeout(() => {
     if (!document.getElementById("reader")) return;
 
-    const html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: {width: 250, height: 250} }, false);
-    let lastScannedUrl = "";
+    const scanIcon   = document.getElementById("scan-icon");
+    const scanText   = document.getElementById("scan-result");
+    const scanResult = document.getElementById("scan-result");
 
-    function onScanSuccess(decodedText, decodedResult) {
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+      "reader",
+      { fps: 10, qrbox: { width: 240, height: 240 } },
+      false
+    );
+
+    let lastScannedUrl = "";
+    let resetTimer = null;
+
+    function setState(state, message) {
+      const icon = document.getElementById("scan-icon");
+      const text = document.getElementById("scan-text");
+
+      const states = {
+        idle:    { bg: "bg-gray-800 border-gray-700",       text: "text-gray-400",   icon: "📷" },
+        loading: { bg: "bg-blue-950 border-blue-700",       text: "text-blue-300",   icon: "⏳" },
+        success: { bg: "bg-green-950 border-green-600",     text: "text-green-300",  icon: "✅" },
+        error:   { bg: "bg-red-950 border-red-600",         text: "text-red-300",    icon: "❌" },
+      };
+
+      const s = states[state] || states.idle;
+      scanResult.className = `mt-5 w-full max-w-sm min-h-20 flex flex-col items-center justify-center rounded-2xl px-5 py-4 text-center transition-all duration-300 border ${s.bg}`;
+      icon.textContent = s.icon;
+      text.className   = `font-semibold text-base mt-1 ${s.text}`;
+      text.textContent = message;
+    }
+
+    function onScanSuccess(decodedText) {
       if (decodedText === lastScannedUrl) return;
       lastScannedUrl = decodedText;
 
-      const resultDiv = document.getElementById('scan-result');
-      resultDiv.className = "mt-8 h-16 flex items-center justify-center rounded-2xl font-bold text-xl transition-all duration-300 bg-blue-100 text-blue-800 border border-blue-200 shadow-sm";
-      resultDiv.innerText = "⏳ Prüfe Ticket...";
+      if (resetTimer) clearTimeout(resetTimer);
 
-      // BULLETPROOF-TRICK: Wir extrahieren nur den Pfad aus dem QR-Code!
-      // Aus "http://localhost:3000/course_registrations/1/scan" wird "/course_registrations/1/scan"
-      // BULLETPROOF-TRICK: Wir extrahieren den Pfad und hängen die aktuelle Checklisten-ID an!
+      setState("loading", "Prüfe Ticket...");
+
       let fetchUrl = decodedText;
       try {
-        let urlObj = new URL(decodedText);
+        const urlObj = new URL(decodedText);
         urlObj.searchParams.append("session_id", "<%= @training_session.id.to_json %>");
-        fetchUrl = urlObj.pathname + urlObj.search; 
+        fetchUrl = urlObj.pathname + urlObj.search;
       } catch(e) {}
 
-      // Wir schicken die Anfrage ab
       fetch(fetchUrl, {
-        headers: { 
-          'Accept': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
+        headers: {
+          "Accept": "application/json",
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
         },
-        credentials: 'same-origin'
+        credentials: "same-origin"
       })
       .then(async (response) => {
-        // Falls wir versehentlich auf der Login-Seite landen
         if (!response.ok || response.redirected || response.headers.get("content-type")?.includes("text/html")) {
-          throw new Error("Sicherheits-Blockade oder nicht eingeloggt.");
+          throw new Error("Nicht autorisiert oder Netzwerkfehler.");
         }
         return response.json();
       })
       .then(data => {
         if (data.success) {
-          resultDiv.className = "mt-8 h-16 flex items-center justify-center rounded-2xl font-bold text-xl transition-all duration-300 bg-green-100 text-green-800 border border-green-200 shadow-sm scale-105";
-          resultDiv.innerText = data.message;
+          setState("success", data.message);
+          // Zähler hochzählen
+          const counter = document.getElementById("attendance-count");
+          if (counter) counter.textContent = parseInt(counter.textContent) + 1;
         } else {
-          resultDiv.className = "mt-8 h-16 flex items-center justify-center rounded-2xl font-bold text-xl transition-all duration-300 bg-red-100 text-red-800 border border-red-200 shadow-sm";
-          resultDiv.innerText = "❌ " + (data.message || "Fehler beim Scan");
+          setState("error", data.message || "Ungültiges Ticket");
         }
-        
-        setTimeout(() => {
+        resetTimer = setTimeout(() => {
           lastScannedUrl = "";
-          resultDiv.className = "mt-8 h-16 flex items-center justify-center rounded-2xl font-bold text-xl transition-all duration-300 bg-gray-100 text-gray-400 border border-gray-200 shadow-sm";
-          resultDiv.innerText = "Warte auf Kamera...";
+          setState("idle", "Kamera starten und QR-Code scannen");
         }, 2500);
       })
-      .catch(err => {
-        // HIER IST DER FIX: Wenn es kracht, wird es jetzt sichtbar ROT!
-        console.error("Scanner Fehler:", err);
-        resultDiv.className = "mt-8 h-16 flex items-center justify-center rounded-2xl font-bold text-xl transition-all duration-300 bg-red-100 text-red-800 border border-red-200 shadow-sm";
-        resultDiv.innerText = "❌ Scan fehlgeschlagen (Netzwerk?)";
-        
-        setTimeout(() => {
+      .catch(() => {
+        setState("error", "Scan fehlgeschlagen — Netzwerk prüfen");
+        resetTimer = setTimeout(() => {
           lastScannedUrl = "";
-          resultDiv.className = "mt-8 h-16 flex items-center justify-center rounded-2xl font-bold text-xl transition-all duration-300 bg-gray-100 text-gray-400 border border-gray-200 shadow-sm";
-          resultDiv.innerText = "Warte auf Kamera...";
+          setState("idle", "Kamera starten und QR-Code scannen");
         }, 3000);
       });
     }

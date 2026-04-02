@@ -1,26 +1,152 @@
-<div class="max-w-5xl mx-auto mt-10 mb-16 px-4">
-  <h1 class="text-4xl font-extrabold text-gray-900 mb-2">Meine Kurse</h1>
-  <p class="text-gray-500 mb-8">Hier findest du alle Kurse, für die du als Trainer eingeteilt bist.</p>
+<%
+  now = Time.current
+  trainer_name = current_user.email.split("@").first.capitalize
+%>
 
+<div class="max-w-5xl mx-auto mt-8 mb-16 px-4">
+
+  <%# ── Header ──────────────────────────────────────────────────────────── %>
+  <div class="mb-8">
+    <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1">Trainer-Dashboard</p>
+    <h1 class="text-3xl font-extrabold text-gray-900">Hallo, <%= trainer_name %></h1>
+    <p class="text-gray-500 mt-1 text-sm">
+      Du bist für <span class="font-semibold text-gray-700"><%= @assigned_courses.size %> <%= @assigned_courses.size == 1 ? "Kurs" : "Kurse" %></span> eingeteilt.
+    </p>
+  </div>
+
+  <%# ── Heute-Banner ────────────────────────────────────────────────────── %>
+  <% if @todays_sessions.any? %>
+    <div class="mb-6 bg-blue-600 text-white rounded-2xl px-6 py-5">
+      <div class="flex items-center justify-between flex-wrap gap-4">
+        <div>
+          <p class="text-xs font-bold uppercase tracking-widest text-blue-200 mb-1">Heute</p>
+          <% @todays_sessions.each do |s| %>
+            <div class="flex items-center gap-3 mt-1">
+              <% is_live = s.start_time <= now && s.end_time && s.end_time >= now %>
+              <% if is_live %>
+                <span class="relative flex h-2.5 w-2.5 shrink-0">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-400"></span>
+                </span>
+              <% end %>
+              <p class="font-bold text-lg">
+                <%= s.course.title %>
+                <span class="font-normal text-blue-200 text-base">
+                  · <%= s.start_time.strftime("%H:%M") %><% if s.end_time %> – <%= s.end_time.strftime("%H:%M") %><% end %> Uhr
+                </span>
+              </p>
+            </div>
+          <% end %>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+          <% @todays_sessions.each do |s| %>
+            <%= link_to "Präsenzkontrolle — #{s.course.title.truncate(20)}",
+                  scanner_training_session_path(s),
+                  class: "bg-white text-blue-700 hover:bg-blue-50 font-bold text-sm py-2 px-4 rounded-lg transition shrink-0" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── Nächste Session ──────────────────────────────────────────────────── %>
+  <% if @next_session && @todays_sessions.none? %>
+    <div class="mb-6 bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
+      <div>
+        <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-0.5">Nächste Session</p>
+        <p class="font-bold text-gray-900">
+          <%= @next_session.course.title %>
+          <span class="font-normal text-gray-500">
+            · <%= @next_session.start_time.strftime("%-d. %B, %H:%M") %><% if @next_session.end_time %> – <%= @next_session.end_time.strftime("%H:%M") %><% end %> Uhr
+          </span>
+        </p>
+        <% if @next_session.course.location.present? %>
+          <p class="text-xs text-gray-400 mt-0.5"><%= @next_session.course.location %></p>
+        <% end %>
+      </div>
+      <%= link_to "Präsenzkontrolle", scanner_training_session_path(@next_session),
+            class: "shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-2 px-5 rounded-lg transition" %>
+    </div>
+  <% end %>
+
+  <%# ── Kurse ────────────────────────────────────────────────────────────── %>
   <% if @assigned_courses.any? %>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <% @assigned_courses.each do |course| %>
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col">
-          <h2 class="text-xl font-bold text-gray-900"><%= course.title %></h2>
-          <p class="text-gray-500 text-sm mt-1"><%= course.registration_type %></p>
-          <div class="mt-4 mb-6 text-sm text-gray-600 font-medium space-y-2">
-            <div>📍 <%= course.location %></div>
-            <div>👶 <%= course.course_registrations.count %> Anmeldungen</div>
+        <%
+          confirmed   = course.course_registrations.where(status: "bestätigt").count
+          waitlisted  = course.course_registrations.where.not(status: "bestätigt").count
+          next_s      = @next_session_per_course[course.id]
+          has_dates   = course.start_date.present? && course.end_date.present?
+        %>
+        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm flex flex-col overflow-hidden">
+
+          <%# Kurs-Kopf %>
+          <div class="px-5 pt-5 pb-4 border-b border-gray-100">
+            <% if course.registration_type.present? %>
+              <span class="inline-block text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full mb-2">
+                <%= course.registration_type %>
+              </span>
+            <% end %>
+            <h2 class="text-lg font-extrabold text-gray-900 leading-tight"><%= course.title %></h2>
+            <% if course.location.present? %>
+              <p class="text-sm text-gray-400 mt-0.5"><%= course.location %></p>
+            <% end %>
           </div>
-          <div class="mt-auto">
-            <%= link_to "Präsenzkontrolle öffnen 📋", manage_course_path(course), class: "block text-center w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 shadow-sm" %>
+
+          <%# Kennzahlen %>
+          <div class="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-100 text-center">
+            <div class="py-3 px-2">
+              <p class="text-xl font-extrabold text-green-600"><%= confirmed %></p>
+              <p class="text-xs text-gray-400 font-medium mt-0.5">Bestätigt</p>
+            </div>
+            <div class="py-3 px-2">
+              <p class="text-xl font-extrabold <%= waitlisted > 0 ? "text-orange-500" : "text-gray-300" %>"><%= waitlisted %></p>
+              <p class="text-xs text-gray-400 font-medium mt-0.5">Warteliste</p>
+            </div>
+            <div class="py-3 px-2">
+              <% cap = course.max_participants %>
+              <p class="text-xl font-extrabold text-gray-700"><%= cap.present? ? "#{confirmed}/#{cap}" : confirmed %></p>
+              <p class="text-xs text-gray-400 font-medium mt-0.5">Kapazität</p>
+            </div>
           </div>
+
+          <%# Nächste Session %>
+          <div class="px-5 py-3 flex-1">
+            <% if next_s %>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Nächste Session</p>
+              <p class="text-sm font-semibold text-gray-800">
+                <%= next_s.start_time.strftime("%-d. %B %Y") %>
+                <span class="text-gray-400 font-normal">
+                  · <%= next_s.start_time.strftime("%H:%M") %><% if next_s.end_time %> – <%= next_s.end_time.strftime("%H:%M") %><% end %> Uhr
+                </span>
+              </p>
+            <% elsif has_dates %>
+              <p class="text-xs text-gray-400 italic">Keine weiteren Sessions geplant</p>
+            <% else %>
+              <p class="text-xs text-gray-400 italic">Noch keine Sessions generiert</p>
+            <% end %>
+          </div>
+
+          <%# Aktionen %>
+          <div class="px-5 pb-5 pt-2 flex gap-2">
+            <%= link_to "Maschinenraum", manage_course_path(course),
+                  class: "flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-2.5 rounded-xl transition" %>
+            <% if next_s %>
+              <%= link_to "Präsenzkontrolle", scanner_training_session_path(next_s),
+                    class: "flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm py-2.5 rounded-xl transition" %>
+            <% end %>
+          </div>
+
         </div>
       <% end %>
     </div>
+
   <% else %>
-    <div class="bg-yellow-50 text-yellow-800 p-6 rounded-xl border border-yellow-200 text-center">
-      Du bist aktuell noch keinem Kurs als Trainer zugewiesen.
+    <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-8 rounded-2xl text-center">
+      <p class="font-bold text-lg mb-1">Noch keine Kurse zugewiesen</p>
+      <p class="text-sm text-yellow-700">Bitte wende dich an einen Admin, um Kursen zugewiesen zu werden.</p>
     </div>
   <% end %>
+
 </div>
