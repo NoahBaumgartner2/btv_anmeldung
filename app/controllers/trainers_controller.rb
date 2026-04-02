@@ -8,13 +8,26 @@ def index
     @trainers = Trainer.includes(:user, :courses).all
   end
 
-  # GET /trainers/1 or /trainers/1.json
   def show
+    @courses_by_category = Course.order(:title).group_by { |c| c.title.split("(").first.strip }
   end
 
   # GET /trainers/new
+  # ?q=...       → Suchergebnisse anzeigen
+  # ?user_id=... → Bestätigungs-/Telefon-Formular anzeigen
   def new
     @trainer = Trainer.new
+
+    if params[:user_id].present?
+      @selected_user = User.find_by(id: params[:user_id])
+      @trainer.user_id = @selected_user&.id
+    elsif params[:q].present?
+      already_trainer_ids = Trainer.pluck(:user_id)
+      @search_results = User.where("email ILIKE ?", "%#{params[:q]}%")
+                            .where.not(id: already_trainer_ids)
+                            .order(:email)
+                            .limit(25)
+    end
   end
 
   # GET /trainers/1/edit
@@ -24,39 +37,24 @@ def index
   # POST /trainers or /trainers.json
   def create
     @trainer = Trainer.new(trainer_params)
-
-    respond_to do |format|
-      if @trainer.save
-        format.html { redirect_to @trainer, notice: "Trainer was successfully created." }
-        format.json { render :show, status: :created, location: @trainer }
-      else
-        format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: @trainer.errors, status: :unprocessable_entity }
-      end
+    if @trainer.save
+      redirect_to trainers_path, notice: "#{@trainer.user.email} wurde als Trainer erfasst."
+    else
+      render :new, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /trainers/1 or /trainers/1.json
   def update
-    respond_to do |format|
-      if @trainer.update(trainer_params)
-        format.html { redirect_to @trainer, notice: "Trainer was successfully updated.", status: :see_other }
-        format.json { render :show, status: :ok, location: @trainer }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @trainer.errors, status: :unprocessable_entity }
-      end
+    if @trainer.update(trainer_params)
+      redirect_to trainers_path, notice: "Trainer wurde aktualisiert."
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
-  # DELETE /trainers/1 or /trainers/1.json
   def destroy
     @trainer.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to trainers_path, notice: "Trainer was successfully destroyed.", status: :see_other }
-      format.json { head :no_content }
-    end
+    redirect_to trainers_path, notice: "Trainer wurde entfernt."
   end
 
   private
@@ -67,6 +65,6 @@ def index
 
     # Only allow a list of trusted parameters through.
     def trainer_params
-      params.expect(trainer: [ :user_id, :phone ])
+      params.expect(trainer: [ :user_id, :phone, course_ids: [] ])
     end
 end

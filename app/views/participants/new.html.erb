@@ -1,7 +1,11 @@
-<div class="max-w-3xl mx-auto w-full">
-  <div class="mb-6">
-    <h1 class="font-bold text-3xl text-gray-800">Neuen Teilnehmer anlegen</h1>
-    <p class="text-gray-500 text-sm mt-1">Trage die Daten des Kindes / Teilnehmers ein.</p>
+<% content_for :title, "Person erfassen" %>
+
+<div class="max-w-2xl mx-auto w-full px-4 mt-10 mb-16">
+  <div class="mb-8">
+    <%= link_to "← Zurück zum Profil", participants_path,
+          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+    <h1 class="font-extrabold text-3xl text-gray-900 mt-3">Person erfassen</h1>
+    <p class="text-gray-500 mt-1">Erfasse eine Person, um sie für Kurse anzumelden.</p>
   </div>
 
   <%= render "form", participant: @participant %>

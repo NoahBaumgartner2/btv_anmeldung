@@ -1,8 +1,22 @@
-<div class="max-w-2xl mx-auto w-full mt-10">
+<% content_for :title, "Kursanmeldung" %>
+
+<div class="max-w-2xl mx-auto w-full mt-10 px-4 mb-16">
   <div class="mb-6">
-    <h1 class="font-bold text-3xl text-gray-800">Kursanmeldung</h1>
-    <p class="text-gray-500 text-sm mt-1">Bitte wähle aus, wen du für diesen Kurs anmelden möchtest.</p>
+    <% if @course %>
+      <%= link_to "← Zurück zum Kurs", course_path(@course),
+            class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+    <% end %>
+    <h1 class="font-extrabold text-3xl text-gray-900 mt-3">Kursanmeldung</h1>
+    <% if @course %>
+      <p class="text-gray-500 mt-1"><%= @course.registration_type %> – <%= @course.title %></p>
+    <% end %>
   </div>
 
-  <%= render "form", course_registration: @course_registration %>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <%= render "form",
+          course_registration: @course_registration,
+          selectable_courses: @selectable_courses,
+          my_participants: @my_participants,
+          course: @course %>
+  </div>
 </div>

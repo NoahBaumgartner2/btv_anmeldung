@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_30_203422) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_02_090527) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -48,6 +48,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_203422) do
   create_table "courses", force: :cascade do |t|
     t.boolean "allows_holiday_deduction"
     t.datetime "created_at", null: false
+    t.integer "default_end_hour"
+    t.integer "default_end_minute"
+    t.integer "default_start_hour"
+    t.integer "default_start_minute"
     t.text "description"
     t.datetime "end_date"
     t.boolean "has_payment"
@@ -56,6 +60,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_203422) do
     t.integer "max_participants"
     t.string "registration_mode"
     t.string "registration_type"
+    t.boolean "requires_ahv_number", default: false, null: false
     t.datetime "start_date"
     t.string "title"
     t.datetime "updated_at", null: false
@@ -80,6 +85,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_30_203422) do
     t.string "phone_number"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["first_name", "last_name", "date_of_birth", "user_id"], name: "index_participants_unique_per_user", unique: true
     t.index ["user_id"], name: "index_participants_on_user_id"
   end
 

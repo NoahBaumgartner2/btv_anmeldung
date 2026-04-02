@@ -1,8 +1,8 @@
 <%= form_with(model: participant, class: "contents") do |form| %>
   <% if participant.errors.any? %>
-    <div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg mb-6 border border-red-200">
-      <h2><%= pluralize(participant.errors.count, "Fehler") %> gefunden:</h2>
-      <ul class="list-disc ml-5 mt-2 text-sm">
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+      <p class="font-semibold mb-1"><%= participant.errors.count == 1 ? "Es gibt einen Fehler:" : "Es gibt #{participant.errors.count} Fehler:" %></p>
+      <ul class="list-disc ml-5 text-sm space-y-0.5">
         <% participant.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
@@ -10,47 +10,125 @@
     </div>
   <% end %>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+  <%# ── Pflichtfelder ───────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-4">
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5">Persönliche Daten</p>
 
-    <div>
-      <%= form.label :first_name, "Vorname", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.text_field :first_name, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+      <div>
+        <%= form.label :first_name, "Vorname", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+        <%= form.text_field :first_name,
+              placeholder: "z.B. Laura",
+              autocomplete: "given-name",
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+                      participant.errors[:first_name].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-blue-500"] %>
+        <% if participant.errors[:first_name].any? %>
+          <p class="mt-1 text-xs text-red-600"><%= participant.errors[:first_name].first %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= form.label :last_name, "Nachname", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+        <%= form.text_field :last_name,
+              placeholder: "z.B. Müller",
+              autocomplete: "family-name",
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+                      participant.errors[:last_name].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-blue-500"] %>
+        <% if participant.errors[:last_name].any? %>
+          <p class="mt-1 text-xs text-red-600"><%= participant.errors[:last_name].first %></p>
+        <% end %>
+      </div>
     </div>
 
-    <div>
-      <%= form.label :last_name, "Nachname", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.text_field :last_name, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
-    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+      <div>
+        <%= form.label :date_of_birth, "Geburtsdatum", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+        <%= form.date_field :date_of_birth,
+              autocomplete: "bday",
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+                      participant.errors[:date_of_birth].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-blue-500"] %>
+        <% if participant.errors[:date_of_birth].any? %>
+          <p class="mt-1 text-xs text-red-600"><%= participant.errors[:date_of_birth].first %></p>
+        <% end %>
+      </div>
 
-    <div>
-      <%= form.label :date_of_birth, "Geburtsdatum", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.date_field :date_of_birth, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
-    </div>
-
-    <div>
-      <%= form.label :gender, "Geschlecht", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.select :gender, ['weiblich', 'männlich', 'divers'], { prompt: "Bitte wählen" }, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white" %>
-    </div>
-
-    <div>
-      <%= form.label :ahv_number, "AHV-Nummer", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.text_field :ahv_number, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm", placeholder: "756.XXXX.XXXX.XX" %>
-    </div>
-
-    <div>
-      <%= form.label :phone_number, "Notfall-Telefonnummer", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.text_field :phone_number, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" %>
-    </div>
-
-    <div class="md:col-span-2 pt-4 border-t border-gray-100">
-      <%= form.label :user_id, "Zugehöriges Eltern-Konto", class: "block text-sm font-medium text-gray-700 mb-1" %>
-      <%= form.collection_select :user_id, User.all, :id, :email, { prompt: "Konto auswählen..." }, class: "block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm bg-white" %>
-      <p class="mt-1 text-xs text-gray-500">Wähle den Account aus, der diesen Teilnehmer verwalten darf.</p>
+      <div>
+        <%= form.label :gender, "Geschlecht", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+        <div class="flex gap-3 mt-2">
+          <% Participant::GENDERS.each do |g| %>
+            <label class="flex-1 cursor-pointer">
+              <%= form.radio_button :gender, g, class: "sr-only peer", id: "gender_#{g}" %>
+              <span class="peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600
+                           flex items-center justify-center border-2 border-gray-200 bg-gray-50
+                           hover:border-blue-300 text-gray-700 font-semibold rounded-xl py-2.5
+                           text-sm transition select-none capitalize">
+                <%= g %>
+              </span>
+            </label>
+          <% end %>
+        </div>
+        <% if participant.errors[:gender].any? %>
+          <p class="mt-1 text-xs text-red-600"><%= participant.errors[:gender].first %></p>
+        <% end %>
+      </div>
     </div>
   </div>
 
-  <div class="flex justify-end gap-3">
-    <%= link_to "Abbrechen", participants_path, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition" %>
-    <%= form.submit "Teilnehmer speichern", class: "cursor-pointer inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition" %>
+  <%# ── Optionale Kontaktdaten ──────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-4">
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5">Kontaktdaten</p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+      <div>
+        <%= form.label :email, "E-Mail", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+        <%= form.email_field :email,
+              placeholder: "name@beispiel.ch",
+              autocomplete: "email",
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+                      participant.errors[:email].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-blue-500"] %>
+        <% if participant.errors[:email].any? %>
+          <p class="mt-1 text-xs text-red-600"><%= participant.errors[:email].first %></p>
+        <% end %>
+      </div>
+
+      <div>
+        <%= form.label :phone_number, "Notfall-Telefon", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+        <%= form.telephone_field :phone_number,
+              placeholder: "+41 79 123 45 67",
+              autocomplete: "tel",
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+                      participant.errors[:phone_number].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-blue-500"] %>
+        <% if participant.errors[:phone_number].any? %>
+          <p class="mt-1 text-xs text-red-600"><%= participant.errors[:phone_number].first %></p>
+        <% end %>
+      </div>
+    </div>
+
+    <div>
+      <%= form.label :ahv_number, "AHV-Nummer", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+      <%= form.text_field :ahv_number,
+            placeholder: "756.XXXX.XXXX.XX",
+            class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+      <p class="mt-1 text-xs text-gray-400">Wird für die Meldung ans Amt für Sport benötigt.</p>
+    </div>
+  </div>
+
+  <%# ── Admin: Kontoverknüpfung ─────────────────────────────────────────── %>
+  <% if current_user.admin? %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-4">
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5">Admin</p>
+      <%= form.label :user_id, "Zugehöriges Konto", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+      <%= form.collection_select :user_id, User.order(:email), :id, :email,
+            { prompt: "Konto auswählen…" },
+            class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" %>
+    </div>
+  <% end %>
+
+  <%# ── Aktionen ─────────────────────────────────────────────────────────── %>
+  <div class="flex flex-col sm:flex-row items-center gap-3">
+    <%= form.submit participant.new_record? ? "Person erfassen" : "Änderungen speichern",
+          class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
+    <%= link_to "Abbrechen", participants_path,
+          class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
   </div>
 <% end %>

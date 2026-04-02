@@ -16,14 +16,16 @@ class TrainingSessionsController < ApplicationController
     @training_session = TrainingSession.new
     if params[:course_id]
       @training_session.course_id = params[:course_id]
+      @course = Course.find_by(id: params[:course_id])
     end
   end
 
   def create
     @training_session = TrainingSession.new(training_session_params)
     if @training_session.save
-      redirect_to @training_session, notice: "Training erfolgreich erstellt. Du kannst jetzt die Anwesenheit eintragen."
+      redirect_to manage_course_path(@training_session.course), notice: "Training wurde erfolgreich hinzugefügt."
     else
+      @course = Course.find_by(id: @training_session.course_id)
       render :new, status: :unprocessable_entity
     end
   end
@@ -71,9 +73,7 @@ class TrainingSessionsController < ApplicationController
     @training_session = TrainingSession.find(params[:id])
   end
 
-# Hinweis: Ich gehe davon aus, dass deine Spalte in der DB "date" heisst.
-def training_session_params
-    # HIER :start_time statt :date
-    params.require(:training_session).permit(:course_id, :start_time)
+  def training_session_params
+    params.require(:training_session).permit(:course_id, :start_time, :end_time, :is_canceled)
   end
 end

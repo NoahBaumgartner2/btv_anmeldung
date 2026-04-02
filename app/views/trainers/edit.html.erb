@@ -1,10 +1,12 @@
-<% content_for :title, "Editing trainer" %>
+<% content_for :title, "Trainer bearbeiten" %>
 
-<div class="md:w-2/3 w-full">
-  <h1 class="font-bold text-4xl">Editing trainer</h1>
+<div class="max-w-2xl mx-auto w-full px-4 mt-10 mb-16">
+  <div class="mb-8">
+    <%= link_to "← Zurück zur Trainerliste", trainers_path,
+          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+    <h1 class="font-extrabold text-3xl text-gray-900 mt-3">Trainer bearbeiten</h1>
+    <p class="text-gray-500 mt-1"><%= @trainer.user.email %></p>
+  </div>
 
   <%= render "form", trainer: @trainer %>
-
-  <%= link_to "Show this trainer", @trainer, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
-  <%= link_to "Back to trainers", trainers_path, class: "w-full sm:w-auto text-center mt-2 sm:mt-0 sm:ml-2 rounded-md px-3.5 py-2.5 bg-gray-100 hover:bg-gray-50 inline-block font-medium" %>
 </div>

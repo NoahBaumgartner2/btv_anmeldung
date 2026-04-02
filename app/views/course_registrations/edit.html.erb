@@ -1,8 +1,16 @@
-<div class="max-w-2xl mx-auto w-full mt-10">
+<% content_for :title, "Anmeldung bearbeiten" %>
+
+<div class="max-w-2xl mx-auto w-full mt-10 px-4 mb-16">
   <div class="mb-6">
-    <h1 class="font-bold text-3xl text-gray-800">Anmeldung bearbeiten</h1>
-    <p class="text-gray-500 text-sm mt-1">Status und Bezahlung für diese Kursanmeldung anpassen.</p>
+    <h1 class="font-extrabold text-3xl text-gray-900">Anmeldung bearbeiten</h1>
+    <p class="text-gray-500 mt-1">Status und Bezahlung für diese Kursanmeldung anpassen.</p>
   </div>
 
-  <%= render "form", course_registration: @course_registration %>
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <%= render "form",
+          course_registration: @course_registration,
+          selectable_courses: @selectable_courses,
+          my_participants: @my_participants,
+          course: @course %>
+  </div>
 </div>

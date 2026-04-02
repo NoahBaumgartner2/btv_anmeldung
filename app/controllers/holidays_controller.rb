@@ -4,7 +4,7 @@ class HolidaysController < ApplicationController
 
   # GET /holidays or /holidays.json
   def index
-    @holidays = Holiday.all
+    @holidays = Holiday.order(start_date: :asc)
   end
 
   # GET /holidays/1 or /holidays/1.json
@@ -31,33 +31,19 @@ class HolidaysController < ApplicationController
     end
   end
 
-  def destroy
-    @holiday = Holiday.find(params[:id])
-    @holiday.destroy
-    redirect_back fallback_location: holidays_path, notice: "Ferien wurden entfernt."
-  end
-
-  # PATCH/PUT /holidays/1 or /holidays/1.json
+  # PATCH/PUT /holidays/1
   def update
-    respond_to do |format|
-      if @holiday.update(holiday_params)
-        format.html { redirect_to @holiday, notice: "Holiday was successfully updated.", status: :see_other }
-        format.json { render :show, status: :ok, location: @holiday }
-      else
-        format.html { render :edit, status: :unprocessable_entity }
-        format.json { render json: @holiday.errors, status: :unprocessable_entity }
-      end
+    if @holiday.update(holiday_params)
+      redirect_to holidays_path, notice: "Ferien wurden erfolgreich aktualisiert."
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
-  # DELETE /holidays/1 or /holidays/1.json
+  # DELETE /holidays/1
   def destroy
     @holiday.destroy!
-
-    respond_to do |format|
-      format.html { redirect_to holidays_path, notice: "Holiday was successfully destroyed.", status: :see_other }
-      format.json { head :no_content }
-    end
+    redirect_to holidays_path, notice: "Ferien wurden entfernt."
   end
 
   private

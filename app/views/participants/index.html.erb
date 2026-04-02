@@ -2,10 +2,10 @@
 
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-10 gap-4">
     <div>
-      <h1 class="font-extrabold text-4xl text-gray-900 tracking-tight">Familien-Profil</h1>
-      <p class="text-gray-500 mt-2 text-lg">Verwalte hier deine Kinder und ihre Kurs-Tickets.</p>
+      <h1 class="font-extrabold text-4xl text-gray-900 tracking-tight">Mein Profil</h1>
+      <p class="text-gray-500 mt-2 text-lg">Verwalte hier deine angemeldeten Personen und ihre Kurs-Tickets.</p>
     </div>
-    <%= link_to "+ Neues Kind erfassen", new_participant_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm transition whitespace-nowrap" %>
+    <%= link_to "+ Person erfassen", new_participant_path, class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm transition whitespace-nowrap" %>
   </div>
 
   <% if @participants.any? %>
@@ -16,15 +16,15 @@
 
           <div class="bg-gray-50 px-6 py-5 border-b border-gray-100 flex justify-between items-center">
             <div class="flex items-center gap-4">
-              <span class="text-4xl">
-                <%= participant.gender == 'männlich' ? '👦' : (participant.gender == 'weiblich' ? '👧' : '🧒') %>
-              </span>
+              <div class="h-12 w-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-lg shrink-0">
+                <%= participant.first_name&.first&.upcase %><%= participant.last_name&.first&.upcase %>
+              </div>
               <div>
                 <h2 class="text-2xl font-bold text-gray-900"><%= participant.first_name %> <%= participant.last_name %></h2>
-                <p class="text-sm font-medium text-gray-500">Geboren am: <%= participant.date_of_birth&.strftime("%d.%m.%Y") || "Nicht angegeben" %></p>
+                <p class="text-sm font-medium text-gray-500">Geb. <%= participant.date_of_birth&.strftime("%d.%m.%Y") || "Nicht angegeben" %></p>
               </div>
             </div>
-            <%= link_to "Bearbeiten ⚙️", edit_participant_path(participant), class: "text-sm font-bold text-gray-600 hover:text-gray-900 bg-white border border-gray-300 shadow-sm px-4 py-2 rounded-lg transition" %>
+            <%= link_to "Bearbeiten", edit_participant_path(participant), class: "text-sm font-bold text-gray-600 hover:text-gray-900 bg-white border border-gray-300 shadow-sm px-4 py-2 rounded-lg transition" %>
           </div>
 
           <div class="p-6">
@@ -51,40 +51,36 @@
                     <p class="text-xs font-bold text-blue-600 mb-4 uppercase tracking-wide"><%= course.registration_type %></p>
 
                     <div class="mt-auto pt-5 border-t border-gray-100 flex flex-col items-center">
-                    <% if reg.status == 'bestätigt' && course.has_ticketing %>
-                       <div class="cursor-pointer hover:scale-105 transition transform group w-full flex flex-col items-center" onclick="document.getElementById('qr-modal-<%= reg.id %>').classList.remove('hidden')">
-                        <div class="bg-white p-2 rounded-xl border-2 border-dashed border-gray-300 mb-3 w-32 h-32 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
-                          <%= generate_qr_code(scan_course_registration_url(reg)) %>
-                        </div>
-                        <p class="text-xs text-purple-600 font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1">
-                          <span>🔍</span> Ticket vergrößern
-                        </p>
-                      </div>
-
-                      <div id="qr-modal-<%= reg.id %>" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-gray-900 bg-opacity-80 backdrop-blur-sm p-4" onclick="this.classList.add('hidden')">
-                        <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center" onclick="event.stopPropagation()">
-                          <h3 class="text-2xl font-black text-gray-900 mb-1"><%= participant.first_name %>'s Ticket</h3>
-                          <p class="text-gray-500 mb-8 text-center font-medium"><%= course.title %></p>
-
-                          <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-8 w-64 h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
+                      <% if reg.status == 'bestätigt' && course.has_ticketing %>
+                        <div class="cursor-pointer hover:scale-105 transition transform group w-full flex flex-col items-center" onclick="document.getElementById('qr-modal-<%= reg.id %>').classList.remove('hidden')">
+                          <div class="bg-white p-2 rounded-xl border-2 border-dashed border-gray-300 mb-3 w-32 h-32 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
                             <%= generate_qr_code(scan_course_registration_url(reg)) %>
                           </div>
-
-                          <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 transition w-full text-lg" onclick="document.getElementById('qr-modal-<%= reg.id %>').classList.add('hidden')">
-                            Schließen
-                          </button>
+                          <p class="text-xs text-purple-600 font-bold uppercase tracking-wider text-center">Ticket vergrössern</p>
                         </div>
-                      </div>
+
+                        <div id="qr-modal-<%= reg.id %>" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-gray-900 bg-opacity-80 backdrop-blur-sm p-4" onclick="this.classList.add('hidden')">
+                          <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center" onclick="event.stopPropagation()">
+                            <h3 class="text-2xl font-black text-gray-900 mb-1">Ticket – <%= participant.first_name %></h3>
+                            <p class="text-gray-500 mb-8 text-center font-medium"><%= course.title %></p>
+
+                            <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-8 w-64 h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
+                              <%= generate_qr_code(scan_course_registration_url(reg)) %>
+                            </div>
+
+                            <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 transition w-full text-lg" onclick="document.getElementById('qr-modal-<%= reg.id %>').classList.add('hidden')">
+                              Schließen
+                            </button>
+                          </div>
+                        </div>
 
                       <% elsif reg.status == 'bestätigt' && !course.has_ticketing %>
                         <div class="bg-gray-50 rounded-xl p-4 text-center w-full border border-gray-100">
-                          <span class="text-2xl block mb-1">📅</span>
                           <span class="text-xs text-gray-500 font-bold uppercase">Kein Ticket benötigt</span>
                         </div>
 
                       <% else %>
                         <div class="bg-orange-50 rounded-xl p-4 text-center w-full border border-orange-100">
-                          <span class="text-2xl block mb-1">⏳</span>
                           <span class="text-xs text-orange-600 font-bold uppercase">Warten auf Platz</span>
                         </div>
                       <% end %>
@@ -95,7 +91,7 @@
               </div>
             <% else %>
               <div class="bg-gray-50 rounded-xl p-6 text-center border border-gray-100 border-dashed">
-                <p class="text-gray-500 text-sm font-medium">Dieses Kind ist aktuell noch für keine Kurse angemeldet.</p>
+                <p class="text-gray-500 text-sm font-medium"><%= participant.first_name %> ist aktuell für keine Kurse angemeldet.</p>
                 <%= link_to "Zu den Kursen", courses_path, class: "mt-3 inline-block text-blue-600 font-bold hover:underline" %>
               </div>
             <% end %>
@@ -106,10 +102,9 @@
     </div>
   <% else %>
     <div class="bg-white p-12 rounded-3xl shadow-sm border border-gray-200 text-center">
-      <span class="text-6xl block mb-6">🤸‍♀️</span>
-      <h2 class="text-2xl font-bold text-gray-900 mb-3">Willkommen im Familien-Profil!</h2>
-      <p class="text-gray-500 mb-8 max-w-md mx-auto text-lg">Du hast noch keine Kinder in deinem Profil hinterlegt. Erfasse jetzt dein erstes Kind, um es für das Training anzumelden.</p>
-      <%= link_to "+ Neues Kind erfassen", new_participant_path, class: "inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-sm transition text-lg" %>
+      <h2 class="text-2xl font-bold text-gray-900 mb-3">Noch keine Personen erfasst</h2>
+      <p class="text-gray-500 mb-8 max-w-md mx-auto text-lg">Erfasse jetzt eine Person, um sie für Kurse anzumelden.</p>
+      <%= link_to "+ Person erfassen", new_participant_path, class: "inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-8 rounded-xl shadow-sm transition text-lg" %>
     </div>
   <% end %>
 

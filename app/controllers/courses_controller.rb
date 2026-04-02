@@ -5,7 +5,7 @@ class CoursesController < ApplicationController
   before_action :authorize_trainer!, only: [:manage]
   before_action :set_course, only: %i[ show edit update destroy generate_trainings create_generated_trainings manage ]
   def index
-    @courses = Course.all
+    @courses = Course.includes(:course_registrations).order(:title)
   end
 
   # GET /courses/1 or /courses/1.json
@@ -65,35 +65,53 @@ class CoursesController < ApplicationController
 
   # Führt die Magie aus!
   def create_generated_trainings
-    @course = Course.find(params[:id])
-    wochentag = params[:day_of_week].to_i # 0=So, 1=Mo...
-    uhrzeit = params[:start_time] # Format "18:00"
+    unless @course.start_date.present? && @course.end_date.present?
+      redirect_to generate_trainings_course_path(@course),
+                  alert: "Dieser Kurs hat kein Start- oder Enddatum. Bitte zuerst den Kurs bearbeiten." and return
+    end
 
-    holidays = Holiday.all
+    unless params[:start_hour].present? && params[:day_of_week].present?
+      redirect_to generate_trainings_course_path(@course),
+                  alert: "Bitte Wochentag und Startzeit auswählen." and return
+    end
+
+    wochentag = params[:day_of_week].to_i
+    start_uhrzeit = "#{params[:start_hour]}:#{format('%02d', params[:start_minute].to_i)}"
+    end_uhrzeit   = params[:end_hour].present? ? "#{params[:end_hour]}:#{format('%02d', params[:end_minute].to_i)}" : nil
+
+    holidays     = Holiday.all
     current_date = @course.start_date.to_date
-    end_date = @course.end_date.to_date
-    created_count = 0
+    end_date     = @course.end_date.to_date
+    created_count  = 0
+    skipped_count  = 0
 
     while current_date <= end_date
       if current_date.wday == wochentag
-        # Check: Liegt das Datum in den Ferien?
         is_holiday = holidays.any? { |h| current_date >= h.start_date && current_date <= h.end_date }
+        exists     = @course.training_sessions.where("start_time::date = ?", current_date).exists?
 
-        exists = @course.training_sessions.where("start_time::date = ?", current_date).exists?
+        if is_holiday || exists
+          skipped_count += 1
+        else
+          sh, sm = start_uhrzeit.split(":").map(&:to_i)
+          full_start = current_date.in_time_zone.change(hour: sh, min: sm)
 
-        unless is_holiday
-          # Zeit kombinieren
-          h, m = uhrzeit.split(":")
-          full_start = current_date.in_time_zone.change(hour: h, min: m)
+          full_end = if end_uhrzeit.present?
+            eh, em = end_uhrzeit.split(":").map(&:to_i)
+            current_date.in_time_zone.change(hour: eh, min: em)
+          end
 
-          @course.training_sessions.create!(start_time: full_start)
+          @course.training_sessions.create!(start_time: full_start, end_time: full_end)
           created_count += 1
         end
       end
       current_date += 1.day
     end
 
-    redirect_to @course, notice: "#{created_count} Trainings wurden automatisch erstellt (Ferien wurden übersprungen)!"
+    notice = "#{created_count} #{"Training".pluralize(created_count)} erstellt"
+    notice += ", #{skipped_count} übersprungen (Ferien oder bereits vorhanden)" if skipped_count > 0
+
+    redirect_to manage_course_path(@course), notice: notice
   end
 
   def manage
@@ -107,7 +125,7 @@ class CoursesController < ApplicationController
     end
 
     # Only allow a list of trusted parameters through.
-  def course_params
-  params.require(:course).permit(:title, :description, :start_date, :end_date, :location, :registration_type, :has_payment, :has_ticketing, :registration_mode, :max_participants, trainer_ids: [])
-  end
+    def course_params
+      params.require(:course).permit(:title, :description, :start_date, :end_date, :location, :registration_type, :has_payment, :has_ticketing, :registration_mode, :max_participants, :requires_ahv_number, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [])
+    end
 end
