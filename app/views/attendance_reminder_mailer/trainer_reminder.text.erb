@@ -1,0 +1,13 @@
+Hallo <%= @trainer.user.email.split("@").first %>!
+
+Für folgende Trainingseinheit wurde die Anwesenheit noch nicht erfasst:
+
+Kurs:  <%= @course.name %>
+Datum: <%= I18n.l(@training_session.start_time, format: :long) %> – <%= I18n.l(@training_session.end_time, format: :short) %>
+
+Bitte erfasse die Anwesenheit so bald wie möglich, damit die Teilnehmer korrekt verwaltet werden können.
+
+Anwesenheit erfassen: <%= @training_session_url %>
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

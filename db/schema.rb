@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_02_100225) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_02_121048) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -119,11 +119,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_100225) do
   end
 
   create_table "training_sessions", force: :cascade do |t|
+    t.datetime "admin_notified_at"
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
     t.datetime "end_time"
     t.boolean "is_canceled"
     t.datetime "start_time"
+    t.datetime "trainer_reminded_at"
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_training_sessions_on_course_id"
   end
