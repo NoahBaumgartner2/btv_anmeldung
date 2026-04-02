@@ -28,6 +28,23 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :newsletter_subscribers, only: %i[index create update destroy] do
+    collection do
+      post :import
+      get  :export
+    end
+    member do
+      get :unsubscribe
+    end
+  end
+
+  resources :newsletters, only: %i[index new create edit update destroy] do
+    member do
+      post :send_newsletter
+      get  :preview
+    end
+  end
+
   devise_for :users
   root "courses#index"
 end
