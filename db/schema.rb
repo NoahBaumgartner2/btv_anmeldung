@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_02_090527) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_02_121048) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -74,6 +74,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_090527) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "newsletter_subscribers", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email", null: false
+    t.string "name"
+    t.string "source", default: "manual"
+    t.string "status", default: "subscribed", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_newsletter_subscribers_on_email", unique: true
+  end
+
+  create_table "newsletters", force: :cascade do |t|
+    t.text "body_html"
+    t.datetime "created_at", null: false
+    t.integer "recipients_count"
+    t.datetime "sent_at"
+    t.string "status"
+    t.string "subject"
+    t.string "title"
+    t.datetime "updated_at", null: false
+  end
+
   create_table "participants", force: :cascade do |t|
     t.string "ahv_number"
     t.datetime "created_at", null: false
@@ -98,11 +119,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_090527) do
   end
 
   create_table "training_sessions", force: :cascade do |t|
+    t.datetime "admin_notified_at"
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
     t.datetime "end_time"
     t.boolean "is_canceled"
     t.datetime "start_time"
+    t.datetime "trainer_reminded_at"
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_training_sessions_on_course_id"
   end

@@ -53,7 +53,7 @@
           </p>
         </div>
       </div>
-      <%= link_to "Präsenzkontrolle öffnen", scanner_training_session_path(live_session),
+      <%= link_to "Präsenzkontrolle öffnen", training_session_path(live_session),
             class: "shrink-0 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-lg text-sm transition" %>
     </div>
   <% end %>
@@ -170,10 +170,10 @@
             <%# Aktionen %>
             <div class="flex items-center gap-2 shrink-0">
               <% if is_live %>
-                <%= link_to "Präsenzkontrolle", scanner_training_session_path(session),
+                <%= link_to "Präsenzkontrolle", training_session_path(session),
                       class: "bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition" %>
               <% else %>
-                <%= link_to "Präsenzkontrolle", scanner_training_session_path(session),
+                <%= link_to "Präsenzkontrolle", training_session_path(session),
                       class: "bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold py-2 px-4 rounded-lg transition" %>
               <% end %>
             </div>
@@ -215,9 +215,10 @@
         </thead>
         <tbody class="divide-y divide-gray-200 bg-white">
           <% @course.course_registrations.includes(:participant).order(status: :asc).each do |reg| %>
+            <% p = reg.participant %>
             <tr class="hover:bg-gray-50 transition">
               <td class="py-4 px-6 font-semibold text-gray-900 text-sm">
-                <%= reg.participant.first_name %> <%= reg.participant.last_name %>
+                <%= p.first_name %> <%= p.last_name %>
               </td>
               <td class="py-4 px-6">
                 <% if reg.status == 'bestätigt' %>
@@ -234,10 +235,78 @@
                 <% end %>
               </td>
               <td class="py-4 px-6 text-right text-sm">
-                <% if current_user.admin? %>
-                  <%= link_to "Bearbeiten", edit_course_registration_path(reg),
-                        class: "text-blue-600 font-bold hover:text-blue-800" %>
-                <% end %>
+                <div class="inline-flex items-center gap-3">
+                  <button type="button"
+                          onclick="document.getElementById('detail-modal-<%= reg.id.to_json %>').classList.remove('hidden')"
+                          class="text-gray-600 font-bold hover:text-gray-900 transition cursor-pointer">
+                    Details
+                  </button>
+                  <% if current_user.admin? %>
+                    <%= link_to "Bearbeiten", edit_course_registration_path(reg),
+                          class: "text-blue-600 font-bold hover:text-blue-800" %>
+                  <% end %>
+                </div>
+
+                <%# Detail-Modal %>
+                <div id="detail-modal-<%= reg.id %>"
+                     class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4"
+                     onclick="this.classList.add('hidden')">
+                  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-left" onclick="event.stopPropagation()">
+
+                    <%# Kopf %>
+                    <div class="flex items-center gap-4 mb-5">
+                      <div class="h-14 w-14 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-extrabold text-xl shrink-0">
+                        <%= p.first_name.first.upcase %><%= p.last_name.first.upcase %>
+                      </div>
+                      <div>
+                        <h3 class="text-xl font-extrabold text-gray-900 leading-tight"><%= p.first_name %> <%= p.last_name %></h3>
+                        <p class="text-xs text-gray-400 font-medium mt-0.5"><%= p.gender&.capitalize %></p>
+                      </div>
+                    </div>
+
+                    <%# Detailzeilen %>
+                    <dl class="space-y-3 text-sm mb-6">
+                      <div class="flex justify-between gap-4">
+                        <dt class="text-gray-400 font-medium shrink-0">Geburtsdatum</dt>
+                        <dd class="font-semibold text-gray-900 text-right"><%= p.date_of_birth&.strftime("%d.%m.%Y") || "—" %></dd>
+                      </div>
+                      <div class="flex justify-between gap-4">
+                        <dt class="text-gray-400 font-medium shrink-0">E-Mail</dt>
+                        <dd class="font-semibold text-gray-900 text-right truncate"><%= p.email.presence || "—" %></dd>
+                      </div>
+                      <div class="flex justify-between gap-4">
+                        <dt class="text-gray-400 font-medium shrink-0">Telefon</dt>
+                        <dd class="font-semibold text-gray-900 text-right"><%= p.phone_number.presence || "—" %></dd>
+                      </div>
+                      <% if p.ahv_number.present? %>
+                        <div class="flex justify-between gap-4">
+                          <dt class="text-gray-400 font-medium shrink-0">AHV-Nummer</dt>
+                          <dd class="font-semibold text-gray-900 text-right"><%= p.ahv_number %></dd>
+                        </div>
+                      <% end %>
+                      <div class="flex justify-between gap-4 pt-2 border-t border-gray-100">
+                        <dt class="text-gray-400 font-medium shrink-0">Anmeldestatus</dt>
+                        <dd class="font-semibold text-right">
+                          <% if reg.status == 'bestätigt' %>
+                            <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-0.5 rounded-full">Bestätigt</span>
+                          <% else %>
+                            <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full">Warteliste</span>
+                          <% end %>
+                        </dd>
+                      </div>
+                      <div class="flex justify-between gap-4">
+                        <dt class="text-gray-400 font-medium shrink-0">Bezahlung</dt>
+                        <dd class="font-semibold text-gray-900 text-right"><%= reg.payment_cleared ? "Bezahlt" : "Ausstehend" %></dd>
+                      </div>
+                    </dl>
+
+                    <button type="button"
+                            onclick="document.getElementById('detail-modal-<%= reg.id.to_json %>').classList.add('hidden')"
+                            class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition cursor-pointer">
+                      Schliessen
+                    </button>
+                  </div>
+                </div>
               </td>
             </tr>
           <% end %>

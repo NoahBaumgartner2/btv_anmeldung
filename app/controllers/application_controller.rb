@@ -19,4 +19,11 @@ private
       redirect_to root_path, alert: "Zugriff verweigert! Du musst Trainer sein, um das zu sehen."
     end
   end
+
+  # Türsteher 3: Elternteil darf nur die eigenen Kinder bearbeiten
+  def authorize_parent_owns_registration!(registration)
+    unless current_user.participants.include?(registration.participant)
+      redirect_to root_path, alert: "Zugriff verweigert."
+    end
+  end
 end

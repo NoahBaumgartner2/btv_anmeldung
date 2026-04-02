@@ -1,15 +1,17 @@
 class TrainingSessionsController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_trainer!
-  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance scanner ]
+  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance scanner cancel uncancel ]
 
   def index
     @training_sessions = TrainingSession.all
   end
 
   def show
-    # Wir laden für die Checkliste nur die Teilnehmer, deren Status "bestätigt" ist
-    @registrations = @training_session.course.course_registrations.includes(:participant).where(status: "bestätigt")
+    @registrations = @training_session.course.course_registrations
+      .includes(:participant)
+      .where(status: "bestätigt")
+    @attendances_by_reg_id = @training_session.attendances.index_by(&:course_registration_id)
   end
 
   def new
@@ -47,8 +49,31 @@ class TrainingSessionsController < ApplicationController
     redirect_to course_path(course), notice: "Training gelöscht."
   end
 
+  def cancel
+    @training_session.update!(is_canceled: true)
+
+    @training_session.course.course_registrations
+      .where(status: "bestätigt")
+      .includes(participant: :user)
+      .each do |registration|
+        TrainingSessionMailer.cancellation_notice(@training_session, registration.participant.user).deliver_later
+      end
+
+    redirect_to @training_session, notice: "Das Training wurde abgesagt und alle Teilnehmenden wurden per E-Mail benachrichtigt."
+  end
+
+  def uncancel
+    authorize_admin!
+    return if performed?
+
+    @training_session.update!(is_canceled: false)
+    redirect_to @training_session, notice: "Die Absage wurde rückgängig gemacht. Das Training ist wieder aktiv."
+  end
+
   # NEU: Der magische Toggle für die Anwesenheit
   def toggle_attendance
+    return redirect_to @training_session, alert: "Training ist abgesagt – Anwesenheit kann nicht erfasst werden." if @training_session.is_canceled?
+
     # Wir fangen jetzt die ID der Kursanmeldung auf
     course_registration_id = params[:course_registration_id]
 
@@ -56,9 +81,11 @@ class TrainingSessionsController < ApplicationController
     attendance = @training_session.attendances.find_by(course_registration_id: course_registration_id)
 
     if attendance
-      attendance.destroy # War anwesend -> jetzt auf abwesend setzen
+      return redirect_to @training_session if attendance.abgemeldet?
+
+      attendance.destroy
     else
-      @training_session.attendances.create(course_registration_id: course_registration_id) # Auf anwesend setzen
+      @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
     end
 
     redirect_to @training_session

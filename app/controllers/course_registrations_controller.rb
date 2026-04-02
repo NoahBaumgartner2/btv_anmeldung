@@ -80,7 +80,36 @@ class CourseRegistrationsController < ApplicationController
     redirect_to course_path(course), notice: "Die Anmeldung wurde gelöscht."
   end
 
-def scan
+def unsubscribe_from_session
+    @course_registration = CourseRegistration.find(params[:id])
+    authorize_parent_owns_registration!(@course_registration)
+    return if performed?
+
+    @training_session = TrainingSession.find(params[:training_session_id])
+
+    unless @training_session.start_time > 24.hours.from_now
+      redirect_to participants_path, alert: "Eine Abmeldung ist nur bis 24 Stunden vor dem Training möglich."
+      return
+    end
+
+    attendance = @training_session.attendances.find_or_initialize_by(
+      course_registration_id: @course_registration.id
+    )
+    attendance.update!(status: "abgemeldet")
+
+    User.where(admin: true).each do |admin_user|
+      TrainingSessionMailer.session_unsubscription_notice(
+        @training_session, @course_registration, admin_user
+      ).deliver_later
+    end
+
+    participant_name = @course_registration.participant.first_name
+    session_date = I18n.l(@training_session.start_time.to_date)
+    redirect_to participants_path,
+                notice: "#{participant_name} wurde vom Training am #{session_date} abgemeldet."
+  end
+
+  def scan
     authorize_trainer!
 
     @registration = CourseRegistration.find(params[:id])
@@ -94,11 +123,8 @@ def scan
     end
 
     # 2. Kind in dieser Liste abhaken!
-    attendance = @session.attendances.find_or_create_by(course_registration_id: @registration.id)
-
-    # (Sicherheits-Check: Falls du in der Datenbank ein echtes Feld für den Status hast, aktivieren wir es hier)
-    attendance.update(present: true) if attendance.has_attribute?(:present)
-    attendance.update(status: "present") if attendance.has_attribute?(:status)
+    attendance = @session.attendances.find_or_initialize_by(course_registration_id: @registration.id)
+    attendance.update!(status: "anwesend")
 
     respond_to do |format|
       format.html { redirect_to @session, notice: "✅ BING! #{@registration.participant.first_name} wurde eingecheckt!" }

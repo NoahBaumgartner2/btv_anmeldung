@@ -50,9 +50,41 @@
                     <h4 class="font-bold text-gray-900 pr-16 mb-1 text-lg"><%= course.title %></h4>
                     <p class="text-xs font-bold text-blue-600 mb-4 uppercase tracking-wide"><%= course.registration_type %></p>
 
+                    <%# Nächste Trainings mit Abmeldemöglichkeit %>
+                    <% upcoming_sessions = @upcoming_by_course[course.id] || [] %>
+                    <% if reg.status == 'bestätigt' && upcoming_sessions.any? %>
+                      <div class="mt-4 pt-4 border-t border-gray-100">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Nächste Trainings</p>
+                        <ul class="space-y-2">
+                          <% upcoming_sessions.each do |session| %>
+                            <% is_unsubscribed = @unsubscribed_pairs.include?([reg.id, session.id]) %>
+                            <% can_unsubscribe = !is_unsubscribed && session.start_time > 24.hours.from_now %>
+                            <li class="flex items-center justify-between gap-2 text-sm">
+                              <span class="text-gray-700 font-medium">
+                                <%= session.start_time.strftime("%-d. %b, %H:%M") %> Uhr
+                              </span>
+                              <% if is_unsubscribed %>
+                                <span class="text-xs font-bold px-2 py-1 rounded-md bg-red-100 text-red-600">Abgemeldet</span>
+                              <% elsif can_unsubscribe %>
+                                <%= button_to unsubscribe_from_session_course_registration_path(reg),
+                                      method: :post,
+                                      params: { training_session_id: session.id },
+                                      data: { turbo_confirm: "#{participant.first_name} vom Training am #{session.start_time.strftime('%-d. %B')} abmelden?" },
+                                      class: "text-xs font-bold px-2 py-1 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition cursor-pointer" do %>
+                                  Abmelden
+                                <% end %>
+                              <% else %>
+                                <span class="text-xs text-gray-400">–</span>
+                              <% end %>
+                            </li>
+                          <% end %>
+                        </ul>
+                      </div>
+                    <% end %>
+
                     <div class="mt-auto pt-5 border-t border-gray-100 flex flex-col items-center">
                       <% if reg.status == 'bestätigt' && course.has_ticketing %>
-                        <div class="cursor-pointer hover:scale-105 transition transform group w-full flex flex-col items-center" onclick="document.getElementById('qr-modal-<%= reg.id %>').classList.remove('hidden')">
+                        <div class="cursor-pointer hover:scale-105 transition transform group w-full flex flex-col items-center" onclick="document.getElementById('qr-modal-<%= reg.id.to_json %>').classList.remove('hidden')">
                           <div class="bg-white p-2 rounded-xl border-2 border-dashed border-gray-300 mb-3 w-32 h-32 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
                             <%= generate_qr_code(scan_course_registration_url(reg)) %>
                           </div>
@@ -68,7 +100,7 @@
                               <%= generate_qr_code(scan_course_registration_url(reg)) %>
                             </div>
 
-                            <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 transition w-full text-lg" onclick="document.getElementById('qr-modal-<%= reg.id %>').classList.add('hidden')">
+                            <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 transition w-full text-lg" onclick="document.getElementById('qr-modal-<%= reg.id.to_json %>').classList.add('hidden')">
                               Schließen
                             </button>
                           </div>

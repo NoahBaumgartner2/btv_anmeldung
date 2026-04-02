@@ -1,0 +1,10 @@
+Ein Kind wurde von einer Trainingseinheit abgemeldet.
+
+Kind:  <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:  <%= @course.title %>
+Datum: <%= I18n.l(@training_session.start_time, format: :long) %> – <%= I18n.l(@training_session.end_time, format: :short) %>
+
+Trainingseinheit ansehen: <%= @training_session_url %>
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

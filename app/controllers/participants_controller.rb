@@ -3,7 +3,26 @@ class ParticipantsController < ApplicationController
   before_action :set_participant, only: %i[show edit update destroy]
 
   def index
-    @participants = current_user.participants
+    @participants = current_user.participants.includes(course_registrations: :course)
+
+    confirmed_registrations = @participants.flat_map(&:course_registrations).select { |r| r.status == "bestätigt" }
+    confirmed_course_ids = confirmed_registrations.map(&:course_id).uniq
+    confirmed_reg_ids = confirmed_registrations.map(&:id)
+
+    upcoming = TrainingSession
+      .where(course_id: confirmed_course_ids, is_canceled: false)
+      .where("start_time > ?", Time.current)
+      .order(:start_time)
+      .includes(:attendances)
+
+    @upcoming_by_course = upcoming.each_with_object(Hash.new { |h, k| h[k] = [] }) do |session, hash|
+      hash[session.course_id] << session if hash[session.course_id].size < 3
+    end
+
+    @unsubscribed_pairs = Attendance
+      .where(course_registration_id: confirmed_reg_ids, status: "abgemeldet")
+      .pluck(:course_registration_id, :training_session_id)
+      .to_set
   end
 
   def show
@@ -48,7 +67,7 @@ class ParticipantsController < ApplicationController
   end
 
   def participant_params
-    allowed = [:first_name, :last_name, :email, :phone_number, :ahv_number, :date_of_birth, :gender]
+    allowed = [ :first_name, :last_name, :email, :phone_number, :ahv_number, :date_of_birth, :gender ]
     allowed << :user_id if current_user.admin?
     params.expect(participant: allowed)
   end

@@ -90,6 +90,4 @@ erDiagram
 TODO
 
 - Abmeldungen von Eltern aus
-- Abmeldungen von Trainings Trainer/Admin durch E-Mail benachrichtigt
-- Reminder zur anwesenheitsontrolle an Trainer
-- Falls intevall grösser als x dann Mail an Admin
+
