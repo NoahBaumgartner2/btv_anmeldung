@@ -48,6 +48,21 @@
     </div>
   </div>
 
+  <%# ── Absagen-Button ──────────────────────────────────────────────────── %>
+  <% unless @training_session.is_canceled? %>
+    <div class="mb-6">
+      <%= button_to cancel_training_session_path(@training_session),
+            method: :post,
+            data: { turbo_confirm: "Bist du sicher? Alle Teilnehmer werden per E-Mail benachrichtigt." },
+            class: "inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg transition shadow-sm cursor-pointer" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+        Training absagen
+      <% end %>
+    </div>
+  <% end %>
+
   <%# ── Anwesenheits-Fortschritt ────────────────────────────────────────── %>
   <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-5 mb-6">
     <div class="flex items-center justify-between mb-3">

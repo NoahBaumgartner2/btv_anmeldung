@@ -1,7 +1,7 @@
 class TrainingSessionsController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_trainer!
-  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance scanner ]
+  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance scanner cancel ]
 
   def index
     @training_sessions = TrainingSession.all
@@ -45,6 +45,19 @@ class TrainingSessionsController < ApplicationController
     course = @training_session.course
     @training_session.destroy
     redirect_to course_path(course), notice: "Training gelöscht."
+  end
+
+  def cancel
+    @training_session.update!(is_canceled: true)
+
+    @training_session.course.course_registrations
+      .where(status: "bestätigt")
+      .includes(participant: :user)
+      .each do |registration|
+        TrainingSessionMailer.cancellation_notice(@training_session, registration.participant.user).deliver_later
+      end
+
+    redirect_to @training_session, notice: "Das Training wurde abgesagt und alle Teilnehmenden wurden per E-Mail benachrichtigt."
   end
 
   # NEU: Der magische Toggle für die Anwesenheit

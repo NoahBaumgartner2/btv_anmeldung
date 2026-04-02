@@ -1,12 +1,12 @@
 Rails.application.routes.draw do
   # NEU: Die Routen für unsere Dashboards
-  get 'dashboards/admin'
-  get 'dashboards/trainer'
+  get "dashboards/admin"
+  get "dashboards/trainer"
 
   resources :trainers
   resources :holidays
   resources :participants
-  
+
   resources :courses do
     member do
       get :generate_trainings
@@ -20,11 +20,12 @@ Rails.application.routes.draw do
       get :scan # NEU: Der geheime Link zum Scannen des Tickets!
     end
   end
-  
+
   resources :training_sessions do
     member do
       post :toggle_attendance
       get :scanner # NEU: Die Route für den Kamera-Modus
+      post :cancel
     end
   end
 
