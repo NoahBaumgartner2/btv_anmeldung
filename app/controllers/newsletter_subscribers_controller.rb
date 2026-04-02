@@ -3,9 +3,17 @@ class NewsletterSubscribersController < ApplicationController
   before_action :authorize_admin!,   except: :unsubscribe
 
   def index
-    @subscribers = NewsletterSubscriber.order(created_at: :desc)
-    @subscribed_count   = @subscribers.subscribed.count
-    @unsubscribed_count = @subscribers.unsubscribed.count
+    @subscribed_count   = NewsletterSubscriber.subscribed.count
+    @unsubscribed_count = NewsletterSubscriber.unsubscribed.count
+    @total_count        = NewsletterSubscriber.count
+
+    if params[:q].present?
+      q = "%#{params[:q].strip.downcase}%"
+      @results = NewsletterSubscriber
+                   .where("LOWER(email) LIKE ? OR LOWER(name) LIKE ?", q, q)
+                   .order(created_at: :desc)
+                   .limit(100)
+    end
   end
 
   def create
@@ -13,9 +21,9 @@ class NewsletterSubscribersController < ApplicationController
     if @subscriber.save
       redirect_to newsletter_subscribers_path, notice: "#{@subscriber.email} wurde hinzugefügt."
     else
-      @subscribers = NewsletterSubscriber.order(created_at: :desc)
-      @subscribed_count   = @subscribers.subscribed.count
-      @unsubscribed_count = @subscribers.unsubscribed.count
+      @subscribed_count   = NewsletterSubscriber.subscribed.count
+      @unsubscribed_count = NewsletterSubscriber.unsubscribed.count
+      @total_count        = NewsletterSubscriber.count
       render :index, status: :unprocessable_entity
     end
   end

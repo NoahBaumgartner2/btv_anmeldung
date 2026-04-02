@@ -9,7 +9,7 @@
       <p class="text-gray-500 text-sm mt-1">
         <span class="font-semibold text-green-700"><%= @subscribed_count %> angemeldet</span>
         · <span class="text-gray-400"><%= @unsubscribed_count %> abgemeldet</span>
-        · <span class="text-gray-400"><%= @subscribers.count %> total</span>
+        · <span class="text-gray-400"><%= @total_count %> total</span>
       </p>
     </div>
     <%= link_to "CSV exportieren", export_newsletter_subscribers_path,
@@ -83,74 +83,106 @@
         </div>
         <div class="pt-2 border-t border-blue-500 flex justify-between text-sm">
           <span class="text-blue-200">Total</span>
-          <span class="font-bold"><%= @subscribers.count %></span>
+          <span class="font-bold"><%= @total_count %></span>
         </div>
       </div>
     </div>
 
   </div>
 
-  <%# ── Tabelle ──────────────────────────────────────────────────────────── %>
+  <%# ── Suche + Tabelle ─────────────────────────────────────────────────── %>
   <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-      <h2 class="font-bold text-gray-900">Alle Empfänger</h2>
-      <span class="text-sm text-gray-400"><%= @subscribers.count %> Einträge</span>
+    <div class="px-5 py-4 border-b border-gray-100">
+      <%= form_with url: newsletter_subscribers_path, method: :get, data: { turbo_frame: "_top" } do |f| %>
+        <div class="flex gap-3">
+          <%= f.search_field :q, value: params[:q],
+                placeholder: "Nach E-Mail oder Name suchen…",
+                autofocus: params[:q].present?,
+                class: "flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" %>
+          <button type="submit"
+                  class="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm px-4 py-2 rounded-lg transition">
+            Suchen
+          </button>
+          <% if params[:q].present? %>
+            <%= link_to "Zurücksetzen", newsletter_subscribers_path,
+                  class: "bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm px-4 py-2 rounded-lg transition" %>
+          <% end %>
+        </div>
+      <% end %>
     </div>
 
-    <% if @subscribers.any? %>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-100">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">E-Mail</th>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Quelle</th>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Hinzugefügt</th>
-              <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktionen</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-50">
-            <% @subscribers.each do |sub| %>
-              <tr class="hover:bg-gray-50 transition">
-                <td class="py-3 px-4 text-sm font-semibold text-gray-900"><%= sub.email %></td>
-                <td class="py-3 px-4 text-sm text-gray-500"><%= sub.name.presence || "—" %></td>
-                <td class="py-3 px-4">
-                  <% if sub.subscribed? %>
-                    <span class="inline-flex items-center gap-1.5 text-xs font-bold bg-green-100 text-green-800 px-2.5 py-1 rounded-full">
-                      <span class="h-1.5 w-1.5 rounded-full bg-green-500 inline-block"></span>
-                      Angemeldet
-                    </span>
-                  <% else %>
-                    <span class="inline-flex items-center gap-1.5 text-xs font-bold bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full">
-                      <span class="h-1.5 w-1.5 rounded-full bg-gray-400 inline-block"></span>
-                      Abgemeldet
-                    </span>
-                  <% end %>
-                </td>
-                <td class="py-3 px-4 text-xs text-gray-400">
-                  <%= sub.source == "csv_import" ? "CSV" : "Manuell" %>
-                </td>
-                <td class="py-3 px-4 text-xs text-gray-400">
-                  <%= sub.created_at.strftime("%-d. %b %Y") %>
-                </td>
-                <td class="py-3 px-4 text-right">
-                  <div class="flex items-center justify-end gap-2">
-                    <%= button_to sub.subscribed? ? "Abmelden" : "Anmelden",
-                          newsletter_subscriber_path(sub),
-                          method: :patch,
-                          class: "text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer #{sub.subscribed? ? 'bg-gray-100 hover:bg-gray-200 text-gray-600' : 'bg-green-100 hover:bg-green-200 text-green-700'}" %>
-                    <%= button_to "Löschen",
-                          newsletter_subscriber_path(sub),
-                          method: :delete,
-                          data: { turbo_confirm: "#{sub.email} wirklich löschen?" },
-                          class: "text-xs font-bold px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition cursor-pointer" %>
-                  </div>
-                </td>
+    <% if params[:q].present? %>
+      <% if @results.any? %>
+        <div class="px-5 py-2 bg-gray-50 border-b border-gray-100">
+          <p class="text-xs text-gray-500">
+            <% count = @results.size %>
+            <%= count == 100 ? "Erste 100 Treffer" : "#{count} #{"Treffer".pluralize(count)}" %>
+            für <span class="font-semibold">"<%= params[:q] %>"</span>
+          </p>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">E-Mail</th>
+                <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Quelle</th>
+                <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Hinzugefügt</th>
+                <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktionen</th>
               </tr>
-            <% end %>
-          </tbody>
-        </table>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+              <% @results.each do |sub| %>
+                <tr class="hover:bg-gray-50 transition">
+                  <td class="py-3 px-4 text-sm font-semibold text-gray-900"><%= sub.email %></td>
+                  <td class="py-3 px-4 text-sm text-gray-500"><%= sub.name.presence || "—" %></td>
+                  <td class="py-3 px-4">
+                    <% if sub.subscribed? %>
+                      <span class="inline-flex items-center gap-1.5 text-xs font-bold bg-green-100 text-green-800 px-2.5 py-1 rounded-full">
+                        <span class="h-1.5 w-1.5 rounded-full bg-green-500 inline-block"></span>
+                        Angemeldet
+                      </span>
+                    <% else %>
+                      <span class="inline-flex items-center gap-1.5 text-xs font-bold bg-gray-100 text-gray-500 px-2.5 py-1 rounded-full">
+                        <span class="h-1.5 w-1.5 rounded-full bg-gray-400 inline-block"></span>
+                        Abgemeldet
+                      </span>
+                    <% end %>
+                  </td>
+                  <td class="py-3 px-4 text-xs text-gray-400">
+                    <%= sub.source == "csv_import" ? "CSV" : "Manuell" %>
+                  </td>
+                  <td class="py-3 px-4 text-xs text-gray-400">
+                    <%= sub.created_at.strftime("%-d. %b %Y") %>
+                  </td>
+                  <td class="py-3 px-4 text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <%= button_to sub.subscribed? ? "Abmelden" : "Anmelden",
+                            newsletter_subscriber_path(sub),
+                            method: :patch,
+                            class: "text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer #{sub.subscribed? ? 'bg-gray-100 hover:bg-gray-200 text-gray-600' : 'bg-green-100 hover:bg-green-200 text-green-700'}" %>
+                      <%= button_to "Löschen",
+                            newsletter_subscriber_path(sub),
+                            method: :delete,
+                            data: { turbo_confirm: "#{sub.email} wirklich löschen?" },
+                            class: "text-xs font-bold px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition cursor-pointer" %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="py-12 text-center">
+          <p class="text-gray-400 font-semibold">Keine Treffer für "<%= params[:q] %>"</p>
+        </div>
+      <% end %>
+    <% elsif @total_count > 0 %>
+      <div class="py-12 text-center">
+        <p class="text-gray-500 font-semibold"><%= @total_count %> Empfänger vorhanden</p>
+        <p class="text-gray-400 text-sm mt-1">Suche nach E-Mail oder Name, um Einträge anzuzeigen.</p>
       </div>
     <% else %>
       <div class="py-16 text-center">

@@ -53,7 +53,7 @@
           </p>
         </div>
       </div>
-      <%= link_to "Präsenzkontrolle öffnen", scanner_training_session_path(live_session),
+      <%= link_to "Präsenzkontrolle öffnen", training_session_path(live_session),
             class: "shrink-0 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-5 rounded-lg text-sm transition" %>
     </div>
   <% end %>
@@ -170,10 +170,10 @@
             <%# Aktionen %>
             <div class="flex items-center gap-2 shrink-0">
               <% if is_live %>
-                <%= link_to "Präsenzkontrolle", scanner_training_session_path(session),
+                <%= link_to "Präsenzkontrolle", training_session_path(session),
                       class: "bg-green-600 hover:bg-green-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition" %>
               <% else %>
-                <%= link_to "Präsenzkontrolle", scanner_training_session_path(session),
+                <%= link_to "Präsenzkontrolle", training_session_path(session),
                       class: "bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold py-2 px-4 rounded-lg transition" %>
               <% end %>
             </div>
