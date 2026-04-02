@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   resources :course_registrations do
     member do
       get :scan # NEU: Der geheime Link zum Scannen des Tickets!
+      post :unsubscribe_from_session
     end
   end
 

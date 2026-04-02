@@ -93,25 +93,39 @@
     <% if @registrations.any? %>
       <ul class="divide-y divide-gray-50">
         <% @registrations.each do |reg| %>
-          <% participant  = reg.participant %>
-          <% is_present   = @training_session.attendances.exists?(course_registration_id: reg.id) %>
+          <% participant     = reg.participant %>
+          <% attendance      = @attendances_by_reg_id[reg.id] %>
+          <% is_unsubscribed = attendance&.abgemeldet? %>
+          <% is_present      = attendance.present? && !is_unsubscribed %>
 
-          <li class="px-5 py-3.5 flex items-center justify-between gap-3 <%= is_present ? 'bg-green-50/40' : 'hover:bg-gray-50' %> transition">
+          <li class="px-5 py-3.5 flex items-center justify-between gap-3
+                     <%= is_unsubscribed ? 'bg-red-50/40 opacity-60' : is_present ? 'bg-green-50/40' : 'hover:bg-gray-50' %> transition">
             <div class="flex items-center gap-3 min-w-0">
               <div class="h-9 w-9 shrink-0 rounded-full flex items-center justify-center font-bold text-sm
-                          <%= is_present ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' %>">
+                          <%= is_unsubscribed ? 'bg-red-100 text-red-400' : is_present ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' %>">
                 <%= participant.first_name[0] %><%= participant.last_name[0] %>
               </div>
-              <p class="text-sm font-semibold text-gray-900 truncate">
-                <%= participant.first_name %> <%= participant.last_name %>
-              </p>
+              <div class="min-w-0">
+                <p class="text-sm font-semibold text-gray-900 truncate">
+                  <%= participant.first_name %> <%= participant.last_name %>
+                </p>
+                <% if is_unsubscribed %>
+                  <p class="text-xs text-red-500 font-medium">Von Eltern abgemeldet</p>
+                <% end %>
+              </div>
             </div>
 
-            <%= button_to toggle_attendance_training_session_path(@training_session, course_registration_id: reg.id),
-                  method: :post,
-                  class: "shrink-0 cursor-pointer text-xs font-bold px-3.5 py-1.5 rounded-full transition
-                          #{is_present ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}" do %>
-              <%= is_present ? "Anwesend" : "Abwesend" %>
+            <% if is_unsubscribed %>
+              <span class="shrink-0 text-xs font-bold px-3.5 py-1.5 rounded-full bg-red-100 text-red-500">
+                Abgemeldet
+              </span>
+            <% else %>
+              <%= button_to toggle_attendance_training_session_path(@training_session, course_registration_id: reg.id),
+                    method: :post,
+                    class: "shrink-0 cursor-pointer text-xs font-bold px-3.5 py-1.5 rounded-full transition
+                            #{is_present ? 'bg-green-100 text-green-800 hover:bg-green-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}" do %>
+                <%= is_present ? "Anwesend" : "Abwesend" %>
+              <% end %>
             <% end %>
           </li>
         <% end %>

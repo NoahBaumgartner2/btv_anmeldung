@@ -4,7 +4,7 @@ class TrainingSession < ApplicationRecord
   has_many :attendances, dependent: :destroy
 
   def attendance_recorded?
-    is_canceled? || attendances.exists?
+    is_canceled? || attendances.where.not(status: "abgemeldet").exists?
   end
 
   def needs_trainer_reminder?

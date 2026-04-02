@@ -8,8 +8,10 @@ class TrainingSessionsController < ApplicationController
   end
 
   def show
-    # Wir laden für die Checkliste nur die Teilnehmer, deren Status "bestätigt" ist
-    @registrations = @training_session.course.course_registrations.includes(:participant).where(status: "bestätigt")
+    @registrations = @training_session.course.course_registrations
+      .includes(:participant)
+      .where(status: "bestätigt")
+    @attendances_by_reg_id = @training_session.attendances.index_by(&:course_registration_id)
   end
 
   def new
@@ -69,9 +71,11 @@ class TrainingSessionsController < ApplicationController
     attendance = @training_session.attendances.find_by(course_registration_id: course_registration_id)
 
     if attendance
-      attendance.destroy # War anwesend -> jetzt auf abwesend setzen
+      return redirect_to @training_session if attendance.abgemeldet?
+
+      attendance.destroy
     else
-      @training_session.attendances.create(course_registration_id: course_registration_id) # Auf anwesend setzen
+      @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
     end
 
     redirect_to @training_session

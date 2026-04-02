@@ -1,15 +1,13 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
-
 one:
   course: one
   participant: one
-  status: MyString
+  status: "bestätigt"
   payment_cleared: false
   holiday_deduction_claimed: false
 
 two:
   course: two
   participant: two
-  status: MyString
+  status: "bestätigt"
   payment_cleared: false
   holiday_deduction_claimed: false
