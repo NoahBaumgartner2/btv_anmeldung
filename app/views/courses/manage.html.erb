@@ -237,7 +237,7 @@
               <td class="py-4 px-6 text-right text-sm">
                 <div class="inline-flex items-center gap-3">
                   <button type="button"
-                          onclick="document.getElementById('detail-modal-<%= reg.id %>').classList.remove('hidden')"
+                          onclick="document.getElementById('detail-modal-<%= reg.id.to_json %>').classList.remove('hidden')"
                           class="text-gray-600 font-bold hover:text-gray-900 transition cursor-pointer">
                     Details
                   </button>
@@ -301,7 +301,7 @@
                     </dl>
 
                     <button type="button"
-                            onclick="document.getElementById('detail-modal-<%= reg.id %>').classList.add('hidden')"
+                            onclick="document.getElementById('detail-modal-<%= reg.id.to_json %>').classList.add('hidden')"
                             class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition cursor-pointer">
                       Schliessen
                     </button>

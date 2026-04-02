@@ -84,7 +84,7 @@
 
                     <div class="mt-auto pt-5 border-t border-gray-100 flex flex-col items-center">
                       <% if reg.status == 'bestätigt' && course.has_ticketing %>
-                        <div class="cursor-pointer hover:scale-105 transition transform group w-full flex flex-col items-center" onclick="document.getElementById('qr-modal-<%= reg.id %>').classList.remove('hidden')">
+                        <div class="cursor-pointer hover:scale-105 transition transform group w-full flex flex-col items-center" onclick="document.getElementById('qr-modal-<%= reg.id.to_json %>').classList.remove('hidden')">
                           <div class="bg-white p-2 rounded-xl border-2 border-dashed border-gray-300 mb-3 w-32 h-32 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
                             <%= generate_qr_code(scan_course_registration_url(reg)) %>
                           </div>
@@ -100,7 +100,7 @@
                               <%= generate_qr_code(scan_course_registration_url(reg)) %>
                             </div>
 
-                            <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 transition w-full text-lg" onclick="document.getElementById('qr-modal-<%= reg.id %>').classList.add('hidden')">
+                            <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 transition w-full text-lg" onclick="document.getElementById('qr-modal-<%= reg.id.to_json %>').classList.add('hidden')">
                               Schließen
                             </button>
                           </div>
