@@ -1,7 +1,7 @@
 class TrainingSessionsController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_trainer!
-  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance scanner cancel ]
+  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance scanner cancel uncancel ]
 
   def index
     @training_sessions = TrainingSession.all
@@ -62,8 +62,18 @@ class TrainingSessionsController < ApplicationController
     redirect_to @training_session, notice: "Das Training wurde abgesagt und alle Teilnehmenden wurden per E-Mail benachrichtigt."
   end
 
+  def uncancel
+    authorize_admin!
+    return if performed?
+
+    @training_session.update!(is_canceled: false)
+    redirect_to @training_session, notice: "Die Absage wurde rückgängig gemacht. Das Training ist wieder aktiv."
+  end
+
   # NEU: Der magische Toggle für die Anwesenheit
   def toggle_attendance
+    return redirect_to @training_session, alert: "Training ist abgesagt – Anwesenheit kann nicht erfasst werden." if @training_session.is_canceled?
+
     # Wir fangen jetzt die ID der Kursanmeldung auf
     course_registration_id = params[:course_registration_id]
 

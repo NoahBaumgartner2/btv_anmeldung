@@ -27,6 +27,7 @@ Rails.application.routes.draw do
       post :toggle_attendance
       get :scanner # NEU: Die Route für den Kamera-Modus
       post :cancel
+      post :uncancel
     end
   end
 

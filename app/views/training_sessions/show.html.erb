@@ -1,6 +1,6 @@
 <%
   course     = @training_session.course
-  attended   = @training_session.attendances.size
+  attended   = @training_session.is_canceled? ? 0 : @attendances_by_reg_id.values.count { |a| !a.abgemeldet? }
   total      = @registrations.size
   pct        = total > 0 ? (attended.to_f / total * 100).round : 0
 %>
@@ -48,18 +48,56 @@
     </div>
   </div>
 
-  <%# ── Absagen-Button ──────────────────────────────────────────────────── %>
-  <% unless @training_session.is_canceled? %>
+  <%# ── Absagen / Rückgängig ────────────────────────────────────────────── %>
+  <% if @training_session.is_canceled? %>
+    <% if current_user.admin? %>
+      <div class="mb-6">
+        <%= button_to uncancel_training_session_path(@training_session),
+              method: :post,
+              data: { turbo_confirm: "Absage wirklich rückgängig machen? Das Training wird wieder als aktiv markiert." },
+              class: "inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg transition shadow-sm cursor-pointer" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Absage rückgängig machen
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
     <div class="mb-6">
-      <%= button_to cancel_training_session_path(@training_session),
-            method: :post,
-            data: { turbo_confirm: "Bist du sicher? Alle Teilnehmer werden per E-Mail benachrichtigt." },
-            class: "inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg transition shadow-sm cursor-pointer" do %>
+      <%# Trigger-Button %>
+      <button type="button"
+              data-panel="cancel-panel"
+              onclick="document.getElementById(this.dataset.panel).classList.remove('hidden'); this.classList.add('hidden');"
+              class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg transition shadow-sm cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
         Training absagen
-      <% end %>
+      </button>
+
+      <%# Bestätigungs-Panel %>
+      <div id="cancel-panel" class="hidden mt-3 bg-red-50 border border-red-200 rounded-xl p-5">
+        <h3 class="font-bold text-red-800 text-sm mb-3">Was passiert beim Absagen?</h3>
+        <ul class="text-sm text-red-700 space-y-1.5 mb-4 list-disc list-inside">
+          <li>Das Training wird dauerhaft als <strong>abgesagt</strong> markiert.</li>
+          <li>Alle <strong><%= @registrations.size %> bestätigten Teilnehmenden</strong> erhalten sofort eine Absage per E-Mail.</li>
+          <li>Die Anwesenheitskontrolle für dieses Training ist dann gesperrt.</li>
+          <li>Nur Admins können die Absage danach rückgängig machen.</li>
+        </ul>
+        <div class="flex items-center gap-3">
+          <%= button_to cancel_training_session_path(@training_session),
+                method: :post,
+                class: "inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2 px-4 rounded-lg transition cursor-pointer" do %>
+            Ja, Training absagen
+          <% end %>
+          <button type="button"
+                  onclick="document.getElementById('cancel-panel').classList.add('hidden'); document.querySelector('[data-panel=cancel-panel]').classList.remove('hidden');"
+                  class="text-sm font-semibold text-gray-600 hover:text-gray-900 transition cursor-pointer">
+            Abbrechen
+          </button>
+        </div>
+      </div>
     </div>
   <% end %>
 
@@ -96,7 +134,7 @@
           <% participant     = reg.participant %>
           <% attendance      = @attendances_by_reg_id[reg.id] %>
           <% is_unsubscribed = attendance&.abgemeldet? %>
-          <% is_present      = attendance.present? && !is_unsubscribed %>
+          <% is_present      = !@training_session.is_canceled? && attendance.present? && !is_unsubscribed %>
 
           <li class="px-5 py-3.5 flex items-center justify-between gap-3
                      <%= is_unsubscribed ? 'bg-red-50/40 opacity-60' : is_present ? 'bg-green-50/40' : 'hover:bg-gray-50' %> transition">
@@ -118,6 +156,10 @@
             <% if is_unsubscribed %>
               <span class="shrink-0 text-xs font-bold px-3.5 py-1.5 rounded-full bg-red-100 text-red-500">
                 Abgemeldet
+              </span>
+            <% elsif @training_session.is_canceled? %>
+              <span class="shrink-0 text-xs font-bold px-3.5 py-1.5 rounded-full bg-gray-100 text-gray-400">
+                Abwesend
               </span>
             <% else %>
               <%= button_to toggle_attendance_training_session_path(@training_session, course_registration_id: reg.id),

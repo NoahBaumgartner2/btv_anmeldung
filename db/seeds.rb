@@ -126,7 +126,7 @@ session2 = TrainingSession.create!(course: kids_gym_mi_morgen, start_time: 1.wee
 puts "✅ Erstelle Anwesenheitsliste für die ersten Trainings..."
 Attendance.create!(training_session: session1, course_registration: reg3, status: 'anwesend') # Emma beim Krabbel Gym
 Attendance.create!(training_session: session2, course_registration: reg1, status: 'anwesend') # Mia beim Kids Gym
-Attendance.create!(training_session: session2, course_registration: reg2, status: 'entschuldigt') # Leon ist krank beim Kids Gym
+Attendance.create!(training_session: session2, course_registration: reg2, status: 'abwesend') # Leon ist krank beim Kids Gym
 
 
 puts "🏖️ Erstelle Feiertage..."
