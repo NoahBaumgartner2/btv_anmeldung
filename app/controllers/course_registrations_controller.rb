@@ -59,7 +59,11 @@ class CourseRegistrationsController < ApplicationController
     end
 
     if @course_registration.save
-      redirect_to course_registration_path(@course_registration), notice: (course.has_payment? ? nil : erfolgs_nachricht)
+      if course.has_payment? && ::StripeConfig.configured? && !@course_registration.payment_cleared?
+        redirect_to checkout_preview_registration_path(@course_registration)
+      else
+        redirect_to course_registration_path(@course_registration), notice: erfolgs_nachricht
+      end
     else
       setup_new_form(course)
       render :new, status: :unprocessable_entity
@@ -145,6 +149,24 @@ def unsubscribe_from_session
         }
       }
     end
+  end
+
+  def mark_as_paid
+    authorize_admin!
+    return if performed?
+
+    @course_registration = CourseRegistration.find(params[:id])
+    course = @course_registration.course
+
+    new_status = if course.max_participants.present?
+      confirmed = course.course_registrations.where(status: "bestätigt").where.not(id: @course_registration.id).count
+      confirmed >= course.max_participants ? "warteliste" : "bestätigt"
+    else
+      "bestätigt"
+    end
+
+    @course_registration.update!(payment_cleared: true, status: new_status)
+    redirect_to manage_course_path(course), notice: "#{@course_registration.participant.first_name} als bezahlt markiert."
   end
 
   private

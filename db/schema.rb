@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_04_121809) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_04_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -62,6 +62,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_121809) do
     t.boolean "has_ticketing"
     t.string "location"
     t.integer "max_participants"
+    t.string "payment_methods", default: ["card"], null: false, array: true
     t.integer "price_cents"
     t.string "registration_mode"
     t.string "registration_type"

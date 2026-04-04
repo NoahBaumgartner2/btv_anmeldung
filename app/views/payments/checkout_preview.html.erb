@@ -1,0 +1,95 @@
+<%
+  course      = @registration.course
+  participant = @registration.participant
+%>
+
+<div class="max-w-md mx-auto mt-10 mb-16 px-4">
+
+  <%# ── Header ──────────────────────────────────────────────────────────────── %>
+  <div class="text-center mb-8">
+    <div class="w-14 h-14 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
+      <svg class="w-7 h-7 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+      </svg>
+    </div>
+    <h1 class="text-2xl font-extrabold text-gray-900">Kursgebühr bezahlen</h1>
+    <p class="text-gray-500 mt-1 text-sm">Prüfe die Details und schliesse die Zahlung ab.</p>
+  </div>
+
+  <%# ── Zusammenfassung ─────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-5 py-4 bg-gray-50 border-b border-gray-100">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Zusammenfassung</p>
+    </div>
+    <dl class="divide-y divide-gray-100">
+      <div class="px-5 py-3 flex justify-between text-sm">
+        <dt class="font-medium text-gray-500">Kurs</dt>
+        <dd class="font-semibold text-gray-900 text-right max-w-[60%]"><%= course.title %></dd>
+      </div>
+      <% if course.registration_type.present? %>
+        <div class="px-5 py-3 flex justify-between text-sm">
+          <dt class="font-medium text-gray-500">Kategorie</dt>
+          <dd class="text-gray-700"><%= course.registration_type %></dd>
+        </div>
+      <% end %>
+      <div class="px-5 py-3 flex justify-between text-sm">
+        <dt class="font-medium text-gray-500">Teilnehmer</dt>
+        <dd class="font-semibold text-gray-900"><%= participant.first_name %> <%= participant.last_name %></dd>
+      </div>
+      <div class="px-5 py-3 flex justify-between text-sm bg-gray-50">
+        <dt class="font-bold text-gray-700">Betrag</dt>
+        <dd class="font-extrabold text-gray-900 text-base"><%= course.price_display %></dd>
+      </div>
+    </dl>
+  </div>
+
+  <%# ── Zahlungsmethoden ────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-5">
+    <p class="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Akzeptierte Zahlungsmethoden</p>
+    <div class="flex items-center gap-3 flex-wrap">
+
+      <% if course.effective_payment_methods.include?("card") %>
+        <div class="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+          <svg class="w-5 h-5 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+          </svg>
+          <span class="text-sm font-semibold text-gray-700">Kreditkarte</span>
+        </div>
+      <% end %>
+
+      <% if course.effective_payment_methods.include?("twint") %>
+        <div class="flex items-center gap-2 bg-black rounded-lg px-3 py-2">
+          <svg class="w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-5h2v2h-2zm0-8h2v6h-2z"/>
+          </svg>
+          <span class="text-sm font-bold text-white tracking-wide">TWINT</span>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+
+  <%# ── Stripe-Sicherheitsbadge ─────────────────────────────────────────────── %>
+  <div class="flex items-center justify-center gap-2 mb-6">
+    <svg class="w-4 h-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+    </svg>
+    <span class="text-xs text-gray-400">Sichere Zahlung via <span class="font-semibold text-gray-500">Stripe</span> · SSL-verschlüsselt</span>
+  </div>
+
+  <%# ── CTA ────────────────────────────────────────────────────────────────── %>
+  <%= link_to checkout_registration_path(@registration),
+        class: "w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-sm transition text-sm mb-3",
+        data: { turbo: false } do %>
+    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+    </svg>
+    Weiter zur Zahlung
+  <% end %>
+
+  <%= link_to course_registration_path(@registration),
+        class: "w-full flex items-center justify-center text-sm text-gray-500 hover:text-gray-700 font-medium py-2 transition" do %>
+    Abbrechen
+  <% end %>
+
+</div>

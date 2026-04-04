@@ -5,6 +5,20 @@ class Course < ApplicationRecord
   has_many :trainers, through: :course_trainers
   has_many :training_sessions, dependent: :destroy
 
+  # Verfügbare Zahlungsmethoden (Stripe-Bezeichnungen → Anzeigenamen)
+  PAYMENT_METHODS = {
+    "card"  => "Kreditkarte / Debitkarte",
+    "twint" => "TWINT"
+  }.freeze
+
+  before_save :clean_payment_methods
+
+  # Gibt die tatsächlich nutzbaren Zahlungsmethoden zurück (bereinigt, mit Fallback)
+  def effective_payment_methods
+    m = (payment_methods.presence || []).select { |v| PAYMENT_METHODS.key?(v) }
+    m.any? ? m : ["card"]
+  end
+
   # Konfigurierbare Pflichtfelder: Symbol → Anzeigename
   CONFIGURABLE_REQUIRED_FIELDS = {
     ahv_number: "AHV-Nummer"
@@ -29,5 +43,12 @@ class Course < ApplicationRecord
   def price_display
     return "Kostenlos" unless has_payment? && price_cents
     "CHF #{price_chf}"
+  end
+
+  private
+
+  def clean_payment_methods
+    self.payment_methods = (payment_methods || []).reject(&:blank?).select { |v| PAYMENT_METHODS.key?(v) }
+    self.payment_methods = ["card"] if payment_methods.empty?
   end
 end

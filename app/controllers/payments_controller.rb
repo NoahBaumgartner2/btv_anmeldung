@@ -1,6 +1,31 @@
 class PaymentsController < ApplicationController
   before_action :authenticate_user!
 
+  def checkout_preview
+    @registration = CourseRegistration.find(params[:id])
+
+    unless current_user.participants.include?(@registration.participant) || current_user.admin?
+      return redirect_to root_path, alert: "Zugriff verweigert."
+    end
+
+    course = @registration.course
+
+    unless course.has_payment? && course.price_cents.present?
+      return redirect_to course_registration_path(@registration),
+                         alert: "Dieser Kurs erfordert keine Zahlung."
+    end
+
+    if @registration.payment_cleared?
+      return redirect_to course_registration_path(@registration),
+                         notice: "Dieser Kurs wurde bereits bezahlt."
+    end
+
+    unless ::StripeConfig.configured?
+      return redirect_to course_registration_path(@registration),
+                         alert: "Zahlung aktuell nicht verfügbar. Bitte kontaktiere uns."
+    end
+  end
+
   def checkout
     @registration = CourseRegistration.find(params[:id])
 
@@ -28,7 +53,7 @@ class PaymentsController < ApplicationController
     ::Stripe.api_key = ::StripeConfig.secret_key
 
     stripe_session = ::Stripe::Checkout::Session.create(
-      payment_method_types: ["card"],
+      payment_method_types: course.effective_payment_methods,
       line_items: [{
         price_data: {
           currency:     ::StripeConfig.currency,

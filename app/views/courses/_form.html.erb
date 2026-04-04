@@ -166,14 +166,32 @@
                   class: "h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" %>
             <%= form.label :has_payment, "Dieser Kurs ist kostenpflichtig", class: "ml-3 text-sm font-bold text-gray-800 cursor-pointer" %>
           </div>
-          <div id="price-field" class="<%= course.has_payment? ? '' : 'hidden' %> mt-3 ml-8">
-            <div class="flex items-center gap-2 max-w-xs">
-              <span class="text-sm font-semibold text-gray-500">CHF</span>
-              <%= form.text_field :price_chf,
-                    placeholder: "0.00",
-                    class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm" %>
+          <div id="price-field" class="<%= course.has_payment? ? '' : 'hidden' %> mt-3 ml-8 space-y-4">
+            <div>
+              <div class="flex items-center gap-2 max-w-xs">
+                <span class="text-sm font-semibold text-gray-500">CHF</span>
+                <%= form.text_field :price_chf,
+                      placeholder: "0.00",
+                      class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm" %>
+              </div>
+              <p class="text-xs text-gray-400 mt-1">Preis in Schweizer Franken (z.B. 120.00)</p>
             </div>
-            <p class="text-xs text-gray-400 mt-1">Preis in Schweizer Franken (z.B. 120.00)</p>
+            <div>
+              <p class="text-sm font-bold text-gray-700 mb-2">Akzeptierte Zahlungsmethoden</p>
+              <%# Sentinel: stellt sicher dass payment_methods[] zurückgesetzt wird wenn alle abgehakt %>
+              <input type="hidden" name="course[payment_methods][]" value="">
+              <div class="flex flex-col gap-2">
+                <% Course::PAYMENT_METHODS.each do |value, label| %>
+                  <label class="flex items-center gap-2.5 cursor-pointer">
+                    <%= check_box_tag "course[payment_methods][]", value,
+                          course.payment_methods.include?(value),
+                          id: "course_payment_methods_#{value}",
+                          class: "h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer" %>
+                    <span class="text-sm text-gray-700"><%= label %></span>
+                  </label>
+                <% end %>
+              </div>
+            </div>
           </div>
           <script nonce="<%= content_security_policy_nonce %>">
             document.getElementById('course_has_payment').addEventListener('change', function() {
