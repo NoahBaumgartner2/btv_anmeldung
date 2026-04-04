@@ -1,0 +1,49 @@
+fr:
+  hello: "Bonjour monde"
+
+  activemodel:
+    errors:
+      messages:
+        confirmation: "ne correspond pas à %{attribute}"
+        blank: "doit être rempli"
+        too_short:
+          one: "est trop court (minimum 1 caractère)"
+          other: "est trop court (minimum %{count} caractères)"
+        taken: "est déjà pris"
+        invalid: "est invalide"
+      models:
+        user:
+          attributes:
+            email:
+              blank: "doit être rempli"
+              taken: "est déjà enregistré"
+              invalid: "n'est pas une adresse e-mail valide"
+            password:
+              blank: "doit être rempli"
+              too_short: "est trop court (minimum %{count} caractères)"
+            password_confirmation:
+              confirmation: "ne correspond pas au mot de passe"
+
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      accepted: "doit être accepté"
+      blank: "doit être rempli"
+      confirmation: "ne correspond pas à %{attribute}"
+      empty: "ne peut pas être vide"
+      invalid: "est invalide"
+      taken: "est déjà pris"
+      too_long:
+        one: "est trop long (maximum 1 caractère)"
+        other: "est trop long (maximum %{count} caractères)"
+      too_short:
+        one: "est trop court (minimum 1 caractère)"
+        other: "est trop court (minimum %{count} caractères)"
+      not_a_number: "n'est pas un nombre"
+      not_an_integer: "doit être un entier"
+      inclusion: "n'est pas inclus dans la liste"
+      exclusion: "est réservé"
+      present: "doit être vide"
+      not_saved:
+        one: "1 erreur a empêché ce %{resource} d'être sauvegardé :"
+        other: "%{count} erreurs ont empêché ce %{resource} d'être sauvegardé :"

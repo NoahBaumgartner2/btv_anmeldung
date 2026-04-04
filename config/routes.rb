@@ -2,6 +2,11 @@ Rails.application.routes.draw do
   # NEU: Die Routen für unsere Dashboards
   get "dashboards/admin"
   get "dashboards/trainer"
+  get "dashboards/stats"
+
+  resource :mail_setting, only: [:show, :edit, :update] do
+    post :test_email
+  end
 
   resources :trainers
   resources :holidays
@@ -48,6 +53,6 @@ Rails.application.routes.draw do
     end
   end
 
-  devise_for :users
+  devise_for :users, controllers: { confirmations: "devise/confirmations" }
   root "courses#index"
 end

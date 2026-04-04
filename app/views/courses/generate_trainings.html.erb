@@ -148,21 +148,71 @@
           <% if course_holidays.any? %>
             <div class="rounded-lg border border-yellow-200 bg-yellow-50 divide-y divide-yellow-100 overflow-hidden">
               <% course_holidays.each do |holiday| %>
-                <div class="px-4 py-2.5 flex items-center justify-between text-sm">
-                  <span class="font-semibold text-yellow-900"><%= holiday.title %></span>
+                <label class="px-4 py-2.5 flex items-center gap-3 text-sm cursor-pointer hover:bg-yellow-100 transition">
+                  <input type="checkbox" name="holiday_ids[]" value="<%= holiday.id %>"
+                         checked
+                         class="w-4 h-4 rounded border-yellow-400 text-blue-600 focus:ring-blue-500 shrink-0">
+                  <span class="flex-1 font-semibold text-yellow-900"><%= holiday.title %></span>
                   <span class="text-yellow-700 font-medium">
                     <%= holiday.start_date.strftime("%-d. %b") %> – <%= holiday.end_date.strftime("%-d. %b %Y") %>
                   </span>
-                </div>
+                </label>
               <% end %>
             </div>
-            <p class="text-xs text-gray-400 mt-2">Diese Daten werden beim Generieren automatisch übersprungen.</p>
+            <p class="text-xs text-gray-400 mt-2">Deaktivierte Ferien werden beim Generieren nicht übersprungen.</p>
           <% else %>
             <div class="rounded-lg border border-gray-100 bg-gray-50 px-4 py-3 text-sm text-gray-500">
               Keine Ferien im Kurszeitraum eingetragen.
             </div>
           <% end %>
         </div>
+
+        <%# Manuelle Ferien %>
+        <div>
+          <p class="text-sm font-bold text-gray-700 mb-2">
+            Weitere Ferien / Sperrtage
+            <span class="font-normal text-gray-400">(optional)</span>
+          </p>
+          <div id="extra-holidays-list" class="space-y-2">
+            <%# Dynamisch hinzugefügte Zeilen landen hier %>
+          </div>
+          <button type="button" id="add-holiday-btn"
+                  class="mt-3 flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-800 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+            </svg>
+            Ferienzeitraum hinzufügen
+          </button>
+        </div>
+
+        <script nonce="<%= request.content_security_policy_nonce %>">
+          (function() {
+            var list = document.getElementById('extra-holidays-list');
+            var btn  = document.getElementById('add-holiday-btn');
+            var idx  = 0;
+
+            btn.addEventListener('click', function() {
+              var i = idx++;
+              var row = document.createElement('div');
+              row.className = 'flex flex-wrap items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5';
+              row.innerHTML =
+                '<input type="text" name="extra_holidays[' + i + '][title]" placeholder="Bezeichnung (z.B. Sportferien)" ' +
+                  'class="flex-1 min-w-32 rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">' +
+                '<input type="date" name="extra_holidays[' + i + '][start_date]" ' +
+                  'class="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">' +
+                '<span class="text-gray-400 text-sm">–</span>' +
+                '<input type="date" name="extra_holidays[' + i + '][end_date]" ' +
+                  'class="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">' +
+                '<button type="button" class="remove-holiday text-gray-400 hover:text-red-500 transition p-0.5" title="Entfernen">' +
+                  '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
+                '</button>';
+              row.querySelector('.remove-holiday').addEventListener('click', function() {
+                row.remove();
+              });
+              list.appendChild(row);
+            });
+          })();
+        </script>
 
       </div>
 

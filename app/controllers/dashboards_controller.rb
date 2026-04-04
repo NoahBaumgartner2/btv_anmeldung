@@ -21,6 +21,31 @@ class DashboardsController < ApplicationController
     end
   end
 
+  def stats
+    authorize_admin!
+
+    now = Time.current
+
+    @courses = Course.includes(
+      training_sessions: :attendances,
+      course_registrations: :participant
+    ).order(start_date: :desc)
+
+    # Globale Kennzahlen
+    all_sessions = TrainingSession.all
+    @total_sessions   = all_sessions.count
+    @past_sessions    = all_sessions.where("start_time < ?", now).count
+    @canceled_sessions = all_sessions.where(is_canceled: true).count
+
+    all_attendances = Attendance.all
+    @present_count  = all_attendances.where(status: "anwesend").count
+    @absent_count   = all_attendances.where(status: "abwesend").count
+    @excused_count  = all_attendances.where(status: "abgemeldet").count
+
+    # Kurs-Filter
+    @selected_course_id = params[:course_id].presence&.to_i
+  end
+
   def trainer
     authorize_trainer!
     @trainer = Trainer.find_by(user: current_user)

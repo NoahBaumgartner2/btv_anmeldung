@@ -1,0 +1,215 @@
+<%
+  now = Time.current
+  total_recorded = @present_count + @absent_count
+  global_rate = total_recorded > 0 ? (@present_count * 100.0 / total_recorded).round(1) : nil
+
+  # Hilfsmethode: Anwesenheitsrate für eine Liste von Attendances
+  def attendance_rate(attendances)
+    relevant = attendances.reject { |a| a.status == "abgemeldet" || a.status.nil? }
+    return nil if relevant.empty?
+    present = relevant.count { |a| a.status == "anwesend" }
+    (present * 100.0 / relevant.size).round(1)
+  end
+%>
+
+<div class="max-w-7xl mx-auto mt-10 mb-16 px-4">
+
+  <%# ── Header ────────────────────────────────────────────────────────────── %>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+    <div>
+      <%= link_to "← Kommandozentrale", dashboards_admin_path,
+            class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+      <h1 class="text-4xl font-extrabold text-gray-900 mt-2">Statistiken</h1>
+      <p class="text-gray-500 mt-1">Übersicht über alle Trainings, Sessions und Anwesenheiten.</p>
+    </div>
+  </div>
+
+  <%# ── Globale Kennzahlen ─────────────────────────────────────────────────── %>
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Sessions total</p>
+      <p class="text-3xl font-extrabold text-gray-900"><%= @total_sessions %></p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Vergangen</p>
+      <p class="text-3xl font-extrabold text-gray-900"><%= @past_sessions %></p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Abgesagt</p>
+      <p class="text-3xl font-extrabold text-orange-500"><%= @canceled_sessions %></p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Anwesend</p>
+      <p class="text-3xl font-extrabold text-green-600"><%= @present_count %></p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Abwesend</p>
+      <p class="text-3xl font-extrabold text-red-500"><%= @absent_count %></p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+      <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Ø Anwesenheit</p>
+      <p class="text-3xl font-extrabold <%= global_rate && global_rate >= 75 ? "text-green-600" : global_rate ? "text-yellow-500" : "text-gray-400" %>">
+        <%= global_rate ? "#{global_rate}%" : "—" %>
+      </p>
+    </div>
+  </div>
+
+  <%# ── Kurs-Filter ────────────────────────────────────────────────────────── %>
+  <div class="flex flex-wrap gap-2 mb-6">
+    <%= link_to "Alle Kurse",
+          dashboards_stats_path,
+          class: "px-3 py-1.5 rounded-lg text-sm font-semibold transition border #{@selected_course_id.nil? ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"}" %>
+    <% @courses.each do |course| %>
+      <%= link_to course.title,
+            dashboards_stats_path(course_id: course.id),
+            class: "px-3 py-1.5 rounded-lg text-sm font-semibold transition border #{@selected_course_id == course.id ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"}" %>
+    <% end %>
+  </div>
+
+  <%# ── Kurs-Sektionen ─────────────────────────────────────────────────────── %>
+  <% filtered_courses = @selected_course_id ? @courses.select { |c| c.id == @selected_course_id } : @courses %>
+
+  <% if filtered_courses.empty? %>
+    <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-sm">
+      Keine Kurse gefunden.
+    </div>
+  <% end %>
+
+  <% filtered_courses.each do |course| %>
+    <%
+      sessions = course.training_sessions.sort_by(&:start_time)
+      past_sessions = sessions.select { |s| s.start_time < now }
+      upcoming_sessions = sessions.select { |s| s.start_time >= now }
+      canceled = sessions.count(&:is_canceled?)
+      all_course_attendances = sessions.flat_map(&:attendances)
+      course_rate = attendance_rate(all_course_attendances)
+      sessions_without_record = past_sessions.reject { |s| s.is_canceled? || s.attendances.reject { |a| a.status.nil? }.any? }
+      registrations = course.course_registrations
+    %>
+
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-8 overflow-hidden">
+
+      <%# Kurs-Header %>
+      <div class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h2 class="text-lg font-extrabold text-gray-900"><%= course.title %></h2>
+          <p class="text-xs text-gray-400 mt-0.5">
+            <% if course.start_date && course.end_date %>
+              <%= course.start_date.strftime("%-d. %b %Y") %> – <%= course.end_date.strftime("%-d. %b %Y") %>
+            <% else %>
+              Kein Zeitraum gesetzt
+            <% end %>
+            <% if course.location.present? %>· <%= course.location %><% end %>
+          </p>
+        </div>
+        <%= link_to "Verwalten →", manage_course_path(course),
+              class: "shrink-0 text-sm font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg transition" %>
+      </div>
+
+      <%# Kurs-Kennzahlen %>
+      <div class="grid grid-cols-2 sm:grid-cols-5 divide-x divide-y sm:divide-y-0 divide-gray-100 border-b border-gray-100">
+        <div class="px-5 py-3">
+          <p class="text-xs font-semibold text-gray-400 mb-0.5">Sessions</p>
+          <p class="text-xl font-extrabold text-gray-900"><%= sessions.size %></p>
+          <p class="text-xs text-gray-400"><%= past_sessions.size %> vergangen · <%= upcoming_sessions.size %> bevorstehend</p>
+        </div>
+        <div class="px-5 py-3">
+          <p class="text-xs font-semibold text-gray-400 mb-0.5">Abgesagt</p>
+          <p class="text-xl font-extrabold <%= canceled > 0 ? "text-orange-500" : "text-gray-400" %>"><%= canceled %></p>
+        </div>
+        <div class="px-5 py-3">
+          <p class="text-xs font-semibold text-gray-400 mb-0.5">Angemeldet</p>
+          <p class="text-xl font-extrabold text-gray-900"><%= registrations.size %></p>
+        </div>
+        <div class="px-5 py-3">
+          <p class="text-xs font-semibold text-gray-400 mb-0.5">Ø Anwesenheit</p>
+          <p class="text-xl font-extrabold <%= course_rate && course_rate >= 75 ? "text-green-600" : course_rate ? "text-yellow-500" : "text-gray-400" %>">
+            <%= course_rate ? "#{course_rate}%" : "—" %>
+          </p>
+        </div>
+        <div class="px-5 py-3">
+          <p class="text-xs font-semibold text-gray-400 mb-0.5">Nicht erfasst</p>
+          <p class="text-xl font-extrabold <%= sessions_without_record.any? ? "text-red-500" : "text-gray-400" %>">
+            <%= sessions_without_record.size %>
+          </p>
+          <p class="text-xs text-gray-400">vergangene ohne Eintrag</p>
+        </div>
+      </div>
+
+      <%# Session-Tabelle %>
+      <% if sessions.any? %>
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-100">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="py-2.5 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Datum</th>
+                <th class="py-2.5 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Uhrzeit</th>
+                <th class="py-2.5 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wide">Status</th>
+                <th class="py-2.5 px-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wide">Anwesend</th>
+                <th class="py-2.5 px-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wide">Abwesend</th>
+                <th class="py-2.5 px-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wide">Abgemeldet</th>
+                <th class="py-2.5 px-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wide">Erfassung</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <% sessions.each do |session| %>
+                <%
+                  atts = session.attendances
+                  s_present  = atts.count { |a| a.status == "anwesend" }
+                  s_absent   = atts.count { |a| a.status == "abwesend" }
+                  s_excused  = atts.count { |a| a.status == "abgemeldet" }
+                  is_past    = session.start_time < now
+                  recorded   = session.attendance_recorded?
+                  s_rate     = attendance_rate(atts)
+                %>
+                <tr class="<%= session.is_canceled? ? "bg-orange-50" : is_past && !recorded ? "bg-red-50" : "hover:bg-gray-50" %> transition">
+                  <td class="py-3 px-4 text-sm font-semibold text-gray-800">
+                    <%= session.start_time.strftime("%a, %-d. %b %Y") %>
+                  </td>
+                  <td class="py-3 px-4 text-sm text-gray-600">
+                    <%= session.start_time.strftime("%H:%M") %>
+                    <% if session.end_time %>
+                      – <%= session.end_time.strftime("%H:%M") %>
+                    <% end %>
+                  </td>
+                  <td class="py-3 px-4 text-sm">
+                    <% if session.is_canceled? %>
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-700">Abgesagt</span>
+                    <% elsif !is_past %>
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Bevorstehend</span>
+                    <% elsif recorded %>
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700">Erfasst</span>
+                    <% else %>
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700">Fehlt</span>
+                    <% end %>
+                  </td>
+                  <td class="py-3 px-4 text-center text-sm font-bold text-green-700">
+                    <%= s_present > 0 ? s_present : (session.is_canceled? || !is_past ? "—" : "0") %>
+                  </td>
+                  <td class="py-3 px-4 text-center text-sm font-bold text-red-600">
+                    <%= s_absent > 0 ? s_absent : (session.is_canceled? || !is_past ? "—" : "0") %>
+                  </td>
+                  <td class="py-3 px-4 text-center text-sm text-gray-500">
+                    <%= s_excused > 0 ? s_excused : "—" %>
+                  </td>
+                  <td class="py-3 px-4 text-center text-sm">
+                    <% if s_rate %>
+                      <span class="font-bold <%= s_rate >= 75 ? "text-green-600" : "text-yellow-600" %>"><%= s_rate %>%</span>
+                    <% else %>
+                      <span class="text-gray-300">—</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="px-6 py-8 text-center text-sm text-gray-400">
+          Noch keine Sessions generiert.
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+</div>
