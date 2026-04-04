@@ -1,5 +1,7 @@
-<p>Welcome <%= @email %>!</p>
+<p>Hallo <%= @email %>!</p>
 
-<p>You can confirm your account email through the link below:</p>
+<p>Willkommen beim BTV Anmeldeportal. Bitte bestätige deine E-Mail-Adresse, indem du auf den folgenden Link klickst:</p>
 
-<p><%= link_to 'Confirm my account', confirmation_url(@resource, confirmation_token: @token) %></p>
+<p><%= link_to "E-Mail-Adresse bestätigen", user_confirmation_url(@resource, confirmation_token: @token) %></p>
+
+<p>Wenn du dich nicht registriert hast, kannst du diese E-Mail ignorieren.</p>

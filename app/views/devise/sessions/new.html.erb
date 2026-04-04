@@ -19,12 +19,8 @@
           </div>
         </div>
 
-        <div>
-          <%= f.label :password, "Passwort", class: "block text-sm font-medium text-gray-700" %>
-          <div class="mt-1">
-            <%= f.password_field :password, autocomplete: "current-password", class: "appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-          </div>
-        </div>
+        <%= render "devise/shared/password_field", f: f, field: :password,
+              label: "Passwort", autocomplete: "current-password" %>
 
         <% if devise_mapping.rememberable? %>
           <div class="flex items-center justify-between">
@@ -46,3 +42,5 @@
     </div>
   </div>
 </div>
+
+<%= render "devise/shared/password_toggle_script" %>

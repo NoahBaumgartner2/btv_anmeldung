@@ -1,0 +1,86 @@
+de:
+  hello: "Hallo Welt"
+
+  activerecord:
+    errors:
+      messages:
+        record_invalid: "Validierung fehlgeschlagen: %{errors}"
+        restrict_dependent_destroy:
+          has_one: "Datensatz kann nicht gelöscht werden, da ein abhängiger %{record} existiert"
+          has_many: "Datensatz kann nicht gelöscht werden, da abhängige %{record} existieren"
+
+  activemodel:
+    errors:
+      messages:
+        confirmation: "stimmt nicht mit %{attribute} überein"
+        accepted: "muss akzeptiert werden"
+        blank: "muss ausgefüllt werden"
+        present: "muss leer sein"
+        too_long:
+          one: "ist zu lang (maximal 1 Zeichen)"
+          other: "ist zu lang (maximal %{count} Zeichen)"
+        too_short:
+          one: "ist zu kurz (mindestens 1 Zeichen)"
+          other: "ist zu kurz (mindestens %{count} Zeichen)"
+        wrong_length:
+          one: "hat die falsche Länge (muss genau 1 Zeichen haben)"
+          other: "hat die falsche Länge (muss genau %{count} Zeichen haben)"
+        not_a_number: "ist keine Zahl"
+        not_an_integer: "muss eine ganze Zahl sein"
+        greater_than: "muss größer als %{count} sein"
+        greater_than_or_equal_to: "muss größer oder gleich %{count} sein"
+        equal_to: "muss gleich %{count} sein"
+        less_than: "muss kleiner als %{count} sein"
+        less_than_or_equal_to: "muss kleiner oder gleich %{count} sein"
+        other_than: "muss ungleich %{count} sein"
+        inclusion: "ist kein gültiger Wert"
+        exclusion: "ist nicht verfügbar"
+        invalid: "ist ungültig"
+        taken: "ist bereits vergeben"
+        too_many: "sind zu viele"
+        too_few: "sind zu wenig"
+        empty: "darf nicht leer sein"
+      models:
+        user:
+          attributes:
+            email:
+              blank: "muss ausgefüllt werden"
+              taken: "ist bereits registriert"
+              invalid: "ist keine gültige E-Mail-Adresse"
+            password:
+              blank: "muss ausgefüllt werden"
+              too_short: "ist zu kurz (mindestens %{count} Zeichen)"
+            password_confirmation:
+              confirmation: "stimmt nicht mit dem Passwort überein"
+
+  errors:
+    format: "%{attribute} %{message}"
+    messages:
+      accepted: "muss akzeptiert werden"
+      blank: "muss ausgefüllt werden"
+      confirmation: "stimmt nicht mit %{attribute} überein"
+      empty: "darf nicht leer sein"
+      equal_to: "muss gleich %{count} sein"
+      even: "muss gerade sein"
+      exclusion: "ist nicht verfügbar"
+      greater_than: "muss größer als %{count} sein"
+      greater_than_or_equal_to: "muss größer oder gleich %{count} sein"
+      inclusion: "ist kein gültiger Wert"
+      invalid: "ist ungültig"
+      less_than: "muss kleiner als %{count} sein"
+      less_than_or_equal_to: "muss kleiner oder gleich %{count} sein"
+      not_a_number: "ist keine Zahl"
+      not_an_integer: "muss eine ganze Zahl sein"
+      odd: "muss ungerade sein"
+      other_than: "muss ungleich %{count} sein"
+      present: "muss leer sein"
+      taken: "ist bereits vergeben"
+      too_long:
+        one: "ist zu lang (maximal 1 Zeichen)"
+        other: "ist zu lang (maximal %{count} Zeichen)"
+      too_short:
+        one: "ist zu kurz (mindestens 1 Zeichen)"
+        other: "ist zu kurz (mindestens %{count} Zeichen)"
+      wrong_length:
+        one: "hat die falsche Länge (muss genau 1 Zeichen haben)"
+        other: "hat die falsche Länge (muss genau %{count} Zeichen haben)"
