@@ -79,7 +79,18 @@ class CoursesController < ApplicationController
     start_uhrzeit = "#{params[:start_hour]}:#{format('%02d', params[:start_minute].to_i)}"
     end_uhrzeit   = params[:end_hour].present? ? "#{params[:end_hour]}:#{format('%02d', params[:end_minute].to_i)}" : nil
 
-    holidays     = Holiday.all
+    # Ausgewählte DB-Ferien (Checkboxen)
+    selected_holiday_ids = Array(params[:holiday_ids]).map(&:to_i)
+    holidays = Holiday.where(id: selected_holiday_ids)
+
+    # Manuell eingegebene Ferien
+    extra_holidays = Array(params[:extra_holidays]&.values).filter_map do |h|
+      next unless h[:start_date].present? && h[:end_date].present?
+      { start_date: Date.parse(h[:start_date]), end_date: Date.parse(h[:end_date]) }
+    rescue ArgumentError
+      nil
+    end
+
     current_date = @course.start_date.to_date
     end_date     = @course.end_date.to_date
     created_count  = 0
@@ -87,7 +98,8 @@ class CoursesController < ApplicationController
 
     while current_date <= end_date
       if current_date.wday == wochentag
-        is_holiday = holidays.any? { |h| current_date >= h.start_date && current_date <= h.end_date }
+        is_holiday = holidays.any? { |h| current_date >= h.start_date && current_date <= h.end_date } ||
+                     extra_holidays.any? { |h| current_date >= h[:start_date] && current_date <= h[:end_date] }
         exists     = @course.training_sessions.where("start_time::date = ?", current_date).exists?
 
         if is_holiday || exists
