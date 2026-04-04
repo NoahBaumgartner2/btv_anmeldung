@@ -1,0 +1,41 @@
+<div class="max-w-md mx-auto mt-16 mb-16 px-4 text-center">
+
+  <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+    <svg class="w-8 h-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+    </svg>
+  </div>
+
+  <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Zahlung erfolgreich!</h1>
+  <p class="text-gray-500 mb-8">Vielen Dank. Deine Zahlung wurde erfolgreich verarbeitet.</p>
+
+  <% if @registration %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-8 text-left">
+      <div class="flex justify-between items-center text-sm mb-3">
+        <span class="font-medium text-gray-500">Kurs</span>
+        <span class="font-bold text-gray-900"><%= @registration.course.title %></span>
+      </div>
+      <div class="flex justify-between items-center text-sm mb-3">
+        <span class="font-medium text-gray-500">Teilnehmer</span>
+        <span class="font-semibold text-gray-800">
+          <%= @registration.participant.first_name %> <%= @registration.participant.last_name %>
+        </span>
+      </div>
+      <div class="flex justify-between items-center text-sm">
+        <span class="font-medium text-gray-500">Betrag</span>
+        <span class="font-bold text-green-700"><%= @registration.course.price_display %></span>
+      </div>
+    </div>
+
+    <%= link_to course_registration_path(@registration),
+          class: "inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition text-sm" do %>
+      Zur Anmeldungs-Übersicht
+    <% end %>
+  <% else %>
+    <%= link_to root_path,
+          class: "inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition text-sm" do %>
+      Zur Startseite
+    <% end %>
+  <% end %>
+
+</div>

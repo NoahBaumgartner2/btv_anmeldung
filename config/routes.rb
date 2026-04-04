@@ -8,6 +8,12 @@ Rails.application.routes.draw do
     post :test_email
   end
 
+  namespace :admin do
+    resource :payment_setting, only: [:show, :edit, :update] do
+      post :test_connection
+    end
+  end
+
   resources :trainers
   resources :holidays
   resources :participants
@@ -22,10 +28,16 @@ Rails.application.routes.draw do
 
   resources :course_registrations do
     member do
-      get :scan # NEU: Der geheime Link zum Scannen des Tickets!
+      get :scan
       post :unsubscribe_from_session
     end
   end
+
+  # Stripe payments
+  get  '/registrations/:id/checkout', to: 'payments#checkout',  as: 'checkout_registration'
+  get  '/payments/success',           to: 'payments#success',   as: 'payments_success'
+  get  '/payments/cancel',            to: 'payments#cancel',    as: 'payments_cancel'
+  post '/webhooks/stripe',            to: 'stripe_webhooks#create'
 
   resources :training_sessions do
     member do

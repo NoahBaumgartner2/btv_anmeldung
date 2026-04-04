@@ -14,4 +14,20 @@ class Course < ApplicationRecord
   def required_participant_fields
     CONFIGURABLE_REQUIRED_FIELDS.keys.select { |field| self["requires_#{field}"] }
   end
+
+  # Price helpers: store as Rappen (cents), display in CHF
+  def price_chf
+    cents = read_attribute(:price_cents)
+    return "" unless cents
+    format("%.2f", cents / 100.0)
+  end
+
+  def price_chf=(value)
+    self.price_cents = value.presence ? (value.to_f * 100).round : nil
+  end
+
+  def price_display
+    return "Kostenlos" unless has_payment? && price_cents
+    "CHF #{price_chf}"
+  end
 end
