@@ -4,6 +4,10 @@ Rails.application.routes.draw do
   get "dashboards/trainer"
   get "dashboards/stats"
 
+  resource :mail_setting, only: [:show, :edit, :update] do
+    post :test_email
+  end
+
   resources :trainers
   resources :holidays
   resources :participants
