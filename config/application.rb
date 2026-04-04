@@ -19,6 +19,9 @@ module BtvAnmeldung
     config.i18n.default_locale = :de
     config.i18n.available_locales = [:de, :en, :fr]
 
+    # Serve app/javascript via Propshaft so ES-module controllers are reachable
+    config.assets.paths << Rails.root.join("app/javascript")
+
     # Configuration for the application, engines, and railties goes here.
     #
     # These settings can be overridden in specific environments using the files

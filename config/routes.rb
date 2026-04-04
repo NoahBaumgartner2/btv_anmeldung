@@ -12,6 +12,9 @@ Rails.application.routes.draw do
     resource :payment_setting, only: [:show, :edit, :update] do
       post :test_connection
     end
+    resource :club_setting, only: [:show, :edit, :update] do
+      delete :destroy_logo, on: :member
+    end
   end
 
   resources :trainers
