@@ -28,7 +28,7 @@
           </div>
 
           <div class="p-6">
-            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-5">Angemeldete Kurse & Tickets</h3>
+            <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-5">Angemeldete Kurse &amp; Tickets</h3>
 
             <% registrations = participant.course_registrations.includes(:course) %>
 
@@ -84,14 +84,14 @@
 
                     <div class="mt-auto pt-5 border-t border-gray-100 flex flex-col items-center">
                       <% if reg.status == 'bestätigt' && course.has_ticketing %>
-                        <div class="cursor-pointer hover:scale-105 transition transform group w-full flex flex-col items-center" onclick="document.getElementById('qr-modal-<%= reg.id.to_json %>').classList.remove('hidden')">
+                        <div class="cursor-pointer hover:scale-105 transition transform group w-full flex flex-col items-center" onclick="var el=document.getElementById('qr-modal-<%= reg.id.to_json %>'); el.classList.remove('hidden'); el.classList.add('flex')">
                           <div class="bg-white p-2 rounded-xl border-2 border-dashed border-gray-300 mb-3 w-32 h-32 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
                             <%= generate_qr_code(scan_course_registration_url(reg)) %>
                           </div>
                           <p class="text-xs text-purple-600 font-bold uppercase tracking-wider text-center">Ticket vergrössern</p>
                         </div>
 
-                        <div id="qr-modal-<%= reg.id %>" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-gray-900 bg-opacity-80 backdrop-blur-sm p-4" onclick="this.classList.add('hidden')">
+                        <div id="qr-modal-<%= reg.id %>" class="hidden fixed inset-0 z-100 items-center justify-center bg-gray-900 bg-opacity-80 backdrop-blur-sm p-4" onclick="this.classList.remove('flex'); this.classList.add('hidden')">
                           <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center" onclick="event.stopPropagation()">
                             <h3 class="text-2xl font-black text-gray-900 mb-1">Ticket – <%= participant.first_name %></h3>
                             <p class="text-gray-500 mb-8 text-center font-medium"><%= course.title %></p>

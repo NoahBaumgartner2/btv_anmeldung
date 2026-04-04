@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_04_115841) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_04_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -31,9 +31,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_115841) do
     t.bigint "participant_id", null: false
     t.boolean "payment_cleared"
     t.string "status"
+    t.string "stripe_payment_intent_id"
+    t.string "stripe_session_id"
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_course_registrations_on_course_id"
     t.index ["participant_id"], name: "index_course_registrations_on_participant_id"
+    t.index ["stripe_payment_intent_id"], name: "index_course_registrations_on_stripe_payment_intent_id"
+    t.index ["stripe_session_id"], name: "index_course_registrations_on_stripe_session_id"
   end
 
   create_table "course_trainers", force: :cascade do |t|
@@ -58,6 +62,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_115841) do
     t.boolean "has_ticketing"
     t.string "location"
     t.integer "max_participants"
+    t.string "payment_methods", default: ["card"], null: false, array: true
+    t.integer "price_cents"
     t.string "registration_mode"
     t.string "registration_type"
     t.boolean "requires_ahv_number", default: false, null: false
@@ -121,6 +127,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_115841) do
     t.bigint "user_id", null: false
     t.index ["first_name", "last_name", "date_of_birth", "user_id"], name: "index_participants_unique_per_user", unique: true
     t.index ["user_id"], name: "index_participants_on_user_id"
+  end
+
+  create_table "payment_settings", force: :cascade do |t|
+    t.boolean "active", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "chf"
+    t.string "stripe_publishable_key"
+    t.text "stripe_secret_key_encrypted"
+    t.text "stripe_webhook_secret_encrypted"
+    t.datetime "updated_at", null: false
   end
 
   create_table "trainers", force: :cascade do |t|

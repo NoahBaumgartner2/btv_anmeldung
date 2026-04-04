@@ -12,8 +12,14 @@ services:
     # Hält den Container am Leben, damit VS Code sich verbinden kann
     command: sleep infinity
 
+    environment:
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+      - SMTP_FROM_ADDRESS=test@btv.local
+
     depends_on:
       - postgres
+      - mailpit
 
   postgres:
     image: postgres:16-alpine
@@ -25,6 +31,13 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+
+  mailpit:
+    image: axllent/mailpit
+    restart: unless-stopped
+    ports:
+      - "8026:8025"   # Web-UI (8025 is reserved by Codespaces vmagent)
+      - "1025:1025"   # SMTP
 
 volumes:
   postgres-data:

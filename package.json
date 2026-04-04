@@ -1,0 +1,9 @@
+{
+  "name": "btv_anmeldung",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "echo 'No JS bundle configured'",
+    "build:css": "echo 'CSS bundled by tailwindcss-rails'"
+  }
+}

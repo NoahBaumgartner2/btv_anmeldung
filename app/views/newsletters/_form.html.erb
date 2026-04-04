@@ -1,21 +1,23 @@
-<%= form_with model: newsletter, class: "contents" do |f| %>
-  <% if newsletter.errors.any? %>
-    <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6 text-sm text-red-700">
-      <%= newsletter.errors.full_messages.first %>
-    </div>
-  <% end %>
+<% if newsletter.errors.any? %>
+  <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6 text-sm text-red-700">
+    <%= newsletter.errors.full_messages.first %>
+  </div>
+<% end %>
 
-  <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
-    <%# ── Linke Spalte: Meta + Aktionen ──────────────────────────────────── %>
-    <div class="lg:col-span-2 space-y-4">
+  <%# ── Linke Spalte: Meta + Aktionen ──────────────────────────────────── %>
+  <div class="lg:col-span-2 space-y-4">
 
+    <%# Speichern-Formular (eigenständig, kein Nesting) %>
+    <%= form_with model: newsletter do |f| %>
       <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 space-y-4">
         <h2 class="font-bold text-gray-900 border-b border-gray-100 pb-3">Einstellungen</h2>
 
         <div>
           <%= f.label :title, "Interner Titel", class: "block text-xs font-bold text-gray-600 mb-1" %>
           <%= f.text_field :title, placeholder: "z.B. Sommer-Newsletter 2026",
+                autocomplete: "off",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" %>
           <p class="text-xs text-gray-400 mt-1">Wird nicht an den Empfänger gesendet.</p>
         </div>
@@ -23,6 +25,7 @@
         <div>
           <%= f.label :subject, "Betreff der E-Mail *", class: "block text-xs font-bold text-gray-600 mb-1" %>
           <%= f.text_field :subject, placeholder: "z.B. Neue Kurse im Herbst!",
+                autocomplete: "off",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none" %>
         </div>
 
@@ -33,125 +36,126 @@
                 class: "cursor-pointer w-full bg-gray-800 hover:bg-gray-900 text-white font-bold text-sm py-3 rounded-xl transition" %>
         </div>
       </div>
+    <% end %>
 
-      <%# Versenden (nur bei bestehendem Entwurf) %>
-      <% if newsletter.persisted? && newsletter.draft? %>
-        <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
-          <h2 class="font-bold text-gray-900 mb-1">Newsletter versenden</h2>
-          <p class="text-xs text-gray-500 mb-4">
-            Wird sofort an alle <strong><%= NewsletterSubscriber.subscribed.count %></strong> angemeldeten
-            Empfänger verschickt. Diese Aktion kann nicht rückgängig gemacht werden.
-          </p>
-          <%= button_to "Jetzt versenden →",
-                send_newsletter_newsletter_path(newsletter),
-                method: :post,
-                data: { turbo_confirm: "Newsletter an alle angemeldeten Empfänger senden? Diese Aktion kann nicht rückgängig gemacht werden." },
-                class: "cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-3 rounded-xl transition" %>
-        </div>
-      <% end %>
-
-      <%# Vorschau %>
-      <% if newsletter.persisted? %>
-        <a href="<%= preview_newsletter_path(newsletter) %>" target="_blank"
-           class="flex items-center justify-center gap-2 w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 font-bold text-sm py-3 rounded-xl transition">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-          </svg>
-          Vorschau (neuer Tab)
-        </a>
-      <% end %>
-
-    </div>
-
-    <%# ── Rechte Spalte: Editor ────────────────────────────────────────── %>
-    <div class="lg:col-span-3">
-      <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-
-        <%# Tab-Leiste %>
-        <div class="flex border-b border-gray-200 bg-gray-50">
-          <button type="button" id="tab-designer"
-                  onclick="switchTab('designer')"
-                  class="tab-btn flex-1 py-3 text-sm font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition">
-            Designer
-          </button>
-          <button type="button" id="tab-html"
-                  onclick="switchTab('html')"
-                  class="tab-btn flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 border-b-2 border-transparent transition">
-            HTML importieren
-          </button>
-        </div>
-
-        <%# Designer-Tab %>
-        <div id="panel-designer">
-
-          <%# Formatierungs-Toolbar %>
-          <div class="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-gray-100 bg-gray-50">
-            <% [
-              ["B",  "bold",        "font-bold"],
-              ["I",  "italic",      "italic"],
-              ["U",  "underline",   "underline"],
-            ].each do |label, cmd, cls| %>
-              <button type="button" onclick="fmt('<%= cmd %>')"
-                      class="w-8 h-8 rounded-lg hover:bg-gray-200 text-gray-700 text-sm font-mono <%= cls %> transition flex items-center justify-center">
-                <%= label %>
-              </button>
-            <% end %>
-            <div class="w-px h-5 bg-gray-200 mx-1"></div>
-            <% [["H1","h1"],["H2","h2"],["H3","h3"]].each do |label, tag| %>
-              <button type="button" onclick="fmtBlock('<%= tag %>')"
-                      class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
-                <%= label %>
-              </button>
-            <% end %>
-            <div class="w-px h-5 bg-gray-200 mx-1"></div>
-            <button type="button" onclick="fmtBlock('p')"
-                    class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
-              P
-            </button>
-            <button type="button" onclick="insertLink()"
-                    class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
-              Link
-            </button>
-            <div class="w-px h-5 bg-gray-200 mx-1"></div>
-            <button type="button" onclick="fmt('insertUnorderedList')"
-                    class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
-              Liste
-            </button>
-            <div class="ml-auto flex items-center gap-1">
-              <label class="text-xs text-gray-500 font-medium">Farbe:</label>
-              <input type="color" onchange="fmt('foreColor', this.value)"
-                     class="w-7 h-7 rounded cursor-pointer border border-gray-200" value="#111827">
-            </div>
-          </div>
-
-          <%# Editierbarer Bereich %>
-          <div id="editor-area"
-               contenteditable="true"
-               class="min-h-96 p-5 text-sm text-gray-800 leading-relaxed focus:outline-none"
-               style="font-family: Arial, sans-serif;">
-            <%= newsletter.body_html.present? ? newsletter.body_html.html_safe : "<p>Schreibe deinen Newsletter hier...</p>".html_safe %>
-          </div>
-        </div>
-
-        <%# HTML-Import-Tab %>
-        <div id="panel-html" class="hidden">
-          <div class="px-5 py-3 bg-amber-50 border-b border-amber-100">
-            <p class="text-xs text-amber-800 font-medium">
-              Füge rohen HTML-Code ein. Der Inhalt wird direkt in der E-Mail verwendet.
-            </p>
-          </div>
-          <textarea id="html-import-area"
-                    rows="20"
-                    placeholder="&lt;!-- HTML hier einfügen --&gt;&#10;&lt;h1&gt;Hallo!&lt;/h1&gt;&#10;&lt;p&gt;Willkommen zu unserem Newsletter.&lt;/p&gt;"
-                    class="block w-full px-5 py-4 text-sm font-mono text-gray-800 focus:outline-none resize-none border-0"
-          ><%= newsletter.body_html.present? ? newsletter.body_html : "" %></textarea>
-        </div>
-
+    <%# Versenden (eigenständiges button_to — kein Nesting) %>
+    <% if newsletter.persisted? && newsletter.draft? %>
+      <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+        <h2 class="font-bold text-gray-900 mb-1">Newsletter versenden</h2>
+        <p class="text-xs text-gray-500 mb-4">
+          Wird sofort an alle <strong><%= NewsletterSubscriber.subscribed.count %></strong> angemeldeten
+          Empfänger verschickt. Diese Aktion kann nicht rückgängig gemacht werden.
+        </p>
+        <%= button_to "Jetzt versenden →",
+              send_newsletter_newsletter_path(newsletter),
+              method: :post,
+              data: { turbo_confirm: "Newsletter an alle angemeldeten Empfänger senden? Diese Aktion kann nicht rückgängig gemacht werden." },
+              class: "cursor-pointer w-full bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-3 rounded-xl transition" %>
       </div>
-    </div>
+    <% end %>
+
+    <%# Vorschau %>
+    <% if newsletter.persisted? %>
+      <a href="<%= preview_newsletter_path(newsletter) %>" target="_blank"
+         class="flex items-center justify-center gap-2 w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 font-bold text-sm py-3 rounded-xl transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+        Vorschau (neuer Tab)
+      </a>
+    <% end %>
 
   </div>
-<% end %>
+
+  <%# ── Rechte Spalte: Editor ────────────────────────────────────────── %>
+  <div class="lg:col-span-3">
+    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+
+      <%# Tab-Leiste %>
+      <div class="flex border-b border-gray-200 bg-gray-50">
+        <button type="button" id="tab-designer"
+                onclick="switchTab('designer')"
+                class="tab-btn flex-1 py-3 text-sm font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition">
+          Designer
+        </button>
+        <button type="button" id="tab-html"
+                onclick="switchTab('html')"
+                class="tab-btn flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 border-b-2 border-transparent transition">
+          HTML importieren
+        </button>
+      </div>
+
+      <%# Designer-Tab %>
+      <div id="panel-designer">
+
+        <%# Formatierungs-Toolbar %>
+        <div class="flex flex-wrap items-center gap-1 px-3 py-2 border-b border-gray-100 bg-gray-50">
+          <% [
+            ["B",  "bold",        "font-bold"],
+            ["I",  "italic",      "italic"],
+            ["U",  "underline",   "underline"],
+          ].each do |label, cmd, cls| %>
+            <button type="button" onclick="fmt(<%= cmd.to_json %>)"
+                    class="w-8 h-8 rounded-lg hover:bg-gray-200 text-gray-700 text-sm font-mono <%= cls %> transition flex items-center justify-center">
+              <%= label %>
+            </button>
+          <% end %>
+          <div class="w-px h-5 bg-gray-200 mx-1"></div>
+          <% [["H1","h1"],["H2","h2"],["H3","h3"]].each do |label, tag| %>
+            <button type="button" onclick="fmtBlock(<%= tag.to_json %>)"
+                    class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
+              <%= label %>
+            </button>
+          <% end %>
+          <div class="w-px h-5 bg-gray-200 mx-1"></div>
+          <button type="button" onclick="fmtBlock('p')"
+                  class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
+            P
+          </button>
+          <button type="button" onclick="insertLink()"
+                  class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
+            Link
+          </button>
+          <div class="w-px h-5 bg-gray-200 mx-1"></div>
+          <button type="button" onclick="fmt('insertUnorderedList')"
+                  class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
+            Liste
+          </button>
+          <div class="ml-auto flex items-center gap-1">
+            <label class="text-xs text-gray-500 font-medium">Farbe:</label>
+            <input type="color" onchange="fmt('foreColor', this.value)"
+                   autocomplete="off"
+                   class="w-7 h-7 rounded cursor-pointer border border-gray-200" value="#111827">
+          </div>
+        </div>
+
+        <%# Editierbarer Bereich %>
+        <div id="editor-area"
+             contenteditable="true"
+             class="min-h-96 p-5 text-sm text-gray-800 leading-relaxed focus:outline-none"
+             style="font-family: Arial, sans-serif;">
+          <%= newsletter.body_html.present? ? sanitize(newsletter.body_html) : sanitize("<p>Schreibe deinen Newsletter hier...</p>") %>
+        </div>
+      </div>
+
+      <%# HTML-Import-Tab %>
+      <div id="panel-html" class="hidden">
+        <div class="px-5 py-3 bg-amber-50 border-b border-amber-100">
+          <p class="text-xs text-amber-800 font-medium">
+            Füge rohen HTML-Code ein. Der Inhalt wird direkt in der E-Mail verwendet.
+          </p>
+        </div>
+        <textarea id="html-import-area"
+                  rows="20"
+                  placeholder="&lt;!-- HTML hier einfügen --&gt;&#10;&lt;h1&gt;Hallo!&lt;/h1&gt;&#10;&lt;p&gt;Willkommen zu unserem Newsletter.&lt;/p&gt;"
+                  class="block w-full px-5 py-4 text-sm font-mono text-gray-800 focus:outline-none resize-none border-0"
+        ><%= newsletter.body_html.present? ? newsletter.body_html : "" %></textarea>
+      </div>
+
+    </div>
+  </div>
+
+</div>
 
 <script nonce="<%= content_security_policy_nonce %>">
   let activeTab = "designer";
@@ -172,7 +176,6 @@
         ? "tab-btn flex-1 py-3 text-sm font-bold text-blue-600 border-b-2 border-blue-600 bg-white transition"
         : "tab-btn flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 border-b-2 border-transparent transition";
 
-    // Sync content beim Tab-Wechsel
     if (!isDesigner) {
       document.getElementById("html-import-area").value =
         document.getElementById("editor-area").innerHTML;

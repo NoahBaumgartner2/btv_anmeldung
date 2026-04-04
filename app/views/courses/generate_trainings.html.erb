@@ -37,7 +37,8 @@
     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Kurs-Informationen</p>
     <h2 class="text-lg font-bold text-gray-900 mb-3"><%= @course.title %></h2>
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
-      <div class="bg-<%= has_dates ? "gray" : "red" %>-50 rounded-lg p-3 <%= "border border-red-200" unless has_dates %>">
+      <% zeitraum_class = has_dates ? "bg-gray-50 rounded-lg p-3" : "bg-red-50 rounded-lg p-3 border border-red-200" %>
+      <%= content_tag :div, class: zeitraum_class do %>
         <p class="text-xs font-semibold text-gray-500 mb-0.5">Zeitraum</p>
         <% if has_dates %>
           <p class="font-bold text-gray-800">
@@ -46,7 +47,7 @@
         <% else %>
           <p class="font-bold text-red-600">Nicht gesetzt</p>
         <% end %>
-      </div>
+      <% end %>
       <% if weeks_total %>
         <div class="bg-gray-50 rounded-lg p-3">
           <p class="text-xs font-semibold text-gray-500 mb-0.5">Dauer</p>
@@ -98,14 +99,22 @@
                       class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                 <option value="">Std.</option>
                 <% hours.each do |label, val| %>
-                  <option value="<%= val %>" <%= "selected" if @course.default_start_hour == val %>><%= label %></option>
+                  <% if @course.default_start_hour == val %>
+                    <option value="<%= val %>" selected><%= label %></option>
+                  <% else %>
+                    <option value="<%= val %>"><%= label %></option>
+                  <% end %>
                 <% end %>
               </select>
               <span class="text-gray-500 font-bold">:</span>
               <select name="start_minute" required
                       class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
                 <% minutes.each do |label, val| %>
-                  <option value="<%= val %>" <%= "selected" if @course.default_start_minute == val %>><%= label %></option>
+                  <% if @course.default_start_minute == val %>
+                    <option value="<%= val %>" selected><%= label %></option>
+                  <% else %>
+                    <option value="<%= val %>"><%= label %></option>
+                  <% end %>
                 <% end %>
               </select>
               <span class="text-sm text-gray-400">Uhr</span>

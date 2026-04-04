@@ -1,7 +1,13 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :edit, :update, :destroy ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy ]
+
+  def show
+    unless current_user.participants.include?(@course_registration.participant) || current_user.admin?
+      redirect_to root_path, alert: "Zugriff verweigert."
+    end
+  end
 
   def new
     @course_registration = CourseRegistration.new
@@ -36,20 +42,28 @@ class CourseRegistrationsController < ApplicationController
       end
     end
 
-    # 3. Wie viele BESTÄTIGTE Plätze sind schon weg?
-    bestaetigte_plaetze = course.course_registrations.where(status: "bestätigt").count
-
-    # 4. Die Wartelisten-Automatik!
-    if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
-      @course_registration.status = "warteliste"
-      erfolgs_nachricht = "Der Kurs ist leider voll. Dein Kind wurde erfolgreich auf die Warteliste gesetzt!"
+    # 3. Status bestimmen
+    if course.has_payment?
+      # Zahlung erforderlich → erst nach Bezahlung bestätigt
+      @course_registration.status = "ausstehend"
     else
-      @course_registration.status = "bestätigt"
-      erfolgs_nachricht = "Fantastisch! Dein Kind hat einen festen Platz im Kurs."
+      # Ohne Zahlung → sofort bestätigt oder Warteliste
+      bestaetigte_plaetze = course.course_registrations.where(status: "bestätigt").count
+      if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
+        @course_registration.status = "warteliste"
+        erfolgs_nachricht = "Der Kurs ist leider voll. Dein Kind wurde erfolgreich auf die Warteliste gesetzt!"
+      else
+        @course_registration.status = "bestätigt"
+        erfolgs_nachricht = "Fantastisch! Dein Kind hat einen festen Platz im Kurs."
+      end
     end
 
     if @course_registration.save
-      redirect_to course_path(course), notice: erfolgs_nachricht
+      if course.has_payment? && ::StripeConfig.configured? && !@course_registration.payment_cleared?
+        redirect_to checkout_preview_registration_path(@course_registration)
+      else
+        redirect_to course_registration_path(@course_registration), notice: erfolgs_nachricht
+      end
     else
       setup_new_form(course)
       render :new, status: :unprocessable_entity
@@ -135,6 +149,24 @@ def unsubscribe_from_session
         }
       }
     end
+  end
+
+  def mark_as_paid
+    authorize_admin!
+    return if performed?
+
+    @course_registration = CourseRegistration.find(params[:id])
+    course = @course_registration.course
+
+    new_status = if course.max_participants.present?
+      confirmed = course.course_registrations.where(status: "bestätigt").where.not(id: @course_registration.id).count
+      confirmed >= course.max_participants ? "warteliste" : "bestätigt"
+    else
+      "bestätigt"
+    end
+
+    @course_registration.update!(payment_cleared: true, status: new_status)
+    redirect_to manage_course_path(course), notice: "#{@course_registration.participant.first_name} als bezahlt markiert."
   end
 
   private
