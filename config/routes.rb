@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   # NEU: Die Routen für unsere Dashboards
   get "dashboards/admin"
   get "dashboards/trainer"
+  get "dashboards/stats"
 
   resources :trainers
   resources :holidays
