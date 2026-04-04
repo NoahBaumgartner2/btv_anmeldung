@@ -124,6 +124,7 @@
           <div class="ml-auto flex items-center gap-1">
             <label class="text-xs text-gray-500 font-medium">Farbe:</label>
             <input type="color" onchange="fmt('foreColor', this.value)"
+                   autocomplete="off"
                    class="w-7 h-7 rounded cursor-pointer border border-gray-200" value="#111827">
           </div>
         </div>
@@ -133,7 +134,7 @@
              contenteditable="true"
              class="min-h-96 p-5 text-sm text-gray-800 leading-relaxed focus:outline-none"
              style="font-family: Arial, sans-serif;">
-          <%= newsletter.body_html.present? ? newsletter.body_html.html_safe : "<p>Schreibe deinen Newsletter hier...</p>".html_safe %>
+          <%= newsletter.body_html.present? ? sanitize(newsletter.body_html) : sanitize("<p>Schreibe deinen Newsletter hier...</p>") %>
         </div>
       </div>
 
