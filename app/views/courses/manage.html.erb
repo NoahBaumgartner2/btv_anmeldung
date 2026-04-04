@@ -249,7 +249,7 @@
               <td class="py-4 px-6 text-right text-sm">
                 <div class="inline-flex items-center gap-3">
                   <button type="button"
-                          onclick="document.getElementById('detail-modal-<%= reg.id.to_json %>').classList.remove('hidden')"
+                          onclick="var el=document.getElementById('detail-modal-<%= reg.id.to_json %>'); el.classList.remove('hidden'); el.classList.add('flex')"
                           class="text-gray-600 font-bold hover:text-gray-900 transition cursor-pointer">
                     Details
                   </button>
@@ -261,8 +261,8 @@
 
                 <%# Detail-Modal %>
                 <div id="detail-modal-<%= reg.id %>"
-                     class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4"
-                     onclick="this.classList.add('hidden')">
+                     class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4"
+                     onclick="this.classList.remove('flex'); this.classList.add('hidden')">
                   <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-left" onclick="event.stopPropagation()">
 
                     <%# Kopf %>
