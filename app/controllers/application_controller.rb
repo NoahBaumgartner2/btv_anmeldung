@@ -2,6 +2,14 @@ class ApplicationController < ActionController::Base
   # Erlaubt moderne Browser-Features wie Web-Push (Standard von Rails 8)
   allow_browser versions: :modern
 
+  before_action :configure_permitted_parameters, if: :devise_controller?
+
+  protected
+
+  def configure_permitted_parameters
+    devise_parameter_sanitizer.permit(:sign_up, keys: [:subscribe_to_newsletter])
+  end
+
   private
 
 private

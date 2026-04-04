@@ -13,29 +13,33 @@ puts "👤 Erstelle Benutzer (Admin, Trainer & Eltern)..."
 
 # 👑 Der Admin-Account (Reto)
 admin_user = User.create!(
-  email: 'admin@btv.ch', 
-  password: 'password', 
-  password_confirmation: 'password', 
-  admin: true
+  email: 'admin@btv.ch',
+  password: 'password',
+  password_confirmation: 'password',
+  admin: true,
+  confirmed_at: Time.current
 )
 
 # Ein normaler Trainer Account
 trainer_user = User.create!(
-  email: 'trainer@btv.ch', 
-  password: 'password', 
-  password_confirmation: 'password'
+  email: 'trainer@btv.ch',
+  password: 'password',
+  password_confirmation: 'password',
+  confirmed_at: Time.current
 )
 
 # Zwei Eltern-Accounts
 parent1 = User.create!(
-  email: 'familie.meier@example.com', 
-  password: 'password', 
-  password_confirmation: 'password'
+  email: 'familie.meier@example.com',
+  password: 'password',
+  password_confirmation: 'password',
+  confirmed_at: Time.current
 )
 parent2 = User.create!(
-  email: 'familie.weber@example.com', 
-  password: 'password', 
-  password_confirmation: 'password'
+  email: 'familie.weber@example.com',
+  password: 'password',
+  password_confirmation: 'password',
+  confirmed_at: Time.current
 )
 
 puts "🏋️ Erstelle Trainer-Profil..."
