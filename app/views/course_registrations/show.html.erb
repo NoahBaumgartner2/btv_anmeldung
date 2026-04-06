@@ -1,7 +1,7 @@
 <%
   course      = @course_registration.course
   participant = @course_registration.participant
-  needs_payment = course.has_payment? && !@course_registration.payment_cleared?
+  needs_payment = course.has_payment? && course.price_cents.to_i > 0 && !@course_registration.payment_cleared?
 %>
 
 <div class="max-w-lg mx-auto mt-10 mb-16 px-4">
@@ -54,7 +54,11 @@
           <% when "warteliste" %>
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">Warteliste</span>
           <% when "ausstehend" %>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600">Zahlung ausstehend</span>
+            <% if course.price_cents.to_i > 0 %>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600">Zahlung ausstehend</span>
+            <% else %>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">Bestätigt</span>
+            <% end %>
           <% else %>
             <span class="text-gray-600 text-xs"><%= @course_registration.status %></span>
           <% end %>

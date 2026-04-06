@@ -5,6 +5,13 @@ class CourseRegistrationsController < ApplicationController
   before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
 
   def show
+    if @course_registration.status == "ausstehend" && @course_registration.course.price_cents.to_i == 0
+      course = @course_registration.course
+      confirmed = course.course_registrations.where(status: "bestätigt").count
+      max       = course.max_participants
+      new_status = (max.present? && confirmed >= max) ? "warteliste" : "bestätigt"
+      @course_registration.update_columns(status: new_status)
+    end
   end
 
   def new
@@ -41,11 +48,11 @@ class CourseRegistrationsController < ApplicationController
     end
 
     # 3. Status bestimmen
-    if course.has_payment?
-      # Zahlung erforderlich → erst nach Bezahlung bestätigt
+    if course.has_payment? && course.price_cents.to_i > 0
+      # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt
       @course_registration.status = "ausstehend"
     else
-      # Ohne Zahlung → sofort bestätigt oder Warteliste
+      # Kostenlos (has_payment? false, oder price_cents nil/0) → sofort bestätigt oder Warteliste
       bestaetigte_plaetze = course.course_registrations.where(status: "bestätigt").count
       if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
         @course_registration.status = "warteliste"
@@ -58,7 +65,7 @@ class CourseRegistrationsController < ApplicationController
 
     if @course_registration.save
       CourseRegistrationMailer.confirmation(@course_registration).deliver_later
-      if course.has_payment? && ::StripeConfig.configured? && !@course_registration.payment_cleared?
+      if course.has_payment? && course.price_cents.to_i > 0 && ::StripeConfig.configured? && !@course_registration.payment_cleared?
         redirect_to checkout_preview_registration_path(@course_registration)
       else
         redirect_to course_registration_path(@course_registration), notice: erfolgs_nachricht
