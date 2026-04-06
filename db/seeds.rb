@@ -46,9 +46,9 @@ puts "🏋️ Erstelle Trainer-Profil..."
 trainer1 = Trainer.create!(user: trainer_user, phone: '+41 79 123 45 67')
 
 puts "👧👦 Erstelle Teilnehmer (Kinder)..."
-child1 = Participant.create!(user: parent1, first_name: 'Mia',  last_name: 'Meier', date_of_birth: '2015-05-12', gender: 'weiblich', email: 'mia.meier@example.com',   phone_number: '+41 79 100 00 01')
-child2 = Participant.create!(user: parent1, first_name: 'Leon', last_name: 'Meier', date_of_birth: '2017-08-22', gender: 'männlich', email: 'leon.meier@example.com',  phone_number: '+41 79 100 00 02')
-child3 = Participant.create!(user: parent2, first_name: 'Emma', last_name: 'Weber', date_of_birth: '2014-03-01', gender: 'weiblich', email: 'emma.weber@example.com',  phone_number: '+41 79 100 00 03')
+child1 = Participant.create!(user: parent1, first_name: 'Mia',  last_name: 'Meier', date_of_birth: '2015-05-12', gender: 'weiblich',  phone_number: '+41 79 100 00 01')
+child2 = Participant.create!(user: parent1, first_name: 'Leon', last_name: 'Meier', date_of_birth: '2017-08-22', gender: 'männlich', phone_number: '+41 79 100 00 02')
+child3 = Participant.create!(user: parent2, first_name: 'Emma', last_name: 'Weber', date_of_birth: '2014-03-01', gender: 'weiblich',  phone_number: '+41 79 100 00 03')
 
 puts "🤸 Erstelle Kurse..."
 

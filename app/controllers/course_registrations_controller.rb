@@ -1,8 +1,8 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy ]
-  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel ]
+  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
 
   def show
   end
@@ -90,6 +90,16 @@ class CourseRegistrationsController < ApplicationController
     course = @course_registration.course
     @course_registration.destroy
     redirect_to course_path(course), notice: "Die Anmeldung wurde gelöscht."
+  end
+
+  def cancel
+    if @course_registration.status == "storniert"
+      redirect_to participants_path, alert: "Diese Anmeldung ist bereits storniert."
+      return
+    end
+
+    @course_registration.update!(status: "storniert")
+    redirect_to participants_path, notice: "Die Anmeldung für \"#{@course_registration.course.title}\" wurde storniert."
   end
 
 def unsubscribe_from_session

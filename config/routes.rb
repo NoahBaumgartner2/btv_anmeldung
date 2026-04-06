@@ -36,6 +36,7 @@ Rails.application.routes.draw do
       get :scan
       post :unsubscribe_from_session
       post :mark_as_paid
+      post :cancel
     end
   end
 
