@@ -6,6 +6,8 @@ class CourseRegistration < ApplicationRecord
   has_many :attendances, dependent: :destroy
 
   validate :participant_has_required_fields, on: :create
+  validate :no_duplicate_single_session_registration, on: :create
+  validate :training_session_bookable, on: :create
 
   after_destroy :promote_from_waitlist
   after_update :promote_from_waitlist, if: -> { saved_change_to_status?(to: "storniert") }
@@ -26,6 +28,28 @@ class CourseRegistration < ApplicationRecord
 
     next_in_line.update_columns(status: "bestätigt")
     CourseRegistrationMailer.waitlist_promoted(next_in_line).deliver_later
+  end
+
+  def no_duplicate_single_session_registration
+    return unless course&.registration_mode == "single_session" && training_session_id.present? && participant_id.present?
+
+    already_registered = CourseRegistration.where(
+      participant_id: participant_id,
+      course_id: course_id,
+      training_session_id: training_session_id
+    ).where.not(status: "storniert").exists?
+
+    errors.add(:base, "Dieses Kind ist für diesen Termin bereits angemeldet.") if already_registered
+  end
+
+  def training_session_bookable
+    return unless training_session.present?
+
+    if training_session.is_canceled?
+      errors.add(:base, "Dieser Termin wurde leider abgesagt.")
+    elsif training_session.start_time <= Time.current
+      errors.add(:base, "Dieser Termin liegt in der Vergangenheit und kann nicht mehr gebucht werden.")
+    end
   end
 
   def participant_has_required_fields

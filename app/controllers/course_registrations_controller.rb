@@ -26,6 +26,11 @@ class CourseRegistrationsController < ApplicationController
     else
       @selectable_courses = Course.order(:title)
     end
+
+    if params[:training_session_id]
+      @training_session = TrainingSession.find_by(id: params[:training_session_id])
+      @course_registration.training_session_id = @training_session&.id
+    end
   end
 
   def create
@@ -207,6 +212,7 @@ def unsubscribe_from_session
     @my_participants = current_user.participants
     @course = course || @course_registration.course
     @selectable_courses = @course ? Course.where(registration_type: @course.registration_type).order(:title) : Course.order(:title)
+    @training_session ||= TrainingSession.find_by(id: @course_registration.training_session_id)
   end
 
   # Der Türsteher: Erlaubt jetzt auch Status und Bezahlung!

@@ -73,24 +73,49 @@
         <span></span> Wähle deinen Termin
       </h2>
 
-      <% if @course.training_sessions.any? %>
+      <%
+        bookable_sessions = @course.training_sessions
+          .where(is_canceled: false)
+          .where("start_time > ?", Time.current)
+          .order(:start_time)
+      %>
+      <% if bookable_sessions.any? %>
         <div class="bg-white rounded-2xl border border-purple-100 overflow-hidden shadow-sm">
           <ul class="divide-y divide-gray-100">
-            <% @course.training_sessions.order(:start_time).each do |session| %>
+            <% bookable_sessions.each do |session| %>
+              <%
+                spots_taken = @course.course_registrations
+                  .where(status: "bestätigt", training_session_id: session.id).count
+                is_full = @course.max_participants.present? && spots_taken >= @course.max_participants
+              %>
               <li class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-purple-50/50 transition">
                 <div>
                   <p class="font-bold text-gray-900 text-lg">
-                    <%= session.start_time ? session.start_time.strftime("%A, %d.%m.%Y") : "Datum ausstehend" %>
+                    <%= I18n.l(session.start_time, format: "%A, %-d. %B %Y") %>
                   </p>
                   <p class="text-sm font-medium text-purple-600 mt-1">
-                     <%= session.start_time ? session.start_time.strftime("%H:%M") : "--:--" %> Uhr
-                    <span class="text-gray-400 mx-2">|</span>
-                    <%= @course.location %>
+                    <%= session.start_time.strftime("%H:%M") %> Uhr
+                    <% if @course.location.present? %>
+                      <span class="text-gray-400 mx-2">·</span>
+                      <%= @course.location %>
+                    <% end %>
+                    <% if @course.max_participants.present? %>
+                      <span class="text-gray-400 mx-2">·</span>
+                      <span class="<%= is_full ? 'text-red-500' : 'text-green-600' %> font-bold">
+                        <%= is_full ? "Ausgebucht" : "#{@course.max_participants - spots_taken} Plätze frei" %>
+                      </span>
+                    <% end %>
                   </p>
                 </div>
 
                 <div>
-                  <%= link_to "Dafür anmelden", new_course_registration_path(course_id: @course.id, training_session_id: session.id), class: "block w-full sm:w-auto bg-purple-600 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-purple-700 transition text-sm text-center shadow-sm whitespace-nowrap" %>
+                  <% if is_full %>
+                    <%= link_to "Warteliste", new_course_registration_path(course_id: @course.id, training_session_id: session.id),
+                          class: "block w-full sm:w-auto bg-orange-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-orange-600 transition text-sm text-center shadow-sm whitespace-nowrap" %>
+                  <% else %>
+                    <%= link_to "Dafür anmelden", new_course_registration_path(course_id: @course.id, training_session_id: session.id),
+                          class: "block w-full sm:w-auto bg-purple-600 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-purple-700 transition text-sm text-center shadow-sm whitespace-nowrap" %>
+                  <% end %>
                 </div>
               </li>
             <% end %>
@@ -98,7 +123,7 @@
         </div>
       <% else %>
         <div class="text-center py-8 bg-white rounded-2xl border border-purple-100 border-dashed">
-          <p class="text-purple-700 text-sm font-medium">Momentan sind keine Termine für diesen Kurs verfügbar.</p>
+          <p class="text-purple-700 text-sm font-medium">Momentan sind keine buchbaren Termine für diesen Kurs verfügbar.</p>
         </div>
       <% end %>
     </div>
