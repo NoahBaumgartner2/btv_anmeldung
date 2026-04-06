@@ -57,6 +57,7 @@ class CourseRegistrationsController < ApplicationController
     end
 
     if @course_registration.save
+      CourseRegistrationMailer.confirmation(@course_registration).deliver_later
       if course.has_payment? && ::StripeConfig.configured? && !@course_registration.payment_cleared?
         redirect_to checkout_preview_registration_path(@course_registration)
       else
