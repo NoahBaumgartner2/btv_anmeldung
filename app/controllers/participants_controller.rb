@@ -3,24 +3,30 @@ class ParticipantsController < ApplicationController
   before_action :set_participant, only: %i[show edit update destroy]
 
   def index
-    @participants = current_user.participants.includes(course_registrations: :course)
+    @participants = current_user.participants
+      .includes(course_registrations: [ :course, :training_session ])
 
-    confirmed_registrations = @participants.flat_map(&:course_registrations).select { |r| r.status == "bestätigt" }
-    confirmed_course_ids = confirmed_registrations.map(&:course_id).uniq
-    confirmed_reg_ids = confirmed_registrations.map(&:id)
+    all_regs = @participants.flat_map(&:course_registrations)
+
+    # Nur Semester-Kurse brauchen @upcoming_by_course (single_session-Kurse haben
+    # ihre Session direkt auf der CourseRegistration via training_session_id)
+    semester_confirmed = all_regs.select { |r|
+      r.status == "bestätigt" && r.course.registration_mode != "single_session"
+    }
+    semester_course_ids = semester_confirmed.map(&:course_id).uniq
+    semester_reg_ids    = semester_confirmed.map(&:id)
 
     upcoming = TrainingSession
-      .where(course_id: confirmed_course_ids, is_canceled: false)
+      .where(course_id: semester_course_ids, is_canceled: false)
       .where("start_time > ?", Time.current)
       .order(:start_time)
-      .includes(:attendances)
 
     @upcoming_by_course = upcoming.each_with_object(Hash.new { |h, k| h[k] = [] }) do |session, hash|
       hash[session.course_id] << session if hash[session.course_id].size < 3
     end
 
     @unsubscribed_pairs = Attendance
-      .where(course_registration_id: confirmed_reg_ids, status: "abgemeldet")
+      .where(course_registration_id: semester_reg_ids, status: "abgemeldet")
       .pluck(:course_registration_id, :training_session_id)
       .to_set
   end
