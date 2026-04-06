@@ -1,7 +1,9 @@
 <%
-  course      = @course_registration.course
-  participant = @course_registration.participant
-  needs_payment = course.has_payment? && course.price_cents.to_i > 0 && !@course_registration.payment_cleared?
+  course           = @course_registration.course
+  participant      = @course_registration.participant
+  session          = @course_registration.training_session
+  is_single        = course.registration_mode == "single_session" && session.present?
+  needs_payment    = course.has_payment? && course.price_cents.to_i > 0 && !@course_registration.payment_cleared?
 %>
 
 <div class="max-w-lg mx-auto mt-10 mb-16 px-4">
@@ -23,9 +25,29 @@
         </svg>
       </div>
       <h1 class="text-2xl font-extrabold text-gray-900">Anmeldung erfolgreich</h1>
-      <p class="text-gray-500 mt-1 text-sm">Dein Platz im Kurs ist gesichert.</p>
+      <p class="text-gray-500 mt-1 text-sm"><%= is_single ? "Dein Termin ist gebucht." : "Dein Platz im Kurs ist gesichert." %></p>
     <% end %>
   </div>
+
+  <%# ── Termin-Banner für Drop-In ─────────────────────────────────────────── %>
+  <% if is_single %>
+    <div class="mb-5 bg-purple-50 border border-purple-200 rounded-2xl p-5 flex items-start gap-4">
+      <div class="shrink-0 w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-2xl">📅</div>
+      <div>
+        <p class="text-xs font-bold text-purple-500 uppercase tracking-wider mb-1">Dein gebuchter Termin</p>
+        <p class="text-xl font-extrabold text-purple-900">
+          <%= I18n.l(session.start_time, format: "%A, %-d. %B %Y") %>
+        </p>
+        <p class="text-base font-semibold text-purple-700 mt-0.5">
+          <%= session.start_time.strftime("%H:%M") %> Uhr
+          <% if course.location.present? %>
+            <span class="text-purple-400 mx-1">·</span>
+            <%= course.location %>
+          <% end %>
+        </p>
+      </div>
+    </div>
+  <% end %>
 
   <%# ── Anmeldungs-Details ─────────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
@@ -41,6 +63,21 @@
         <dt class="font-medium text-gray-500">Kategorie</dt>
         <dd class="text-gray-700"><%= course.registration_type.presence || "—" %></dd>
       </div>
+      <% if is_single %>
+        <div class="px-5 py-3 flex justify-between text-sm">
+          <dt class="font-medium text-gray-500">Termin</dt>
+          <dd class="font-semibold text-gray-900">
+            <%= I18n.l(session.start_time, format: "%-d. %B %Y") %>,
+            <%= session.start_time.strftime("%H:%M") %> Uhr
+          </dd>
+        </div>
+        <% if course.location.present? %>
+          <div class="px-5 py-3 flex justify-between text-sm">
+            <dt class="font-medium text-gray-500">Ort</dt>
+            <dd class="text-gray-700"><%= course.location %></dd>
+          </div>
+        <% end %>
+      <% end %>
       <div class="px-5 py-3 flex justify-between text-sm">
         <dt class="font-medium text-gray-500">Teilnehmer</dt>
         <dd class="font-semibold text-gray-900"><%= participant.first_name %> <%= participant.last_name %></dd>
@@ -111,9 +148,16 @@
 
   <%# ── Navigation ─────────────────────────────────────────────────────────── %>
   <div class="flex gap-3">
-    <%= link_to course_path(course),
-          class: "flex-1 text-center bg-white border border-gray-300 text-gray-700 font-semibold py-2.5 px-4 rounded-xl text-sm hover:bg-gray-50 transition" do %>
-      Zurück zum Kurs
+    <% if is_single %>
+      <%= link_to course_path(course, anchor: "termine"),
+            class: "flex-1 text-center bg-purple-600 text-white font-semibold py-2.5 px-4 rounded-xl text-sm hover:bg-purple-700 transition" do %>
+        Weitere Termine buchen
+      <% end %>
+    <% else %>
+      <%= link_to course_path(course),
+            class: "flex-1 text-center bg-white border border-gray-300 text-gray-700 font-semibold py-2.5 px-4 rounded-xl text-sm hover:bg-gray-50 transition" do %>
+        Zurück zum Kurs
+      <% end %>
     <% end %>
     <%= link_to participants_path,
           class: "flex-1 text-center bg-gray-100 text-gray-700 font-semibold py-2.5 px-4 rounded-xl text-sm hover:bg-gray-200 transition" do %>
@@ -123,28 +167,33 @@
 
   <%# ── Abmelden ───────────────────────────────────────────────────────────── %>
   <% if @course_registration.status != "storniert" %>
+    <% cancel_title   = is_single ? "Termin stornieren" : "Vom Kurs abmelden" %>
+    <% cancel_heading = is_single ? "Termin stornieren" : "Kurs abmelden" %>
+    <% cancel_body    = if is_single
+         "Willst du die Buchung für <strong>#{I18n.l(session.start_time, format: '%-d. %B %Y')}, #{session.start_time.strftime('%H:%M')} Uhr</strong> wirklich stornieren?"
+       else
+         "Willst du dich wirklich vom Kurs <strong>#{course.title}</strong> abmelden?"
+       end %>
     <div class="mt-4"
          data-controller="confirm-unsubscribe"
          data-confirm-unsubscribe-course-name-value="<%= course.title %>">
 
-      <%= form_with url: course_registration_path(@course_registration), method: :delete,
+      <%= form_with url: cancel_course_registration_path(@course_registration), method: :post,
                     data: { "unsubscribe-form": "" } do %>
       <% end %>
 
       <button type="button"
               data-action="confirm-unsubscribe#open"
               class="w-full text-sm font-semibold text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-200 py-2.5 px-4 rounded-xl transition">
-        Vom Kurs abmelden
+        <%= cancel_title %>
       </button>
 
       <div data-confirm-unsubscribe-target="modal"
            class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4"
            data-action="click->confirm-unsubscribe#close">
         <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6" data-action="click->confirm-unsubscribe#close:stop">
-          <h2 class="text-lg font-extrabold text-gray-900 mb-2">Kurs abmelden</h2>
-          <p class="text-sm text-gray-600 mb-1">
-            Willst du dich wirklich vom Kurs <strong><%= course.title %></strong> abmelden?
-          </p>
+          <h2 class="text-lg font-extrabold text-gray-900 mb-2"><%= cancel_heading %></h2>
+          <p class="text-sm text-gray-600 mb-1"><%= cancel_body.html_safe %></p>
           <p class="text-sm font-semibold text-red-600 mb-6">
             Diese Aktion kann nicht rückgängig gemacht werden.
           </p>
@@ -157,7 +206,7 @@
             <button type="button"
                     data-action="confirm-unsubscribe#confirm"
                     class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition">
-              Ja, abmelden
+              Ja, stornieren
             </button>
           </div>
         </div>
