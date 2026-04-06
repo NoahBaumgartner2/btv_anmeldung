@@ -50,23 +50,23 @@
               <% if _cs.logo.attached? %>
                 <%= image_tag _cs.logo, class: "h-8 w-auto object-contain", alt: _cs.club_name.presence || "Logo" %>
               <% end %>
-              <span class="text-2xl font-black text-blue-700 tracking-tight">
+              <span class="text-2xl font-black text-primary-700 tracking-tight">
                 <%= _cs.club_name.presence || "Anmeldeportal" %>
               </span>
             <% end %>
 
             <div class="hidden md:flex items-center space-x-6 ml-10">
-              <%= link_to "Kurse", courses_path, class: "text-gray-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-md font-medium transition" %>
+              <%= link_to "Kurse", courses_path, class: "text-gray-600 hover:text-primary-700 hover:bg-primary-50 px-3 py-2 rounded-md font-medium transition" %>
 
               <% if user_signed_in? %>
                   <div class="h-6 w-px bg-gray-300 mx-2"></div>
-                  <%= link_to "Mein Profil", participants_path, class: "text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md font-bold" %>
+                  <%= link_to "Mein Profil", participants_path, class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
                   <% if current_user.admin? %>
                     <%= link_to "Admin-Dashboard", dashboards_admin_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
                   <% end %>
 
                   <% if Trainer.exists?(user: current_user) && !current_user.admin? %>
-                    <%= link_to "Meine Kurse", dashboards_trainer_path, class: "text-blue-600 hover:text-blue-800 px-3 py-2 rounded-md font-bold" %>
+                    <%= link_to "Meine Kurse", dashboards_trainer_path, class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
                   <% end %>
                 <% end %>
             </div>
@@ -77,7 +77,7 @@
               <%= button_to "Logout", destroy_user_session_path, method: :delete, class: "..." %>
             <% else %>
               <%= link_to "Login", new_user_session_path, class: "..." %>
-              <%= link_to "Registrieren", new_user_registration_path, class: "bg-blue-600 text-white px-4 py-2 rounded-md font-medium" %>
+              <%= link_to "Registrieren", new_user_registration_path, class: "bg-primary-600 text-white px-4 py-2 rounded-md font-medium" %>
             <% end %>
           </div>
 

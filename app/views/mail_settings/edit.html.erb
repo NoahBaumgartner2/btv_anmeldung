@@ -29,13 +29,13 @@
           <%= f.label :smtp_host, "Host", class: "block text-sm font-medium text-gray-700 mb-1" %>
           <%= f.text_field :smtp_host,
                 placeholder: "smtp.beispiel.ch",
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
         </div>
         <div>
           <%= f.label :smtp_port, "Port", class: "block text-sm font-medium text-gray-700 mb-1" %>
           <%= f.number_field :smtp_port,
                 min: 1, max: 65535,
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
         </div>
       </div>
 
@@ -43,7 +43,7 @@
         <%= f.label :smtp_username, "Benutzername", class: "block text-sm font-medium text-gray-700 mb-1" %>
         <%= f.text_field :smtp_username,
               autocomplete: "off",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
 
       <div>
@@ -52,7 +52,7 @@
         <div class="relative">
           <%= f.password_field :smtp_password,
                 autocomplete: "new-password",
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 js-pw-field" %>
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 js-pw-field" %>
           <button type="button"
                   class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600 js-pw-toggle"
                   tabindex="-1">
@@ -73,11 +73,11 @@
           <%= f.select :smtp_authentication,
                 [["Plain", "plain"], ["Login", "login"], ["CRAM-MD5", "cram_md5"]],
                 {},
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white" %>
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
         </div>
         <div class="flex items-center gap-3 pt-6">
           <%= f.check_box :smtp_enable_starttls,
-                class: "w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" %>
+                class: "w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" %>
           <%= f.label :smtp_enable_starttls, "STARTTLS aktivieren", class: "text-sm font-medium text-gray-700" %>
         </div>
       </div>
@@ -91,14 +91,14 @@
         <%= f.label :smtp_from_name, "Absender-Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
         <%= f.text_field :smtp_from_name,
               placeholder: "BTV Anmeldeportal",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
 
       <div>
         <%= f.label :smtp_from_address, "Absender-Adresse", class: "block text-sm font-medium text-gray-700 mb-1" %>
         <%= f.email_field :smtp_from_address,
               placeholder: "noreply@btv-anmeldung.ch",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
 
@@ -116,7 +116,7 @@
 
     <div class="flex gap-3">
       <%= f.submit "Einstellungen speichern",
-            class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer" %>
+            class: "bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer" %>
       <%= link_to "Abbrechen", mail_setting_path,
             class: "bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-sm transition" %>
     </div>

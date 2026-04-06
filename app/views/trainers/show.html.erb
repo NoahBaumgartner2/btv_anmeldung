@@ -54,9 +54,9 @@
                          name="trainer[course_ids][]"
                          value="<%= course.id %>"
                          <%= @trainer.course_ids.include?(course.id) ? "checked" : "" %>
-                         class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                         class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer">
                   <div class="flex-1 min-w-0">
-                    <span class="text-sm font-medium text-gray-900 group-hover:text-blue-700 transition"><%= course.title %></span>
+                    <span class="text-sm font-medium text-gray-900 group-hover:text-primary-700 transition"><%= course.title %></span>
                     <% if course.location.present? || course.start_date %>
                       <span class="ml-2 text-xs text-gray-400">
                         <%= course.location %>
@@ -76,7 +76,7 @@
 
     <div class="flex flex-col sm:flex-row items-center gap-3">
       <%= f.submit "Zuweisung speichern",
-            class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
+            class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
       <%= link_to "Trainer bearbeiten", edit_trainer_path(@trainer),
             class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
       <%= button_to "Trainer löschen", @trainer, method: :delete,

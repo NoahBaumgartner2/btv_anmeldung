@@ -2,13 +2,13 @@
 
   <div class="mb-10">
     <h1 class="font-bold text-3xl text-gray-900">Mein Profil</h1>
-    <p class="text-gray-500 mt-2">Angemeldet als: <span class="font-semibold text-blue-700"><%= current_user.email %></span></p>
+    <p class="text-gray-500 mt-2">Angemeldet als: <span class="font-semibold text-primary-700"><%= current_user.email %></span></p>
   </div>
 
   <div class="mb-12">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-4 gap-3">
       <h2 class="text-2xl font-bold text-gray-800">Meine Kinder</h2>
-      <%= link_to "+ Neues Kind hinzufügen", new_participant_path, class: "bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition shadow-sm text-center" %>
+      <%= link_to "+ Neues Kind hinzufügen", new_participant_path, class: "bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-md text-sm font-medium transition shadow-sm text-center" %>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -65,7 +65,7 @@
                   <%= reg.payment_cleared ? "✅ Ja" : "⏳ Offen" %>
                 </td>
                 <td class="py-4 px-4 whitespace-nowrap text-right text-sm">
-                  <%= link_to "Zum Kurs", course_path(reg.course), class: "text-blue-600 hover:text-blue-900 font-bold" %>
+                  <%= link_to "Zum Kurs", course_path(reg.course), class: "text-primary-600 hover:text-primary-900 font-bold" %>
                 </td>
               </tr>
             <% end %>

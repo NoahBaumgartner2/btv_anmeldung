@@ -25,17 +25,17 @@
       </div>
       <div class="divide-y divide-gray-50">
         <%= link_to trainers_path,
-              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-blue-50 transition" do %>
-          <div class="shrink-0 w-9 h-9 rounded-xl bg-blue-100 group-hover:bg-blue-200 flex items-center justify-center transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-primary-50 transition" do %>
+          <div class="shrink-0 w-9 h-9 rounded-xl bg-primary-100 group-hover:bg-primary-200 flex items-center justify-center transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4.13a4 4 0 10-8 0 4 4 0 008 0z"/>
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-blue-700 transition">Trainer</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-primary-700 transition">Trainer</p>
             <p class="text-xs text-gray-400 truncate">Trainer verwalten &amp; zuweisen</p>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-blue-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-primary-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
           </svg>
         <% end %>
@@ -173,7 +173,7 @@
           <tr class="hover:bg-gray-50">
             <td class="py-4 px-4 font-bold text-gray-900 text-sm"><%= course.title %></td>
             <td class="py-4 px-4 text-sm text-gray-500"><%= course.registration_type %></td>
-            <td class="py-4 px-4 text-sm font-medium text-blue-600"><%= course.course_registrations.size %> Teilnehmende</td>
+            <td class="py-4 px-4 text-sm font-medium text-primary-600"><%= course.course_registrations.size %> Teilnehmende</td>
             <td class="py-4 px-4 text-right">
               <%= link_to "Verwalten", manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
             </td>
@@ -200,9 +200,9 @@
           placeholder: "Name oder E-Mail eingeben (min. 2 Zeichen)…",
           autofocus: params[:q].present?,
           autocomplete: "off",
-          class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
     <%= f.submit "Suchen",
-          class: "shrink-0 rounded-lg px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
+          class: "shrink-0 rounded-lg px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
   <% end %>
 
   <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
@@ -240,7 +240,7 @@
                 </td>
                 <td class="py-3.5 px-4 text-right">
                   <%= link_to "Profil ansehen", participant_path(participant),
-                        class: "text-blue-600 font-bold hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-md text-sm" %>
+                        class: "text-primary-600 font-bold hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-md text-sm" %>
                 </td>
               </tr>
             <% end %>
