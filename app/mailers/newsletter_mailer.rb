@@ -1,4 +1,5 @@
 class NewsletterMailer < ApplicationMailer
+  layout false
   def campaign(newsletter, subscriber)
     @newsletter  = newsletter
     @subscriber  = subscriber
