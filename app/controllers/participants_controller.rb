@@ -8,10 +8,14 @@ class ParticipantsController < ApplicationController
 
     all_regs = @participants.flat_map(&:course_registrations)
 
-    # Nur Semester-Kurse brauchen @upcoming_by_course (single_session-Kurse haben
-    # ihre Session direkt auf der CourseRegistration via training_session_id)
+    # Nur aktive Semester-Kurse brauchen @upcoming_by_course (single_session-Kurse
+    # haben ihre Session direkt auf der CourseRegistration via training_session_id;
+    # abgeschlossene/stornierte Kurse brauchen keine upcoming sessions)
+    today = Date.today
     semester_confirmed = all_regs.select { |r|
-      r.status == "bestätigt" && r.course.registration_mode != "single_session"
+      r.status == "bestätigt" &&
+      r.course.registration_mode != "single_session" &&
+      (r.course.end_date.nil? || r.course.end_date >= today)
     }
     semester_course_ids = semester_confirmed.map(&:course_id).uniq
     semester_reg_ids    = semester_confirmed.map(&:id)
