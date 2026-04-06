@@ -2,7 +2,7 @@ Hallo <%= @participant_user.email.split("@").first %>,
 
 leider müssen wir dich informieren, dass folgende Trainingseinheit abgesagt wurde:
 
-Kurs:  <%= @course.name %>
+Kurs:  <%= @course.title %>
 Datum: <%= I18n.l(@training_session.start_time, format: :long) %> – <%= I18n.l(@training_session.end_time, format: :short) %>
 
 Wir entschuldigen uns für die Unannehmlichkeiten. Bei Fragen wende dich bitte direkt an uns.

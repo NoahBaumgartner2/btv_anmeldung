@@ -32,7 +32,7 @@
                 <tr>
                   <td style="padding:16px 20px;">
                     <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Kurs</p>
-                    <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;"><%= @course.name %></p>
+                    <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;"><%= @course.title %></p>
                     <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;">Datum &amp; Zeit</p>
                     <p style="margin:0;font-size:16px;color:#111827;">
                       <%= I18n.l(@training_session.start_time, format: :long) %> – <%= I18n.l(@training_session.end_time, format: :short) %>

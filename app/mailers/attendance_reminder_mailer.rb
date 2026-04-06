@@ -7,7 +7,7 @@ class AttendanceReminderMailer < ApplicationMailer
 
     mail(
       to: trainer.user.email,
-      subject: "Erinnerung: Anwesenheit für #{@course.name} noch nicht erfasst"
+      subject: "Erinnerung: Anwesenheit für #{@course.title} noch nicht erfasst"
     )
   end
 
@@ -19,7 +19,7 @@ class AttendanceReminderMailer < ApplicationMailer
 
     mail(
       to: User.where(role: "admin").pluck(:email),
-      subject: "⚠️ Anwesenheit nicht erfasst: #{@course.name} (#{I18n.l(training_session.start_time.to_date)})"
+      subject: "⚠️ Anwesenheit nicht erfasst: #{@course.title} (#{I18n.l(training_session.start_time.to_date)})"
     )
   end
 end
