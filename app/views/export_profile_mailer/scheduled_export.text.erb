@@ -1,0 +1,6 @@
+Automatischer Export: <%= @profile.name %>
+Datum: <%= Date.today.strftime('%d.%m.%Y') %>
+<% if @profile.course %>Kurs: <%= @profile.course.title %><% end %>
+
+Der CSV-Export ist als Anhang beigefügt.
+(Intervall: <%= ExportProfile::SCHEDULES[@profile.schedule] %>)

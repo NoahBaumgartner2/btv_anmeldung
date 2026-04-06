@@ -152,6 +152,25 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
           </svg>
         <% end %>
+
+        <%= link_to admin_export_profiles_path,
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-teal-50 transition" do %>
+          <div class="shrink-0 w-9 h-9 rounded-xl bg-teal-100 group-hover:bg-teal-200 flex items-center justify-center transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-gray-800 group-hover:text-teal-700 transition">Exportprofile</p>
+            <p class="text-xs text-gray-400 truncate">Export-Vorlagen verwalten</p>
+          </div>
+          <% if @export_profiles.any? %>
+            <span class="ml-auto shrink-0 text-xs font-bold text-teal-600 bg-teal-100 px-2 py-0.5 rounded-full"><%= @export_profiles.size %></span>
+          <% end %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="<%= @export_profiles.any? ? 'ml-2' : 'ml-auto' %> h-4 w-4 text-gray-300 group-hover:text-teal-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        <% end %>
       </div>
     </div>
 
@@ -189,9 +208,27 @@
       <h2 class="text-2xl font-bold text-gray-900">Teilnehmer-Suche</h2>
       <p class="text-gray-500 mt-1 text-sm">Suche nach Name oder E-Mail-Adresse des verknüpften Kontos.</p>
     </div>
-    <button disabled class="shrink-0 bg-gray-100 text-gray-400 py-2 px-4 rounded-lg shadow-sm font-bold border border-gray-200 cursor-not-allowed text-sm">
-      Exportieren (bald verfügbar)
-    </button>
+    <% if @export_profiles.any? %>
+      <div class="flex flex-wrap gap-2 shrink-0">
+        <% @export_profiles.each do |profile| %>
+          <%= link_to export_participants_dashboard_path(profile_id: profile.id, q: params[:q]),
+                class: "inline-flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-3.5 rounded-lg shadow-sm text-sm transition" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            </svg>
+            <%= profile.name %>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= link_to admin_export_profiles_path,
+            class: "shrink-0 inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 py-2 px-4 rounded-lg font-medium border border-gray-200 text-sm transition" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Exportprofil erstellen
+      <% end %>
+    <% end %>
   </div>
 
   <%= form_with url: dashboards_admin_path, method: :get, class: "flex gap-2 mb-4" do |f| %>

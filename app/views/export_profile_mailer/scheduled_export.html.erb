@@ -1,0 +1,6 @@
+<p>Hallo,</p>
+<p>im Anhang findest du den automatischen Export <strong><%= @profile.name %></strong> vom <%= Date.today.strftime('%d.%m.%Y') %>.</p>
+<% if @profile.course %>
+  <p>Kurs-Filter: <strong><%= @profile.course.title %></strong></p>
+<% end %>
+<p>Diese E-Mail wurde automatisch durch den geplanten Export (<em><%= ExportProfile::SCHEDULES[@profile.schedule] %></em>) versandt.</p>
