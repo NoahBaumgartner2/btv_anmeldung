@@ -52,8 +52,15 @@ class CourseRegistrationsController < ApplicationController
       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt
       @course_registration.status = "ausstehend"
     else
-      # Kostenlos (has_payment? false, oder price_cents nil/0) → sofort bestätigt oder Warteliste
-      bestaetigte_plaetze = course.course_registrations.where(status: "bestätigt").count
+      # Kostenlos → sofort bestätigt oder Warteliste, Kapazität je nach Modus prüfen
+      bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
+        course.course_registrations
+              .where(status: "bestätigt", training_session_id: @course_registration.training_session_id)
+              .count
+      else
+        course.course_registrations.where(status: "bestätigt").count
+      end
+
       if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
         @course_registration.status = "warteliste"
         erfolgs_nachricht = "Der Kurs ist leider voll. Dein Kind wurde erfolgreich auf die Warteliste gesetzt!"
@@ -204,6 +211,6 @@ def unsubscribe_from_session
 
   # Der Türsteher: Erlaubt jetzt auch Status und Bezahlung!
   def course_registration_params
-    params.require(:course_registration).permit(:course_id, :participant_id, :status, :payment_cleared, :holiday_deduction_claimed)
+    params.require(:course_registration).permit(:course_id, :participant_id, :training_session_id, :status, :payment_cleared, :holiday_deduction_claimed)
   end
 end
