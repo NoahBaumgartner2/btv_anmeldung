@@ -88,9 +88,8 @@ class CourseRegistrationsController < ApplicationController
 
   # NEU: Eine Anmeldung komplett löschen/stornieren
   def destroy
-    course = @course_registration.course
     @course_registration.destroy
-    redirect_to course_path(course), notice: "Die Anmeldung wurde gelöscht."
+    redirect_to participants_path, notice: "Die Anmeldung wurde gelöscht."
   end
 
   def cancel

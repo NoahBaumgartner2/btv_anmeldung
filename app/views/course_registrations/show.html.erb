@@ -117,4 +117,48 @@
     <% end %>
   </div>
 
+  <%# ── Abmelden ───────────────────────────────────────────────────────────── %>
+  <% if @course_registration.status != "storniert" %>
+    <div class="mt-4"
+         data-controller="confirm-unsubscribe"
+         data-confirm-unsubscribe-course-name-value="<%= course.title %>">
+
+      <%= form_with url: course_registration_path(@course_registration), method: :delete,
+                    data: { "unsubscribe-form": "" } do %>
+      <% end %>
+
+      <button type="button"
+              data-action="confirm-unsubscribe#open"
+              class="w-full text-sm font-semibold text-red-600 hover:text-red-800 hover:bg-red-50 border border-red-200 py-2.5 px-4 rounded-xl transition">
+        Vom Kurs abmelden
+      </button>
+
+      <div data-confirm-unsubscribe-target="modal"
+           class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4"
+           data-action="click->confirm-unsubscribe#close">
+        <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6" data-action="click->confirm-unsubscribe#close:stop">
+          <h2 class="text-lg font-extrabold text-gray-900 mb-2">Kurs abmelden</h2>
+          <p class="text-sm text-gray-600 mb-1">
+            Willst du dich wirklich vom Kurs <strong><%= course.title %></strong> abmelden?
+          </p>
+          <p class="text-sm font-semibold text-red-600 mb-6">
+            Diese Aktion kann nicht rückgängig gemacht werden.
+          </p>
+          <div class="flex gap-3">
+            <button type="button"
+                    data-action="confirm-unsubscribe#close"
+                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-xl text-sm transition">
+              Abbrechen
+            </button>
+            <button type="button"
+                    data-action="confirm-unsubscribe#confirm"
+                    class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-4 rounded-xl text-sm transition">
+              Ja, abmelden
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
 </div>
