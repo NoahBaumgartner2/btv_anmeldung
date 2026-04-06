@@ -16,10 +16,10 @@
 
   <%# ── Heute-Banner ────────────────────────────────────────────────────── %>
   <% if @todays_sessions.any? %>
-    <div class="mb-6 bg-blue-600 text-white rounded-2xl px-6 py-5">
+    <div class="mb-6 bg-primary-600 text-white rounded-2xl px-6 py-5">
       <div class="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <p class="text-xs font-bold uppercase tracking-widest text-blue-200 mb-1">Heute</p>
+          <p class="text-xs font-bold uppercase tracking-widest text-primary-200 mb-1">Heute</p>
           <% @todays_sessions.each do |s| %>
             <div class="flex items-center gap-3 mt-1">
               <% is_live = s.start_time <= now && s.end_time && s.end_time >= now %>
@@ -31,7 +31,7 @@
               <% end %>
               <p class="font-bold text-lg">
                 <%= s.course.title %>
-                <span class="font-normal text-blue-200 text-base">
+                <span class="font-normal text-primary-200 text-base">
                   · <%= s.start_time.strftime("%H:%M") %><% if s.end_time %> – <%= s.end_time.strftime("%H:%M") %><% end %> Uhr
                 </span>
               </p>
@@ -42,7 +42,7 @@
           <% @todays_sessions.each do |s| %>
             <%= link_to "Präsenzkontrolle — #{s.course.title.truncate(20)}",
                   training_session_path(s),
-                  class: "bg-white text-blue-700 hover:bg-blue-50 font-bold text-sm py-2 px-4 rounded-lg transition shrink-0" %>
+                  class: "bg-white text-primary-700 hover:bg-primary-50 font-bold text-sm py-2 px-4 rounded-lg transition shrink-0" %>
           <% end %>
         </div>
       </div>
@@ -65,7 +65,7 @@
         <% end %>
       </div>
       <%= link_to "Präsenzkontrolle", training_session_path(@next_session),
-            class: "shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-2 px-5 rounded-lg transition" %>
+            class: "shrink-0 bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm py-2 px-5 rounded-lg transition" %>
     </div>
   <% end %>
 
@@ -84,7 +84,7 @@
           <%# Kurs-Kopf %>
           <div class="px-5 pt-5 pb-4 border-b border-gray-100">
             <% if course.registration_type.present? %>
-              <span class="inline-block text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full mb-2">
+              <span class="inline-block text-xs font-bold uppercase tracking-wider text-primary-600 bg-primary-50 px-2.5 py-0.5 rounded-full mb-2">
                 <%= course.registration_type %>
               </span>
             <% end %>
@@ -131,7 +131,7 @@
           <%# Aktionen %>
           <div class="px-5 pb-5 pt-2 flex gap-2">
             <%= link_to "Maschinenraum", manage_course_path(course),
-                  class: "flex-1 text-center bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-2.5 rounded-xl transition" %>
+                  class: "flex-1 text-center bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm py-2.5 rounded-xl transition" %>
             <% if next_s %>
               <%= link_to "Präsenzkontrolle", training_session_path(next_s),
                     class: "flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm py-2.5 rounded-xl transition" %>

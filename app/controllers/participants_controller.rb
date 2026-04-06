@@ -64,10 +64,13 @@ class ParticipantsController < ApplicationController
 
   def set_participant
     @participant = Participant.find(params.expect(:id))
+    unless current_user.admin? || @participant.user_id == current_user.id
+      redirect_to root_path, alert: "Zugriff verweigert." and return
+    end
   end
 
   def participant_params
-    allowed = [ :first_name, :last_name, :email, :phone_number, :ahv_number, :date_of_birth, :gender ]
+    allowed = [ :first_name, :last_name, :phone_number, :ahv_number, :date_of_birth, :gender ]
     allowed << :user_id if current_user.admin?
     params.expect(participant: allowed)
   end

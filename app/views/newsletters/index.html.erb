@@ -10,7 +10,7 @@
       <%= link_to "Empfängerliste", newsletter_subscribers_path,
             class: "bg-white border border-gray-300 text-gray-700 font-bold text-sm py-2.5 px-4 rounded-lg hover:bg-gray-50 transition" %>
       <%= link_to "+ Neuer Newsletter", new_newsletter_path,
-            class: "bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm py-2.5 px-5 rounded-lg transition" %>
+            class: "bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm py-2.5 px-5 rounded-lg transition" %>
     </div>
   </div>
 
@@ -47,7 +47,7 @@
             <div class="flex items-center gap-2 shrink-0">
               <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full">Entwurf</span>
               <%= link_to "Bearbeiten", edit_newsletter_path(nl),
-                    class: "text-sm font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition" %>
+                    class: "text-sm font-bold text-primary-600 hover:text-primary-800 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition" %>
               <%= button_to "Löschen", newsletter_path(nl), method: :delete,
                     data: { turbo_confirm: "\"#{nl.title}\" wirklich löschen?" },
                     class: "text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition cursor-pointer" %>

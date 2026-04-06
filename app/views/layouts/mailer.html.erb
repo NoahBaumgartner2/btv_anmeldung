@@ -1,13 +1,54 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <style>
-      /* Email styles need to be inline */
-    </style>
-  </head>
+<%
+  club        = @_club || ClubSetting.current
+  primary     = club.effective_primary_color
+  club_name   = club.club_name.presence || "BTV Anmeldung"
+  logo_url    = club.logo.attached? ? rails_blob_url(club.logo) : nil
+%><!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 0;">
+    <tr>
+      <td align="center" style="padding:0 16px;">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
 
-  <body>
-    <%= yield %>
-  </body>
+          <%# ── Header ─────────────────────────────────────────────────── %>
+          <tr>
+            <td style="background:<%= primary %>;padding:24px 32px;text-align:center;">
+              <% if logo_url %>
+                <img src="<%= logo_url %>" alt="<%= html_escape(club_name) %>"
+                     style="max-height:56px;max-width:200px;display:inline-block;vertical-align:middle;border:0;">
+              <% else %>
+                <span style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:-0.02em;font-family:Arial,Helvetica,sans-serif;">
+                  <%= club_name %>
+                </span>
+              <% end %>
+            </td>
+          </tr>
+
+          <%# ── Content ────────────────────────────────────────────────── %>
+          <tr>
+            <td style="padding:32px 32px 8px 32px;">
+              <%= yield %>
+            </td>
+          </tr>
+
+          <%# ── Footer ─────────────────────────────────────────────────── %>
+          <tr>
+            <td style="padding:20px 32px;background:#f9fafb;border-top:1px solid #e5e7eb;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
+                Diese E-Mail wurde automatisch von <strong><%= club_name %></strong> versendet.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
 </html>

@@ -1,12 +1,10 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel ]
+  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
 
   def show
-    unless current_user.participants.include?(@course_registration.participant) || current_user.admin?
-      redirect_to root_path, alert: "Zugriff verweigert."
-    end
   end
 
   def new
@@ -59,6 +57,7 @@ class CourseRegistrationsController < ApplicationController
     end
 
     if @course_registration.save
+      CourseRegistrationMailer.confirmation(@course_registration).deliver_later
       if course.has_payment? && ::StripeConfig.configured? && !@course_registration.payment_cleared?
         redirect_to checkout_preview_registration_path(@course_registration)
       else
@@ -89,9 +88,18 @@ class CourseRegistrationsController < ApplicationController
 
   # NEU: Eine Anmeldung komplett löschen/stornieren
   def destroy
-    course = @course_registration.course
     @course_registration.destroy
-    redirect_to course_path(course), notice: "Die Anmeldung wurde gelöscht."
+    redirect_to participants_path, notice: "Die Anmeldung wurde gelöscht."
+  end
+
+  def cancel
+    if @course_registration.status == "storniert"
+      redirect_to participants_path, alert: "Diese Anmeldung ist bereits storniert."
+      return
+    end
+
+    @course_registration.update!(status: "storniert")
+    redirect_to participants_path, notice: "Die Anmeldung für \"#{@course_registration.course.title}\" wurde storniert."
   end
 
 def unsubscribe_from_session
@@ -173,6 +181,12 @@ def unsubscribe_from_session
 
   def set_course_registration
     @course_registration = CourseRegistration.find(params[:id])
+  end
+
+  def authorize_own_registration!
+    unless current_user.admin? || current_user.participants.include?(@course_registration.participant)
+      redirect_to root_path, alert: "Zugriff verweigert."
+    end
   end
 
   def setup_new_form(course = nil)

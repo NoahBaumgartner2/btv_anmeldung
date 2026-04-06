@@ -1,6 +1,10 @@
 module ApplicationHelper
   require 'rqrcode'
 
+  def club_setting
+    @club_setting_cache ||= ClubSetting.current
+  end
+
   def generate_qr_code(text)
     qrcode = RQRCode::QRCode.new(text)
     

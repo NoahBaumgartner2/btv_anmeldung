@@ -85,7 +85,7 @@
                 <%= registration.payment_cleared ? "✅ Ja" : "⏳ Ausstehend" %>
               </td>
               <td class="py-4 px-4 whitespace-nowrap text-right text-sm font-medium">
-                <%= link_to "Zum Kurs", course_path(registration.course), class: "text-blue-600 hover:text-blue-900" %>
+                <%= link_to "Zum Kurs", course_path(registration.course), class: "text-primary-600 hover:text-primary-900" %>
               </td>
             </tr>
           <% end %>

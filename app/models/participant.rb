@@ -6,7 +6,7 @@ class Participant < ApplicationRecord
 
   GENDERS = %w[männlich weiblich].freeze
 
-  validates :first_name, :last_name, :date_of_birth, :gender, :email, :phone_number, presence: true
+  validates :first_name, :last_name, :date_of_birth, :gender, :phone_number, presence: true
   validates :gender, inclusion: { in: GENDERS }
   validates :first_name, uniqueness: {
     scope: [:last_name, :date_of_birth, :user_id],

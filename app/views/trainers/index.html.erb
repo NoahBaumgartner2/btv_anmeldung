@@ -1,7 +1,7 @@
 <div class="w-full">
   <div class="flex justify-between items-center mb-6">
     <h1 class="font-bold text-3xl text-gray-800">Trainer</h1>
-    <%= link_to "Neuer Trainer", new_trainer_path, class: "rounded-lg py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium transition shadow-sm" %>
+    <%= link_to "Neuer Trainer", new_trainer_path, class: "rounded-lg py-2 px-4 bg-primary-600 hover:bg-primary-700 text-white font-medium transition shadow-sm" %>
   </div>
 
   <div class="overflow-x-auto bg-white shadow-sm ring-1 ring-gray-200 rounded-lg">
@@ -24,12 +24,12 @@
               <%= trainer.phone.presence || "-" %>
             </td>
             <td class="py-4 px-4 whitespace-nowrap text-sm text-gray-500">
-              <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-medium">
+              <span class="px-2 py-1 bg-primary-50 text-primary-700 rounded-full text-xs font-medium">
                 <%= pluralize(trainer.courses.count, 'Kurs', 'Kurse') %>
               </span>
             </td>
             <td class="py-4 px-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-              <%= link_to "Anzeigen", trainer, class: "text-blue-600 hover:text-blue-900" %>
+              <%= link_to "Anzeigen", trainer, class: "text-primary-600 hover:text-primary-900" %>
               <%= link_to "Bearbeiten", edit_trainer_path(trainer), class: "text-orange-500 hover:text-orange-700" %>
             </td>
           </tr>

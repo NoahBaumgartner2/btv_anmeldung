@@ -1,3 +1,18 @@
 attendance_reminder:
   class: AttendanceReminderJob
   schedule: every day at 8am Europe/Zurich
+
+scheduled_export_daily:
+  class: ScheduledExportJob
+  args: ["daily"]
+  schedule: every day at 6am Europe/Zurich
+
+scheduled_export_weekly:
+  class: ScheduledExportJob
+  args: ["weekly"]
+  schedule: every monday at 6am Europe/Zurich
+
+scheduled_export_monthly:
+  class: ScheduledExportJob
+  args: ["monthly"]
+  schedule: every 1st of the month at 6am Europe/Zurich

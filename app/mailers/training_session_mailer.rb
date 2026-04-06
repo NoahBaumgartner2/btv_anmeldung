@@ -7,7 +7,7 @@ class TrainingSessionMailer < ApplicationMailer
 
     mail(
       to: participant_user.email,
-      subject: "Training abgesagt: #{@course.name} am #{I18n.l(training_session.start_time.to_date)}"
+      subject: "Training abgesagt: #{@course.title} am #{I18n.l(training_session.start_time.to_date)}"
     )
   end
 

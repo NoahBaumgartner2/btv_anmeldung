@@ -58,11 +58,11 @@
   <div class="flex flex-wrap gap-2 mb-6">
     <%= link_to "Alle Kurse",
           dashboards_stats_path,
-          class: "px-3 py-1.5 rounded-lg text-sm font-semibold transition border #{@selected_course_id.nil? ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"}" %>
+          class: "px-3 py-1.5 rounded-lg text-sm font-semibold transition border #{@selected_course_id.nil? ? "bg-primary-600 text-white border-primary-600" : "bg-white text-gray-700 border-gray-300 hover:border-primary-400"}" %>
     <% @courses.each do |course| %>
       <%= link_to course.title,
             dashboards_stats_path(course_id: course.id),
-            class: "px-3 py-1.5 rounded-lg text-sm font-semibold transition border #{@selected_course_id == course.id ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"}" %>
+            class: "px-3 py-1.5 rounded-lg text-sm font-semibold transition border #{@selected_course_id == course.id ? "bg-primary-600 text-white border-primary-600" : "bg-white text-gray-700 border-gray-300 hover:border-primary-400"}" %>
     <% end %>
   </div>
 
@@ -103,7 +103,7 @@
           </p>
         </div>
         <%= link_to "Verwalten →", manage_course_path(course),
-              class: "shrink-0 text-sm font-bold text-blue-600 hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-lg transition" %>
+              class: "shrink-0 text-sm font-bold text-primary-600 hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-lg transition" %>
       </div>
 
       <%# Kurs-Kennzahlen %>
@@ -176,7 +176,7 @@
                     <% if session.is_canceled? %>
                       <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-700">Abgesagt</span>
                     <% elsif !is_past %>
-                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-blue-100 text-blue-700">Bevorstehend</span>
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-primary-100 text-primary-700">Bevorstehend</span>
                     <% elsif recorded %>
                       <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-700">Erfasst</span>
                     <% else %>

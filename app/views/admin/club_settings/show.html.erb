@@ -1,0 +1,72 @@
+<div class="max-w-3xl mx-auto mt-10 mb-16 px-4">
+
+  <%# ── Header ────────────────────────────────────────────────────────────── %>
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <%= link_to "← Kommandozentrale", dashboards_admin_path,
+            class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+      <h1 class="text-3xl font-extrabold text-gray-900 mt-2">Vereinseinstellungen</h1>
+      <p class="text-gray-500 mt-1 text-sm">Name, Farben und Logo des Vereins.</p>
+    </div>
+    <%= link_to "Bearbeiten", edit_admin_club_setting_path,
+          class: "shrink-0 inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition" %>
+  </div>
+
+  <%# ── Vereinsidentität ───────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vereinsidentität</p>
+    </div>
+    <dl class="divide-y divide-gray-100">
+
+      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+        <dt class="font-medium text-gray-500 w-48 shrink-0">Vereinsname</dt>
+        <dd class="font-semibold text-gray-900">
+          <%= @club_setting.club_name.presence || "—" %>
+        </dd>
+      </div>
+
+      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+        <dt class="font-medium text-gray-500 w-48 shrink-0">Primärfarbe</dt>
+        <dd class="flex items-center gap-2.5">
+          <div class="w-5 h-5 rounded-full border border-gray-200 shrink-0"
+               style="background-color: <%= @club_setting.effective_primary_color %>"></div>
+          <span class="font-mono text-xs text-gray-700"><%= @club_setting.effective_primary_color %></span>
+          <% if @club_setting.primary_color.blank? %>
+            <span class="text-xs text-gray-400">(Standard)</span>
+          <% end %>
+        </dd>
+      </div>
+
+      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+        <dt class="font-medium text-gray-500 w-48 shrink-0">Sekundärfarbe</dt>
+        <dd class="flex items-center gap-2.5">
+          <div class="w-5 h-5 rounded-full border border-gray-200 shrink-0"
+               style="background-color: <%= @club_setting.effective_secondary_color %>"></div>
+          <span class="font-mono text-xs text-gray-700"><%= @club_setting.effective_secondary_color %></span>
+          <% if @club_setting.secondary_color.blank? %>
+            <span class="text-xs text-gray-400">(Standard)</span>
+          <% end %>
+        </dd>
+      </div>
+
+    </dl>
+  </div>
+
+  <%# ── Logo ──────────────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Logo</p>
+    </div>
+    <div class="px-6 py-5">
+      <% if @club_setting.logo.attached? %>
+        <img src="<%= @club_setting.logo_url %>"
+             alt="Vereinslogo"
+             class="max-h-20 object-contain rounded-lg border border-gray-100">
+      <% else %>
+        <p class="text-sm text-gray-400 font-medium">Kein Logo hinterlegt.</p>
+      <% end %>
+    </div>
+  </div>
+
+</div>

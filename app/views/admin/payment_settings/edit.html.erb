@@ -36,11 +36,11 @@
           <%= f.check_box :active,
                 id: "toggle_active",
                 class: "sr-only peer" %>
-          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300
+          <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300
                       rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white
                       after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
                       after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5
-                      after:transition-all peer-checked:bg-blue-600"></div>
+                      after:transition-all peer-checked:bg-primary-600"></div>
         </label>
       </div>
     </div>
@@ -58,7 +58,7 @@
         <%= f.text_field :stripe_publishable_key,
               placeholder: "pk_live_...",
               autocomplete: "off",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
 
       <%# Secret Key (verschlüsselt) %>
@@ -74,7 +74,7 @@
           <%= f.password_field :stripe_secret_key,
                 placeholder: "sk_live_...",
                 autocomplete: "new-password",
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 js-pw-field" %>
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 js-pw-field" %>
           <button type="button"
                   class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600 js-pw-toggle"
                   tabindex="-1">
@@ -103,7 +103,7 @@
           <%= f.password_field :stripe_webhook_secret,
                 placeholder: "whsec_...",
                 autocomplete: "new-password",
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 js-pw-field" %>
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 js-pw-field" %>
           <button type="button"
                   class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600 js-pw-toggle"
                   tabindex="-1">
@@ -130,7 +130,7 @@
         <%= f.select :currency,
               [["CHF – Schweizer Franken", "chf"], ["EUR – Euro", "eur"], ["USD – US-Dollar", "usd"]],
               {},
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
 
@@ -146,7 +146,7 @@
 
     <div class="flex gap-3">
       <%= f.submit "Einstellungen speichern",
-            class: "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer" %>
+            class: "bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer" %>
       <%= link_to "Abbrechen", admin_payment_setting_path,
             class: "bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-sm transition" %>
     </div>

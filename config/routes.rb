@@ -1,8 +1,9 @@
 Rails.application.routes.draw do
   # NEU: Die Routen für unsere Dashboards
-  get "dashboards/admin"
-  get "dashboards/trainer"
-  get "dashboards/stats"
+  get  "dashboards/admin"
+  get  "dashboards/trainer"
+  get  "dashboards/stats"
+  get  "dashboards/export_participants", as: "export_participants_dashboard"
 
   resource :mail_setting, only: [:show, :edit, :update] do
     post :test_email
@@ -12,6 +13,10 @@ Rails.application.routes.draw do
     resource :payment_setting, only: [:show, :edit, :update] do
       post :test_connection
     end
+    resource :club_setting, only: [:show, :edit, :update] do
+      delete :destroy_logo, on: :member
+    end
+    resources :export_profiles, only: %i[index new create edit update destroy]
   end
 
   resources :trainers
@@ -31,6 +36,7 @@ Rails.application.routes.draw do
       get :scan
       post :unsubscribe_from_session
       post :mark_as_paid
+      post :cancel
     end
   end
 

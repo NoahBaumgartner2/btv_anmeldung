@@ -1,0 +1,48 @@
+<% primary = @_club&.effective_primary_color || "#dc2626" %>
+
+<% if @course_registration.status == "bestätigt" %>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:24px;">
+    <tr>
+      <td style="padding:16px 20px;">
+        <p style="margin:0;font-size:15px;font-weight:600;color:#166534;font-family:Arial,Helvetica,sans-serif;">Anmeldung bestätigt!</p>
+      </td>
+    </tr>
+  </table>
+<% else %>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;margin-bottom:24px;">
+    <tr>
+      <td style="padding:16px 20px;">
+        <p style="margin:0;font-size:15px;font-weight:600;color:#9a3412;font-family:Arial,Helvetica,sans-serif;">Du stehst auf der Warteliste.</p>
+      </td>
+    </tr>
+  </table>
+<% end %>
+
+<p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Hallo <%= @recipient.email.split("@").first %>,<br><br>
+  <% if @course_registration.status == "bestätigt" %>
+    die Anmeldung von <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> wurde erfolgreich bestätigt.
+  <% else %>
+    der Kurs ist aktuell ausgebucht. Wir haben <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> auf die Warteliste gesetzt und melden uns, sobald ein Platz frei wird.
+  <% end %>
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:32px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Teilnehmer</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @participant.first_name %> <%= @participant.last_name %></p>
+
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Status</p>
+      <p style="margin:0 <%= @course.has_payment? ? '0 12px 0' : '0' %>;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course_registration.status.capitalize %></p>
+
+      <% if @course.has_payment? %>
+        <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Betrag</p>
+        <p style="margin:0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.price_display %></p>
+      <% end %>
+    </td>
+  </tr>
+</table>

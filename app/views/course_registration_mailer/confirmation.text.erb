@@ -1,0 +1,19 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+<% if @course_registration.status == "bestätigt" %>
+die Anmeldung von <%= @participant.first_name %> <%= @participant.last_name %> wurde erfolgreich bestätigt.
+<% else %>
+der Kurs ist aktuell ausgebucht. Wir haben <%= @participant.first_name %> <%= @participant.last_name %> auf die Warteliste gesetzt und melden uns, sobald ein Platz frei wird.
+<% end %>
+
+Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:        <%= @course.title %>
+Status:      <%= @course_registration.status %>
+<% if @course.has_payment? %>
+Betrag:      <%= @course.price_display %>
+<% end %>
+
+Bei Fragen wende dich bitte direkt an uns.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

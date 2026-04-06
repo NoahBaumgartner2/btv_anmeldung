@@ -1,1 +1,34 @@
 @import "tailwindcss";
+
+/* ── Vereinsfarben als Tailwind-Utilities ───────────────────────────────────
+   Die CSS-Variablen --color-primary und --color-secondary werden vom Server
+   im Layout-<style>-Block gesetzt (aus ClubSetting).
+   Mit @theme inline werden sie zu Tailwind-Utilities: bg-primary-600,
+   text-primary-700, hover:bg-primary-700, usw.
+   color-mix() erzeugt zur Laufzeit korrekte Helligkeitsstufen.
+────────────────────────────────────────────────────────────────────────── */
+@theme inline {
+  --color-primary-50:  color-mix(in oklch, var(--color-primary)  8%, white);
+  --color-primary-100: color-mix(in oklch, var(--color-primary) 15%, white);
+  --color-primary-200: color-mix(in oklch, var(--color-primary) 25%, white);
+  --color-primary-300: color-mix(in oklch, var(--color-primary) 40%, white);
+  --color-primary-400: color-mix(in oklch, var(--color-primary) 60%, white);
+  --color-primary-500: color-mix(in oklch, var(--color-primary) 78%, white);
+  --color-primary-600: var(--color-primary);
+  --color-primary-700: color-mix(in oklch, var(--color-primary) 88%, black);
+  --color-primary-800: color-mix(in oklch, var(--color-primary) 75%, black);
+  --color-primary-900: color-mix(in oklch, var(--color-primary) 60%, black);
+  --color-primary-950: color-mix(in oklch, var(--color-primary) 45%, black);
+
+  --color-secondary-50:  color-mix(in oklch, var(--color-secondary)  8%, white);
+  --color-secondary-100: color-mix(in oklch, var(--color-secondary) 15%, white);
+  --color-secondary-200: color-mix(in oklch, var(--color-secondary) 25%, white);
+  --color-secondary-300: color-mix(in oklch, var(--color-secondary) 40%, white);
+  --color-secondary-400: color-mix(in oklch, var(--color-secondary) 60%, white);
+  --color-secondary-500: color-mix(in oklch, var(--color-secondary) 78%, white);
+  --color-secondary-600: var(--color-secondary);
+  --color-secondary-700: color-mix(in oklch, var(--color-secondary) 88%, black);
+  --color-secondary-800: color-mix(in oklch, var(--color-secondary) 75%, black);
+  --color-secondary-900: color-mix(in oklch, var(--color-secondary) 60%, black);
+  --color-secondary-950: color-mix(in oklch, var(--color-secondary) 45%, black);
+}

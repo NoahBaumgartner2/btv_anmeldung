@@ -9,7 +9,7 @@
       <p class="text-gray-500 mt-1 text-sm">SMTP-Konfiguration für ausgehende E-Mails.</p>
     </div>
     <%= link_to "Bearbeiten", edit_mail_setting_path,
-          class: "shrink-0 inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition" %>
+          class: "shrink-0 inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition" %>
   </div>
 
   <%# ── Aktueller Status ───────────────────────────────────────────────────── %>
@@ -81,7 +81,7 @@
       <%= f.email_field :test_to,
             placeholder: "empfaenger@beispiel.ch",
             required: true,
-            class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+            class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       <%= f.submit "Test senden",
             class: "shrink-0 bg-gray-800 hover:bg-gray-900 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition cursor-pointer shadow-sm" %>
     <% end %>

@@ -10,9 +10,37 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_04_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_06_111818) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.bigint "record_id", null: false
+    t.string "record_type", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.string "content_type"
+    t.datetime "created_at", null: false
+    t.string "filename", null: false
+    t.string "key", null: false
+    t.text "metadata"
+    t.string "service_name", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
 
   create_table "attendances", force: :cascade do |t|
     t.bigint "course_registration_id", null: false
@@ -22,6 +50,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_130000) do
     t.datetime "updated_at", null: false
     t.index ["course_registration_id"], name: "index_attendances_on_course_registration_id"
     t.index ["training_session_id"], name: "index_attendances_on_training_session_id"
+  end
+
+  create_table "club_settings", force: :cascade do |t|
+    t.string "club_name"
+    t.datetime "created_at", null: false
+    t.string "primary_color"
+    t.string "secondary_color"
+    t.datetime "updated_at", null: false
   end
 
   create_table "course_registrations", force: :cascade do |t|
@@ -72,6 +108,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_130000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "export_profiles", force: :cascade do |t|
+    t.string "col_sep", default: ";"
+    t.bigint "course_id"
+    t.datetime "created_at", null: false
+    t.string "fields", default: [], array: true
+    t.string "format", default: "csv", null: false
+    t.boolean "include_header", default: true
+    t.string "name", null: false
+    t.string "quote_char", default: "\""
+    t.string "recipient_email"
+    t.string "row_sep", default: "\\n"
+    t.string "schedule", default: "none"
+    t.datetime "updated_at", null: false
+  end
+
   create_table "holidays", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "end_date"
@@ -118,7 +169,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_130000) do
     t.string "ahv_number"
     t.datetime "created_at", null: false
     t.date "date_of_birth"
-    t.string "email"
     t.string "first_name"
     t.string "gender"
     t.string "last_name"
@@ -177,6 +227,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_04_130000) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "attendances", "course_registrations"
   add_foreign_key "attendances", "training_sessions"
   add_foreign_key "course_registrations", "courses"

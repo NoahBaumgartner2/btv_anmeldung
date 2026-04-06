@@ -3,7 +3,7 @@
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
     <div>
       <h1 class="font-extrabold text-4xl text-gray-900"><%= @course.title %></h1>
-      <span class="inline-block mt-3 bg-blue-100 text-blue-800 text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-wide">
+      <span class="inline-block mt-3 bg-primary-100 text-primary-800 text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-wide">
         <%= @course.registration_type.presence || "Kurs" %>
       </span>
     </div>
@@ -106,9 +106,9 @@
 
 
   <% if user_signed_in? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
-    <div class="mt-8 bg-blue-50/50 p-8 rounded-3xl border border-blue-100">
+    <div class="mt-8 bg-primary-50/50 p-8 rounded-3xl border border-primary-100">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-extrabold text-blue-900 flex items-center gap-2">
+        <h2 class="text-xl font-extrabold text-primary-900 flex items-center gap-2">
           <span></span> Trainer & Admin Bereich
         </h2>
 
@@ -117,12 +117,12 @@
             <%= link_to "Kurs bearbeiten", edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition" %>
           <% end %>
 
-          <%= link_to "Neue Session", new_training_session_path(course_id: @course.id), class: "bg-blue-600 text-white text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-blue-700 transition" %>
+          <%= link_to "Neue Session", new_training_session_path(course_id: @course.id), class: "bg-primary-600 text-white text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-primary-700 transition" %>
         </div>
       </div>
 
       <% if @course.training_sessions.any? %>
-        <div class="bg-white rounded-2xl border border-blue-100 overflow-hidden shadow-sm">
+        <div class="bg-white rounded-2xl border border-primary-100 overflow-hidden shadow-sm">
           <ul class="divide-y divide-gray-100">
             <% @course.training_sessions.order(:start_time).each do |session| %>
               <li class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 transition">
@@ -141,8 +141,8 @@
           </ul>
         </div>
       <% else %>
-        <div class="text-center py-6 bg-white rounded-2xl border border-blue-100 border-dashed">
-          <p class="text-blue-700 text-sm font-medium">Noch keine Trainings-Sessions geplant.</p>
+        <div class="text-center py-6 bg-white rounded-2xl border border-primary-100 border-dashed">
+          <p class="text-primary-700 text-sm font-medium">Noch keine Trainings-Sessions geplant.</p>
         </div>
       <% end %>
     </div>

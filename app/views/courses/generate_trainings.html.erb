@@ -80,8 +80,8 @@
             <% [["Mo", 1], ["Di", 2], ["Mi", 3], ["Do", 4], ["Fr", 5], ["Sa", 6], ["So", 0]].each do |label, value| %>
               <label class="cursor-pointer">
                 <%= f.radio_button :day_of_week, value, class: "sr-only peer", id: "day_#{value}" %>
-                <span class="peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600
-                             block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-blue-300
+                <span class="peer-checked:bg-primary-600 peer-checked:text-white peer-checked:border-primary-600
+                             block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-primary-300
                              font-bold px-4 py-2.5 rounded-xl text-sm transition select-none w-14 text-center">
                   <%= label %>
                 </span>
@@ -96,7 +96,7 @@
             <p class="text-sm font-bold text-gray-700 mb-2">Beginn</p>
             <div class="flex items-center gap-2">
               <select name="start_hour" required
-                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
                 <option value="">Std.</option>
                 <% hours.each do |label, val| %>
                   <% if @course.default_start_hour == val %>
@@ -108,7 +108,7 @@
               </select>
               <span class="text-gray-500 font-bold">:</span>
               <select name="start_minute" required
-                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
                 <% minutes.each do |label, val| %>
                   <% if @course.default_start_minute == val %>
                     <option value="<%= val %>" selected><%= label %></option>
@@ -125,7 +125,7 @@
             <p class="text-sm font-bold text-gray-700 mb-2">Ende <span class="font-normal text-gray-400">(optional)</span></p>
             <div class="flex items-center gap-2">
               <select name="end_hour"
-                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
                 <option value="">Std.</option>
                 <% hours.each do |label, val| %>
                   <% if @course.default_end_hour == val %>
@@ -137,7 +137,7 @@
               </select>
               <span class="text-gray-500 font-bold">:</span>
               <select name="end_minute"
-                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
                 <% minutes.each do |label, val| %>
                   <% if @course.default_end_minute == val %>
                     <option value="<%= val %>" selected><%= label %></option>
@@ -160,7 +160,7 @@
                 <label class="px-4 py-2.5 flex items-center gap-3 text-sm cursor-pointer hover:bg-yellow-100 transition">
                   <input type="checkbox" name="holiday_ids[]" value="<%= holiday.id %>"
                          checked
-                         class="w-4 h-4 rounded border-yellow-400 text-blue-600 focus:ring-blue-500 shrink-0">
+                         class="w-4 h-4 rounded border-yellow-400 text-primary-600 focus:ring-primary-500 shrink-0">
                   <span class="flex-1 font-semibold text-yellow-900"><%= holiday.title %></span>
                   <span class="text-yellow-700 font-medium">
                     <%= holiday.start_date.strftime("%-d. %b") %> – <%= holiday.end_date.strftime("%-d. %b %Y") %>
@@ -186,7 +186,7 @@
             <%# Dynamisch hinzugefügte Zeilen landen hier %>
           </div>
           <button type="button" id="add-holiday-btn"
-                  class="mt-3 flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-800 transition">
+                  class="mt-3 flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:text-primary-800 transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
             </svg>
@@ -206,12 +206,12 @@
               row.className = 'flex flex-wrap items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5';
               row.innerHTML =
                 '<input type="text" name="extra_holidays[' + i + '][title]" placeholder="Bezeichnung (z.B. Sportferien)" ' +
-                  'class="flex-1 min-w-32 rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">' +
+                  'class="flex-1 min-w-32 rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">' +
                 '<input type="date" name="extra_holidays[' + i + '][start_date]" ' +
-                  'class="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">' +
+                  'class="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">' +
                 '<span class="text-gray-400 text-sm">–</span>' +
                 '<input type="date" name="extra_holidays[' + i + '][end_date]" ' +
-                  'class="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">' +
+                  'class="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">' +
                 '<button type="button" class="remove-holiday text-gray-400 hover:text-red-500 transition p-0.5" title="Entfernen">' +
                   '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
                 '</button>';
@@ -227,7 +227,7 @@
 
       <div class="mt-6 flex flex-col sm:flex-row items-center gap-3">
         <%= f.submit "Trainings jetzt generieren",
-              class: "w-full sm:w-auto cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition text-sm" %>
+              class: "w-full sm:w-auto cursor-pointer bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition text-sm" %>
         <%= link_to "Abbrechen", manage_course_path(@course),
               class: "w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-6 rounded-xl text-sm transition" %>
       </div>

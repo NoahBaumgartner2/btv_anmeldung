@@ -25,17 +25,17 @@
       </div>
       <div class="divide-y divide-gray-50">
         <%= link_to trainers_path,
-              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-blue-50 transition" do %>
-          <div class="shrink-0 w-9 h-9 rounded-xl bg-blue-100 group-hover:bg-blue-200 flex items-center justify-center transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-primary-50 transition" do %>
+          <div class="shrink-0 w-9 h-9 rounded-xl bg-primary-100 group-hover:bg-primary-200 flex items-center justify-center transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4.13a4 4 0 10-8 0 4 4 0 008 0z"/>
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-blue-700 transition">Trainer</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-primary-700 transition">Trainer</p>
             <p class="text-xs text-gray-400 truncate">Trainer verwalten &amp; zuweisen</p>
           </div>
-          <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-blue-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-primary-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
           </svg>
         <% end %>
@@ -136,6 +136,41 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
           </svg>
         <% end %>
+
+        <%= link_to admin_club_setting_path,
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-orange-50 transition" do %>
+          <div class="shrink-0 w-9 h-9 rounded-xl bg-orange-100 group-hover:bg-orange-200 flex items-center justify-center transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-gray-800 group-hover:text-orange-700 transition">Vereinsdesign</p>
+            <p class="text-xs text-gray-400 truncate">Logo, Farben &amp; Name</p>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-orange-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        <% end %>
+
+        <%= link_to admin_export_profiles_path,
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-teal-50 transition" do %>
+          <div class="shrink-0 w-9 h-9 rounded-xl bg-teal-100 group-hover:bg-teal-200 flex items-center justify-center transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-gray-800 group-hover:text-teal-700 transition">Exportprofile</p>
+            <p class="text-xs text-gray-400 truncate">Export-Vorlagen verwalten</p>
+          </div>
+          <% if @export_profiles.any? %>
+            <span class="ml-auto shrink-0 text-xs font-bold text-teal-600 bg-teal-100 px-2 py-0.5 rounded-full"><%= @export_profiles.size %></span>
+          <% end %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="<%= @export_profiles.any? ? 'ml-2' : 'ml-auto' %> h-4 w-4 text-gray-300 group-hover:text-teal-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        <% end %>
       </div>
     </div>
 
@@ -157,7 +192,7 @@
           <tr class="hover:bg-gray-50">
             <td class="py-4 px-4 font-bold text-gray-900 text-sm"><%= course.title %></td>
             <td class="py-4 px-4 text-sm text-gray-500"><%= course.registration_type %></td>
-            <td class="py-4 px-4 text-sm font-medium text-blue-600"><%= course.course_registrations.size %> Teilnehmende</td>
+            <td class="py-4 px-4 text-sm font-medium text-primary-600"><%= course.course_registrations.size %> Teilnehmende</td>
             <td class="py-4 px-4 text-right">
               <%= link_to "Verwalten", manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
             </td>
@@ -173,9 +208,27 @@
       <h2 class="text-2xl font-bold text-gray-900">Teilnehmer-Suche</h2>
       <p class="text-gray-500 mt-1 text-sm">Suche nach Name oder E-Mail-Adresse des verknüpften Kontos.</p>
     </div>
-    <button disabled class="shrink-0 bg-gray-100 text-gray-400 py-2 px-4 rounded-lg shadow-sm font-bold border border-gray-200 cursor-not-allowed text-sm">
-      Exportieren (bald verfügbar)
-    </button>
+    <% if @export_profiles.any? %>
+      <div class="flex flex-wrap gap-2 shrink-0">
+        <% @export_profiles.each do |profile| %>
+          <%= link_to export_participants_dashboard_path(profile_id: profile.id, q: params[:q]),
+                class: "inline-flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-3.5 rounded-lg shadow-sm text-sm transition" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+            </svg>
+            <%= profile.name %>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <%= link_to admin_export_profiles_path,
+            class: "shrink-0 inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 py-2 px-4 rounded-lg font-medium border border-gray-200 text-sm transition" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Exportprofil erstellen
+      <% end %>
+    <% end %>
   </div>
 
   <%= form_with url: dashboards_admin_path, method: :get, class: "flex gap-2 mb-4" do |f| %>
@@ -184,9 +237,9 @@
           placeholder: "Name oder E-Mail eingeben (min. 2 Zeichen)…",
           autofocus: params[:q].present?,
           autocomplete: "off",
-          class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" %>
+          class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
     <%= f.submit "Suchen",
-          class: "shrink-0 rounded-lg px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
+          class: "shrink-0 rounded-lg px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
   <% end %>
 
   <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
@@ -224,7 +277,7 @@
                 </td>
                 <td class="py-3.5 px-4 text-right">
                   <%= link_to "Profil ansehen", participant_path(participant),
-                        class: "text-blue-600 font-bold hover:text-blue-800 bg-blue-50 px-3 py-1.5 rounded-md text-sm" %>
+                        class: "text-primary-600 font-bold hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-md text-sm" %>
                 </td>
               </tr>
             <% end %>
