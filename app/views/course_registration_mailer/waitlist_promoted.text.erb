@@ -1,0 +1,11 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+<%= @participant.first_name %> stand bisher auf der Warteliste. Ein Platz ist nun frei geworden und die Anmeldung wurde automatisch auf "bestätigt" gesetzt.
+
+Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:        <%= @course.title %>
+
+Bei Fragen wende dich bitte direkt an uns.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

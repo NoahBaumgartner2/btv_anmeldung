@@ -64,6 +64,9 @@ class ParticipantsController < ApplicationController
 
   def set_participant
     @participant = Participant.find(params.expect(:id))
+    unless current_user.admin? || @participant.user_id == current_user.id
+      redirect_to root_path, alert: "Zugriff verweigert." and return
+    end
   end
 
   def participant_params

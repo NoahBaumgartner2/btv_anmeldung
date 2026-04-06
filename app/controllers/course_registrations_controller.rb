@@ -2,11 +2,9 @@ class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
   before_action :set_course_registration, only: [ :show, :edit, :update, :destroy ]
+  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy ]
 
   def show
-    unless current_user.participants.include?(@course_registration.participant) || current_user.admin?
-      redirect_to root_path, alert: "Zugriff verweigert."
-    end
   end
 
   def new
@@ -173,6 +171,12 @@ def unsubscribe_from_session
 
   def set_course_registration
     @course_registration = CourseRegistration.find(params[:id])
+  end
+
+  def authorize_own_registration!
+    unless current_user.admin? || current_user.participants.include?(@course_registration.participant)
+      redirect_to root_path, alert: "Zugriff verweigert."
+    end
   end
 
   def setup_new_form(course = nil)
