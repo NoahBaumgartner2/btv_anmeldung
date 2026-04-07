@@ -1,7 +1,24 @@
-<p>Hello <%= @resource.email %>!</p>
+<% primary = defined?(@_club) && @_club ? @_club.effective_primary_color : "#dc2626" %>
 
-<p>Your account has been locked due to an excessive number of unsuccessful sign in attempts.</p>
+<p style="margin:0 0 16px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Hallo <%= @resource.email %>,
+</p>
 
-<p>Click the link below to unlock your account:</p>
+<p style="margin:0 0 24px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  dein Konto wurde aufgrund zu vieler fehlgeschlagener Anmeldeversuche vorübergehend gesperrt.<br><br>
+  Klicke auf den folgenden Button, um dein Konto wieder zu entsperren:
+</p>
 
-<p><%= link_to 'Unlock my account', unlock_url(@resource, unlock_token: @token) %></p>
+<table cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+  <tr>
+    <td style="background:<%= primary %>;border-radius:8px;padding:12px 24px;">
+      <%= link_to "Konto entsperren",
+            unlock_url(@resource, unlock_token: @token),
+            style: "color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;font-family:Arial,Helvetica,sans-serif;" %>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 32px 0;font-size:13px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
+  Falls du diese E-Mail nicht erwartet hast, kannst du sie ignorieren — dein Konto bleibt gesperrt, bis du den Link verwendest.
+</p>

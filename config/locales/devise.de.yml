@@ -25,6 +25,9 @@ de:
         subject: "E-Mail-Adresse geändert"
       password_change:
         subject: "Passwort geändert"
+    omniauth_callbacks:
+      failure: "Du konntest nicht über %{kind} angemeldet werden, da \"%{reason}\"."
+      success: "Erfolgreich über %{kind} angemeldet."
     passwords:
       no_token: "Diese Seite kann nur über einen Passwort-Reset-Link aufgerufen werden. Bitte stelle sicher, dass du den vollständigen Link aus der E-Mail verwendet hast."
       send_instructions: "Du erhältst in wenigen Minuten eine E-Mail mit einem Link zum Zurücksetzen deines Passworts."
