@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_141228) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_144401) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -112,17 +112,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_141228) do
   end
 
   create_table "export_profiles", force: :cascade do |t|
+    t.string "attendance_symbols", default: "symbols"
     t.string "col_sep", default: ";"
     t.bigint "course_id"
     t.datetime "created_at", null: false
+    t.string "date_column_format", default: "%d.%m.%Y"
+    t.date "date_from"
+    t.string "date_range_type", default: "custom"
+    t.date "date_to"
+    t.string "export_type", default: "teilnehmerliste", null: false
+    t.integer "extra_empty_rows", default: 0
     t.string "fields", default: [], array: true
     t.string "format", default: "csv", null: false
+    t.boolean "include_canceled_sessions", default: false
     t.boolean "include_header", default: true
+    t.string "include_summary_columns", default: [], array: true
     t.string "name", null: false
     t.string "quote_char", default: "\""
     t.string "recipient_email"
     t.string "row_sep", default: "\\n"
     t.string "schedule", default: "none"
+    t.string "sort_by", default: "last_name"
     t.datetime "updated_at", null: false
   end
 
