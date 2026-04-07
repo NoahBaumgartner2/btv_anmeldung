@@ -73,6 +73,10 @@ Rails.application.routes.draw do
     end
   end
 
+  resource :account, only: [:show, :destroy] do
+    get :export, on: :member
+  end
+
   devise_for :users, controllers: { confirmations: "users/confirmations" }
   root "pages#home"
 end
