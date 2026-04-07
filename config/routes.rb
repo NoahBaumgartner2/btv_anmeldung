@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   namespace :admin do
     resource :payment_setting, only: [:show, :edit, :update] do
       post :test_connection
+      post :sync_payments
     end
     resource :club_setting, only: [:show, :edit, :update] do
       delete :destroy_logo, on: :member
