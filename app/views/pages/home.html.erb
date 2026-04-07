@@ -39,7 +39,7 @@
 
     <div class="text-center mb-10">
       <h2 class="text-3xl font-extrabold text-gray-900 mb-2">Aktuelle Kurse</h2>
-      <p class="text-gray-500">Entdecke unser aktuelles Angebot und melde dein Kind direkt an.</p>
+      <p class="text-gray-500">Entdecke unser aktuelles Angebot und melde dich direkt an.</p>
     </div>
 
     <% active_courses = @courses.select { |c| c.registration_mode == "single_session" || (c.end_date.nil? || c.end_date >= Date.today) } %>
@@ -159,7 +159,7 @@
         </div>
         <div class="text-xs font-bold text-primary-600 uppercase tracking-wider mb-1">Schritt 1</div>
         <h3 class="font-bold text-gray-900 mb-2">Konto erstellen</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">Registriere dich kostenlos mit deiner E-Mail-Adresse und erstelle dein persönliches Eltern-Konto.</p>
+        <p class="text-sm text-gray-500 leading-relaxed">Registriere dich kostenlos mit deiner E-Mail-Adresse und erstelle dein persönliches Konto.</p>
       </div>
 
       <%# Schritt 2 %>
@@ -170,8 +170,8 @@
           </svg>
         </div>
         <div class="text-xs font-bold text-secondary-600 uppercase tracking-wider mb-1">Schritt 2</div>
-        <h3 class="font-bold text-gray-900 mb-2">Kind anmelden</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">Trage dein Kind ein und wähle den gewünschten Kurs aus unserem aktuellen Angebot aus.</p>
+        <h3 class="font-bold text-gray-900 mb-2">Teilnehmer anmelden</h3>
+        <p class="text-sm text-gray-500 leading-relaxed">Erfasse eine oder mehrere Personen und wähle den gewünschten Kurs aus unserem aktuellen Angebot aus.</p>
       </div>
 
       <%# Schritt 3 %>
@@ -183,7 +183,7 @@
         </div>
         <div class="text-xs font-bold text-green-600 uppercase tracking-wider mb-1">Schritt 3</div>
         <h3 class="font-bold text-gray-900 mb-2">Loslegen!</h3>
-        <p class="text-sm text-gray-500 leading-relaxed">Nach der Anmeldung erhältst du eine Bestätigung per E-Mail – und dein Kind kann direkt mitmachen.</p>
+        <p class="text-sm text-gray-500 leading-relaxed">Nach der Anmeldung erhältst du eine Bestätigung per E-Mail – und es kann direkt losgehen.</p>
       </div>
 
     </div>
