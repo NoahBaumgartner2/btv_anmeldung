@@ -12,19 +12,19 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["picker", "text"]
 
-  // Farbpalette → Textfeld
-  pickerTargetConnected(picker) {
-    this.textTarget.value = picker.value
-    picker.addEventListener("input", () => {
-      this.textTarget.value = picker.value
-    })
-  }
+  connect() {
+    // Initialer Sync: Textfeld auf Picker-Wert setzen
+    this.textTarget.value = this.pickerTarget.value
 
-  // Textfeld → Farbpalette (nur bei gültigem Hex-Wert)
-  textTargetConnected(text) {
-    text.addEventListener("input", () => {
-      if (/^#[0-9A-Fa-f]{6}$/.test(text.value)) {
-        this.pickerTarget.value = text.value
+    // Farbpalette → Textfeld
+    this.pickerTarget.addEventListener("input", () => {
+      this.textTarget.value = this.pickerTarget.value
+    })
+
+    // Textfeld → Farbpalette (nur bei gültigem Hex-Wert)
+    this.textTarget.addEventListener("input", () => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(this.textTarget.value)) {
+        this.pickerTarget.value = this.textTarget.value
       }
     })
   }
