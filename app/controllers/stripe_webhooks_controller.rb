@@ -15,9 +15,13 @@ class StripeWebhooksController < ActionController::Base
       return render json: { error: "Invalid signature" }, status: :bad_request
     end
 
+    Rails.logger.info "[StripeWebhook] Event empfangen: #{event['type']} (id: #{event['id']})"
+
     case event["type"]
     when "checkout.session.completed"
       handle_checkout_completed(event["data"]["object"])
+    else
+      Rails.logger.info "[StripeWebhook] Event ignoriert: #{event['type']}"
     end
 
     render json: { received: true }
@@ -27,26 +31,29 @@ class StripeWebhooksController < ActionController::Base
 
   def handle_checkout_completed(session)
     registration_id = session.dig("metadata", "course_registration_id")
-    return unless registration_id
-
-    registration = CourseRegistration.find_by(id: registration_id)
-    return unless registration
-
-    course = registration.course
-    if course.max_participants.present?
-      confirmed_count = course.course_registrations.where(status: "bestätigt").count
-      new_status = confirmed_count >= course.max_participants ? "warteliste" : "bestätigt"
-    else
-      new_status = "bestätigt"
+    unless registration_id
+      Rails.logger.warn "[StripeWebhook] checkout.session.completed ohne course_registration_id (session: #{session['id']})"
+      return
     end
 
-    registration.update!(
-      payment_cleared:          true,
-      stripe_payment_intent_id: session["payment_intent"],
-      stripe_session_id:        session["id"],
-      status:                   new_status
-    )
+    registration = CourseRegistration.find_by(id: registration_id)
+    unless registration
+      Rails.logger.warn "[StripeWebhook] CourseRegistration #{registration_id} nicht gefunden"
+      return
+    end
+
+    # Idempotenz: bereits verarbeitet → überspringen
+    if registration.payment_cleared?
+      Rails.logger.info "[StripeWebhook] Registration #{registration_id} bereits als bezahlt markiert – übersprungen"
+      return
+    end
+
+    PaymentSyncService.mark_paid!(registration,
+                                  payment_intent: session["payment_intent"],
+                                  session_id:     session["id"])
+
+    Rails.logger.info "[StripeWebhook] Registration #{registration_id} erfolgreich abgeglichen (Status: #{registration.reload.status})"
   rescue => e
-    Rails.logger.error "[StripeWebhook] handle_checkout_completed error: #{e.message}"
+    Rails.logger.error "[StripeWebhook] Fehler bei handle_checkout_completed: #{e.class}: #{e.message}"
   end
 end

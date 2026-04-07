@@ -1,29 +1,28 @@
-# Be sure to restart your server when you modify this file.
+Rails.application.configure do
+  config.content_security_policy do |policy|
+    policy.default_src :self
+    policy.font_src    :self, :data
+    policy.img_src     :self, :data, :https
+    policy.object_src  :none
 
-# Define an application-wide content security policy.
-# See the Securing Rails Applications Guide for more information:
-# https://guides.rubyonrails.org/security.html#content-security-policy-header
+    # Scripts: self + Stripe JS
+    # Nonce für Inline-Scripts wird automatisch via content_security_policy_nonce_directives ergänzt
+    policy.script_src :self, "https://js.stripe.com"
 
-# Rails.application.configure do
-#   config.content_security_policy do |policy|
-#     policy.default_src :self, :https
-#     policy.font_src    :self, :https, :data
-#     policy.img_src     :self, :https, :data
-#     policy.object_src  :none
-#     policy.script_src  :self, :https
-#     policy.style_src   :self, :https
-#     # Specify URI for violation reports
-#     # policy.report_uri "/csp-violation-report-endpoint"
-#   end
-#
-#   # Generate session nonces for permitted importmap, inline scripts, and inline styles.
-#   config.content_security_policy_nonce_generator = ->(request) { request.session.id.to_s }
-#   config.content_security_policy_nonce_directives = %w(script-src style-src)
-#
-#   # Automatically add `nonce` to `javascript_tag`, `javascript_include_tag`, and `stylesheet_link_tag`
-#   # if the corresponding directives are specified in `content_security_policy_nonce_directives`.
-#   # config.content_security_policy_nonce_auto = true
-#
-#   # Report violations without enforcing the policy.
-#   # config.content_security_policy_report_only = true
-# end
+    # Styles: self
+    # Nonce für Inline-Styles wird automatisch via content_security_policy_nonce_directives ergänzt
+    policy.style_src :self
+
+    # Stripe Checkout/Payment-Frames
+    policy.frame_src "https://js.stripe.com", "https://hooks.stripe.com"
+
+    # Stripe API-Calls aus dem Browser
+    policy.connect_src :self, "https://api.stripe.com"
+  end
+
+  # Nonce-Generator: sichere zufällige Nonce pro Request
+  config.content_security_policy_nonce_generator = ->(_request) { SecureRandom.base64(16) }
+
+  # Nonce für script-src und style-src erzwingen
+  config.content_security_policy_nonce_directives = %w[script-src style-src]
+end

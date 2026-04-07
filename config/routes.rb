@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   namespace :admin do
     resource :payment_setting, only: [:show, :edit, :update] do
       post :test_connection
+      post :sync_payments
     end
     resource :club_setting, only: [:show, :edit, :update] do
       delete :destroy_logo, on: :member
@@ -73,6 +74,10 @@ Rails.application.routes.draw do
     end
   end
 
+  resource :account, only: [:show, :destroy] do
+    get :export, on: :member
+  end
+
   devise_for :users, controllers: { confirmations: "users/confirmations" }
-  root "courses#index"
+  root "pages#home"
 end

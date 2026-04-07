@@ -26,18 +26,23 @@
       }
     </style>
 
-    <%# ── Stimulus via ES-Module-Importmap ──────────────────────────────────── %>
+    <%# ── Turbo + Stimulus via ES-Module-Importmap ──────────────────────────── %>
     <script type="importmap" nonce="<%= content_security_policy_nonce %>">
     {
       "imports": {
+        "@hotwired/turbo":                "<%= asset_path 'turbo.min.js' %>",
         "@hotwired/stimulus":             "<%= asset_path 'stimulus.js' %>",
-        "controllers/color_sync_controller": "<%= asset_path 'controllers/color_sync_controller.js' %>",
-        "controllers/field_sorter_controller": "<%= asset_path 'controllers/field_sorter_controller.js' %>",
+        "controllers/color_sync_controller":        "<%= asset_path 'controllers/color_sync_controller.js' %>",
+        "controllers/field_sorter_controller":      "<%= asset_path 'controllers/field_sorter_controller.js' %>",
+        "controllers/confirm_unsubscribe_controller": "<%= asset_path 'controllers/confirm_unsubscribe_controller.js' %>",
         "controllers":                    "<%= asset_path 'controllers/index.js' %>"
       }
     }
     </script>
-    <script type="module" nonce="<%= content_security_policy_nonce %>">import "controllers"</script>
+    <script type="module" nonce="<%= content_security_policy_nonce %>">
+      import "@hotwired/turbo"
+      import "controllers"
+    </script>
   </head>
 
   <body class="bg-gray-50 text-gray-900 font-sans antialiased">
@@ -73,12 +78,15 @@
             </div>
           </div>
 
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center gap-3">
             <% if user_signed_in? %>
-              <%= button_to "Logout", destroy_user_session_path, method: :delete, class: "..." %>
+              <%= button_to "Logout", destroy_user_session_path, method: :delete,
+                    class: "text-sm font-medium text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md transition cursor-pointer" %>
             <% else %>
-              <%= link_to "Login", new_user_session_path, class: "..." %>
-              <%= link_to "Registrieren", new_user_registration_path, class: "bg-primary-600 text-white px-4 py-2 rounded-md font-medium" %>
+              <%= link_to "Anmelden", new_user_session_path,
+                    class: "text-sm font-medium text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md transition" %>
+              <%= link_to "Registrieren", new_user_registration_path,
+                    class: "bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition" %>
             <% end %>
           </div>
 
@@ -144,11 +152,17 @@
       })();
     </script>
 
-    <main class="container mx-auto mt-6 px-5 pb-20">
-      <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+    <% if content_for?(:full_width) %>
+      <main>
         <%= yield %>
-      </div>
-    </main>
+      </main>
+    <% else %>
+      <main class="container mx-auto mt-6 px-5 pb-20">
+        <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+          <%= yield %>
+        </div>
+      </main>
+    <% end %>
 
   </body>
 </html>

@@ -22,6 +22,26 @@ module Admin
       end
     end
 
+    def sync_payments
+      unless ::StripeConfig.configured?
+        return redirect_to admin_payment_setting_path,
+                           alert: "Kein Stripe Secret Key konfiguriert."
+      end
+
+      result = PaymentSyncService.sync_pending
+
+      if result.errors > 0
+        msg = "Abgleich abgeschlossen: #{result.paid} bezahlt, #{result.still_pending} ausstehend, #{result.errors} Fehler (Details im Log)."
+        redirect_to admin_payment_setting_path, alert: msg
+      else
+        msg = "Abgleich abgeschlossen: #{result.total} geprüft, #{result.paid} als bezahlt markiert, #{result.still_pending} noch ausstehend."
+        redirect_to admin_payment_setting_path, notice: msg
+      end
+    rescue => e
+      Rails.logger.error "[Admin::PaymentSettings] sync_payments Fehler: #{e.message}"
+      redirect_to admin_payment_setting_path, alert: "Fehler beim Abgleich: #{e.message}"
+    end
+
     def test_connection
       @payment_setting = PaymentSetting.current
 

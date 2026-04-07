@@ -67,7 +67,7 @@
                   <h3 class="font-semibold text-gray-900 text-sm"><%= course.title %></h3>
 
                   <% if is_single %>
-                    <span class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-2 py-0.5 rounded-full">Drop-In</span>
+                    <span class="inline-block bg-secondary-100 text-secondary-700 text-xs font-bold px-2 py-0.5 rounded-full">Drop-In</span>
                   <% end %>
 
                   <% if is_full %>
@@ -107,7 +107,7 @@
 
                 <% if is_single %>
                   <%= link_to "Termine ansehen", course_path(course),
-                        class: "text-xs font-bold bg-purple-600 hover:bg-purple-700 text-white px-4 py-1.5 rounded-lg transition shadow-sm" %>
+                        class: "text-xs font-bold bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-1.5 rounded-lg transition shadow-sm" %>
                 <% elsif is_full %>
                   <%= link_to "Details", course_path(course),
                         class: "text-xs font-bold bg-white border border-gray-300 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition" %>
@@ -117,7 +117,7 @@
                   <%= link_to "Details", course_path(course),
                         class: "text-xs font-bold bg-white border border-gray-300 text-gray-600 hover:bg-gray-50 px-3 py-1.5 rounded-lg transition" %>
                   <%= link_to "Anmelden", new_course_registration_path(course_id: course.id),
-                        class: "text-xs font-bold bg-green-600 hover:bg-green-700 text-white px-4 py-1.5 rounded-lg transition shadow-sm" %>
+                        class: "text-xs font-bold bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-1.5 rounded-lg transition shadow-sm" %>
                 <% end %>
               </div>
 

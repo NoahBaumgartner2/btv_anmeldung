@@ -89,5 +89,6 @@ erDiagram
 
 TODO
 
-- Abmeldungen von Eltern aus
+- 1. Rechtliches & Compliance (höchste Priorität)
+Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung und AGB, die direkt in der App verlinkt sind. Ein Cookie-Consent-Banner fehlt komplett. Bei der Registrierung sollte eine Checkbox für die Zustimmung zu den AGB/Datenschutz vorhanden sein. Dein Devise erlaubt zwar subscribe_to_newsletter, aber ein Newsletter-Opt-in ohne rechtliche Grundlage ist problematisch. Ausserdem solltest du eine Impressum-Seite einbauen — in der Schweiz (UWG) und besonders bei der DSGVO für EU-Kunden ist das Pflicht.
 

@@ -1,0 +1,47 @@
+<% primary = @_club&.effective_primary_color || "#dc2626" %>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0;font-size:15px;font-weight:600;color:#92400e;font-family:Arial,Helvetica,sans-serif;">Zahlungserinnerung</p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Hallo <%= @recipient.email.split("@").first %>,<br><br>
+  wir möchten dich daran erinnern, dass für die Anmeldung von
+  <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
+  beim Kurs <strong><%= @course.title %></strong> noch eine ausstehende Zahlung vorliegt.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Teilnehmer</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @participant.first_name %> <%= @participant.last_name %></p>
+
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Betrag</p>
+      <p style="margin:0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.price_display %></p>
+    </td>
+  </tr>
+</table>
+
+<% if @course.has_payment? %>
+  <table cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+    <tr>
+      <td style="background:<%= primary %>;border-radius:8px;padding:12px 24px;">
+        <%= link_to "Jetzt bezahlen",
+              checkout_registration_url(@course_registration),
+              style: "color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;font-family:Arial,Helvetica,sans-serif;" %>
+      </td>
+    </tr>
+  </table>
+<% end %>
+
+<p style="margin:0 0 32px 0;font-size:13px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
+  Falls du bereits bezahlt hast, kannst du diese E-Mail ignorieren. Bei Fragen wende dich bitte direkt an uns.
+</p>

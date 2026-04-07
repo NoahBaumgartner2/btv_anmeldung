@@ -1,0 +1,17 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+wir möchten dich daran erinnern, dass für die Anmeldung von <%= @participant.first_name %> <%= @participant.last_name %> beim Kurs "<%= @course.title %>" noch eine ausstehende Zahlung vorliegt.
+
+Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:        <%= @course.title %>
+Betrag:      <%= @course.price_display %>
+
+<% if @course.has_payment? %>
+Jetzt bezahlen: <%= checkout_registration_url(@course_registration) %>
+<% end %>
+
+Falls du bereits bezahlt hast, kannst du diese E-Mail ignorieren.
+Bei Fragen wende dich bitte direkt an uns.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

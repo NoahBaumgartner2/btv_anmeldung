@@ -1,0 +1,12 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+der Anmeldestatus von <%= @participant.first_name %> <%= @participant.last_name %> für den Kurs "<%= @course.title %>" wurde geändert.
+
+Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:        <%= @course.title %>
+Neuer Status: <%= @new_status %>
+
+Bei Fragen wende dich bitte direkt an uns.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

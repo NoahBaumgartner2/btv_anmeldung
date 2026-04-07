@@ -1,7 +1,20 @@
-<p>Hello <%= @email %>!</p>
+<p style="margin:0 0 16px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Hallo <%= @email %>,
+</p>
 
 <% if @resource.try(:unconfirmed_email?) %>
-  <p>We're contacting you to notify you that your email is being changed to <%= @resource.unconfirmed_email %>.</p>
+  <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+    wir möchten dich darüber informieren, dass eine Änderung deiner E-Mail-Adresse zu
+    <strong><%= @resource.unconfirmed_email %></strong> beantragt wurde.<br><br>
+    Du erhältst in Kürze eine separate E-Mail mit einem Bestätigungslink an die neue Adresse.
+  </p>
 <% else %>
-  <p>We're contacting you to notify you that your email has been changed to <%= @resource.email %>.</p>
+  <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+    wir möchten dich darüber informieren, dass deine E-Mail-Adresse erfolgreich auf
+    <strong><%= @resource.email %></strong> geändert wurde.
+  </p>
 <% end %>
+
+<p style="margin:0 0 32px 0;font-size:13px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
+  Falls du diese Änderung nicht selbst veranlasst hast, wende dich bitte umgehend an uns.
+</p>

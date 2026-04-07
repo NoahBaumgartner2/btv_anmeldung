@@ -74,3 +74,4 @@ gem "devise", "~> 5.0"
 
 gem 'rqrcode'
 gem 'stripe', '~> 13.0'
+gem 'rack-attack'
