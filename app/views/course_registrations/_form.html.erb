@@ -1,3 +1,4 @@
+<% training_session ||= nil %>
 <%= form_with(model: course_registration, class: "contents") do |form| %>
   <% if course_registration.errors.any? %>
     <div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg mb-6 border border-red-200">
@@ -12,13 +13,18 @@
 
   <div class="space-y-5">
 
-    <%# Kurs-Auswahl %>
-    <div>
-      <%= form.label :course_id, "Kurs", class: "block text-sm font-bold text-gray-700 mb-1" %>
-      <%= form.collection_select :course_id, selectable_courses, :id, :title,
-            { prompt: "Kurs wählen..." },
-            class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-sm py-2.5 px-3" %>
-    </div>
+    <%# Kurs-Auswahl — bei Drop-In (training_session vorhanden) versteckt %>
+    <% if training_session.present? %>
+      <%= form.hidden_field :course_id %>
+      <%= form.hidden_field :training_session_id %>
+    <% else %>
+      <div>
+        <%= form.label :course_id, "Kurs", class: "block text-sm font-bold text-gray-700 mb-1" %>
+        <%= form.collection_select :course_id, selectable_courses, :id, :title,
+              { prompt: "Kurs wählen..." },
+              class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-sm py-2.5 px-3" %>
+      </div>
+    <% end %>
 
     <%# Teilnehmer-Auswahl %>
     <div>

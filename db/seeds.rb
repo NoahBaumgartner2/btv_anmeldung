@@ -52,58 +52,96 @@ child3 = Participant.create!(user: parent2, first_name: 'Emma', last_name: 'Webe
 
 puts "🤸 Erstelle Kurse..."
 
-# 1. Krabbel Gym (Drop-In, Wöchentlich neu anmelden, Ticketing aktiv)
+# Hilfsmethode: Training-Sessions für einen Kurs generieren (wie im Controller)
+def generate_sessions(course, day_of_week:, start_hour:, start_min:, end_hour:, end_min:, holidays: [])
+  current = course.start_date.to_date
+  last    = course.end_date.to_date
+  count   = 0
+
+  while current <= last
+    if current.wday == day_of_week
+      in_holiday = holidays.any? { |h| current >= h.start_date && current <= h.end_date }
+      unless in_holiday
+        course.training_sessions.create!(
+          start_time: current.in_time_zone.change(hour: start_hour, min: start_min),
+          end_time:   current.in_time_zone.change(hour: end_hour,   min: end_min),
+          is_canceled: false
+        )
+        count += 1
+      end
+    end
+    current += 1.day
+  end
+
+  puts "   → #{count} Sessions erstellt (#{course.title})"
+end
+
+semester_start = Date.today.next_occurring(:monday)
+semester_end   = semester_start + 5.months
+
+# 1. Krabbel Gym – montags, Drop-In, Ticketing aktiv
 krabbel_gym = Course.create!(
   title: 'Krabbel Gym',
   description: 'Wöchentliches Turnen für die Kleinsten. Bitte für jedes Training einzeln anmelden!',
   location: 'Turnhalle BTV',
-  start_date: 1.week.from_now,
-  end_date: 3.months.from_now,
+  start_date: semester_start,
+  end_date:   semester_start + 3.months,
   registration_type: 'pro_training',
-  registration_mode: 'single_session', # Drop-In Anmeldung
+  registration_mode: 'single_session',
   allows_holiday_deduction: false,
-  has_ticketing: true, # Hat digitale Tickets!
-  has_payment: true
+  has_ticketing: true,
+  has_payment: false,
+  default_start_hour: 9,  default_start_minute: 30,
+  default_end_hour:   10, default_end_minute:   30
 )
 
-# 2. Kids Gym Kurse (Semester-Anmeldung, Kein Ticketing, Bezahlung pro Semester)
+# 2. Kids Gym Kurse – Semester-Anmeldung
 kids_gym_mi_morgen = Course.create!(
   title: 'Kids Gym (Mittwoch Morgen)',
   description: 'Semesterkurs für Kids. Einmalige Anmeldung sichert den Platz für das ganze Semester.',
   location: 'Turnhalle BTV',
-  start_date: 1.week.from_now,
-  end_date: 6.months.from_now,
+  start_date: semester_start,
+  end_date:   semester_end,
   registration_type: 'semester',
-  registration_mode: 'semester', # Einmalige Anmeldung
+  registration_mode: 'semester',
   allows_holiday_deduction: true,
-  has_ticketing: false, # Ohne Tickets
-  has_payment: true
+  has_ticketing: false,
+  has_payment: false,
+  max_participants: 12,
+  default_start_hour: 9,  default_start_minute: 0,
+  default_end_hour:   10, default_end_minute:   0
 )
 
 kids_gym_mi_nachmittag = Course.create!(
   title: 'Kids Gym (Mittwoch Nachmittag)',
   description: 'Semesterkurs für Kids. Einmalige Anmeldung sichert den Platz für das ganze Semester.',
   location: 'Turnhalle BTV',
-  start_date: 1.week.from_now,
-  end_date: 6.months.from_now,
+  start_date: semester_start,
+  end_date:   semester_end,
   registration_type: 'semester',
   registration_mode: 'semester',
   allows_holiday_deduction: true,
   has_ticketing: false,
-  has_payment: true
+  has_payment: false,
+  max_participants: 12,
+  default_start_hour: 15, default_start_minute: 0,
+  default_end_hour:   16, default_end_minute:   0
 )
 
 kids_gym_do_morgen = Course.create!(
   title: 'Kids Gym (Donnerstag Morgen)',
   description: 'Semesterkurs für Kids. Einmalige Anmeldung sichert den Platz für das ganze Semester.',
   location: 'Turnhalle BTV',
-  start_date: 1.week.from_now,
-  end_date: 6.months.from_now,
+  start_date: semester_start,
+  end_date:   semester_end,
   registration_type: 'semester',
   registration_mode: 'semester',
   allows_holiday_deduction: true,
   has_ticketing: false,
-  has_payment: true
+  has_payment: false,
+  max_participants: 12,
+  default_start_hour: 9,  default_start_minute: 0,
+  default_end_hour:   10, default_end_minute:   0
 )
 
 
@@ -121,16 +159,25 @@ reg2 = CourseRegistration.create!(course: kids_gym_mi_morgen, participant: child
 reg3 = CourseRegistration.create!(course: krabbel_gym, participant: child3, status: 'bestätigt', payment_cleared: true, holiday_deduction_claimed: false)
 
 
-puts "📅 Erstelle Trainings-Sessions..."
-# Wir erstellen beispielhaft Sessions für das Krabbel Gym und Kids Gym
-session1 = TrainingSession.create!(course: krabbel_gym, start_time: 1.week.from_now.change(hour: 9, min: 30), end_time: 1.week.from_now.change(hour: 10, min: 30), is_canceled: false)
-session2 = TrainingSession.create!(course: kids_gym_mi_morgen, start_time: 1.week.from_now.change(hour: 10, min: 00), end_time: 1.week.from_now.change(hour: 11, min: 00), is_canceled: false)
+puts "📅 Generiere Trainings-Sessions..."
+holidays = Holiday.all
 
+generate_sessions(krabbel_gym,        day_of_week: 1, start_hour: 9,  start_min: 30, end_hour: 10, end_min: 30, holidays: holidays)
+generate_sessions(kids_gym_mi_morgen,  day_of_week: 3, start_hour: 9,  start_min: 0,  end_hour: 10, end_min: 0,  holidays: holidays)
+generate_sessions(kids_gym_mi_nachmittag, day_of_week: 3, start_hour: 15, start_min: 0,  end_hour: 16, end_min: 0,  holidays: holidays)
+generate_sessions(kids_gym_do_morgen,  day_of_week: 4, start_hour: 9,  start_min: 0,  end_hour: 10, end_min: 0,  holidays: holidays)
 
-puts "✅ Erstelle Anwesenheitsliste für die ersten Trainings..."
-Attendance.create!(training_session: session1, course_registration: reg3, status: 'anwesend') # Emma beim Krabbel Gym
-Attendance.create!(training_session: session2, course_registration: reg1, status: 'anwesend') # Mia beim Kids Gym
-Attendance.create!(training_session: session2, course_registration: reg2, status: 'abwesend') # Leon ist krank beim Kids Gym
+puts "✅ Erstelle Anwesenheitsliste für vergangene Trainings..."
+past_session_krabbel = krabbel_gym.training_sessions.where("start_time < ?", Time.current).order(:start_time).last
+past_session_mi      = kids_gym_mi_morgen.training_sessions.where("start_time < ?", Time.current).order(:start_time).last
+
+if past_session_krabbel
+  Attendance.create!(training_session: past_session_krabbel, course_registration: reg3, status: 'anwesend')
+end
+if past_session_mi
+  Attendance.create!(training_session: past_session_mi, course_registration: reg1, status: 'anwesend')
+  Attendance.create!(training_session: past_session_mi, course_registration: reg2, status: 'abwesend')
+end
 
 
 puts "🏖️ Erstelle Feiertage..."

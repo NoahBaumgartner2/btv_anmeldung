@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_06_111818) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_06_160605) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -69,11 +69,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_06_111818) do
     t.string "status"
     t.string "stripe_payment_intent_id"
     t.string "stripe_session_id"
+    t.bigint "training_session_id"
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_course_registrations_on_course_id"
     t.index ["participant_id"], name: "index_course_registrations_on_participant_id"
     t.index ["stripe_payment_intent_id"], name: "index_course_registrations_on_stripe_payment_intent_id"
     t.index ["stripe_session_id"], name: "index_course_registrations_on_stripe_session_id"
+    t.index ["training_session_id"], name: "index_course_registrations_on_training_session_id"
   end
 
   create_table "course_trainers", force: :cascade do |t|
@@ -233,6 +235,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_06_111818) do
   add_foreign_key "attendances", "training_sessions"
   add_foreign_key "course_registrations", "courses"
   add_foreign_key "course_registrations", "participants"
+  add_foreign_key "course_registrations", "training_sessions"
   add_foreign_key "course_trainers", "courses"
   add_foreign_key "course_trainers", "trainers"
   add_foreign_key "participants", "users"

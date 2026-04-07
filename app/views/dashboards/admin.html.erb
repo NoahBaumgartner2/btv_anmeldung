@@ -209,17 +209,43 @@
       <p class="text-gray-500 mt-1 text-sm">Suche nach Name oder E-Mail-Adresse des verknüpften Kontos.</p>
     </div>
     <% if @export_profiles.any? %>
-      <div class="flex flex-wrap gap-2 shrink-0">
-        <% @export_profiles.each do |profile| %>
-          <%= link_to export_participants_dashboard_path(profile_id: profile.id, q: params[:q]),
-                class: "inline-flex items-center gap-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-3.5 rounded-lg shadow-sm text-sm transition" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-            </svg>
-            <%= profile.name %>
-          <% end %>
-        <% end %>
-      </div>
+      <details class="relative shrink-0 group">
+        <summary class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition cursor-pointer list-none select-none">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+          </svg>
+          Exportieren
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </summary>
+        <div class="absolute right-0 mt-1.5 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
+          <div class="px-3 py-2 border-b border-gray-100">
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Exportprofil wählen</p>
+          </div>
+          <div class="py-1">
+            <% @export_profiles.each do |profile| %>
+              <%= link_to export_participants_dashboard_path(profile_id: profile.id, q: params[:q]),
+                    class: "flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 font-medium hover:bg-teal-50 hover:text-teal-700 transition" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-teal-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <%= profile.name %>
+              <% end %>
+            <% end %>
+          </div>
+          <div class="border-t border-gray-100 px-3 py-2">
+            <%= link_to admin_export_profiles_path,
+                  class: "flex items-center gap-2 text-xs text-gray-400 hover:text-gray-600 transition font-medium" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              Profile verwalten
+            <% end %>
+          </div>
+        </div>
+      </details>
     <% else %>
       <%= link_to admin_export_profiles_path,
             class: "shrink-0 inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 py-2 px-4 rounded-lg font-medium border border-gray-200 text-sm transition" do %>

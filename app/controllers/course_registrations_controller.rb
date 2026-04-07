@@ -5,6 +5,13 @@ class CourseRegistrationsController < ApplicationController
   before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
 
   def show
+    if @course_registration.status == "ausstehend" && @course_registration.course.price_cents.to_i == 0
+      course = @course_registration.course
+      confirmed = course.course_registrations.where(status: "bestätigt").count
+      max       = course.max_participants
+      new_status = (max.present? && confirmed >= max) ? "warteliste" : "bestätigt"
+      @course_registration.update_columns(status: new_status)
+    end
   end
 
   def new
@@ -18,6 +25,11 @@ class CourseRegistrationsController < ApplicationController
       @selectable_courses = @course ? Course.where(registration_type: @course.registration_type).order(:title) : Course.order(:title)
     else
       @selectable_courses = Course.order(:title)
+    end
+
+    if params[:training_session_id]
+      @training_session = TrainingSession.find_by(id: params[:training_session_id])
+      @course_registration.training_session_id = @training_session&.id
     end
   end
 
@@ -41,12 +53,19 @@ class CourseRegistrationsController < ApplicationController
     end
 
     # 3. Status bestimmen
-    if course.has_payment?
-      # Zahlung erforderlich → erst nach Bezahlung bestätigt
+    if course.has_payment? && course.price_cents.to_i > 0
+      # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt
       @course_registration.status = "ausstehend"
     else
-      # Ohne Zahlung → sofort bestätigt oder Warteliste
-      bestaetigte_plaetze = course.course_registrations.where(status: "bestätigt").count
+      # Kostenlos → sofort bestätigt oder Warteliste, Kapazität je nach Modus prüfen
+      bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
+        course.course_registrations
+              .where(status: "bestätigt", training_session_id: @course_registration.training_session_id)
+              .count
+      else
+        course.course_registrations.where(status: "bestätigt").count
+      end
+
       if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
         @course_registration.status = "warteliste"
         erfolgs_nachricht = "Der Kurs ist leider voll. Dein Kind wurde erfolgreich auf die Warteliste gesetzt!"
@@ -58,7 +77,7 @@ class CourseRegistrationsController < ApplicationController
 
     if @course_registration.save
       CourseRegistrationMailer.confirmation(@course_registration).deliver_later
-      if course.has_payment? && ::StripeConfig.configured? && !@course_registration.payment_cleared?
+      if course.has_payment? && course.price_cents.to_i > 0 && ::StripeConfig.configured? && !@course_registration.payment_cleared?
         redirect_to checkout_preview_registration_path(@course_registration)
       else
         redirect_to course_registration_path(@course_registration), notice: erfolgs_nachricht
@@ -193,10 +212,11 @@ def unsubscribe_from_session
     @my_participants = current_user.participants
     @course = course || @course_registration.course
     @selectable_courses = @course ? Course.where(registration_type: @course.registration_type).order(:title) : Course.order(:title)
+    @training_session ||= TrainingSession.find_by(id: @course_registration.training_session_id)
   end
 
   # Der Türsteher: Erlaubt jetzt auch Status und Bezahlung!
   def course_registration_params
-    params.require(:course_registration).permit(:course_id, :participant_id, :status, :payment_cleared, :holiday_deduction_claimed)
+    params.require(:course_registration).permit(:course_id, :participant_id, :training_session_id, :status, :payment_cleared, :holiday_deduction_claimed)
   end
 end
