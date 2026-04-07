@@ -74,5 +74,5 @@ Rails.application.routes.draw do
   end
 
   devise_for :users, controllers: { confirmations: "users/confirmations" }
-  root "courses#index"
+  root "pages#home"
 end
