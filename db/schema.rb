@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_123227) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_141228) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -66,6 +66,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_123227) do
     t.boolean "holiday_deduction_claimed"
     t.bigint "participant_id", null: false
     t.boolean "payment_cleared"
+    t.integer "payment_reminder_count", default: 0, null: false
     t.string "status"
     t.string "stripe_payment_intent_id"
     t.string "stripe_session_id"
