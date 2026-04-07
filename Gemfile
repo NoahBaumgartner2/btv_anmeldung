@@ -73,5 +73,5 @@ gem "tailwindcss-rails", "~> 4.4"
 gem "devise", "~> 5.0"
 
 gem 'rqrcode'
-gem 'stripe', '~> 13.0'
+gem 'stripe', '~> 19.0'
 gem 'rack-attack'
