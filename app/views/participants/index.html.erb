@@ -163,7 +163,7 @@
                 <% course = regs.first.course %>
                 <%
                   now           = Time.current
-                  upcoming_regs = regs.select { |r| r.status == "bestätigt" && r.training_session&.start_time&.> now }
+                  upcoming_regs = regs.select { |r| r.status == "bestätigt" && r.training_session&.start_time.present? && r.training_session.start_time > now }
                   next_reg      = upcoming_regs.min_by { |r| r.training_session.start_time }
                   active_count  = upcoming_regs.size
                 %>
