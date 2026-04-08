@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_144401) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_08_185000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -180,14 +180,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_144401) do
 
   create_table "participants", force: :cascade do |t|
     t.string "ahv_number"
+    t.string "city"
+    t.string "country", default: "CH"
     t.datetime "created_at", null: false
     t.date "date_of_birth"
     t.string "first_name"
     t.string "gender"
+    t.string "house_number"
+    t.string "js_person_number"
     t.string "last_name"
+    t.string "mother_tongue", default: "DE"
+    t.string "nationality", default: "CH"
     t.string "phone_number"
+    t.string "street"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "zip_code"
     t.index ["first_name", "last_name", "date_of_birth", "user_id"], name: "index_participants_unique_per_user", unique: true
     t.index ["user_id"], name: "index_participants_on_user_id"
   end
