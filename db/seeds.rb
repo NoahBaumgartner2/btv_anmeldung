@@ -8,6 +8,7 @@ Course.destroy_all
 Participant.destroy_all
 User.destroy_all
 Holiday.destroy_all
+PaymentSetting.destroy_all
 
 puts "👤 Erstelle Benutzer (Admin, Trainer & Eltern)..."
 
@@ -182,5 +183,14 @@ end
 
 puts "🏖️ Erstelle Feiertage..."
 Holiday.create!(title: 'Sommerferien', start_date: '2026-07-06', end_date: '2026-08-09')
+
+puts "💳 Erstelle SumUp Zahlungseinstellungen (Test-Platzhalter)..."
+PaymentSetting.create!(
+  sumup_api_key:               "sup_sk_dev_placeholder",
+  sumup_access_token:          "test_access_token_placeholder",
+  sumup_merchant_code:         "MDEV0001",
+  currency:                    "chf",
+  active:                      false
+)
 
 puts "🎉 Fertig! Datenbank ist nun mit BTV Dummy-Daten gefüllt."

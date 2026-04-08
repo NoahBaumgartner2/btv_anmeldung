@@ -5,7 +5,7 @@ class Course < ApplicationRecord
   has_many :trainers, through: :course_trainers
   has_many :training_sessions, dependent: :destroy
 
-  # Verfügbare Zahlungsmethoden (Stripe-Bezeichnungen → Anzeigenamen)
+  # Verfügbare Zahlungsmethoden (→ Anzeigenamen)
   PAYMENT_METHODS = {
     "card"  => "Kreditkarte / Debitkarte",
     "twint" => "TWINT"

@@ -1,8 +1,8 @@
 namespace :payments do
-  desc "Gleicht ausstehende Stripe-Zahlungen ab (für Cronjob-Nutzung)"
+  desc "Gleicht ausstehende SumUp-Zahlungen ab (für Cronjob-Nutzung)"
   task sync_pending: :environment do
-    unless StripeConfig.configured?
-      puts "Stripe nicht konfiguriert – Abgleich übersprungen."
+    unless SumupConfig.configured?
+      puts "SumUp nicht konfiguriert – Abgleich übersprungen."
       next
     end
 

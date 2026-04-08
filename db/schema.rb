@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_08_185402) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_08_212505) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -68,14 +68,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_185402) do
     t.boolean "payment_cleared"
     t.integer "payment_reminder_count", default: 0, null: false
     t.string "status"
-    t.string "stripe_payment_intent_id"
-    t.string "stripe_session_id"
+    t.string "sumup_checkout_id"
+    t.string "sumup_transaction_id"
     t.bigint "training_session_id"
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_course_registrations_on_course_id"
     t.index ["participant_id"], name: "index_course_registrations_on_participant_id"
-    t.index ["stripe_payment_intent_id"], name: "index_course_registrations_on_stripe_payment_intent_id"
-    t.index ["stripe_session_id"], name: "index_course_registrations_on_stripe_session_id"
+    t.index ["sumup_checkout_id"], name: "index_course_registrations_on_sumup_checkout_id"
+    t.index ["sumup_transaction_id"], name: "index_course_registrations_on_sumup_transaction_id"
     t.index ["training_session_id"], name: "index_course_registrations_on_training_session_id"
   end
 
@@ -211,9 +211,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_185402) do
     t.boolean "active", default: false, null: false
     t.datetime "created_at", null: false
     t.string "currency", default: "chf"
-    t.string "stripe_publishable_key"
-    t.text "stripe_secret_key_encrypted"
-    t.text "stripe_webhook_secret_encrypted"
+    t.text "sumup_access_token_encrypted"
+    t.string "sumup_api_key"
+    t.string "sumup_merchant_code"
     t.datetime "updated_at", null: false
   end
 
