@@ -81,8 +81,8 @@ class ParticipantsController < ApplicationController
 
   def participant_params
     allowed = [ :first_name, :last_name, :phone_number, :ahv_number, :date_of_birth, :gender,
-                :street, :house_number, :zip_code, :city, :country, :nationality, :mother_tongue, :js_person_number ]
-    allowed << :user_id if current_user.admin?
+                :street, :house_number, :zip_code, :city, :country, :nationality, :mother_tongue ]
+    allowed += [ :js_person_number, :user_id ] if current_user.admin?
     params.expect(participant: allowed)
   end
 end
