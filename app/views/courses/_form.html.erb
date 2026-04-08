@@ -216,7 +216,16 @@
                   class: "h-5 w-5 mt-0.5 text-amber-600 rounded border-gray-300 focus:ring-amber-500 cursor-pointer" %>
             <div>
               <%= form.label :"requires_#{field}", label, class: "text-sm font-bold text-gray-800 cursor-pointer block" %>
-              <% hints = { ahv_number: "Wird für die Meldung ans Amt für Sport benötigt." } %>
+              <% hints = {
+                   ahv_number:       "Wird für die Meldung ans Amt für Sport benötigt.",
+                   js_person_number: "Wird für die BASPO J+S Meldung benötigt.",
+                   nationality:      "Wird für die BASPO J+S Meldung benötigt.",
+                   mother_tongue:    "Wird für die BASPO J+S Meldung benötigt.",
+                   zip_code:         "Wird für die BASPO J+S Meldung benötigt.",
+                   city:             "Wird für die BASPO J+S Meldung benötigt.",
+                   country:          "Wird für die BASPO J+S Meldung benötigt.",
+                   street:           "Wird für die BASPO J+S Meldung benötigt."
+                 } %>
               <p class="text-xs text-gray-500 mt-0.5"><%= hints[field] %></p>
             </div>
           </div>

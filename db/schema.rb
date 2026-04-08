@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_08_185000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_08_185402) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -106,6 +106,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_185000) do
     t.string "registration_mode"
     t.string "registration_type"
     t.boolean "requires_ahv_number", default: false, null: false
+    t.boolean "requires_city", default: false, null: false
+    t.boolean "requires_country", default: false, null: false
+    t.boolean "requires_js_person_number", default: false, null: false
+    t.boolean "requires_mother_tongue", default: false, null: false
+    t.boolean "requires_nationality", default: false, null: false
+    t.boolean "requires_street", default: false, null: false
+    t.boolean "requires_zip_code", default: false, null: false
     t.datetime "start_date"
     t.string "title"
     t.datetime "updated_at", null: false

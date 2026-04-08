@@ -21,7 +21,14 @@ class Course < ApplicationRecord
 
   # Konfigurierbare Pflichtfelder: Symbol → Anzeigename
   CONFIGURABLE_REQUIRED_FIELDS = {
-    ahv_number: "AHV-Nummer"
+    ahv_number:       "AHV-Nummer",
+    js_person_number: "J+S Personennummer",
+    nationality:      "Nationalität",
+    mother_tongue:    "Muttersprache",
+    zip_code:         "PLZ",
+    city:             "Ort",
+    country:          "Land",
+    street:           "Strasse"
   }.freeze
 
   # Gibt die Symbole der Pflichtfelder zurück, die für diesen Kurs aktiviert sind
