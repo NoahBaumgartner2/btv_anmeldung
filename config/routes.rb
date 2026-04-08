@@ -43,12 +43,12 @@ Rails.application.routes.draw do
     end
   end
 
-  # Stripe payments
+  # SumUp payments
   get  '/registrations/:id/checkout_preview', to: 'payments#checkout_preview', as: 'checkout_preview_registration'
   get  '/registrations/:id/checkout',         to: 'payments#checkout',         as: 'checkout_registration'
   get  '/payments/success',                   to: 'payments#success',          as: 'payments_success'
   get  '/payments/cancel',                    to: 'payments#cancel',           as: 'payments_cancel'
-  post '/webhooks/stripe',                    to: 'stripe_webhooks#create'
+  post '/webhooks/sumup',                     to: 'sumup_webhooks#create'
 
   resources :training_sessions do
     member do
