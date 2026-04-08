@@ -5,7 +5,7 @@
     <%= link_to "← Zahlungseinstellungen", admin_payment_setting_path,
           class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
     <h1 class="text-3xl font-extrabold text-gray-900 mt-2">Zahlungseinstellungen bearbeiten</h1>
-    <p class="text-gray-500 mt-1 text-sm">Stripe API-Keys und Konfiguration für Online-Zahlungen.</p>
+    <p class="text-gray-500 mt-1 text-sm">SumUp API-Zugangsdaten und Konfiguration für Online-Zahlungen.</p>
   </div>
 
   <%= form_with model: @payment_setting,
@@ -27,7 +27,7 @@
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm font-bold text-gray-800">Stripe aktiv</p>
+          <p class="text-sm font-bold text-gray-800">SumUp aktiv</p>
           <p class="text-xs text-gray-500 mt-0.5">
             Aktiviert Online-Zahlungen für alle kostenpflichtigen Kurse.
           </p>
@@ -45,34 +45,34 @@
       </div>
     </div>
 
-    <%# ── API-Keys ────────────────────────────────────────────────────────── %>
+    <%# ── SumUp API-Zugangsdaten ─────────────────────────────────────────── %>
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6 space-y-5">
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-3">
-        Stripe API-Keys
+        SumUp API-Zugangsdaten
       </p>
 
-      <%# Publishable Key (öffentlich, kein Toggle) %>
+      <%# API Key (öffentlich, sichtbar) %>
       <div>
-        <%= f.label :stripe_publishable_key, "Publishable Key", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <p class="text-xs text-gray-400 mb-1.5">Beginnt mit <code class="bg-gray-100 px-1 rounded">pk_live_</code> oder <code class="bg-gray-100 px-1 rounded">pk_test_</code></p>
-        <%= f.text_field :stripe_publishable_key,
-              placeholder: "pk_live_...",
+        <%= f.label :sumup_api_key, "API Key", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <p class="text-xs text-gray-400 mb-1.5">Beginnt mit <code class="bg-gray-100 px-1 rounded">sup_sk_</code></p>
+        <%= f.text_field :sumup_api_key,
+              placeholder: "sup_sk_...",
               autocomplete: "off",
               class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
 
-      <%# Secret Key (verschlüsselt) %>
+      <%# Access Token (verschlüsselt) %>
       <div>
-        <%= f.label :stripe_secret_key, "Secret Key", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= f.label :sumup_access_token, "Access Token", class: "block text-sm font-medium text-gray-700 mb-1" %>
         <p class="text-xs text-gray-400 mb-1.5">
-          Leer lassen, um den gespeicherten Key beizubehalten.
-          <% if @payment_setting.stripe_secret_key_present? %>
+          OAuth-Access-Token für API-Aufrufe. Leer lassen, um den gespeicherten Token beizubehalten.
+          <% if @payment_setting.sumup_access_token_present? %>
             <span class="text-green-600 font-semibold">· Aktuell gesetzt</span>
           <% end %>
         </p>
         <div class="relative">
-          <%= f.password_field :stripe_secret_key,
-                placeholder: "sk_live_...",
+          <%= f.password_field :sumup_access_token,
+                placeholder: "••••••••••••••••••••••••",
                 autocomplete: "new-password",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 js-pw-field" %>
           <button type="button"
@@ -89,33 +89,14 @@
         </div>
       </div>
 
-      <%# Webhook Secret (verschlüsselt) %>
+      <%# Merchant Code (sichtbar) %>
       <div>
-        <%= f.label :stripe_webhook_secret, "Webhook Secret", class: "block text-sm font-medium text-gray-700 mb-1" %>
-        <p class="text-xs text-gray-400 mb-1.5">
-          Aus dem Stripe-Dashboard unter Webhooks. Beginnt mit <code class="bg-gray-100 px-1 rounded">whsec_</code>.
-          Leer lassen, um den gespeicherten Wert beizubehalten.
-          <% if @payment_setting.stripe_webhook_secret_present? %>
-            <span class="text-green-600 font-semibold">· Aktuell gesetzt</span>
-          <% end %>
-        </p>
-        <div class="relative">
-          <%= f.password_field :stripe_webhook_secret,
-                placeholder: "whsec_...",
-                autocomplete: "new-password",
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 js-pw-field" %>
-          <button type="button"
-                  class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600 js-pw-toggle"
-                  tabindex="-1">
-            <svg class="h-4 w-4 js-eye-show" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            <svg class="h-4 w-4 js-eye-hide hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
-            </svg>
-          </button>
-        </div>
+        <%= f.label :sumup_merchant_code, "Merchant Code", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <p class="text-xs text-gray-400 mb-1.5">Eindeutige Händler-ID aus dem SumUp-Dashboard (z.B. <code class="bg-gray-100 px-1 rounded">MXXXXXXXX</code>).</p>
+        <%= f.text_field :sumup_merchant_code,
+              placeholder: "MXXXXXXXX",
+              autocomplete: "off",
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
 
@@ -138,10 +119,9 @@
     <div class="rounded-xl border border-gray-200 bg-gray-50 px-5 py-4 mb-6 text-xs text-gray-500">
       <p class="font-semibold text-gray-600 mb-1">ENV-Fallback</p>
       Falls keine DB-Einstellungen gespeichert sind, werden
-      <code class="bg-gray-200 rounded px-1">STRIPE_SECRET_KEY</code>,
-      <code class="bg-gray-200 rounded px-1">STRIPE_PUBLISHABLE_KEY</code>,
-      <code class="bg-gray-200 rounded px-1">STRIPE_WEBHOOK_SECRET</code> und
-      <code class="bg-gray-200 rounded px-1">STRIPE_CURRENCY</code> verwendet.
+      <code class="bg-gray-200 rounded px-1">SUMUP_ACCESS_TOKEN</code>,
+      <code class="bg-gray-200 rounded px-1">SUMUP_MERCHANT_CODE</code> und
+      <code class="bg-gray-200 rounded px-1">SUMUP_CURRENCY</code> verwendet.
     </div>
 
     <div class="flex gap-3">
