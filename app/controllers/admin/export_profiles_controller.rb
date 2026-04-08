@@ -64,6 +64,15 @@ module Admin
                               "csv" ]
                           end
         filename = "#{@export_profile.name.parameterize}-anwesenheit-#{Date.today.iso8601}.#{ext}"
+      elsif @export_profile.export_type == "baspo_awk"
+        unless course
+          redirect_to admin_export_profiles_path, alert: "Kein Kurs zugewiesen – Download nicht möglich."
+          return
+        end
+        date_range = @export_profile.effective_date_range
+        data       = @export_profile.generate_baspo_awk_csv(course, date_range)
+        mime       = "text/csv; charset=utf-8-bom"
+        filename   = "#{@export_profile.name.parameterize}-awk-#{Date.today.iso8601}.csv"
       elsif @export_profile.export_type == "baspo_personenimport"
         participants = if course
                         course.participants.includes(:user, :courses)

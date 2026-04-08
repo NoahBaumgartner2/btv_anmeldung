@@ -9,6 +9,7 @@ export default class extends Controller {
     "teilnehmerSection",
     "anwesenheitSection",
     "baspoSection",
+    "baspoAwkSection",
     "formatSection",
     "csvSection",
     "dateCustomSection"
@@ -23,7 +24,7 @@ export default class extends Controller {
   toggleExportType() {
     const checked = this.element.querySelector('input[name="export_profile[export_type]"]:checked')
     const type = checked?.value
-    const isBaspo = type === "baspo_personenimport"
+    const hideFormat = type === "baspo_personenimport" || type === "baspo_awk"
 
     this.teilnehmerSectionTargets.forEach(el =>
       el.classList.toggle("hidden", type !== "teilnehmerliste")
@@ -32,10 +33,13 @@ export default class extends Controller {
       el.classList.toggle("hidden", type !== "anwesenheitsliste")
     )
     this.baspoSectionTargets.forEach(el =>
-      el.classList.toggle("hidden", !isBaspo)
+      el.classList.toggle("hidden", type !== "baspo_personenimport")
+    )
+    this.baspoAwkSectionTargets.forEach(el =>
+      el.classList.toggle("hidden", type !== "baspo_awk")
     )
     this.formatSectionTargets.forEach(el =>
-      el.classList.toggle("hidden", isBaspo)
+      el.classList.toggle("hidden", hideFormat)
     )
   }
 

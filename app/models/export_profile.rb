@@ -6,9 +6,10 @@ class ExportProfile < ApplicationRecord
   # ── Konstanten ──────────────────────────────────────────────────────────────
 
   EXPORT_TYPES = {
-    "teilnehmerliste"     => "Teilnehmerliste",
-    "anwesenheitsliste"   => "Anwesenheitsliste",
-    "baspo_personenimport" => "BASPO Personenimport (J+S)"
+    "teilnehmerliste"      => "Teilnehmerliste",
+    "anwesenheitsliste"    => "Anwesenheitsliste",
+    "baspo_personenimport" => "BASPO Personenimport (J+S)",
+    "baspo_awk"            => "BASPO Anwesenheitskontrolle (AWK)"
   }.freeze
 
   SCHEDULES = {
@@ -98,8 +99,8 @@ class ExportProfile < ApplicationRecord
 
   validate :at_least_one_field, if: -> { export_type == "teilnehmerliste" }
   validates :course_id,
-            presence: { message: "ist für Anwesenheitslisten erforderlich" },
-            if: -> { export_type == "anwesenheitsliste" }
+            presence: { message: "ist für diesen Export-Typ erforderlich" },
+            if: -> { %w[anwesenheitsliste baspo_awk].include?(export_type) }
 
   validates :recipient_email,
             format: { with: URI::MailTo::EMAIL_REGEXP },
@@ -390,6 +391,67 @@ class ExportProfile < ApplicationRecord
     bom + csv
   end
 
+  # ── BASPO Anwesenheitskontrolle (AWK) CSV ───────────────────────────────────
+
+  BASPO_AWK_HEADERS  = %w[PERSONENNUMMER FUNKTION DATUM AKTIVITAETSTYP ZEIT DAUER ORT].freeze
+  BASPO_AWK_DURATIONS = [ 45, 60, 75, 90, 120, 150, 180, 210, 240, 270, 300 ].freeze
+
+  def generate_baspo_awk_csv(course, date_range)
+    bom      = "\xEF\xBB\xBF"
+    sessions = course.training_sessions
+                     .where(is_canceled: false)
+                     .where(start_time: date_range.first.beginning_of_day..date_range.last.end_of_day)
+                     .order(:start_time)
+                     .includes(:attendances)
+                     .to_a
+
+    registrations = course.course_registrations
+                          .where(status: "bestätigt")
+                          .includes(:participant, :attendances)
+                          .to_a
+
+    trainers = course.trainers.includes(:user).to_a
+
+    csv = CSV.generate(col_sep: ";", row_sep: "\r\n", headers: BASPO_AWK_HEADERS, write_headers: true) do |csv|
+      sessions.each do |session|
+        datum     = session.start_time.strftime("%d.%m.%Y")
+        zeit      = session.start_time.strftime("%H:%M")
+        dauer     = baspo_awk_duration(session)
+        ort       = course.location.to_s
+        att_map   = session.attendances.index_by(&:course_registration_id)
+
+        # Teilnehmer: nur wenn anwesend
+        registrations.each do |reg|
+          next unless att_map[reg.id]&.status == "anwesend"
+          csv << [
+            reg.participant.js_person_number,
+            "Teilnehmer/in",
+            datum,
+            "Training",
+            zeit,
+            dauer,
+            ort
+          ]
+        end
+
+        # Trainer: für jede nicht-abgesagte Session
+        # Hinweis: Trainer haben noch kein js_person_number-Feld – bleibt vorerst leer
+        trainers.each do |trainer|
+          csv << [
+            nil,
+            "Leiter/in",
+            datum,
+            "Training",
+            zeit,
+            dauer,
+            ort
+          ]
+        end
+      end
+    end
+    bom + csv
+  end
+
   # ── Zentrale Dispatch-Methode ────────────────────────────────────────────────
 
   def generate_export(participants_or_course, date_range = nil)
@@ -402,6 +464,9 @@ class ExportProfile < ApplicationRecord
       end
     elsif export_type == "baspo_personenimport"
       generate_baspo_person_csv(participants_or_course)
+    elsif export_type == "baspo_awk"
+      dr = date_range || effective_date_range
+      generate_baspo_awk_csv(participants_or_course, dr)
     else
       generate_csv(participants_or_course)
     end
@@ -413,6 +478,12 @@ class ExportProfile < ApplicationRecord
 
   def at_least_one_field
     errors.add(:fields, "mindestens ein Feld muss ausgewählt sein") if fields.reject(&:blank?).empty?
+  end
+
+  def baspo_awk_duration(session)
+    return nil unless session.start_time && session.end_time
+    minutes = ((session.end_time - session.start_time) / 60).round
+    BASPO_AWK_DURATIONS.min_by { |d| (d - minutes).abs }
   end
 
   def sessions_for_course(course, date_range)
