@@ -66,7 +66,7 @@
         </p>
       </div>
       <button type="button"
-              onclick="deleteModalReset(); document.getElementById('delete-modal').classList.remove('hidden');"
+              id="open-delete-modal"
               class="shrink-0 inline-flex items-center gap-2 bg-white border border-red-300 hover:bg-red-50 text-red-600 font-bold py-2.5 px-5 rounded-xl text-sm transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
@@ -80,9 +80,8 @@
 
 <%# ── Lösch-Modal (3-stufig) ──────────────────────────────────────────────── %>
 <div id="delete-modal"
-     class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4"
-     onclick="if(event.target===this)deleteModalClose()">
-  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8" onclick="event.stopPropagation()">
+     class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4">
+  <div id="delete-modal-content" class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
 
     <%# ── Schritt-Indikator ──────────────────────────────────────────────── %>
     <div class="flex items-center gap-2 mb-6">
@@ -117,8 +116,7 @@
             <input type="radio"
                    name="delete_reason_choice"
                    value="<%= value %>"
-                   class="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-400 cursor-pointer"
-                   onchange="deleteModalReasonChanged(this)">
+                   class="delete-reason-radio w-4 h-4 text-red-600 border-gray-300 focus:ring-red-400 cursor-pointer">
             <span class="text-sm text-gray-700 group-hover:text-gray-900"><%= label %></span>
           </label>
         <% end %>
@@ -138,12 +136,11 @@
         <button type="button"
                 id="step1-next"
                 disabled
-                onclick="deleteModalGoTo(2)"
                 class="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl text-sm transition">
           Weiter
         </button>
         <button type="button"
-                onclick="deleteModalClose()"
+                data-action="close-modal"
                 class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition">
           Abbrechen
         </button>
@@ -151,7 +148,7 @@
     </div>
 
     <%# ══════════════════════════════════════════════════════════════════════ %>
-    <%# SCHRITT 2 – Was geht verloren                                          %>
+    <%# SCHRITT 2 – Was geht verloren %>
     <%# ══════════════════════════════════════════════════════════════════════ %>
     <div id="delete-step-2" class="hidden">
       <div class="mb-5">
@@ -179,12 +176,12 @@
 
       <div class="flex gap-3">
         <button type="button"
-                onclick="deleteModalGoTo(3)"
+                id="step2-next"
                 class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition">
           Trotzdem löschen
         </button>
         <button type="button"
-                onclick="deleteModalClose()"
+                data-action="close-modal"
                 class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition">
           Konto behalten
         </button>
@@ -192,7 +189,7 @@
     </div>
 
     <%# ══════════════════════════════════════════════════════════════════════ %>
-    <%# SCHRITT 3 – Passwort-Bestätigung                                       %>
+    <%# SCHRITT 3 – Passwort-Bestätigung %>
     <%# ══════════════════════════════════════════════════════════════════════ %>
     <div id="delete-step-3" class="hidden">
       <div class="flex items-center gap-3 mb-5">
@@ -224,7 +221,7 @@
           <%= f.submit "Konto unwiderruflich löschen",
                 class: "flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer shadow-sm" %>
           <button type="button"
-                  onclick="deleteModalClose()"
+                  data-action="close-modal"
                   class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition">
             Abbrechen
           </button>
@@ -236,49 +233,77 @@
 </div>
 
 <script nonce="<%= request.content_security_policy_nonce %>">
-  function deleteModalGoTo(step) {
-    [1, 2, 3].forEach(function(n) {
-      document.getElementById('delete-step-' + n).classList.toggle('hidden', n !== step);
+  (function() {
+    var modal   = document.getElementById('delete-modal');
+    var content = document.getElementById('delete-modal-content');
 
-      var dot = document.getElementById('step-dot-' + n);
-      if (n === step) {
-        dot.classList.remove('w-2', 'bg-gray-200');
-        dot.classList.add('w-6', 'bg-red-500');
-      } else if (n < step) {
-        dot.classList.remove('w-2', 'bg-gray-200', 'w-6', 'bg-red-500');
-        dot.classList.add('w-2', 'bg-red-300');
-      } else {
-        dot.classList.remove('w-6', 'bg-red-500', 'bg-red-300');
-        dot.classList.add('w-2', 'bg-gray-200');
+    function goTo(step) {
+      [1, 2, 3].forEach(function(n) {
+        document.getElementById('delete-step-' + n).classList.toggle('hidden', n !== step);
+        var dot = document.getElementById('step-dot-' + n);
+        if (n === step) {
+          dot.classList.remove('w-2', 'bg-gray-200');
+          dot.classList.add('w-6', 'bg-red-500');
+        } else if (n < step) {
+          dot.classList.remove('w-2', 'bg-gray-200', 'w-6', 'bg-red-500');
+          dot.classList.add('w-2', 'bg-red-300');
+        } else {
+          dot.classList.remove('w-6', 'bg-red-500', 'bg-red-300');
+          dot.classList.add('w-2', 'bg-gray-200');
+        }
+      });
+      document.getElementById('step-label').textContent = 'Schritt ' + step + ' von 3';
+
+      if (step === 3) {
+        var reason     = document.querySelector('input[name="delete_reason_choice"]:checked');
+        var reasonText = document.getElementById('delete-reason-text');
+        document.getElementById('hidden-delete-reason').value      = reason ? reason.value : '';
+        document.getElementById('hidden-delete-reason-text').value = reasonText ? reasonText.value : '';
       }
+    }
+
+    function reset() {
+      document.querySelectorAll('input[name="delete_reason_choice"]').forEach(function(r) { r.checked = false; });
+      document.getElementById('delete-reason-text').value = '';
+      document.getElementById('other-text-wrapper').classList.add('hidden');
+      document.getElementById('step1-next').disabled = true;
+      goTo(1);
+    }
+
+    function close() {
+      modal.classList.add('hidden');
+      reset();
+    }
+
+    // Öffnen
+    document.getElementById('open-delete-modal').addEventListener('click', function() {
+      reset();
+      modal.classList.remove('hidden');
     });
 
-    document.getElementById('step-label').textContent = 'Schritt ' + step + ' von 3';
+    // Backdrop-Klick schliesst Modal
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) close();
+    });
+    content.addEventListener('click', function(e) { e.stopPropagation(); });
 
-    if (step === 3) {
-      var reason     = document.querySelector('input[name="delete_reason_choice"]:checked');
-      var reasonText = document.getElementById('delete-reason-text');
-      document.getElementById('hidden-delete-reason').value      = reason ? reason.value : '';
-      document.getElementById('hidden-delete-reason-text').value = reasonText ? reasonText.value : '';
-    }
-  }
+    // Alle "Abbrechen"/"Konto behalten" Buttons
+    document.querySelectorAll('[data-action="close-modal"]').forEach(function(btn) {
+      btn.addEventListener('click', close);
+    });
 
-  function deleteModalClose() {
-    document.getElementById('delete-modal').classList.add('hidden');
-    deleteModalReset();
-  }
+    // Schritt 1 → 2
+    document.getElementById('step1-next').addEventListener('click', function() { goTo(2); });
 
-  function deleteModalReset() {
-    document.querySelectorAll('input[name="delete_reason_choice"]').forEach(function(r) { r.checked = false; });
-    document.getElementById('delete-reason-text').value = '';
-    document.getElementById('other-text-wrapper').classList.add('hidden');
-    document.getElementById('step1-next').disabled = true;
-    deleteModalGoTo(1);
-  }
+    // Schritt 2 → 3
+    document.getElementById('step2-next').addEventListener('click', function() { goTo(3); });
 
-  function deleteModalReasonChanged(radio) {
-    document.getElementById('step1-next').disabled = false;
-    document.getElementById('other-text-wrapper').classList.toggle('hidden', radio.value !== 'other');
-  }
-
+    // Radio-Buttons (Grund-Auswahl)
+    document.querySelectorAll('.delete-reason-radio').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        document.getElementById('step1-next').disabled = false;
+        document.getElementById('other-text-wrapper').classList.toggle('hidden', this.value !== 'other');
+      });
+    });
+  })();
 </script>

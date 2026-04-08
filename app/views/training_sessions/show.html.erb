@@ -67,8 +67,7 @@
     <div class="mb-6">
       <%# Trigger-Button %>
       <button type="button"
-              data-panel="cancel-panel"
-              onclick="document.getElementById(this.dataset.panel).classList.remove('hidden'); this.classList.add('hidden');"
+              id="cancel-trigger"
               class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg transition shadow-sm cursor-pointer">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -92,12 +91,30 @@
             Ja, Training absagen
           <% end %>
           <button type="button"
-                  onclick="document.getElementById('cancel-panel').classList.add('hidden'); document.querySelector('[data-panel=cancel-panel]').classList.remove('hidden');"
+                  id="cancel-abort"
                   class="text-sm font-semibold text-gray-600 hover:text-gray-900 transition cursor-pointer">
             Abbrechen
           </button>
         </div>
       </div>
+
+      <script nonce="<%= request.content_security_policy_nonce %>">
+        (function() {
+          var trigger = document.getElementById('cancel-trigger');
+          var panel   = document.getElementById('cancel-panel');
+          var abort   = document.getElementById('cancel-abort');
+
+          trigger.addEventListener('click', function() {
+            panel.classList.remove('hidden');
+            trigger.classList.add('hidden');
+          });
+
+          abort.addEventListener('click', function() {
+            panel.classList.add('hidden');
+            trigger.classList.remove('hidden');
+          });
+        })();
+      </script>
     </div>
   <% end %>
 
