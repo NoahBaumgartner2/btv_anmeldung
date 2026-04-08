@@ -1,13 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
 
 // Steuert die dynamische Formular-Logik für Exportprofile:
-// – Blendet Sektionen je nach export_type (Teilnehmerliste / Anwesenheitsliste) ein/aus
+// – Blendet Sektionen je nach export_type (Teilnehmerliste / Anwesenheitsliste / BASPO) ein/aus
 // – Blendet CSV-Optionen je nach gewähltem Format ein/aus
 // – Blendet Datumsfelder je nach Zeitraum-Typ ein/aus
 export default class extends Controller {
   static targets = [
     "teilnehmerSection",
     "anwesenheitSection",
+    "baspoSection",
+    "formatSection",
     "csvSection",
     "dateCustomSection"
   ]
@@ -21,12 +23,19 @@ export default class extends Controller {
   toggleExportType() {
     const checked = this.element.querySelector('input[name="export_profile[export_type]"]:checked')
     const type = checked?.value
+    const isBaspo = type === "baspo_personenimport"
 
     this.teilnehmerSectionTargets.forEach(el =>
       el.classList.toggle("hidden", type !== "teilnehmerliste")
     )
     this.anwesenheitSectionTargets.forEach(el =>
       el.classList.toggle("hidden", type !== "anwesenheitsliste")
+    )
+    this.baspoSectionTargets.forEach(el =>
+      el.classList.toggle("hidden", !isBaspo)
+    )
+    this.formatSectionTargets.forEach(el =>
+      el.classList.toggle("hidden", isBaspo)
     )
   }
 

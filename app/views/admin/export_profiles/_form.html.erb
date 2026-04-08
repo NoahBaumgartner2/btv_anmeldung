@@ -113,6 +113,38 @@
   </div>
 
   <%# ══════════════════════════════════════════════════════════════════════════
+      2c. BASPO PERSONENIMPORT (nur BASPO-Typ)
+  ══════════════════════════════════════════════════════════════════════════ %>
+  <div data-export-type-target="baspoSection"
+       class="bg-blue-50 rounded-xl border border-blue-200 overflow-hidden
+              <%= export_profile.export_type == 'baspo_personenimport' ? '' : 'hidden' %>">
+    <div class="px-5 py-3 border-b border-blue-200 bg-blue-100">
+      <p class="text-xs font-bold text-blue-700 uppercase tracking-wider">2 · BASPO-Format</p>
+    </div>
+    <div class="px-5 py-5">
+      <div class="flex gap-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div class="text-sm text-blue-800">
+          <p class="font-semibold mb-1">Das BASPO-Format ist fix definiert.</p>
+          <p class="text-blue-700">Die CSV enthält automatisch alle 14 Pflichtfelder im korrekten Format:</p>
+          <p class="mt-2 font-mono text-xs text-blue-600 bg-blue-100 px-3 py-2 rounded-lg leading-relaxed">
+            PERSONENNUMMER · NAME · VORNAME · GEBURTSDATUM · GESCHLECHT · AHV_NR · PEID ·
+            NATIONALITAET · MUTTERSPRACHE · STRASSE · HAUSNUMMER · PLZ · ORT · LAND
+          </p>
+          <ul class="mt-3 text-xs text-blue-700 space-y-1 list-disc ml-4">
+            <li>Trennzeichen: Semikolon, UTF-8 mit BOM (Excel-kompatibel)</li>
+            <li>Geschlecht: m / w</li>
+            <li>Geburtsdatum: DD.MM.YYYY</li>
+            <li>PEID bleibt leer (wird von BASPO vergeben)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# ══════════════════════════════════════════════════════════════════════════
       2b. ANWESENHEITS-KONFIGURATION (nur Anwesenheitsliste)
   ══════════════════════════════════════════════════════════════════════════ %>
   <div data-export-type-target="anwesenheitSection"
@@ -269,7 +301,9 @@
   <%# ══════════════════════════════════════════════════════════════════════════
       3. FORMAT-EINSTELLUNGEN
   ══════════════════════════════════════════════════════════════════════════ %>
-  <div class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+  <div data-export-type-target="formatSection"
+       class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden
+              <%= export_profile.export_type == 'baspo_personenimport' ? 'hidden' : '' %>">
     <div class="px-5 py-3 border-b border-gray-200 bg-white">
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">3 · Format</p>
     </div>

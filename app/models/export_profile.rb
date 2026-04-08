@@ -6,8 +6,9 @@ class ExportProfile < ApplicationRecord
   # ── Konstanten ──────────────────────────────────────────────────────────────
 
   EXPORT_TYPES = {
-    "teilnehmerliste"  => "Teilnehmerliste",
-    "anwesenheitsliste" => "Anwesenheitsliste"
+    "teilnehmerliste"     => "Teilnehmerliste",
+    "anwesenheitsliste"   => "Anwesenheitsliste",
+    "baspo_personenimport" => "BASPO Personenimport (J+S)"
   }.freeze
 
   SCHEDULES = {
@@ -36,14 +37,22 @@ class ExportProfile < ApplicationRecord
   }.freeze
 
   AVAILABLE_FIELDS = {
-    "last_name"     => "Nachname",
-    "first_name"    => "Vorname",
-    "date_of_birth" => "Geburtsdatum",
-    "user_email"    => "E-Mail",
-    "phone_number"  => "Telefon",
-    "gender"        => "Geschlecht",
-    "ahv_number"    => "AHV-Nummer",
-    "courses"       => "Eingeschriebene Kurse"
+    "last_name"        => "Nachname",
+    "first_name"       => "Vorname",
+    "date_of_birth"    => "Geburtsdatum",
+    "user_email"       => "E-Mail",
+    "phone_number"     => "Telefon",
+    "gender"           => "Geschlecht",
+    "ahv_number"       => "AHV-Nummer",
+    "js_person_number" => "J+S Personennummer",
+    "nationality"      => "Nationalität",
+    "mother_tongue"    => "Muttersprache",
+    "street"           => "Strasse",
+    "house_number"     => "Hausnummer",
+    "zip_code"         => "PLZ",
+    "city"             => "Ort",
+    "country"          => "Land",
+    "courses"          => "Eingeschriebene Kurse"
   }.freeze
 
   DATE_RANGE_TYPES = {
@@ -347,6 +356,40 @@ class ExportProfile < ApplicationRecord
     pdf.render
   end
 
+  # ── BASPO Personenimport CSV ────────────────────────────────────────────────
+
+  BASPO_HEADERS = %w[
+    PERSONENNUMMER NAME VORNAME GEBURTSDATUM GESCHLECHT AHV_NR PEID
+    NATIONALITAET MUTTERSPRACHE STRASSE HAUSNUMMER PLZ ORT LAND
+  ].freeze
+
+  GENDER_MAP = { "männlich" => "m", "weiblich" => "w" }.freeze
+
+  def generate_baspo_person_csv(participants)
+    bom = "\xEF\xBB\xBF"
+    csv = CSV.generate(col_sep: ";", row_sep: "\r\n", headers: BASPO_HEADERS, write_headers: true) do |csv|
+      participants.each do |p|
+        csv << [
+          p.js_person_number,
+          p.last_name,
+          p.first_name,
+          p.date_of_birth&.strftime("%d.%m.%Y"),
+          GENDER_MAP[p.gender] || p.gender,
+          p.ahv_number,
+          nil,
+          p.nationality,
+          p.mother_tongue,
+          p.street,
+          p.house_number,
+          p.zip_code,
+          p.city,
+          p.country
+        ]
+      end
+    end
+    bom + csv
+  end
+
   # ── Zentrale Dispatch-Methode ────────────────────────────────────────────────
 
   def generate_export(participants_or_course, date_range = nil)
@@ -357,6 +400,8 @@ class ExportProfile < ApplicationRecord
       when "pdf"  then generate_attendance_pdf(participants_or_course, dr)
       else             generate_attendance_csv(participants_or_course, dr)
       end
+    elsif export_type == "baspo_personenimport"
+      generate_baspo_person_csv(participants_or_course)
     else
       generate_csv(participants_or_course)
     end
