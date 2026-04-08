@@ -41,8 +41,10 @@
     }
     </script>
     <script type="module" nonce="<%= content_security_policy_nonce %>">
-      import "@hotwired/turbo"
+      import { Turbo } from "@hotwired/turbo"
       import "controllers"
+
+      Turbo.setConfirmMethod((message) => Promise.resolve(window.confirm(message)))
     </script>
   </head>
 
