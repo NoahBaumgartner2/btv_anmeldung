@@ -78,53 +78,218 @@
 
 </div>
 
-<%# ── Lösch-Modal ────────────────────────────────────────────────────────── %>
+<%# ── Lösch-Modal (3-stufig) ──────────────────────────────────────────────── %>
 <div id="delete-modal"
      class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4"
-     onclick="if(event.target===this)this.classList.add('hidden')">
+     onclick="if(event.target===this)deleteModalClose()">
   <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8" onclick="event.stopPropagation()">
 
-    <div class="flex items-center gap-3 mb-5">
-      <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
-        <svg class="w-5 h-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-        </svg>
-      </div>
-      <div>
-        <h2 class="text-lg font-bold text-gray-900">Konto wirklich löschen?</h2>
-        <p class="text-xs text-gray-500">Diese Aktion ist unwiderruflich.</p>
-      </div>
+    <%# ── Schritt-Indikator ──────────────────────────────────────────────── %>
+    <div class="flex items-center gap-2 mb-6">
+      <% [1, 2, 3].each do |n| %>
+        <div id="step-dot-<%= n %>"
+             class="h-2 rounded-full transition-all duration-300 <%= n == 1 ? 'w-6 bg-red-500' : 'w-2 bg-gray-200' %>">
+        </div>
+      <% end %>
+      <span id="step-label" class="ml-auto text-xs text-gray-400 font-medium">Schritt 1 von 3</span>
     </div>
 
-    <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-6 text-xs text-red-700 leading-relaxed">
-      <strong class="block mb-1">Folgende Daten werden dauerhaft gelöscht:</strong>
-      <ul class="list-disc list-inside space-y-0.5">
-        <li>Dein Konto (<%= current_user.email %>)</li>
-        <li><%= @participants.size %> <%= @participants.size == 1 ? "Teilnehmer" : "Teilnehmer" %> und alle Profildaten</li>
-        <li>Alle Kursanmeldungen und Anwesenheitseinträge</li>
-      </ul>
-    </div>
-
-    <%= form_with url: account_path, method: :delete do |f| %>
+    <%# ══════════════════════════════════════════════════════════════════════ %>
+    <%# SCHRITT 1 – Umfrage                                                   %>
+    <%# ══════════════════════════════════════════════════════════════════════ %>
+    <div id="delete-step-1">
       <div class="mb-5">
-        <%= f.label :password, "Passwort zur Bestätigung eingeben", class: "block text-sm font-medium text-gray-700 mb-1.5" %>
-        <%= f.password_field :password,
-              placeholder: "Dein aktuelles Passwort",
-              required: true,
-              autocomplete: "current-password",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400" %>
+        <h2 class="text-lg font-bold text-gray-900">Bevor du gehst…</h2>
+        <p class="text-xs text-gray-500 mt-0.5">Dein Feedback hilft uns, besser zu werden.</p>
+      </div>
+
+      <p class="text-sm font-medium text-gray-700 mb-3">Warum möchtest du dein Konto löschen?</p>
+
+      <div class="space-y-2.5 mb-6" id="reason-group">
+        <% [
+          ["no_use",      "Ich nutze die Plattform nicht mehr"],
+          ["too_complex", "Die Bedienung ist zu kompliziert"],
+          ["privacy",     "Datenschutzbedenken"],
+          ["competitor",  "Wechsel zu einem anderen Anbieter"],
+          ["other",       "Anderer Grund"]
+        ].each do |value, label| %>
+          <label class="flex items-center gap-3 cursor-pointer group">
+            <input type="radio"
+                   name="delete_reason_choice"
+                   value="<%= value %>"
+                   class="w-4 h-4 text-red-600 border-gray-300 focus:ring-red-400 cursor-pointer"
+                   onchange="deleteModalReasonChanged(this)">
+            <span class="text-sm text-gray-700 group-hover:text-gray-900"><%= label %></span>
+          </label>
+        <% end %>
+      </div>
+
+      <div id="other-text-wrapper" class="hidden mb-6">
+        <label class="block text-xs font-medium text-gray-600 mb-1.5">
+          Kannst du es kurz beschreiben? <span class="text-gray-400">(optional)</span>
+        </label>
+        <textarea id="delete-reason-text"
+                  rows="2"
+                  placeholder="Dein Feedback…"
+                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
       </div>
 
       <div class="flex gap-3">
-        <%= f.submit "Konto unwiderruflich löschen",
-              class: "flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer shadow-sm" %>
         <button type="button"
-                onclick="document.getElementById('delete-modal').classList.add('hidden')"
+                id="step1-next"
+                disabled
+                onclick="deleteModalGoTo(2)"
+                class="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl text-sm transition">
+          Weiter
+        </button>
+        <button type="button"
+                onclick="deleteModalClose()"
                 class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition">
           Abbrechen
         </button>
       </div>
-    <% end %>
+    </div>
+
+    <%# ══════════════════════════════════════════════════════════════════════ %>
+    <%# SCHRITT 2 – Was geht verloren                                          %>
+    <%# ══════════════════════════════════════════════════════════════════════ %>
+    <div id="delete-step-2" class="hidden">
+      <div class="mb-5">
+        <h2 class="text-lg font-bold text-gray-900">Das geht verloren</h2>
+        <p class="text-xs text-gray-500 mt-0.5">Bitte lies dies sorgfältig durch.</p>
+      </div>
+
+      <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4 text-xs text-red-700 leading-relaxed">
+        <strong class="block mb-1">Folgende Daten werden dauerhaft gelöscht:</strong>
+        <ul class="list-disc list-inside space-y-0.5">
+          <li>Dein Konto (<%= current_user.email %>)</li>
+          <li><%= @participants.size %> <%= @participants.size == 1 ? "Teilnehmer" : "Teilnehmer" %> und alle Profildaten</li>
+          <li>Alle Kursanmeldungen und Anwesenheitseinträge</li>
+        </ul>
+      </div>
+
+      <div class="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3 mb-6 text-xs text-blue-800 leading-relaxed flex gap-3">
+        <svg class="w-4 h-4 text-blue-500 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        <span>
+          Deine Daten werden auch für die <strong>NDS-Datenbank</strong> verwendet, um Trainings und Kurse für alle Teilnehmenden besser organisieren zu können. Mit der Löschung deines Kontos gehen auch diese Einträge verloren. Falls du nur eine Pause brauchst, kannst du dein Konto auch einfach behalten – es entstehen dir keine Kosten.
+        </span>
+      </div>
+
+      <div class="flex gap-3">
+        <button type="button"
+                onclick="deleteModalGoTo(3)"
+                class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition">
+          Trotzdem löschen
+        </button>
+        <button type="button"
+                onclick="deleteModalClose()"
+                class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition">
+          Konto behalten
+        </button>
+      </div>
+    </div>
+
+    <%# ══════════════════════════════════════════════════════════════════════ %>
+    <%# SCHRITT 3 – Passwort-Bestätigung                                       %>
+    <%# ══════════════════════════════════════════════════════════════════════ %>
+    <div id="delete-step-3" class="hidden">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="text-lg font-bold text-gray-900">Konto wirklich löschen?</h2>
+          <p class="text-xs text-gray-500">Diese Aktion ist unwiderruflich.</p>
+        </div>
+      </div>
+
+      <%= form_with url: account_path, method: :delete do |f| %>
+        <input type="hidden" name="delete_reason"      id="hidden-delete-reason">
+        <input type="hidden" name="delete_reason_text" id="hidden-delete-reason-text">
+
+        <div class="mb-5">
+          <%= f.label :password, "Passwort zur Bestätigung eingeben", class: "block text-sm font-medium text-gray-700 mb-1.5" %>
+          <%= f.password_field :password,
+                placeholder: "Dein aktuelles Passwort",
+                required: true,
+                autocomplete: "current-password",
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400" %>
+        </div>
+
+        <div class="flex gap-3">
+          <%= f.submit "Konto unwiderruflich löschen",
+                class: "flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer shadow-sm" %>
+          <button type="button"
+                  onclick="deleteModalClose()"
+                  class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition">
+            Abbrechen
+          </button>
+        </div>
+      <% end %>
+    </div>
 
   </div>
 </div>
+
+<script nonce="<%= request.content_security_policy_nonce %>">
+  function deleteModalGoTo(step) {
+    [1, 2, 3].forEach(function(n) {
+      document.getElementById('delete-step-' + n).classList.toggle('hidden', n !== step);
+
+      var dot = document.getElementById('step-dot-' + n);
+      if (n === step) {
+        dot.classList.remove('w-2', 'bg-gray-200');
+        dot.classList.add('w-6', 'bg-red-500');
+      } else if (n < step) {
+        dot.classList.remove('w-2', 'bg-gray-200', 'w-6', 'bg-red-500');
+        dot.classList.add('w-2', 'bg-red-300');
+      } else {
+        dot.classList.remove('w-6', 'bg-red-500', 'bg-red-300');
+        dot.classList.add('w-2', 'bg-gray-200');
+      }
+    });
+
+    document.getElementById('step-label').textContent = 'Schritt ' + step + ' von 3';
+
+    if (step === 3) {
+      var reason     = document.querySelector('input[name="delete_reason_choice"]:checked');
+      var reasonText = document.getElementById('delete-reason-text');
+      document.getElementById('hidden-delete-reason').value      = reason ? reason.value : '';
+      document.getElementById('hidden-delete-reason-text').value = reasonText ? reasonText.value : '';
+    }
+  }
+
+  function deleteModalClose() {
+    document.getElementById('delete-modal').classList.add('hidden');
+    deleteModalReset();
+  }
+
+  function deleteModalReset() {
+    document.querySelectorAll('input[name="delete_reason_choice"]').forEach(function(r) { r.checked = false; });
+    document.getElementById('delete-reason-text').value = '';
+    document.getElementById('other-text-wrapper').classList.add('hidden');
+    document.getElementById('step1-next').disabled = true;
+    deleteModalGoTo(1);
+  }
+
+  function deleteModalReasonChanged(radio) {
+    document.getElementById('step1-next').disabled = false;
+    document.getElementById('other-text-wrapper').classList.toggle('hidden', radio.value !== 'other');
+  }
+
+  // Öffne-Button: Modal öffnen und auf Schritt 1 zurücksetzen
+  document.addEventListener('DOMContentLoaded', function() {
+    var openBtn = document.querySelector('button[onclick*="delete-modal"]');
+    if (openBtn) {
+      openBtn.removeAttribute('onclick');
+      openBtn.addEventListener('click', function() {
+        deleteModalReset();
+        document.getElementById('delete-modal').classList.remove('hidden');
+      });
+    }
+  });
+</script>
