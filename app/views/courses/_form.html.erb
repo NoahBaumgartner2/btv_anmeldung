@@ -203,6 +203,13 @@
           <%= form.check_box :has_ticketing, class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" %>
           <%= form.label :has_ticketing, "Ticketing / QR-Codes für diesen Kurs aktivieren", class: "ml-3 text-sm font-bold text-gray-800 cursor-pointer" %>
         </div>
+        <div>
+          <div class="flex items-center">
+            <%= form.check_box :is_js_training, class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" %>
+            <%= form.label :is_js_training, "Dies ist ein J+S-Training", class: "ml-3 text-sm font-bold text-gray-800 cursor-pointer" %>
+          </div>
+          <p class="text-xs text-gray-500 mt-1 ml-8">Aktiviere diese Option, wenn der Kurs bei Jugend+Sport (BASPO) gemeldet wird.</p>
+        </div>
       </div>
     </div>
 
