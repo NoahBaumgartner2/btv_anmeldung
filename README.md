@@ -92,3 +92,16 @@ TODO
 - 1. Rechtliches & Compliance (höchste Priorität)
 Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung und AGB, die direkt in der App verlinkt sind. Ein Cookie-Consent-Banner fehlt komplett. Bei der Registrierung sollte eine Checkbox für die Zustimmung zu den AGB/Datenschutz vorhanden sein. Dein Devise erlaubt zwar subscribe_to_newsletter, aber ein Newsletter-Opt-in ohne rechtliche Grundlage ist problematisch. Ausserdem solltest du eine Impressum-Seite einbauen — in der Schweiz (UWG) und besonders bei der DSGVO für EU-Kunden ist das Pflicht.
 
+- https://www.kids-sport.ch/
+- trainer separat (von hand)
+- wenn training mehr als 1.5h, dann max 1.5h
+- möglichkeit für rückerstattung wobei admin benachrichtigt wird
+- Teilnehmende 1 bestätigt bei meine kurse unten tabelle aktionen gehen knöpfe nicht vielleicht hat das wieder mit dem CSP und danach zutun
+
+### Workflow NDS
+- 1. Teilnehmende exportieren meine datenbank
+- 2. Teilnehmende importieren NDS 
+- 3. Teilnehemnde exportieren NDS 
+- 4. Teilnehemnde importieren meine datenbank (AHV Überprüfung (unique))
+- 5. Anwesenheitkontrolle exportieren meine datenbank
+- 6. Anwesenheitkontrolle importieren NDS

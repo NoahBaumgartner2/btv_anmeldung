@@ -15,7 +15,6 @@ module Admin
       @payment_setting = PaymentSetting.current
 
       if @payment_setting.update(payment_setting_params)
-        ::Stripe.api_key = ::StripeConfig.secret_key
         redirect_to admin_payment_setting_path, notice: "Zahlungseinstellungen wurden gespeichert."
       else
         render :edit, status: :unprocessable_entity
@@ -23,9 +22,9 @@ module Admin
     end
 
     def sync_payments
-      unless ::StripeConfig.configured?
+      unless ::SumupConfig.configured?
         return redirect_to admin_payment_setting_path,
-                           alert: "Kein Stripe Secret Key konfiguriert."
+                           alert: "Kein SumUp Access Token konfiguriert."
       end
 
       result = PaymentSyncService.sync_pending
@@ -43,23 +42,32 @@ module Admin
     end
 
     def test_connection
-      @payment_setting = PaymentSetting.current
-
-      unless ::StripeConfig.configured?
+      unless ::SumupConfig.configured?
         return redirect_to admin_payment_setting_path,
-                           alert: "Kein Stripe Secret Key konfiguriert."
+                           alert: "Kein SumUp Access Token konfiguriert."
       end
 
-      ::Stripe.api_key = ::StripeConfig.secret_key
-      Stripe::Balance.retrieve
-      redirect_to admin_payment_setting_path,
-                  notice: "Verbindung erfolgreich! Stripe API antwortet korrekt."
-    rescue Stripe::AuthenticationError
-      redirect_to admin_payment_setting_path,
-                  alert: "Authentifizierungsfehler: Der Secret Key ist ungültig."
-    rescue Stripe::StripeError => e
-      redirect_to admin_payment_setting_path,
-                  alert: "Stripe-Fehler: #{e.message}"
+      uri = URI("https://api.sumup.com/v0.1/me")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+
+      request = Net::HTTP::Get.new(uri.path, {
+        "Authorization" => "Bearer #{::SumupConfig.access_token}"
+      })
+
+      response = http.request(request)
+
+      case response.code.to_i
+      when 200
+        redirect_to admin_payment_setting_path,
+                    notice: "Verbindung erfolgreich! SumUp API antwortet korrekt."
+      when 401, 403
+        redirect_to admin_payment_setting_path,
+                    alert: "Authentifizierungsfehler: Der Access Token ist ungültig oder abgelaufen."
+      else
+        redirect_to admin_payment_setting_path,
+                    alert: "SumUp API antwortete mit Status #{response.code}."
+      end
     rescue => e
       redirect_to admin_payment_setting_path,
                   alert: "Verbindungsfehler: #{e.message}"
@@ -69,7 +77,7 @@ module Admin
 
     def payment_setting_params
       params.require(:payment_setting).permit(
-        :stripe_publishable_key, :stripe_secret_key, :stripe_webhook_secret,
+        :sumup_api_key, :sumup_access_token, :sumup_merchant_code,
         :currency, :active
       )
     end

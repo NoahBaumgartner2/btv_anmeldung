@@ -5,19 +5,19 @@ Rails.application.configure do
     policy.img_src     :self, :data, :https
     policy.object_src  :none
 
-    # Scripts: self + Stripe JS
+    # Scripts: self + SumUp Checkout JS
     # Nonce für Inline-Scripts wird automatisch via content_security_policy_nonce_directives ergänzt
-    policy.script_src :self, "https://js.stripe.com"
+    policy.script_src :self, "https://pay.sumup.com"
 
     # Styles: self
     # Nonce für Inline-Styles wird automatisch via content_security_policy_nonce_directives ergänzt
     policy.style_src :self
 
-    # Stripe Checkout/Payment-Frames
-    policy.frame_src "https://js.stripe.com", "https://hooks.stripe.com"
+    # SumUp Checkout-Frame
+    policy.frame_src "https://pay.sumup.com"
 
-    # Stripe API-Calls aus dem Browser
-    policy.connect_src :self, "https://api.stripe.com"
+    # SumUp API-Calls aus dem Browser
+    policy.connect_src :self, "https://api.sumup.com"
   end
 
   # Nonce-Generator: sichere zufällige Nonce pro Request

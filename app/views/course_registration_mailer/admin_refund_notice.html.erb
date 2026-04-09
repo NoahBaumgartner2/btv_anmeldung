@@ -1,0 +1,50 @@
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0;font-size:15px;font-weight:600;color:#9a3412;font-family:Arial,Helvetica,sans-serif;">Rückerstattung prüfen</p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Ein Trainer hat <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
+  vom Kurs <strong><%= @course.title %></strong> abgemeldet und um eine Prüfung einer möglichen
+  Rückerstattung gebeten.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Teilnehmer</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @participant.first_name %> <%= @participant.last_name %></p>
+
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Abgemeldet durch</p>
+      <p style="margin:0 0 12px 0;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @cancelled_by || "—" %></p>
+
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Elternkontakt</p>
+      <p style="margin:0 0 12px 0;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @parent.email %></p>
+
+      <% if @course.has_payment? %>
+        <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kursbetrag</p>
+        <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.price_display %></p>
+
+        <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Zahlungsstatus</p>
+        <p style="margin:0 0 12px 0;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;">
+          <%= @course_registration.payment_cleared? ? "Bezahlt" : "Nicht bezahlt" %>
+        </p>
+      <% end %>
+
+      <% if @reason.present? %>
+        <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Begründung</p>
+        <p style="margin:0;font-size:15px;color:#111827;font-family:Arial,Helvetica,sans-serif;white-space:pre-line;"><%= @reason %></p>
+      <% end %>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 32px 0;font-size:13px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
+  Bitte prüfe, ob eine Rückerstattung an <%= @parent.email %> ausgelöst werden soll.
+</p>

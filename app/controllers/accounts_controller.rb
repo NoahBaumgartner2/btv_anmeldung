@@ -5,6 +5,21 @@ class AccountsController < ApplicationController
     @participants = current_user.participants.includes(
       course_registrations: [ :course, { attendances: :training_session } ]
     )
+    @newsletter_subscribed = current_user.newsletter_subscribed?
+  end
+
+  def subscribe_newsletter
+    sub = NewsletterSubscriber.find_or_initialize_by(email: current_user.email.downcase.strip)
+    sub.status = "subscribed"
+    sub.source ||= "manual"
+    sub.save
+    redirect_to account_path, notice: "Du erhältst ab sofort wieder den BTV-Newsletter."
+  end
+
+  def unsubscribe_newsletter
+    sub = current_user.newsletter_subscriber
+    sub&.update(status: "unsubscribed")
+    redirect_to account_path, notice: "Du wurdest vom BTV-Newsletter abgemeldet."
   end
 
   def destroy

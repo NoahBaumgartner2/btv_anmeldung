@@ -17,7 +17,9 @@ Rails.application.routes.draw do
     resource :club_setting, only: [:show, :edit, :update] do
       delete :destroy_logo, on: :member
     end
-    resources :export_profiles, only: %i[index new create edit update destroy]
+    resources :export_profiles, only: %i[index new create edit update destroy] do
+      member { get :download }
+    end
   end
 
   resources :trainers
@@ -38,15 +40,16 @@ Rails.application.routes.draw do
       post :unsubscribe_from_session
       post :mark_as_paid
       post :cancel
+      post :trainer_cancel
     end
   end
 
-  # Stripe payments
+  # SumUp payments
   get  '/registrations/:id/checkout_preview', to: 'payments#checkout_preview', as: 'checkout_preview_registration'
   get  '/registrations/:id/checkout',         to: 'payments#checkout',         as: 'checkout_registration'
   get  '/payments/success',                   to: 'payments#success',          as: 'payments_success'
   get  '/payments/cancel',                    to: 'payments#cancel',           as: 'payments_cancel'
-  post '/webhooks/stripe',                    to: 'stripe_webhooks#create'
+  post '/webhooks/sumup',                     to: 'sumup_webhooks#create'
 
   resources :training_sessions do
     member do
@@ -75,7 +78,9 @@ Rails.application.routes.draw do
   end
 
   resource :account, only: [:show, :destroy] do
-    get :export, on: :member
+    get  :export,                on: :member
+    post :subscribe_newsletter,  on: :member
+    post :unsubscribe_newsletter, on: :member
   end
 
   devise_for :users, controllers: { confirmations: "users/confirmations" }

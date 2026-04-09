@@ -26,14 +26,10 @@
         <%= render "devise/shared/password_field", f: f, field: :password_confirmation,
               label: "Passwort bestätigen", autocomplete: "new-password" %>
 
-        <div class="flex items-start gap-3">
-          <%= f.check_box :subscribe_to_newsletter, checked: true,
-                class: "mt-1 h-4 w-4 text-primary-600 border-gray-300 rounded cursor-pointer" %>
-          <div>
-            <%= f.label :subscribe_to_newsletter, class: "text-sm text-gray-700 cursor-pointer" do %>
-              Ja, ich möchte den <strong>BTV-Newsletter</strong> erhalten und über neue Kurse informiert werden.
-            <% end %>
-          </div>
+        <div class="rounded-md bg-primary-50 border border-primary-100 px-4 py-3 text-xs text-gray-600 leading-relaxed">
+          Mit der Registrierung erhältst du automatisch unseren <strong>BTV-Newsletter</strong>
+          mit Infos zu neuen Kursen und Angeboten. Du kannst dich jederzeit in deinen
+          Kontoeinstellungen wieder abmelden.
         </div>
 
         <div>

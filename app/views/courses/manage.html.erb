@@ -226,7 +226,7 @@
             <tr class="hover:bg-gray-50 transition">
               <td class="py-4 px-6 text-sm">
                 <span class="font-semibold text-gray-900"><%= p.first_name %> <%= p.last_name %></span>
-                <% if reg.status == "ausstehend" && reg.stripe_session_id.present? && !reg.payment_cleared? %>
+                <% if reg.status == "ausstehend" && reg.sumup_checkout_id.present? && !reg.payment_cleared? %>
                   <span class="ml-1.5 inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full">
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
@@ -279,7 +279,70 @@
                     <%= link_to "Bearbeiten", edit_course_registration_path(reg),
                           class: "text-primary-600 font-bold hover:text-primary-800" %>
                   <% end %>
+                  <% if reg.status != "storniert" %>
+                    <button type="button"
+                            onclick="var el=document.getElementById('cancel-modal-<%= reg.id.to_json %>'); el.classList.remove('hidden'); el.classList.add('flex')"
+                            class="text-red-600 font-bold hover:text-red-800 transition cursor-pointer">
+                      Abmelden
+                    </button>
+                  <% end %>
                 </div>
+
+                <%# ── Abmelde-Modal ────────────────────────────────────── %>
+                <% if reg.status != "storniert" %>
+                  <div id="cancel-modal-<%= reg.id %>"
+                       class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4"
+                       onclick="this.classList.remove('flex'); this.classList.add('hidden')">
+                    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 text-left" onclick="event.stopPropagation()">
+                      <div class="flex items-center gap-3 mb-5">
+                        <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
+                          <svg class="w-5 h-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 class="text-lg font-extrabold text-gray-900"><%= p.first_name %> <%= p.last_name %> abmelden?</h3>
+                          <p class="text-xs text-gray-500">Die Eltern werden per E-Mail informiert.</p>
+                        </div>
+                      </div>
+
+                      <%= form_with url: trainer_cancel_course_registration_path(reg), method: :post, data: { turbo: false }, class: "space-y-4" do %>
+                        <div>
+                          <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Begründung <span class="font-normal text-gray-400">(optional)</span></label>
+                          <textarea name="cancellation_reason"
+                                    rows="3"
+                                    placeholder="z.B. Verletzung, Kurswechsel, …"
+                                    class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
+                        </div>
+
+                        <label class="flex items-start gap-3 cursor-pointer bg-amber-50 border border-amber-200 rounded-lg p-3">
+                          <input type="checkbox" name="notify_admin" value="1"
+                                 <%= (reg.payment_cleared? && @course.has_payment?) ? "checked" : "" %>
+                                 class="mt-0.5 h-4 w-4 text-amber-600 border-gray-300 rounded cursor-pointer focus:ring-amber-500">
+                          <div>
+                            <p class="text-sm font-bold text-amber-900">Administrator wegen Rückerstattung benachrichtigen</p>
+                            <p class="text-xs text-amber-700 mt-0.5">
+                              Ankreuzen, wenn die Eltern Geld zurückbekommen sollen.
+                              Der Admin erhält dann eine E-Mail und kümmert sich um die Rückerstattung.
+                            </p>
+                          </div>
+                        </label>
+
+                        <div class="flex gap-3 pt-2">
+                          <button type="submit"
+                                  class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer">
+                            Jetzt abmelden
+                          </button>
+                          <button type="button"
+                                  onclick="document.getElementById('cancel-modal-<%= reg.id.to_json %>').classList.add('hidden')"
+                                  class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition">
+                            Abbrechen
+                          </button>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
 
                 <%# Detail-Modal %>
                 <div id="detail-modal-<%= reg.id %>"

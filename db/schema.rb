@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_141228) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_09_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -61,6 +61,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_141228) do
   end
 
   create_table "course_registrations", force: :cascade do |t|
+    t.boolean "cancellation_notify_admin", default: false, null: false
+    t.text "cancellation_reason"
+    t.datetime "cancelled_at"
+    t.bigint "cancelled_by_trainer_id"
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
     t.boolean "holiday_deduction_claimed"
@@ -68,14 +72,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_141228) do
     t.boolean "payment_cleared"
     t.integer "payment_reminder_count", default: 0, null: false
     t.string "status"
-    t.string "stripe_payment_intent_id"
-    t.string "stripe_session_id"
+    t.string "sumup_checkout_id"
+    t.string "sumup_transaction_id"
     t.bigint "training_session_id"
     t.datetime "updated_at", null: false
+    t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
     t.index ["course_id"], name: "index_course_registrations_on_course_id"
     t.index ["participant_id"], name: "index_course_registrations_on_participant_id"
-    t.index ["stripe_payment_intent_id"], name: "index_course_registrations_on_stripe_payment_intent_id"
-    t.index ["stripe_session_id"], name: "index_course_registrations_on_stripe_session_id"
+    t.index ["sumup_checkout_id"], name: "index_course_registrations_on_sumup_checkout_id"
+    t.index ["sumup_transaction_id"], name: "index_course_registrations_on_sumup_transaction_id"
     t.index ["training_session_id"], name: "index_course_registrations_on_training_session_id"
   end
 
@@ -99,30 +104,50 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_141228) do
     t.datetime "end_date"
     t.boolean "has_payment"
     t.boolean "has_ticketing"
+    t.boolean "is_js_training", default: false, null: false
     t.string "location"
+    t.integer "max_age"
     t.integer "max_participants"
+    t.integer "min_age"
     t.string "payment_methods", default: ["card"], null: false, array: true
     t.integer "price_cents"
     t.string "registration_mode"
     t.string "registration_type"
     t.boolean "requires_ahv_number", default: false, null: false
+    t.boolean "requires_city", default: false, null: false
+    t.boolean "requires_country", default: false, null: false
+    t.boolean "requires_js_person_number", default: false, null: false
+    t.boolean "requires_mother_tongue", default: false, null: false
+    t.boolean "requires_nationality", default: false, null: false
+    t.boolean "requires_street", default: false, null: false
+    t.boolean "requires_zip_code", default: false, null: false
     t.datetime "start_date"
     t.string "title"
     t.datetime "updated_at", null: false
   end
 
   create_table "export_profiles", force: :cascade do |t|
+    t.string "attendance_symbols", default: "symbols"
     t.string "col_sep", default: ";"
     t.bigint "course_id"
     t.datetime "created_at", null: false
+    t.string "date_column_format", default: "%d.%m.%Y"
+    t.date "date_from"
+    t.string "date_range_type", default: "custom"
+    t.date "date_to"
+    t.string "export_type", default: "teilnehmerliste", null: false
+    t.integer "extra_empty_rows", default: 0
     t.string "fields", default: [], array: true
     t.string "format", default: "csv", null: false
+    t.boolean "include_canceled_sessions", default: false
     t.boolean "include_header", default: true
+    t.string "include_summary_columns", default: [], array: true
     t.string "name", null: false
     t.string "quote_char", default: "\""
     t.string "recipient_email"
     t.string "row_sep", default: "\\n"
     t.string "schedule", default: "none"
+    t.string "sort_by", default: "last_name"
     t.datetime "updated_at", null: false
   end
 
@@ -170,14 +195,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_141228) do
 
   create_table "participants", force: :cascade do |t|
     t.string "ahv_number"
+    t.string "city"
+    t.string "country", default: "CH"
     t.datetime "created_at", null: false
     t.date "date_of_birth"
     t.string "first_name"
     t.string "gender"
+    t.string "house_number"
+    t.string "js_person_number"
     t.string "last_name"
+    t.string "mother_tongue", default: "DE"
+    t.string "nationality", default: "CH"
     t.string "phone_number"
+    t.string "street"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "zip_code"
     t.index ["first_name", "last_name", "date_of_birth", "user_id"], name: "index_participants_unique_per_user", unique: true
     t.index ["user_id"], name: "index_participants_on_user_id"
   end
@@ -186,9 +219,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_141228) do
     t.boolean "active", default: false, null: false
     t.datetime "created_at", null: false
     t.string "currency", default: "chf"
-    t.string "stripe_publishable_key"
-    t.text "stripe_secret_key_encrypted"
-    t.text "stripe_webhook_secret_encrypted"
+    t.text "sumup_access_token_encrypted"
+    t.string "sumup_api_key"
+    t.string "sumup_merchant_code"
     t.datetime "updated_at", null: false
   end
 
@@ -240,6 +273,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_141228) do
   add_foreign_key "attendances", "training_sessions"
   add_foreign_key "course_registrations", "courses"
   add_foreign_key "course_registrations", "participants"
+  add_foreign_key "course_registrations", "trainers", column: "cancelled_by_trainer_id"
   add_foreign_key "course_registrations", "training_sessions"
   add_foreign_key "course_trainers", "courses"
   add_foreign_key "course_trainers", "trainers"

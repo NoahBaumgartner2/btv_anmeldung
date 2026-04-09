@@ -11,7 +11,7 @@
       <%= link_to "← Kommandozentrale", dashboards_admin_path,
             class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
       <h1 class="text-3xl font-extrabold text-gray-900 mt-2">Zahlungseinstellungen</h1>
-      <p class="text-gray-500 mt-1 text-sm">Stripe-Konfiguration für Online-Zahlungen.</p>
+      <p class="text-gray-500 mt-1 text-sm">SumUp-Konfiguration für Online-Zahlungen.</p>
     </div>
     <%= link_to "Bearbeiten", edit_admin_payment_setting_path,
           class: "shrink-0 inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition" %>
@@ -26,7 +26,7 @@
         </svg>
       </div>
       <div>
-        <p class="text-sm font-bold text-green-800">Stripe aktiv</p>
+        <p class="text-sm font-bold text-green-800">SumUp aktiv</p>
         <p class="text-xs text-green-700 mt-0.5">Online-Zahlungen sind aktiviert · Währung: <%= @payment_setting.effective_currency.upcase %></p>
       </div>
     </div>
@@ -39,7 +39,7 @@
       </div>
       <div>
         <p class="text-sm font-bold text-yellow-800">Konfiguriert aber inaktiv</p>
-        <p class="text-xs text-yellow-700 mt-0.5">Stripe ist eingerichtet, aber noch nicht aktiviert.</p>
+        <p class="text-xs text-yellow-700 mt-0.5">SumUp ist eingerichtet, aber noch nicht aktiviert.</p>
       </div>
     </div>
   <% else %>
@@ -51,33 +51,33 @@
       </div>
       <div>
         <p class="text-sm font-bold text-gray-700">Nicht konfiguriert</p>
-        <p class="text-xs text-gray-500 mt-0.5">Stripe-Keys noch nicht hinterlegt. ENV-Fallback aktiv wenn gesetzt.</p>
+        <p class="text-xs text-gray-500 mt-0.5">SumUp-Zugangsdaten noch nicht hinterlegt. ENV-Fallback aktiv wenn gesetzt.</p>
       </div>
     </div>
   <% end %>
 
-  <%# ── API-Keys ────────────────────────────────────────────────────────────── %>
+  <%# ── SumUp API-Zugangsdaten ─────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Stripe API-Keys</p>
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">SumUp API-Zugangsdaten</p>
     </div>
     <dl class="divide-y divide-gray-100">
       <div class="px-6 py-3.5 flex items-center justify-between text-sm">
-        <dt class="font-medium text-gray-500 w-48 shrink-0">Publishable Key</dt>
+        <dt class="font-medium text-gray-500 w-48 shrink-0">API Key</dt>
         <dd class="font-mono text-xs text-gray-700 truncate max-w-xs">
-          <%= @payment_setting.stripe_publishable_key.presence || "—" %>
+          <%= @payment_setting.sumup_api_key.presence || "—" %>
         </dd>
       </div>
       <div class="px-6 py-3.5 flex items-center justify-between text-sm">
-        <dt class="font-medium text-gray-500 w-48 shrink-0">Secret Key</dt>
+        <dt class="font-medium text-gray-500 w-48 shrink-0">Access Token</dt>
         <dd class="font-mono text-xs text-gray-600">
-          <%= @payment_setting.stripe_secret_key_present? ? "sk_••••••••••••••••••••••••" : "—" %>
+          <%= @payment_setting.sumup_access_token_present? ? "••••••••••••••••••••••••" : "—" %>
         </dd>
       </div>
       <div class="px-6 py-3.5 flex items-center justify-between text-sm">
-        <dt class="font-medium text-gray-500 w-48 shrink-0">Webhook Secret</dt>
-        <dd class="font-mono text-xs text-gray-600">
-          <%= @payment_setting.stripe_webhook_secret_present? ? "whsec_••••••••••••••••••••••••" : "—" %>
+        <dt class="font-medium text-gray-500 w-48 shrink-0">Merchant Code</dt>
+        <dd class="font-mono text-xs text-gray-700">
+          <%= @payment_setting.sumup_merchant_code.presence || "—" %>
         </dd>
       </div>
     </dl>
@@ -116,7 +116,7 @@
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-5">
     <p class="text-sm font-bold text-gray-700 mb-1">Verbindung testen</p>
     <p class="text-xs text-gray-500 mb-4">
-      Sendet eine Test-Anfrage an die Stripe API, um den Secret Key zu validieren.
+      Sendet eine Test-Anfrage an die SumUp API (<code class="bg-gray-100 px-1 rounded">/v0.1/me</code>), um den Access Token zu validieren.
     </p>
     <%= form_with url: test_connection_admin_payment_setting_path, method: :post, class: "flex gap-2" do |f| %>
       <%= f.submit "Verbindung testen",
@@ -126,17 +126,16 @@
 
   <%# ── Offene Zahlungen prüfen ─────────────────────────────────────────────── %>
   <%
-    pending_with_session = CourseRegistration.where(
+    pending_count = CourseRegistration.where(
       status: "ausstehend", payment_cleared: false
-    ).where.not(stripe_session_id: [nil, ""])
-    pending_count = pending_with_session.count
+    ).where.not(sumup_checkout_id: [nil, ""]).count
   %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
     <div class="flex items-start justify-between gap-4 mb-4">
       <div>
         <p class="text-sm font-bold text-gray-700 mb-1">Offene Zahlungen prüfen</p>
         <p class="text-xs text-gray-500">
-          Gleicht ausstehende Anmeldungen mit Stripe ab – nützlich wenn ein Webhook nicht ankam.
+          Gleicht ausstehende Anmeldungen mit SumUp ab – nützlich wenn ein Webhook nicht ankam.
         </p>
       </div>
       <% if pending_count > 0 %>
@@ -155,18 +154,18 @@
     <% if pending_count > 0 %>
       <div class="bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3 mb-4 text-xs text-yellow-800">
         <strong><%= pending_count %> Anmeldung<%= pending_count == 1 ? "" : "en" %></strong>
-        mit Stripe-Session und Status "ausstehend" – noch nicht als bezahlt markiert.
+        mit SumUp-Checkout und Status "ausstehend" – noch nicht als bezahlt markiert.
       </div>
     <% end %>
 
     <%= form_with url: sync_payments_admin_payment_setting_path, method: :post do |f| %>
-      <%= f.submit "Zahlungsstatus bei Stripe abgleichen",
+      <%= f.submit "Zahlungsstatus bei SumUp abgleichen",
             class: "bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition cursor-pointer shadow-sm #{"opacity-50 cursor-not-allowed" unless configured}",
             disabled: !configured %>
     <% end %>
 
     <% unless configured %>
-      <p class="text-xs text-gray-400 mt-2">Stripe muss konfiguriert sein, um den Abgleich durchführen zu können.</p>
+      <p class="text-xs text-gray-400 mt-2">SumUp muss konfiguriert sein, um den Abgleich durchführen zu können.</p>
     <% end %>
   </div>
 
