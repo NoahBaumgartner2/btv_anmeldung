@@ -71,6 +71,10 @@
 
 </div>
 
+<%# CSP für diese Seite ist im Controller (content_security_policy) gezielt erweitert:
+    unpkg ist als script-src-Host erlaubt; das Inline-Script läuft per Nonce.
+    style-src bleibt strikt – nur style-src-attr 'unsafe-inline' erlaubt die
+    dynamischen style="..."-Attribute, die html5-qrcode zur Laufzeit setzt. %>
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript" nonce="<%= request.content_security_policy_nonce %>"></script>
 
 <script nonce="<%= request.content_security_policy_nonce %>">
