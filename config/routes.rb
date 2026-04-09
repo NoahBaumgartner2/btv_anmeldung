@@ -40,6 +40,7 @@ Rails.application.routes.draw do
       post :unsubscribe_from_session
       post :mark_as_paid
       post :cancel
+      post :trainer_cancel
     end
   end
 

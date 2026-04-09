@@ -2,6 +2,7 @@ class CourseRegistration < ApplicationRecord
   belongs_to :course
   belongs_to :participant
   belongs_to :training_session, optional: true
+  belongs_to :cancelled_by_trainer, class_name: "Trainer", optional: true
 
   has_many :attendances, dependent: :destroy
 

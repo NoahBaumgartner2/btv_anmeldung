@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_09_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_09_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -61,6 +61,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_130000) do
   end
 
   create_table "course_registrations", force: :cascade do |t|
+    t.boolean "cancellation_notify_admin", default: false, null: false
+    t.text "cancellation_reason"
+    t.datetime "cancelled_at"
+    t.bigint "cancelled_by_trainer_id"
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
     t.boolean "holiday_deduction_claimed"
@@ -72,6 +76,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_130000) do
     t.string "sumup_transaction_id"
     t.bigint "training_session_id"
     t.datetime "updated_at", null: false
+    t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
     t.index ["course_id"], name: "index_course_registrations_on_course_id"
     t.index ["participant_id"], name: "index_course_registrations_on_participant_id"
     t.index ["sumup_checkout_id"], name: "index_course_registrations_on_sumup_checkout_id"
@@ -268,6 +273,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_130000) do
   add_foreign_key "attendances", "training_sessions"
   add_foreign_key "course_registrations", "courses"
   add_foreign_key "course_registrations", "participants"
+  add_foreign_key "course_registrations", "trainers", column: "cancelled_by_trainer_id"
   add_foreign_key "course_registrations", "training_sessions"
   add_foreign_key "course_trainers", "courses"
   add_foreign_key "course_trainers", "trainers"

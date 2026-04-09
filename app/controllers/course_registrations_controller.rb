@@ -132,6 +132,50 @@ class CourseRegistrationsController < ApplicationController
     redirect_to participants_path, notice: "Die Anmeldung für \"#{@course_registration.course.title}\" wurde storniert."
   end
 
+  # Trainer (oder Admin) meldet ein Kind vom Kurs ab.
+  # Eltern werden per E-Mail informiert; optional wird der Admin
+  # für eine allfällige Rückerstattung benachrichtigt.
+  def trainer_cancel
+    @course_registration = CourseRegistration.find(params[:id])
+    course = @course_registration.course
+
+    unless current_user.admin? || trainer_assigned_to_course?(course)
+      redirect_to root_path, alert: "Zugriff verweigert."
+      return
+    end
+
+    if @course_registration.status == "storniert"
+      redirect_to manage_course_path(course), alert: "Diese Anmeldung ist bereits storniert."
+      return
+    end
+
+    reason       = params[:cancellation_reason].to_s.strip
+    notify_admin = ActiveModel::Type::Boolean.new.cast(params[:notify_admin])
+    trainer      = Trainer.find_by(user: current_user)
+
+    @course_registration.update!(
+      status: "storniert",
+      cancellation_reason: reason.presence,
+      cancellation_notify_admin: notify_admin,
+      cancelled_at: Time.current,
+      cancelled_by_trainer: trainer
+    )
+
+    # Eltern immer benachrichtigen
+    CourseRegistrationMailer.cancelled_by_trainer(@course_registration).deliver_later
+
+    # Admin nur informieren, wenn der Trainer das wünscht (z.B. Rückerstattung)
+    if notify_admin
+      User.where(admin: true).find_each do |admin_user|
+        CourseRegistrationMailer.admin_refund_notice(@course_registration, admin_user).deliver_later
+      end
+    end
+
+    notice = "#{@course_registration.participant.first_name} wurde vom Kurs abgemeldet."
+    notice += " Der Administrator wurde wegen einer möglichen Rückerstattung benachrichtigt." if notify_admin
+    redirect_to manage_course_path(course), notice: notice
+  end
+
 def unsubscribe_from_session
     @course_registration = CourseRegistration.find(params[:id])
     authorize_parent_owns_registration!(@course_registration)
@@ -217,6 +261,13 @@ def unsubscribe_from_session
     unless current_user.admin? || current_user.participants.include?(@course_registration.participant)
       redirect_to root_path, alert: "Zugriff verweigert."
     end
+  end
+
+  # Prüft, ob der eingeloggte Trainer dem gegebenen Kurs zugewiesen ist
+  def trainer_assigned_to_course?(course)
+    trainer = Trainer.find_by(user: current_user)
+    return false unless trainer
+    course.course_trainers.exists?(trainer_id: trainer.id)
   end
 
   def setup_new_form(course = nil)

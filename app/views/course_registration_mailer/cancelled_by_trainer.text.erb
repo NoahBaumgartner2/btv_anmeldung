@@ -1,0 +1,19 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+<%= @participant.first_name %> <%= @participant.last_name %> wurde vom Kurs "<%= @course.title %>" durch einen Trainer abgemeldet.
+
+Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:        <%= @course.title %>
+<% if @reason.present? %>
+Begründung:
+<%= @reason %>
+<% end %>
+<% if @course_registration.cancellation_notify_admin? && @course.has_payment? && @course_registration.payment_cleared? %>
+
+Der Administrator wurde bezüglich einer möglichen Rückerstattung informiert und meldet sich in den nächsten Tagen bei dir.
+<% end %>
+
+Bei Fragen wende dich bitte direkt an uns.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

@@ -96,6 +96,7 @@ Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung 
 - trainer separat (von hand)
 - wenn training mehr als 1.5h, dann max 1.5h
 - möglichkeit für rückerstattung wobei admin benachrichtigt wird
+- Teilnehmende 1 bestätigt bei meine kurse unten tabelle aktionen gehen knöpfe nicht vielleicht hat das wieder mit dem CSP und danach zutun
 
 ### Workflow NDS
 - 1. Teilnehmende exportieren meine datenbank
