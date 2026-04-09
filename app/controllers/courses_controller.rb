@@ -138,6 +138,6 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :description, :start_date, :end_date, :location, :registration_type, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :max_participants, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :description, :start_date, :end_date, :location, :registration_type, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [], payment_methods: [])
     end
 end

@@ -52,6 +52,17 @@ class CourseRegistrationsController < ApplicationController
       end
     end
 
+    # 2b. Alters-Check
+    if course && participant && !course.accepts_participant_age?(participant)
+      age = participant.age_at(course.age_reference_date)
+      @course_registration.errors.add(
+        :base,
+        "#{participant.first_name} ist #{age} Jahre alt und erfüllt die Altersbeschränkung dieses Kurses (#{course.age_range_label}) nicht."
+      )
+      setup_new_form(course)
+      return render :new, status: :unprocessable_entity
+    end
+
     # 3. Status bestimmen
     if course.has_payment? && course.price_cents.to_i > 0
       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt

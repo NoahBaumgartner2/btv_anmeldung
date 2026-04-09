@@ -30,6 +30,16 @@ class Participant < ApplicationRecord
     course.required_participant_fields.select { |field| self[field].blank? }
   end
 
+  # Alter am Referenzdatum (z.B. Kursstart). Gibt nil zurück, wenn kein Geburtsdatum vorhanden.
+  def age_at(reference_date)
+    return nil unless date_of_birth
+    ref = reference_date.to_date
+    age = ref.year - date_of_birth.year
+    had_birthday = (ref.month > date_of_birth.month) ||
+                   (ref.month == date_of_birth.month && ref.day >= date_of_birth.day)
+    had_birthday ? age : age - 1
+  end
+
   # Human-readable Label für ein Pflichtfeld
   def self.field_label(field)
     Course::CONFIGURABLE_REQUIRED_FIELDS[field] || field.to_s.humanize

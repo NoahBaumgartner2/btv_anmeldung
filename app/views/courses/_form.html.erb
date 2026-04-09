@@ -129,6 +129,30 @@
           <%= form.number_field :max_participants, min: 1, placeholder: "z.B. 20", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white" %>
         </div>
       </div>
+
+      <div class="mt-6 bg-amber-50 p-5 rounded-xl border border-amber-100">
+        <p class="text-sm font-bold text-amber-900 mb-1">Altersbeschränkung <span class="font-normal text-amber-700">(optional)</span></p>
+        <p class="text-xs text-amber-700 mb-3">
+          Lege fest, welche Altersgruppe sich anmelden darf (z.B. 3–5 Jahre für Kids Gym).
+          Das Alter wird anhand des Kursstarts berechnet. Leer lassen = keine Einschränkung.
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <%= form.label :min_age, "Mindestalter", class: "block text-xs font-bold text-amber-900 mb-1" %>
+            <div class="flex items-center gap-2">
+              <%= form.number_field :min_age, min: 0, max: 120, placeholder: "z.B. 3", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 bg-white" %>
+              <span class="text-xs text-amber-700 whitespace-nowrap">Jahre</span>
+            </div>
+          </div>
+          <div>
+            <%= form.label :max_age, "Höchstalter", class: "block text-xs font-bold text-amber-900 mb-1" %>
+            <div class="flex items-center gap-2">
+              <%= form.number_field :max_age, min: 0, max: 120, placeholder: "z.B. 5", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 bg-white" %>
+              <span class="text-xs text-amber-700 whitespace-nowrap">Jahre</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div>

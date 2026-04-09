@@ -36,6 +36,43 @@ class Course < ApplicationRecord
     CONFIGURABLE_REQUIRED_FIELDS.keys.select { |field| self["requires_#{field}"] }
   end
 
+  # ── Altersbeschränkung ─────────────────────────────────────────────────────
+  validates :min_age, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 120 }, allow_nil: true
+  validates :max_age, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 120 }, allow_nil: true
+  validate  :max_age_must_be_greater_than_or_equal_to_min_age
+
+  def age_restricted?
+    min_age.present? || max_age.present?
+  end
+
+  # Referenzdatum für die Altersberechnung: Kursstart, sonst heute
+  def age_reference_date
+    (start_date || Date.current).to_date
+  end
+
+  # Prüft, ob ein Teilnehmer altersmässig für den Kurs zugelassen ist
+  def accepts_participant_age?(participant)
+    return true unless age_restricted?
+    return false unless participant&.date_of_birth
+
+    age = participant.age_at(age_reference_date)
+    return false if min_age.present? && age < min_age
+    return false if max_age.present? && age > max_age
+    true
+  end
+
+  # Hübsches Label für die Altersspanne
+  def age_range_label
+    return nil unless age_restricted?
+    if min_age.present? && max_age.present?
+      "#{min_age}–#{max_age} Jahre"
+    elsif min_age.present?
+      "ab #{min_age} Jahren"
+    else
+      "bis #{max_age} Jahre"
+    end
+  end
+
   # Price helpers: store as Rappen (cents), display in CHF
   def price_chf
     cents = read_attribute(:price_cents)
@@ -57,5 +94,10 @@ class Course < ApplicationRecord
   def clean_payment_methods
     self.payment_methods = (payment_methods || []).reject(&:blank?).select { |v| PAYMENT_METHODS.key?(v) }
     self.payment_methods = ["card"] if payment_methods.empty?
+  end
+
+  def max_age_must_be_greater_than_or_equal_to_min_age
+    return if min_age.blank? || max_age.blank?
+    errors.add(:max_age, "muss grösser oder gleich dem Mindestalter sein") if max_age < min_age
   end
 end
