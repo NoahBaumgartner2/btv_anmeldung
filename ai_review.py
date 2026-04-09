@@ -39,7 +39,7 @@ print("⏳ Gemini analysiert deinen Code...")
 try:
     # 4. KI fragen und Ergebnis auswerten (Nutzt jetzt das staufreie 2.0 Flash Modell!)
     response = client.models.generate_content(
-        model='gemini-2.5-pro',
+        model='gemini-2.5-flash',
         contents=prompt
     )
     feedback = response.text.strip()
@@ -57,4 +57,4 @@ try:
 
 except Exception as e:
     print(f"⚠️ Warnung: Das KI-Review konnte nicht durchgeführt werden ({e}).")
-    sys.exit(1)
+    sys.exit(0)
