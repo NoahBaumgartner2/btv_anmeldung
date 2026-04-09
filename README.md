@@ -92,15 +92,10 @@ TODO
 - 1. Rechtliches & Compliance (höchste Priorität)
 Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung und AGB, die direkt in der App verlinkt sind. Ein Cookie-Consent-Banner fehlt komplett. Bei der Registrierung sollte eine Checkbox für die Zustimmung zu den AGB/Datenschutz vorhanden sein. Dein Devise erlaubt zwar subscribe_to_newsletter, aber ein Newsletter-Opt-in ohne rechtliche Grundlage ist problematisch. Ausserdem solltest du eine Impressum-Seite einbauen — in der Schweiz (UWG) und besonders bei der DSGVO für EU-Kunden ist das Pflicht.
 
-- mit agbs speichern
 - automatisches anmelden newsletter
-- beten fall, dass daten bis ende jahr bleiben
-- oder durch gute erklärung uns mehrere hindernisse
-- stripe entfernen
-- sumup developers
 - https://www.kids-sport.ch/
 - trainer separat (von hand)
-- wenn training mehr als 1.5h, dann min 1.5h
+- wenn training mehr als 1.5h, dann max 1.5h
 - course form.html.erb alter begränzen
 - möglichkeit für rückerstattung wobei admin benachrichtigt wird
 

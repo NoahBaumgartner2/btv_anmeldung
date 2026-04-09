@@ -77,7 +77,9 @@ Rails.application.routes.draw do
   end
 
   resource :account, only: [:show, :destroy] do
-    get :export, on: :member
+    get  :export,                on: :member
+    post :subscribe_newsletter,  on: :member
+    post :unsubscribe_newsletter, on: :member
   end
 
   devise_for :users, controllers: { confirmations: "users/confirmations" }

@@ -9,15 +9,19 @@ class User < ApplicationRecord
 
   has_one :trainer, dependent: :destroy
 
-  attr_accessor :subscribe_to_newsletter
+  after_create :subscribe_to_newsletter
 
-  after_create :handle_newsletter_subscription
+  def newsletter_subscriber
+    NewsletterSubscriber.find_by(email: email.downcase.strip)
+  end
+
+  def newsletter_subscribed?
+    newsletter_subscriber&.subscribed? || false
+  end
 
   private
 
-  def handle_newsletter_subscription
-    return unless subscribe_to_newsletter == "1"
-
+  def subscribe_to_newsletter
     NewsletterSubscriber.find_or_initialize_by(email: email.downcase.strip).tap do |sub|
       sub.status = "subscribed"
       sub.source = "manual"
