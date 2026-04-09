@@ -36,7 +36,7 @@ Rails.application.routes.draw do
 
   resources :course_registrations do
     member do
-      get :scan
+      post :scan
       post :unsubscribe_from_session
       post :mark_as_paid
       post :cancel

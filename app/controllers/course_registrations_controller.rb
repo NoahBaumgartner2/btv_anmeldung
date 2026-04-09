@@ -227,7 +227,8 @@ def unsubscribe_from_session
       format.json {
         render json: {
           success: true,
-          message: "✅ #{@registration.participant.first_name} ist da!"
+          participant_name: "#{@registration.participant.first_name} #{@registration.participant.last_name}",
+          message: "Anwesenheit erfasst"
         }
       }
     end
