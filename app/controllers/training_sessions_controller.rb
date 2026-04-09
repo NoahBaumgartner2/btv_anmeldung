@@ -3,6 +3,26 @@ class TrainingSessionsController < ApplicationController
   before_action :authorize_trainer!
   before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance scanner cancel uncancel ]
 
+  # Gezielte CSP-Erweiterung nur für die Scanner-Seite, damit html5-qrcode
+  # funktioniert – ohne 'unsafe-inline'/'unsafe-eval' für script-src:
+  #
+  # - script-src:     self + unpkg (CDN) + per-Request-Nonce (global aktiv) für unser Inline-Script
+  # - style-src:      bleibt strikt :self – wir injizieren keine <style>-Tags
+  # - style-src-attr: 'unsafe-inline' erlaubt *nur* dynamische style="..."-Attribute,
+  #                   die html5-qrcode beim Aufbau seiner UI setzt. Betrifft NICHT script-src.
+  # - worker-src:     self + blob: – html5-qrcode startet QR-Decoder ggf. als Blob-Worker
+  # - media-src:      self + blob: – Kamera-Stream wird teils via Blob-URL angebunden
+  # - img-src:        zusätzlich blob: für Canvas-Snapshots
+  content_security_policy(only: :scanner) do |policy|
+    policy.script_src     :self, "https://unpkg.com"
+    policy.style_src      :self
+    policy.style_src_attr :unsafe_inline
+    policy.img_src        :self, :data, :https, :blob
+    policy.media_src      :self, :blob
+    policy.worker_src     :self, :blob
+    policy.connect_src    :self
+  end
+
   def index
     @training_sessions = TrainingSession.all
   end
