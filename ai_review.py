@@ -39,7 +39,7 @@ print("⏳ Gemini analysiert deinen Code...")
 try:
     # 4. KI fragen und Ergebnis auswerten (Nutzt jetzt das staufreie 2.0 Flash Modell!)
     response = client.models.generate_content(
-        model='gemini-2.0-flash',
+        model='gemini-3-flash-preview',
         contents=prompt
     )
     feedback = response.text.strip()
