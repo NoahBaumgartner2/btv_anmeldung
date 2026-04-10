@@ -53,7 +53,7 @@ try:
         print(feedback)
         print("=" * 50)
         print("Bitte repariere den Code und versuche den Commit erneut.\n")
-        sys.exit(0)
+        sys.exit(1)
 
 except Exception as e:
     print(f"⚠️ Warnung: Das KI-Review konnte nicht durchgeführt werden ({e}).")

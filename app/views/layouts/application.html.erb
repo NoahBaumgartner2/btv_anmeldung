@@ -2,7 +2,7 @@
 <html>
   <head>
     <title><%= content_for(:title) || "BTV Anmeldung" %></title>
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="BTV Anmeldung">
     <meta name="mobile-web-app-capable" content="yes">
@@ -24,6 +24,9 @@
         --color-primary:   <%= _cs.effective_primary_color %>;
         --color-secondary: <%= _cs.effective_secondary_color %>;
       }
+      /* Safe area insets for notched devices */
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+      .mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
     </style>
 
     <%# ── Turbo + Stimulus via ES-Module-Importmap ──────────────────────────── %>

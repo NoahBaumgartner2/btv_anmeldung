@@ -4,7 +4,7 @@
   <div class="mb-8">
     <%= link_to "← E-Mail-Einstellungen", mail_setting_path,
           class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
-    <h1 class="text-3xl font-extrabold text-gray-900 mt-2">E-Mail-Einstellungen bearbeiten</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">E-Mail-Einstellungen bearbeiten</h1>
     <p class="text-gray-500 mt-1 text-sm">SMTP-Zugangsdaten für ausgehende E-Mails.</p>
   </div>
 
@@ -29,13 +29,13 @@
           <%= f.label :smtp_host, "Host", class: "block text-sm font-medium text-gray-700 mb-1" %>
           <%= f.text_field :smtp_host,
                 placeholder: "smtp.beispiel.ch",
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
         </div>
         <div>
           <%= f.label :smtp_port, "Port", class: "block text-sm font-medium text-gray-700 mb-1" %>
           <%= f.number_field :smtp_port,
                 min: 1, max: 65535,
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
         </div>
       </div>
 
@@ -43,7 +43,7 @@
         <%= f.label :smtp_username, "Benutzername", class: "block text-sm font-medium text-gray-700 mb-1" %>
         <%= f.text_field :smtp_username,
               autocomplete: "off",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
 
       <div>
@@ -91,14 +91,14 @@
         <%= f.label :smtp_from_name, "Absender-Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
         <%= f.text_field :smtp_from_name,
               placeholder: "BTV Anmeldeportal",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
 
       <div>
         <%= f.label :smtp_from_address, "Absender-Adresse", class: "block text-sm font-medium text-gray-700 mb-1" %>
         <%= f.email_field :smtp_from_address,
               placeholder: "noreply@btv-anmeldung.ch",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
 
@@ -114,11 +114,11 @@
       <code class="bg-gray-200 rounded px-1">SMTP_FROM_NAME</code> verwendet.
     </div>
 
-    <div class="flex gap-3">
+    <div class="flex flex-col sm:flex-row gap-3">
       <%= f.submit "Einstellungen speichern",
-            class: "bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer" %>
+            class: "w-full sm:w-auto bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" %>
       <%= link_to "Abbrechen", mail_setting_path,
-            class: "bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-sm transition" %>
+            class: "w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-sm transition min-h-11" %>
     </div>
   <% end %>
 

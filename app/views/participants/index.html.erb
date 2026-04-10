@@ -358,7 +358,7 @@
 
   <%# ── FAB: "Person erfassen" (nur Mobile, nur wenn Kinder vorhanden) ── %>
   <% if @participants.any? %>
-    <%= link_to new_participant_path, class: "sm:hidden fixed bottom-6 right-4 z-50 w-14 h-14 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white rounded-full shadow-lg flex items-center justify-center transition", aria: { label: "Person erfassen" } do %>
+    <%= link_to new_participant_path, class: "sm:hidden fixed bottom-6 mb-safe right-4 z-50 w-14 h-14 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white rounded-full shadow-lg flex items-center justify-center transition", aria: { label: "Person erfassen" } do %>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
       </svg>

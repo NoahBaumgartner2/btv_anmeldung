@@ -11,7 +11,7 @@
   <% end %>
 
   <%# ── Pflichtfelder ───────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-4">
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-4">
     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5">Persönliche Daten</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
@@ -20,7 +20,7 @@
         <%= form.text_field :first_name,
               placeholder: "z.B. Laura",
               autocomplete: "given-name",
-              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       participant.errors[:first_name].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if participant.errors[:first_name].any? %>
           <p class="mt-1 text-xs text-red-600"><%= participant.errors[:first_name].first %></p>
@@ -32,7 +32,7 @@
         <%= form.text_field :last_name,
               placeholder: "z.B. Müller",
               autocomplete: "family-name",
-              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       participant.errors[:last_name].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if participant.errors[:last_name].any? %>
           <p class="mt-1 text-xs text-red-600"><%= participant.errors[:last_name].first %></p>
@@ -45,7 +45,7 @@
         <%= form.label :date_of_birth, "Geburtsdatum", class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= form.date_field :date_of_birth,
               autocomplete: "bday",
-              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       participant.errors[:date_of_birth].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if participant.errors[:date_of_birth].any? %>
           <p class="mt-1 text-xs text-red-600"><%= participant.errors[:date_of_birth].first %></p>
@@ -75,7 +75,7 @@
   </div>
 
   <%# ── Optionale Kontaktdaten ──────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-4">
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-4">
     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5">Kontaktdaten</p>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
@@ -84,7 +84,7 @@
         <%= form.telephone_field :phone_number,
               placeholder: "+41 79 123 45 67",
               autocomplete: "tel",
-              class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       participant.errors[:phone_number].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if participant.errors[:phone_number].any? %>
           <p class="mt-1 text-xs text-red-600"><%= participant.errors[:phone_number].first %></p>
@@ -96,13 +96,13 @@
       <%= form.label :ahv_number, "AHV-Nummer", class: "block text-sm font-semibold text-gray-700 mb-1" %>
       <%= form.text_field :ahv_number,
             placeholder: "756.XXXX.XXXX.XX",
-            class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+            class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       <p class="mt-1 text-xs text-gray-400">Wird für die Meldung ans Amt für Sport benötigt.</p>
     </div>
   </div>
 
   <%# ── Adresse & J+S Daten ────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-4">
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-4">
     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5">Adresse &amp; J+S Daten</p>
 
     <div class="grid grid-cols-3 gap-5 mb-5">
@@ -111,13 +111,13 @@
         <%= form.text_field :street,
               placeholder: "Musterstrasse",
               autocomplete: "street-address",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
       <div>
         <%= form.label :house_number, "Nr.", class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= form.text_field :house_number,
               placeholder: "12a",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
 
@@ -127,14 +127,14 @@
         <%= form.text_field :zip_code,
               placeholder: "3000",
               autocomplete: "postal-code",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
       <div>
         <%= form.label :city, "Ort", class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= form.text_field :city,
               placeholder: "Bern",
               autocomplete: "address-level2",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
 
@@ -145,21 +145,21 @@
               [["Schweiz (CH)", "CH"], ["Liechtenstein (LI)", "LI"], ["Deutschland (DE)", "DE"],
                ["Frankreich (FR)", "FR"], ["Italien (IT)", "IT"], ["Österreich (AT)", "AT"], ["Andere", "Andere"]],
               { selected: participant.country.presence || "CH" },
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
       </div>
       <div>
         <%= form.label :nationality, "Nationalität", class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= form.select :nationality,
               Participant::NATIONALITIES.map { |n| [n, n] },
               { selected: participant.nationality.presence || "CH" },
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
       </div>
       <div>
         <%= form.label :mother_tongue, "Muttersprache", class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= form.select :mother_tongue,
               Participant::MOTHER_TONGUES.map { |l| [l, l] },
               { selected: participant.mother_tongue.presence || "DE" },
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
       </div>
     </div>
 
@@ -168,7 +168,7 @@
         <%= form.label :js_person_number, "J+S Personennummer", class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= form.text_field :js_person_number,
               placeholder: "123456789",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
         <p class="mt-1 text-xs text-gray-400">9-stellige BASPO-Nummer. Wird vom Admin eingetragen.</p>
       </div>
     <% else %>
@@ -184,20 +184,20 @@
 
   <%# ── Admin: Kontoverknüpfung ─────────────────────────────────────────── %>
   <% if current_user.admin? %>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-4">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-4">
       <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5">Admin</p>
       <%= form.label :user_id, "Zugehöriges Konto", class: "block text-sm font-semibold text-gray-700 mb-1" %>
       <%= form.collection_select :user_id, User.order(:email), :id, :email,
             { prompt: "Konto auswählen…" },
-            class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+            class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
     </div>
   <% end %>
 
   <%# ── Aktionen ─────────────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row items-center gap-3">
     <%= form.submit participant.new_record? ? "Person erfassen" : "Änderungen speichern",
-          class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
+          class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-sm font-bold cursor-pointer transition shadow-sm min-h-11" %>
     <%= link_to "Abbrechen", participants_path,
-          class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
+          class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 text-sm font-medium transition min-h-11" %>
   </div>
 <% end %>
