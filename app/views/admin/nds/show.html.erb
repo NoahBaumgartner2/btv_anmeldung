@@ -12,25 +12,6 @@
     </p>
   </div>
 
-  <%# ── Import-Ergebnis ───────────────────────────────────────────────────── %>
-  <% if @import_results.present? %>
-    <% errors = @import_results[:errors] || [] %>
-    <div class="rounded-xl border border-blue-200 bg-blue-50 px-5 py-4 mb-6">
-      <p class="text-sm font-bold text-blue-800 mb-2">Import-Ergebnis</p>
-      <div class="flex gap-6 text-sm text-blue-700 mb-3">
-        <span><strong><%= @import_results[:updated] %></strong> aktualisiert</span>
-        <span><strong><%= @import_results[:skipped] %></strong> übersprungen</span>
-        <span><strong><%= errors.size %></strong> Fehler</span>
-      </div>
-      <% if errors.any? %>
-        <ul class="text-xs text-blue-700 space-y-0.5 list-disc list-inside">
-          <% errors.each do |e| %>
-            <li><%= e %></li>
-          <% end %>
-        </ul>
-      <% end %>
-    </div>
-  <% end %>
 
   <%# ── Schritt 1 ──────────────────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
@@ -101,6 +82,58 @@
       <p>Nach erfolgreichem Import exportieren Sie die Teilnehmenden aus der NDS. Die exportierte CSV enthält die zugewiesenen <strong>J+S Personennummern</strong>, die in Schritt 4 zurückgespielt werden.</p>
     </div>
   </div>
+
+  <%# ── Schritt-4-Ergebnis (aus Cache, nur UUID-Schlüssel im Cookie) ──────── %>
+  <% if @nds_results %>
+    <% r = @nds_results %>
+    <div class="space-y-3 mb-4">
+
+      <%# Erfolg %>
+      <% if r[:updated] > 0 %>
+        <div class="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-5 py-3.5">
+          <span class="text-base leading-none mt-0.5">✅</span>
+          <p class="text-sm font-semibold text-green-800">
+            <%= r[:updated] %> Teilnehmende aktualisiert
+          </p>
+        </div>
+      <% end %>
+
+      <%# Nicht gefunden %>
+      <% if r[:not_found_count] > 0 %>
+        <div class="rounded-xl border border-yellow-200 bg-yellow-50 px-5 py-3.5">
+          <div class="flex items-start gap-3 mb-2">
+            <span class="text-base leading-none mt-0.5">⚠️</span>
+            <p class="text-sm font-semibold text-yellow-800">
+              <%= r[:not_found_count] %> Teilnehmende nicht gefunden <span class="font-normal">(AHV nicht in unserer DB)</span>
+            </p>
+          </div>
+          <ul class="ml-7 text-xs text-yellow-700 space-y-0.5 list-disc list-inside">
+            <% r[:not_found].each do |name| %>
+              <li><%= name %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%# Fehler %>
+      <% if r[:errors].any? %>
+        <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-3.5">
+          <div class="flex items-start gap-3 mb-2">
+            <span class="text-base leading-none mt-0.5">❌</span>
+            <p class="text-sm font-semibold text-red-800">
+              <%= r[:errors].size %> Fehler beim Import
+            </p>
+          </div>
+          <ul class="ml-7 text-xs text-red-700 space-y-0.5 list-disc list-inside">
+            <% r[:errors].each do |e| %>
+              <li><%= e %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+    </div>
+  <% end %>
 
   <%# ── Schritt 4 ──────────────────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">

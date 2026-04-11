@@ -5,13 +5,22 @@ module Admin
     before_action :authenticate_user!
     before_action :authorize_admin!
 
-    CSV_OPTS = { headers: true, col_sep: ";", encoding: "bom|utf-8" }.freeze
+    # ── Konstanten (vor private – in Ruby immer öffentlich, aber hier der
+    #    Übersichtlichkeit halber an einem Ort) ──────────────────────────────
+    CSV_OPTS         = { headers: true, col_sep: ";", encoding: "bom|utf-8" }.freeze
     MAX_UPLOAD_BYTES = 5.megabytes
+
+    BASPO_AWK_HEADERS   = %w[PERSONENNUMMER FUNKTION DATUM AKTIVITAETSTYP ZEIT DAUER ORT].freeze
+    BASPO_AWK_DURATIONS = [ 45, 60, 75, 90, 120, 150, 180, 210, 240, 270, 300 ].freeze
+    AWK_MAX_MINUTES     = 90
+
+    # ── Public Actions ──────────────────────────────────────────────────────
 
     def show
       @courses = Course.order(:title)
-      if (key = flash[:nds_import_cache_key]).present?
-        @import_results = Rails.cache.read(key)
+      # Importergebnis aus Cache laden (nur der Schlüssel steht im Cookie)
+      if (key = flash[:nds_result_key]).present?
+        @nds_results = Rails.cache.read(key)
       end
     end
 
@@ -32,7 +41,7 @@ module Admin
       return redirect_to(admin_nds_path, alert: "Bitte eine CSV-Datei auswählen.") if upload.blank?
       return redirect_to(admin_nds_path, alert: "Die Datei ist zu gross (max. 5 MB).") if upload.size > MAX_UPLOAD_BYTES
 
-      # Pass 1 – Header prüfen + Duplikate erkennen (streaming, kein vollständiges Einlesen)
+      # Pass 1 – Header validieren + Duplikate erkennen (streaming)
       csv_error      = nil
       ahv_first_line = {}
       dup_lines      = []
@@ -47,8 +56,8 @@ module Admin
             end
           end
 
-          ahv = row["AHV_NR"]&.strip
-          next if ahv.blank?
+          ahv = normalize_ahv(row["AHV_NR"])
+          next if ahv.nil?
 
           if ahv_first_line.key?(ahv)
             dup_lines << line
@@ -64,36 +73,55 @@ module Admin
 
       if dup_lines.any?
         sample = dup_lines.first(5).join(", ")
+        extra  = dup_lines.size > 5 ? " …" : ""
         return redirect_to(admin_nds_path,
-          alert: "Fehler: Doppelte AHV-Einträge in Zeile(n) #{sample}#{dup_lines.size > 5 ? ' …' : ''} – Import abgebrochen.")
+          alert: "Doppelte AHV-Einträge in Zeile(n) #{sample}#{extra} – Import abgebrochen.")
       end
 
-      # Pass 2 – Teilnehmer aktualisieren (erneut streaming)
-      results = { updated: 0, skipped: 0, errors: [] }
+      # Nur Teilnehmer laden, deren normalisierte AHV in der CSV vorkommt –
+      # gezielte WHERE-Abfrage statt vollständiger Tabellen-Scan.
+      # Danach reines In-Memory-Lookup – kein N+1 in der Import-Schleife.
+      participants_by_ahv = build_participants_by_ahv(ahv_first_line.keys)
+
+      # Pass 2 – Teilnehmer aktualisieren (streaming)
+      updated       = 0
+      not_found     = []
+      not_found_all = 0
+      errors        = []
 
       CSV.foreach(upload.path, **CSV_OPTS).with_index(2) do |row, line|
-        ahv       = row["AHV_NR"]&.strip
+        raw_ahv   = row["AHV_NR"]&.strip
         js_number = row["PERSONENNUMMER"]&.strip
-        next if ahv.blank?
+        next if raw_ahv.blank?  # Zeile ohne AHV-Feld: stillschweigend überspringen
 
-        participant = Participant.find_by(ahv_number: ahv)
+        ahv = normalize_ahv(raw_ahv)
+        if ahv.nil?
+          errors << "Zeile #{line}: ungültiges AHV-Format – übersprungen"
+          next
+        end
+
+        full_name   = [ row["VORNAME"]&.strip, row["NAME"]&.strip ].compact.join(" ")
+        display     = full_name.presence || "Zeile #{line}"
+        participant = participants_by_ahv[ahv]
+
         if participant.nil?
-          results[:skipped] += 1
-          results[:errors] << "Zeile #{line}: kein Teilnehmer gefunden – übersprungen"
+          not_found_all += 1
+          not_found << display
         elsif participant.update(js_person_number: js_number.presence)
-          results[:updated] += 1
+          updated += 1
         else
-          results[:errors] << "Zeile #{line}: #{participant.errors.full_messages.join(', ')}"
+          errors << "Zeile #{line}: #{participant.errors.full_messages.join(', ')}"
         end
       end
 
-      # Ergebnisse im Cache speichern – nur der Schlüssel landet im Cookie
+      # Ergebnisse im Cache speichern – nur der Schlüssel (~36 Zeichen) landet
+      # im Session-Cookie, die Detaildaten nie.
+      results = { updated: updated, not_found: not_found, not_found_count: not_found_all, errors: errors }
       cache_key = "nds_import_#{SecureRandom.uuid}"
       Rails.cache.write(cache_key, results, expires_in: 10.minutes)
-      flash[:nds_import_cache_key] = cache_key
+      flash[:nds_result_key] = cache_key
 
-      redirect_to admin_nds_path,
-        notice: "Import abgeschlossen: #{results[:updated]} aktualisiert, #{results[:skipped]} übersprungen, #{results[:errors].size} Fehler."
+      redirect_to admin_nds_path
     end
 
     # Schritt 5 – BASPO AWK CSV herunterladen (Dauer max. 90 Min.)
@@ -115,9 +143,25 @@ module Admin
 
     private
 
-    BASPO_AWK_HEADERS   = %w[PERSONENNUMMER FUNKTION DATUM AKTIVITAETSTYP ZEIT DAUER ORT].freeze
-    BASPO_AWK_DURATIONS = [ 45, 60, 75, 90, 120, 150, 180, 210, 240, 270, 300 ].freeze
-    AWK_MAX_MINUTES     = 90
+    # Lädt nur die Teilnehmer, deren normalisierte AHV in der übergebenen Liste
+    # vorkommt (ein gezielter IN-Query). Gibt Hash normalisierte_AHV → Participant.
+    def build_participants_by_ahv(normalized_ahvs)
+      result = {}
+      Participant.where(ahv_number: normalized_ahvs).each do |p|
+        key = normalize_ahv(p.ahv_number)
+        result[key] = p if key
+      end
+      result
+    end
+
+    # Normalisiert AHV-Nummern in unser DB-Format 756.XXXX.XXXX.XX.
+    # Akzeptiert sowohl "756.1234.5678.90" als auch "7561234567890".
+    # Gibt nil zurück wenn das Format ungültig ist (nicht 13 Ziffern).
+    def normalize_ahv(raw)
+      digits = raw.to_s.gsub(/\D/, "")
+      return nil unless digits.length == 13
+      "#{digits[0, 3]}.#{digits[3, 4]}.#{digits[7, 4]}.#{digits[11, 2]}"
+    end
 
     # AWK CSV mit Dauer-Kappung auf max. 90 Minuten
     def generate_awk_csv_capped(course, date_range)
