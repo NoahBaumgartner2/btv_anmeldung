@@ -483,6 +483,7 @@ class ExportProfile < ApplicationRecord
   def baspo_awk_duration(session)
     return nil unless session.start_time && session.end_time
     minutes = ((session.end_time - session.start_time) / 60).round
+    minutes = [ minutes, 90 ].min
     BASPO_AWK_DURATIONS.min_by { |d| (d - minutes).abs }
   end
 
