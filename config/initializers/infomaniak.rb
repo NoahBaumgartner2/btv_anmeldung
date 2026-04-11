@@ -7,38 +7,51 @@
 module InfomaniakConfig
   REQUIRED_KEYS = %i[api_token mailing_list_id base_url].freeze
 
-  # Config wird direkt im Modul gehalten (attr_reader), damit `configured?`
-  # nie auf `Rails.application.config` zugreifen muss – dessen method_missing
-  # ruft `super` und wirft NoMethodError, wenn der Key nie gesetzt wurde.
+  # Schützt @config vor Race Conditions unter Puma (multi-threaded).
+  CONFIG_LOCK = Mutex.new
+  private_constant :CONFIG_LOCK
+
   class << self
-    attr_reader :config
-
-    def load!
-      raw = Rails.application.credentials.infomaniak
-
-      if Rails.env.production?
-        missing = REQUIRED_KEYS.select { |k| raw&.dig(k).blank? }
-        if missing.any?
-          raise <<~MSG
-            [InfomaniakConfig] Fehlende Credentials in Production: #{missing.join(', ')}.
-            Bitte via `bin/rails credentials:edit` unter dem Key `infomaniak` eintragen.
-            Beispielstruktur: config/credentials/infomaniak.yml.example
-          MSG
-        end
-      end
-
-      @config = ActiveSupport::OrderedOptions.new.tap do |cfg|
-        cfg.api_token       = raw&.dig(:api_token)
-        cfg.mailing_list_id = raw&.dig(:mailing_list_id)
-        cfg.base_url        = raw&.dig(:base_url).presence || "https://api.infomaniak.com"
-      end
-
-      # Mirror auf Rails.application.config für ServiceObject-Zugriff
-      Rails.application.config.infomaniak = @config
+    # Thread-sicherer Lesezugriff auf die aktuelle Konfiguration.
+    def config
+      CONFIG_LOCK.synchronize { @config }
     end
 
     def configured?
-      config&.api_token.present? && config&.mailing_list_id.present?
+      c = config
+      c&.api_token.present? && c&.mailing_list_id.present?
+    end
+
+    # Liest Konfiguration aus DB (Vorrang) und fällt auf Credentials zurück.
+    # Thread-sicher: @config wird atomar ersetzt.
+    def load!
+      raw        = Rails.application.credentials.infomaniak
+      db_setting = load_from_db
+
+      new_config = ActiveSupport::OrderedOptions.new.tap do |cfg|
+        cfg.api_token       = db_setting&.api_token.presence       || raw&.dig(:api_token)
+        cfg.mailing_list_id = db_setting&.mailing_list_id.presence || raw&.dig(:mailing_list_id)
+        cfg.base_url        = db_setting&.effective_base_url        || raw&.dig(:base_url).presence || "https://api.infomaniak.com"
+      end
+
+      CONFIG_LOCK.synchronize do
+        @config = new_config
+        # Mirror auf Rails.application.config für ServiceObject-Zugriff
+        Rails.application.config.infomaniak = @config
+      end
+    end
+
+    def reload!
+      load!
+    end
+
+    private
+
+    def load_from_db
+      InfomaniakSetting.first
+    rescue => e
+      Rails.logger.warn "[InfomaniakConfig] DB-Lese-Fehler: #{e.message}"
+      nil
     end
   end
 end

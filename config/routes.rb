@@ -14,6 +14,9 @@ Rails.application.routes.draw do
       post :test_connection
       post :sync_payments
     end
+    resource :infomaniak_setting, only: [:show, :edit, :update] do
+      post :test_connection
+    end
     resource :club_setting, only: [:show, :edit, :update] do
       delete :destroy_logo, on: :member
     end

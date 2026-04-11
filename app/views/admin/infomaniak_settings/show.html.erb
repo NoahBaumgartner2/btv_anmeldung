@@ -1,0 +1,127 @@
+<%
+  configured = @infomaniak_setting.persisted? && @infomaniak_setting.configured?
+  active     = @infomaniak_setting.persisted? && @infomaniak_setting.active?
+%>
+
+<div class="max-w-3xl mx-auto mt-10 mb-16 px-4">
+
+  <%# ── Header ────────────────────────────────────────────────────────────── %>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
+    <div>
+      <%= link_to "← Kommandozentrale", dashboards_admin_path,
+            class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">Newsletter-API</h1>
+      <p class="text-gray-500 mt-1 text-sm">Infomaniak-Konfiguration für den Newsletter-Versand.</p>
+    </div>
+    <%= link_to "Bearbeiten", edit_admin_infomaniak_setting_path,
+          class: "shrink-0 inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition min-h-11" %>
+  </div>
+
+  <%# ── Status-Banner ──────────────────────────────────────────────────────── %>
+  <% if configured && active %>
+    <div class="rounded-xl border border-green-200 bg-green-50 px-5 py-4 mb-6 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-green-200 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-green-800">Infomaniak aktiv</p>
+        <p class="text-xs text-green-700 mt-0.5">Newsletter-API ist konfiguriert und aktiviert.</p>
+      </div>
+    </div>
+  <% elsif configured %>
+    <div class="rounded-xl border border-yellow-200 bg-yellow-50 px-5 py-4 mb-6 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-yellow-200 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-yellow-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-yellow-800">Konfiguriert aber inaktiv</p>
+        <p class="text-xs text-yellow-700 mt-0.5">Infomaniak ist eingerichtet, aber noch nicht aktiviert.</p>
+      </div>
+    </div>
+  <% else %>
+    <div class="rounded-xl border border-gray-200 bg-gray-50 px-5 py-4 mb-6 flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
+        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <div>
+        <p class="text-sm font-bold text-gray-700">Nicht konfiguriert</p>
+        <p class="text-xs text-gray-500 mt-0.5">API-Token und Mailinglisten-ID noch nicht hinterlegt. Credentials-Fallback aktiv wenn gesetzt.</p>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ── API-Zugangsdaten ───────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">API-Zugangsdaten</p>
+    </div>
+    <dl class="divide-y divide-gray-100">
+      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+        <dt class="font-medium text-gray-500 w-48 shrink-0">API-Token</dt>
+        <dd class="font-mono text-xs text-gray-600">
+          <%= @infomaniak_setting.api_token_present? ? "••••••••••••••••••••••••" : "—" %>
+        </dd>
+      </div>
+      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+        <dt class="font-medium text-gray-500 w-48 shrink-0">Mailinglisten-ID</dt>
+        <dd class="font-mono text-xs text-gray-700 truncate max-w-xs">
+          <%= @infomaniak_setting.mailing_list_id.presence || "—" %>
+        </dd>
+      </div>
+      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+        <dt class="font-medium text-gray-500 w-48 shrink-0">API-URL</dt>
+        <dd class="font-mono text-xs text-gray-700 truncate max-w-xs">
+          <%= @infomaniak_setting.effective_base_url %>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <%# ── Status ─────────────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Konfiguration</p>
+    </div>
+    <dl class="divide-y divide-gray-100">
+      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+        <dt class="font-medium text-gray-500 w-48 shrink-0">Status</dt>
+        <dd>
+          <% if active %>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">
+              <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block"></span>
+              Aktiv
+            </span>
+          <% else %>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-600">
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-400 inline-block"></span>
+              Inaktiv
+            </span>
+          <% end %>
+        </dd>
+      </div>
+    </dl>
+  </div>
+
+  <%# ── Verbindung testen ───────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <p class="text-sm font-bold text-gray-700 mb-1">Verbindung testen</p>
+    <p class="text-xs text-gray-500 mb-4">
+      Sendet eine Test-Anfrage an die Infomaniak API (<code class="bg-gray-100 px-1 rounded">/1/profile</code>), um den API-Token zu validieren.
+    </p>
+    <%= form_with url: test_connection_admin_infomaniak_setting_path, method: :post, class: "flex gap-2" do |f| %>
+      <%= f.submit "Verbindung testen",
+            class: "bg-gray-800 hover:bg-gray-900 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition cursor-pointer shadow-sm #{"opacity-50 cursor-not-allowed" unless configured}",
+            disabled: !configured %>
+    <% end %>
+    <% unless configured %>
+      <p class="text-xs text-gray-400 mt-2">Infomaniak muss konfiguriert sein, um den Test durchführen zu können.</p>
+    <% end %>
+  </div>
+
+</div>
