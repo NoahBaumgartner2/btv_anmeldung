@@ -10,9 +10,8 @@ Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung 
 - https://www.kids-sport.ch/
 - trainer separat (von hand)
 - wenn training mehr als 1.5h, dann max 1.5h
-- email konfigurations seite sieht auf mobil noch nicht gut aus
-- neuer kurs fomular schöner machen auch mobile anpassen
-- 
+- richtige überprüfung des formulars bei mein profil new zum beispiel das ahv wirklich richtig eingegeben ist
+- notifications anpassen
 
 ### Workflow NDS
 - 1. Teilnehmende exportieren meine datenbank

@@ -86,6 +86,9 @@ Rails.application.routes.draw do
     post :unsubscribe_newsletter, on: :member
   end
 
+  # Dynamische CSS-Variablen (Vereinsfarben) – öffentlich, versioniert via ?v=
+  get '/club_colors.css', to: 'club_colors#show', as: :club_colors
+
   devise_for :users, controllers: { confirmations: "users/confirmations" }
   root "pages#home"
 end

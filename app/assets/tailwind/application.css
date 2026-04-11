@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Safe-area-Hilfsklassen für Geräte mit Notch (iPhone etc.) */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
+
 /* ── Vereinsfarben als Tailwind-Utilities ───────────────────────────────────
    Die CSS-Variablen --color-primary und --color-secondary werden vom Server
    im Layout-<style>-Block gesetzt (aus ClubSetting).
