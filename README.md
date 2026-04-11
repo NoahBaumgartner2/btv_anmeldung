@@ -10,7 +10,6 @@ Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung 
 - https://www.kids-sport.ch/
 - trainer separat (von hand)
 - wenn training mehr als 1.5h, dann max 1.5h
-- Mein Porfil vergrössern geht nicht
 - email konfigurations seite sieht auf mobil noch nicht gut aus
 - neuer kurs fomular schöner machen auch mobile anpassen
 - 

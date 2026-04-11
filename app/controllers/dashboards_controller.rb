@@ -72,8 +72,8 @@ class DashboardsController < ApplicationController
     @absent_count   = all_attendances.where(status: "abwesend").count
     @excused_count  = all_attendances.where(status: "abgemeldet").count
 
-    # Kurs-Filter
-    @selected_course_id = params[:course_id].presence&.to_i
+    # Kurs-Filter (Multi-Select)
+    @selected_course_ids = Array(params[:course_ids]).map(&:to_i).select(&:positive?)
   end
 
   def trainer

@@ -135,23 +135,27 @@
                       <%# ── Ticket / QR-Code ──────────────────────────── %>
                       <div class="mt-auto pt-4 sm:pt-5 border-t border-gray-100 flex flex-col items-center">
                         <% if reg.status == "bestätigt" && course.has_ticketing %>
-                          <div class="cursor-pointer hover:scale-105 active:scale-95 transition transform group w-full flex flex-col items-center"
-                               onclick="var el=document.getElementById('qr-modal-<%= reg.id.to_json %>'); el.classList.remove('hidden'); el.classList.add('flex')">
-                            <div class="bg-white p-2 rounded-xl border-2 border-dashed border-gray-300 mb-3 w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
-                              <%= generate_qr_code(scan_course_registration_url(reg)) %>
-                            </div>
-                            <p class="text-xs text-purple-600 font-bold uppercase tracking-wider text-center">Ticket vergrössern</p>
-                          </div>
-                          <%# QR Modal %>
-                          <div id="qr-modal-<%= reg.id %>" class="hidden fixed inset-0 z-100 items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4" onclick="this.classList.remove('flex'); this.classList.add('hidden')">
-                            <div class="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center" onclick="event.stopPropagation()">
-                              <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-1">Ticket &ndash; <%= participant.first_name %></h3>
-                              <p class="text-gray-500 mb-6 sm:mb-8 text-center font-medium text-sm sm:text-base"><%= course.title %></p>
-                              <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-6 sm:mb-8 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
+                          <div data-controller="modal" class="contents">
+                            <div class="cursor-pointer hover:scale-105 active:scale-95 transition transform group w-full flex flex-col items-center"
+                                 data-action="click->modal#open">
+                              <div class="bg-white p-2 rounded-xl border-2 border-dashed border-gray-300 mb-3 w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
                                 <%= generate_qr_code(scan_course_registration_url(reg)) %>
                               </div>
-                              <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition w-full text-base sm:text-lg min-h-12"
-                                      onclick="document.getElementById('qr-modal-<%= reg.id.to_json %>').classList.add('hidden')">Schliessen</button>
+                              <p class="text-xs text-purple-600 font-bold uppercase tracking-wider text-center">Ticket vergrössern</p>
+                            </div>
+                            <%# QR Modal %>
+                            <div data-modal-target="dialog"
+                                 data-action="click->modal#backdropClose"
+                                 class="hidden fixed inset-0 z-100 items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4">
+                              <div class="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center">
+                                <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-1">Ticket &ndash; <%= participant.first_name %></h3>
+                                <p class="text-gray-500 mb-6 sm:mb-8 text-center font-medium text-sm sm:text-base"><%= course.title %></p>
+                                <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-6 sm:mb-8 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
+                                  <%= generate_qr_code(scan_course_registration_url(reg)) %>
+                                </div>
+                                <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition w-full text-base sm:text-lg min-h-12"
+                                        data-action="click->modal#close">Schliessen</button>
+                              </div>
                             </div>
                           </div>
                         <% elsif reg.status == "bestätigt" %>
@@ -236,34 +240,38 @@
                     <% end %>
                   </div>
                   <% if course.has_ticketing && next_reg %>
-                    <div class="border-t border-gray-100 px-4 sm:px-5 py-4">
-                      <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Ticket &ndash; nächster Termin</p>
-                      <div class="flex items-center gap-4">
-                        <div class="cursor-pointer hover:scale-105 active:scale-95 transition transform group flex flex-col items-center shrink-0"
-                             onclick="var el=document.getElementById('qr-modal-<%= next_reg.id.to_json %>'); el.classList.remove('hidden'); el.classList.add('flex')">
-                          <div class="bg-white p-1.5 rounded-xl border-2 border-dashed border-gray-300 w-20 h-20 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
-                            <%= generate_qr_code(scan_course_registration_url(next_reg)) %>
+                    <div data-controller="modal" class="contents">
+                      <div class="border-t border-gray-100 px-4 sm:px-5 py-4">
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Ticket &ndash; nächster Termin</p>
+                        <div class="flex items-center gap-4">
+                          <div class="cursor-pointer hover:scale-105 active:scale-95 transition transform group flex flex-col items-center shrink-0"
+                               data-action="click->modal#open">
+                            <div class="bg-white p-1.5 rounded-xl border-2 border-dashed border-gray-300 w-20 h-20 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
+                              <%= generate_qr_code(scan_course_registration_url(next_reg)) %>
+                            </div>
+                          </div>
+                          <div class="min-w-0">
+                            <p class="text-sm font-bold text-gray-800"><%= next_reg.training_session.start_time.strftime("%-d. %B %Y") %></p>
+                            <p class="text-xs text-gray-500"><%= next_reg.training_session.start_time.strftime("%H:%M") %> &ndash; <%= next_reg.training_session.end_time&.strftime("%H:%M") %> Uhr</p>
+                            <button class="mt-1.5 text-xs text-purple-600 font-bold hover:underline min-h-11 flex items-center"
+                                    data-action="click->modal#open">Vergrössern</button>
                           </div>
                         </div>
-                        <div class="min-w-0">
-                          <p class="text-sm font-bold text-gray-800"><%= next_reg.training_session.start_time.strftime("%-d. %B %Y") %></p>
-                          <p class="text-xs text-gray-500"><%= next_reg.training_session.start_time.strftime("%H:%M") %> &ndash; <%= next_reg.training_session.end_time&.strftime("%H:%M") %> Uhr</p>
-                          <button class="mt-1.5 text-xs text-purple-600 font-bold hover:underline min-h-11 flex items-center"
-                                  onclick="var el=document.getElementById('qr-modal-<%= next_reg.id.to_json %>'); el.classList.remove('hidden'); el.classList.add('flex')">Vergrössern</button>
-                        </div>
                       </div>
-                    </div>
-                    <%# QR Modal %>
-                    <div id="qr-modal-<%= next_reg.id %>" class="hidden fixed inset-0 z-100 items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4" onclick="this.classList.remove('flex'); this.classList.add('hidden')">
-                      <div class="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center" onclick="event.stopPropagation()">
-                        <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-1">Ticket &ndash; <%= participant.first_name %></h3>
-                        <p class="text-gray-500 mb-1 text-center font-medium text-sm sm:text-base"><%= course.title %></p>
-                        <p class="text-sm text-gray-400 mb-6 sm:mb-8 text-center"><%= next_reg.training_session.start_time.strftime("%-d. %B %Y, %H:%M") %> Uhr</p>
-                        <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-6 sm:mb-8 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
-                          <%= generate_qr_code(scan_course_registration_url(next_reg)) %>
+                      <%# QR Modal %>
+                      <div data-modal-target="dialog"
+                           data-action="click->modal#backdropClose"
+                           class="hidden fixed inset-0 z-100 items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4">
+                        <div class="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center">
+                          <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-1">Ticket &ndash; <%= participant.first_name %></h3>
+                          <p class="text-gray-500 mb-1 text-center font-medium text-sm sm:text-base"><%= course.title %></p>
+                          <p class="text-sm text-gray-400 mb-6 sm:mb-8 text-center"><%= next_reg.training_session.start_time.strftime("%-d. %B %Y, %H:%M") %> Uhr</p>
+                          <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-6 sm:mb-8 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
+                            <%= generate_qr_code(scan_course_registration_url(next_reg)) %>
+                          </div>
+                          <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition w-full text-base sm:text-lg min-h-12"
+                                  data-action="click->modal#close">Schliessen</button>
                         </div>
-                        <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition w-full text-base sm:text-lg min-h-12"
-                                onclick="document.getElementById('qr-modal-<%= next_reg.id.to_json %>').classList.add('hidden')">Schliessen</button>
                       </div>
                     </div>
                   <% end %>

@@ -18,7 +18,7 @@
   <% if @courses.any? %>
     <% @courses.group_by { |c| c.title.split("(").first.strip }.sort.each do |category, courses_in_category| %>
 
-      <details open class="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">
+      <details class="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">
 
         <%# ── Kategorie-Header (Touch-Target ≥ 44px) ────────────────────── %>
         <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 sm:px-5 py-4 min-h-[56px] hover:bg-gray-50 transition select-none">
