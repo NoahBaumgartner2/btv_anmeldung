@@ -23,6 +23,11 @@ Rails.application.routes.draw do
     resources :export_profiles, only: %i[index new create edit update destroy] do
       member { get :download }
     end
+    resource :nds, only: [:show], controller: "nds" do
+      post :export_persons
+      post :import_persons
+      post :export_awk
+    end
   end
 
   resources :trainers

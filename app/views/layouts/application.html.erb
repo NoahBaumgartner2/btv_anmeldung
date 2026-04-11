@@ -75,6 +75,7 @@
                 <%= link_to "Mein Profil", participants_path, class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
                 <% if current_user.admin? %>
                   <%= link_to "Admin-Dashboard", dashboards_admin_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
+                  <%= link_to "NDS / J+S", admin_nds_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
                 <% end %>
 
                 <% if Trainer.exists?(user: current_user) && !current_user.admin? %>
@@ -135,6 +136,9 @@
 
             <% if current_user.admin? %>
               <%= link_to "Admin-Dashboard", dashboards_admin_path,
+                    data: { action: "click->mobile-menu#close" },
+                    class: "block px-3 py-2.5 rounded-lg text-base font-bold text-red-600 hover:text-red-800 hover:bg-red-50 transition" %>
+              <%= link_to "NDS / J+S", admin_nds_path,
                     data: { action: "click->mobile-menu#close" },
                     class: "block px-3 py-2.5 rounded-lg text-base font-bold text-red-600 hover:text-red-800 hover:bg-red-50 transition" %>
             <% end %>
