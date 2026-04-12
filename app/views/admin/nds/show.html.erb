@@ -26,9 +26,9 @@
       <%= form_with url: export_persons_admin_nds_path, method: :post do |f| %>
         <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
           <div class="flex-1">
-            <%= f.label :course_id, "Kurs", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.label :course_id, "J+S-Kurs", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.select :course_id,
-                  options_for_select([["Alle Kurse", ""]].concat(@courses.map { |c| [c.title, c.id] })),
+                  options_for_select([["Alle J+S-Kurse", ""]].concat(@courses.map { |c| [c.title, c.id] })),
                   {},
                   class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
@@ -178,7 +178,7 @@
           <div class="sm:col-span-3">
             <%= f.label :course_id, "J+S-Kurs (leer = alle J+S-Kurse)", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.select :course_id,
-                  options_for_select([["Alle J+S-Kurse", ""]].concat(@js_courses.map { |c| [c.title, c.id] }),
+                  options_for_select([["Alle J+S-Kurse", ""]].concat(@courses.map { |c| [c.title, c.id] }),
                                      @attendance_check&.dig(:course_id)),
                   {},
                   class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
@@ -263,9 +263,9 @@
       <%= form_with url: export_awk_admin_nds_path, method: :post do |f| %>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
           <div class="sm:col-span-3">
-            <%= f.label :course_id, "Kurs (Pflicht)", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.label :course_id, "J+S-Kurs (Pflicht)", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.select :course_id,
-                  options_for_select([["Kurs auswählen …", ""]].concat(@courses.map { |c| [c.title, c.id] })),
+                  options_for_select([["J+S-Kurs auswählen …", ""]].concat(@courses.map { |c| [c.title, c.id] })),
                   {},
                   class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
