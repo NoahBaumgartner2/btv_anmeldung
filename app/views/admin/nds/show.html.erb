@@ -163,10 +163,97 @@
     </div>
   </div>
 
-  <%# ── Schritt 5 ──────────────────────────────────────────────────────────── %>
+  <%# ── Schritt 5 – Präsenzkontrolle prüfen ───────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">5</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Präsenzkontrolle prüfen <span class="text-gray-400 font-normal">(vor dem AWK-Export)</span></p>
+        <p class="text-xs text-gray-500 mt-0.5">Prüft, ob alle J+S-Trainings im gewählten Zeitraum vollständig erfasst wurden.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5">
+      <%= form_with url: check_attendance_admin_nds_path, method: :get do |f| %>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <div class="sm:col-span-3">
+            <%= f.label :course_id, "J+S-Kurs (leer = alle J+S-Kurse)", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.select :course_id,
+                  options_for_select([["Alle J+S-Kurse", ""]].concat(@js_courses.map { |c| [c.title, c.id] }),
+                                     @attendance_check&.dig(:course_id)),
+                  {},
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <div>
+            <%= f.label :date_from, "Von", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.date_field :date_from,
+                  value: (@attendance_check&.dig(:date_from) || Date.today.beginning_of_month).iso8601,
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <div>
+            <%= f.label :date_to, "Bis", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.date_field :date_to,
+                  value: (@attendance_check&.dig(:date_to) || Date.today).iso8601,
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <div class="flex items-end">
+            <%= f.submit "Präsenzkontrolle prüfen",
+                  class: "w-full bg-gray-700 hover:bg-gray-800 active:bg-gray-900 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+          </div>
+        </div>
+      <% end %>
+
+      <%# Ergebnis der Prüfung %>
+      <% if @attendance_check %>
+        <% chk = @attendance_check %>
+        <% if chk[:checked_count] == 0 %>
+          <div class="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 mt-2 text-sm text-gray-500">
+            Keine J+S-Kurse im gewählten Zeitraum gefunden.
+          </div>
+        <% elsif chk[:all_done] %>
+          <div class="flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 mt-2">
+            <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-sm font-semibold text-green-800">
+              Alle Präsenzkontrollen vollständig erfasst
+              <span class="font-normal text-green-700">(<%=chk[:checked_count]%> J+S-Kurs<%= chk[:checked_count] == 1 ? "" : "e" %>, bis <%= chk[:effective_to].strftime("%d.%m.%Y") %>)</span>
+            </p>
+          </div>
+        <% else %>
+          <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 mt-2 space-y-3">
+            <div class="flex items-start gap-2">
+              <svg class="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p class="text-sm font-semibold text-red-800">
+                <%= chk[:missing].size %> Kurs<%= chk[:missing].size == 1 ? "" : "e" %> mit unvollständigen Präsenzkontrollen
+                <span class="font-normal text-red-700">(bis <%= chk[:effective_to].strftime("%d.%m.%Y") %>)</span>
+              </p>
+            </div>
+            <% chk[:missing].each do |course_data| %>
+              <div class="ml-7">
+                <p class="text-xs font-bold text-red-700 mb-1.5"><%= course_data[:course_title] %></p>
+                <ul class="space-y-1">
+                  <% course_data[:sessions].each do |s| %>
+                    <li class="flex items-center gap-2 text-xs text-red-700">
+                      <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></span>
+                      <span class="font-medium"><%= s[:weekday] %>, <%= s[:date] %> <%= s[:time] %> Uhr</span>
+                      <span class="text-red-500">–  <%= s[:recorded] %>/<%= s[:total] %> erfasst</span>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Schritt 6 – AWK exportieren ────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">6</span>
       <div>
         <p class="text-sm font-bold text-gray-800">Anwesenheitskontrolle exportieren <span class="text-gray-400 font-normal">(aus unserer Datenbank)</span></p>
         <p class="text-xs text-gray-500 mt-0.5">Generiert die BASPO AWK-CSV für den Upload in die NDS.</p>
@@ -207,10 +294,10 @@
     </div>
   </div>
 
-  <%# ── Schritt 6 ──────────────────────────────────────────────────────────── %>
+  <%# ── Schritt 7 ──────────────────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
-      <span class="shrink-0 w-7 h-7 rounded-full bg-gray-300 text-gray-600 text-xs font-extrabold flex items-center justify-center">6</span>
+      <span class="shrink-0 w-7 h-7 rounded-full bg-gray-300 text-gray-600 text-xs font-extrabold flex items-center justify-center">7</span>
       <div>
         <p class="text-sm font-bold text-gray-800">AWK in NDS importieren <span class="text-gray-400 font-normal">(manuell)</span></p>
         <p class="text-xs text-gray-500 mt-0.5">Die AWK-CSV in der NDS hochladen – letzter Schritt.</p>

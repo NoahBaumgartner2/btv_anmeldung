@@ -17,11 +17,83 @@ module Admin
     # ── Public Actions ──────────────────────────────────────────────────────
 
     def show
-      @courses = Course.order(:title)
+      @courses    = Course.order(:title)
+      @js_courses = Course.where(is_js_training: true).order(:title)
       # Importergebnis aus Cache laden (nur der Schlüssel steht im Cookie)
       if (key = flash[:nds_result_key]).present?
         @nds_results = Rails.cache.read(key)
       end
+      # Präsenzkontrolle-Prüfung aus Cache laden
+      if (key = flash[:nds_check_key]).present?
+        @attendance_check = Rails.cache.read(key)
+      end
+    end
+
+    # Schritt 5 – Präsenzkontrolle auf Vollständigkeit prüfen
+    def check_attendance
+      course_id    = params[:course_id]
+      date_from    = safe_date(params[:date_from]) || Date.today.beginning_of_month
+      date_to      = safe_date(params[:date_to])   || Date.today
+      effective_to = [ date_to, Date.today ].min
+
+      js_courses = course_id.present? \
+        ? Course.where(id: course_id, is_js_training: true)
+        : Course.where(is_js_training: true)
+
+      js_courses = js_courses
+                     .includes(:course_registrations,
+                               training_sessions: :attendances)
+                     .order(:title)
+
+      missing_by_course = []
+
+      js_courses.each do |course|
+        reg_count = course.course_registrations.count { |r| r.status == "bestätigt" }
+        next if reg_count == 0
+
+        sessions = course.training_sessions
+                         .reject(&:is_canceled?)
+                         .select { |s| s.start_time && s.start_time.to_date.between?(date_from, effective_to) }
+                         .sort_by(&:start_time)
+
+        missing_sessions = sessions.select do |s|
+          recorded = s.attendances.count { |a| a.status.present? }
+          recorded < reg_count
+        end
+
+        next if missing_sessions.empty?
+
+        missing_by_course << {
+          course_id:    course.id,
+          course_title: course.title,
+          sessions:     missing_sessions.map do |s|
+            {
+              id:       s.id,
+              date:     s.start_time.strftime("%d.%m.%Y"),
+              weekday:  I18n.l(s.start_time, format: "%A"),
+              time:     s.start_time.strftime("%H:%M"),
+              recorded: s.attendances.count { |a| a.status.present? },
+              total:    reg_count
+            }
+          end
+        }
+      end
+
+      results = {
+        date_from:     date_from,
+        date_to:       date_to,
+        effective_to:  effective_to,
+        course_id:     course_id,
+        checked_count: js_courses.count,
+        missing:       missing_by_course,
+        all_done:      missing_by_course.empty?
+      }
+
+      cache_key = "nds_check_#{SecureRandom.uuid}"
+      Rails.cache.write(cache_key, results, expires_in: 10.minutes)
+      flash[:nds_check_key] = cache_key
+
+      redirect_to admin_nds_path
     end
 
     # Schritt 1 – BASPO Personenimport CSV herunterladen

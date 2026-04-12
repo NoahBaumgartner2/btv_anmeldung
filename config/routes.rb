@@ -27,6 +27,7 @@ Rails.application.routes.draw do
       post :export_persons
       post :import_persons
       post :export_awk
+      get  :check_attendance
     end
   end
 
