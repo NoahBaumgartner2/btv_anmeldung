@@ -2,7 +2,7 @@
 service: btv_anmeldung
 
 # GitHub Container Registry
-image: NoahBaumgartner2/btv_anmeldung
+image: noahbaumgartner2/btv_anmeldung
 
 # Dein Infomaniak Server
 servers:
@@ -21,7 +21,7 @@ proxy:
 # Wo das gebaute Docker-Image gespeichert wird
 registry:
   server: ghcr.io
-  username: NoahBaumgartner2
+  username: noahbaumgartner2
   password:
     - KAMAL_REGISTRY_PASSWORD
 
