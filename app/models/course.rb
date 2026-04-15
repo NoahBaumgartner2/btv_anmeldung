@@ -31,9 +31,12 @@ class Course < ApplicationRecord
     street:           "Strasse"
   }.freeze
 
-  # Gibt die Symbole der Pflichtfelder zurück, die für diesen Kurs aktiviert sind
+  # Gibt die Symbole der Pflichtfelder zurück, die für diesen Kurs aktiviert sind.
+  # Bei J+S-Kursen ist die AHV-Nummer immer Pflicht.
   def required_participant_fields
-    CONFIGURABLE_REQUIRED_FIELDS.keys.select { |field| self["requires_#{field}"] }
+    fields = CONFIGURABLE_REQUIRED_FIELDS.keys.select { |field| self["requires_#{field}"] }
+    fields |= [ :ahv_number ] if is_js_training?
+    fields
   end
 
   # ── Altersbeschränkung ─────────────────────────────────────────────────────

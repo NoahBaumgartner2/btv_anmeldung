@@ -17,8 +17,7 @@ module Admin
     # ── Public Actions ──────────────────────────────────────────────────────
 
     def show
-      @courses    = Course.order(:title)
-      @js_courses = Course.where(is_js_training: true).order(:title)
+      @courses = Course.where(is_js_training: true).order(:title)
       # Importergebnis aus Cache laden (nur der Schlüssel steht im Cookie)
       if (key = flash[:nds_result_key]).present?
         @nds_results = Rails.cache.read(key)
