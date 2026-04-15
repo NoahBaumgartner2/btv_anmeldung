@@ -1,8 +1,8 @@
-<div class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-10 mb-16">
+<div class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 mb-16">
 
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 sm:mb-8 gap-4">
     <div>
-      <h1 class="font-extrabold text-4xl text-gray-900"><%= @course.title %></h1>
+      <h1 class="font-extrabold text-2xl sm:text-4xl text-gray-900"><%= @course.title %></h1>
       <span class="inline-block mt-3 bg-primary-100 text-primary-800 text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-wide">
         <%= @course.registration_type.presence || "Kurs" %>
       </span>
@@ -28,7 +28,7 @@
     </div>
   </div>
 
-  <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-200">
+  <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-200">
     <h2 class="text-xl font-bold text-gray-900 border-b border-gray-100 pb-4 mb-6">Details zum Kurs</h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -37,8 +37,8 @@
         <p class="text-gray-800 leading-relaxed text-lg"><%= @course.description.presence || "Für diesen Kurs ist keine weitere Beschreibung verfügbar." %></p>
       </div>
 
-      <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100">
-        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Wann & Wo</p>
+      <div class="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-100">
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Wann &amp; Wo</p>
         <ul class="space-y-4 text-gray-900 font-medium">
           <li class="flex items-start">
             <span class="mr-3 text-xl"></span>
@@ -51,7 +51,7 @@
         </ul>
       </div>
 
-      <div class="bg-gray-50 p-5 rounded-2xl border border-gray-100">
+      <div class="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-100">
         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Informationen zur Anmeldung</p>
         <ul class="space-y-4 text-gray-900 font-medium">
           <li class="flex items-start">
@@ -68,7 +68,7 @@
   </div>
 
   <% if @course.registration_mode == 'single_session' %>
-    <div id="termine" class="mt-8 bg-secondary-50 p-8 rounded-3xl border border-secondary-200 shadow-sm scroll-mt-6">
+    <div id="termine" class="mt-6 sm:mt-8 bg-secondary-50 p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-secondary-200 shadow-sm scroll-mt-6">
       <h2 class="text-2xl font-extrabold text-secondary-900 mb-6 flex items-center gap-2">
         <span></span> Wähle deinen Termin
       </h2>
@@ -131,18 +131,18 @@
 
 
   <% if user_signed_in? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
-    <div class="mt-8 bg-primary-50/50 p-8 rounded-3xl border border-primary-100">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-extrabold text-primary-900 flex items-center gap-2">
-          <span></span> Trainer & Admin Bereich
+    <div class="mt-6 sm:mt-8 bg-primary-50/50 p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-primary-100">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
+        <h2 class="text-lg sm:text-xl font-extrabold text-primary-900 flex items-center gap-2">
+          Trainer &amp; Admin Bereich
         </h2>
 
         <div class="flex gap-2">
           <% if current_user.admin? %>
-            <%= link_to "Kurs bearbeiten", edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-gray-50 transition" %>
+            <%= link_to "Kurs bearbeiten", edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-gray-50 active:bg-gray-100 transition min-h-11 flex items-center" %>
           <% end %>
 
-          <%= link_to "Neue Session", new_training_session_path(course_id: @course.id), class: "bg-primary-600 text-white text-sm font-bold py-2 px-4 rounded-xl shadow-sm hover:bg-primary-700 transition" %>
+          <%= link_to "Neue Session", new_training_session_path(course_id: @course.id), class: "bg-primary-600 text-white text-sm font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-primary-700 active:bg-primary-800 transition min-h-11 flex items-center" %>
         </div>
       </div>
 
@@ -178,8 +178,8 @@
     <% my_registrations = @course.course_registrations.joins(:participant).where(participants: { user_id: current_user.id }, status: 'bestätigt') %>
 
     <% if my_registrations.any? %>
-      <div class="mt-12 bg-secondary-50 p-8 rounded-3xl border border-secondary-200">
-        <h2 class="text-2xl font-extrabold text-secondary-900 mb-6 text-center">Eure digitalen Tickets</h2>
+      <div class="mt-8 sm:mt-12 bg-secondary-50 p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-secondary-200">
+        <h2 class="text-xl sm:text-2xl font-extrabold text-secondary-900 mb-6 text-center">Eure digitalen Tickets</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <% my_registrations.each do |reg| %>
@@ -196,16 +196,16 @@
                 </p>
               </div>
 
-              <div id="qr-modal-course-<%= reg.id %>" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-80 backdrop-blur-sm p-4 text-left" onclick="this.classList.add('hidden')">
-                <div class="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center" onclick="event.stopPropagation()">
-                  <h3 class="text-2xl font-black text-gray-900 mb-1"><%= reg.participant.first_name %>'s Ticket</h3>
+              <div id="qr-modal-course-<%= reg.id %>" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4 text-left" onclick="this.classList.add('hidden')">
+                <div class="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center" onclick="event.stopPropagation()">
+                  <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-1"><%= reg.participant.first_name %>'s Ticket</h3>
                   <p class="text-gray-500 mb-8 text-center font-medium"><%= @course.title %></p>
 
-                  <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-8 w-64 h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
+                  <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-6 sm:mb-8 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
                     <%= generate_qr_code(scan_course_registration_url(reg)) %>
                   </div>
 
-                  <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 transition w-full text-lg" onclick="document.getElementById('qr-modal-course-<%= reg.id %>').classList.add('hidden')">
+                  <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition w-full text-base sm:text-lg min-h-12" onclick="document.getElementById('qr-modal-course-<%= reg.id %>').classList.add('hidden')">
                     Schließen
                   </button>
                 </div>

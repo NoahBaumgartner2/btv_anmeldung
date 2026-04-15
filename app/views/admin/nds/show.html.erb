@@ -1,0 +1,318 @@
+<% content_for :title, "NDS / J+S Workflow" %>
+
+<div class="max-w-3xl mx-auto mt-10 mb-16 px-4">
+
+  <%# ── Header ────────────────────────────────────────────────────────────── %>
+  <div class="mb-8">
+    <%= link_to "← Kommandozentrale", dashboards_admin_path,
+          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">NDS / J+S Datenaustausch</h1>
+    <p class="text-gray-500 mt-1 text-sm">
+      Workflow für den BASPO Jugend+Sport Datenaustausch – Personenimport und Anwesenheitskontrolle (AWK).
+    </p>
+  </div>
+
+
+  <%# ── Schritt 1 ──────────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">1</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Teilnehmende exportieren <span class="text-gray-400 font-normal">(aus unserer Datenbank)</span></p>
+        <p class="text-xs text-gray-500 mt-0.5">Generiert die BASPO Personenimport-CSV für den Upload in die NDS.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5">
+      <%= form_with url: export_persons_admin_nds_path, method: :post do |f| %>
+        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+          <div class="flex-1">
+            <%= f.label :course_id, "Kurs", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.select :course_id,
+                  options_for_select([["Alle Kurse", ""]].concat(@courses.map { |c| [c.title, c.id] })),
+                  {},
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <%= f.submit "CSV herunterladen",
+                class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+        </div>
+      <% end %>
+      <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-3">
+        <strong>Hinweis:</strong> Trainer werden <strong>nicht</strong> exportiert – diese müssen separat von Hand in der NDS erfasst werden.
+      </p>
+    </div>
+  </div>
+
+  <%# ── Schritt 2 ──────────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-gray-300 text-gray-600 text-xs font-extrabold flex items-center justify-center">2</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Teilnehmende in NDS importieren <span class="text-gray-400 font-normal">(manuell)</span></p>
+        <p class="text-xs text-gray-500 mt-0.5">Die heruntergeladene CSV in der NDS hochladen und verarbeiten.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5 text-sm text-gray-600 space-y-2">
+      <p>Laden Sie die CSV-Datei aus Schritt 1 in der NDS (Jugend+Sport-Datenbank) hoch. Folgen Sie den Schritten in der NDS:</p>
+      <ol class="list-decimal list-inside space-y-1 text-gray-600 ml-1">
+        <li>Prüfung der Datensätze</li>
+        <li>Duplikatsprüfung</li>
+        <li>Registerabgleich</li>
+        <li>Import bestätigen</li>
+      </ol>
+      <a href="https://www.jugendundsport.ch" target="_blank" rel="noopener noreferrer"
+         class="inline-flex items-center gap-1.5 text-primary-600 hover:text-primary-800 font-semibold text-xs mt-1 transition">
+        jugendundsport.ch öffnen
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <%# ── Schritt 3 ──────────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-gray-300 text-gray-600 text-xs font-extrabold flex items-center justify-center">3</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Teilnehmende aus NDS exportieren <span class="text-gray-400 font-normal">(manuell)</span></p>
+        <p class="text-xs text-gray-500 mt-0.5">Die Rückdatei mit den J+S Personennummern aus der NDS herunterladen.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5 text-sm text-gray-600">
+      <p>Nach erfolgreichem Import exportieren Sie die Teilnehmenden aus der NDS. Die exportierte CSV enthält die zugewiesenen <strong>J+S Personennummern</strong>, die in Schritt 4 zurückgespielt werden.</p>
+    </div>
+  </div>
+
+  <%# ── Schritt-4-Ergebnis (aus Cache, nur UUID-Schlüssel im Cookie) ──────── %>
+  <% if @nds_results %>
+    <% r = @nds_results %>
+    <div class="space-y-3 mb-4">
+
+      <%# Erfolg %>
+      <% if r[:updated] > 0 %>
+        <div class="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-5 py-3.5">
+          <span class="text-base leading-none mt-0.5">✅</span>
+          <p class="text-sm font-semibold text-green-800">
+            <%= r[:updated] %> Teilnehmende aktualisiert
+          </p>
+        </div>
+      <% end %>
+
+      <%# Nicht gefunden %>
+      <% if r[:not_found_count] > 0 %>
+        <div class="rounded-xl border border-yellow-200 bg-yellow-50 px-5 py-3.5">
+          <div class="flex items-start gap-3 mb-2">
+            <span class="text-base leading-none mt-0.5">⚠️</span>
+            <p class="text-sm font-semibold text-yellow-800">
+              <%= r[:not_found_count] %> Teilnehmende nicht gefunden <span class="font-normal">(AHV nicht in unserer DB)</span>
+            </p>
+          </div>
+          <ul class="ml-7 text-xs text-yellow-700 space-y-0.5 list-disc list-inside">
+            <% r[:not_found].each do |name| %>
+              <li><%= name %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%# Fehler %>
+      <% if r[:errors].any? %>
+        <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-3.5">
+          <div class="flex items-start gap-3 mb-2">
+            <span class="text-base leading-none mt-0.5">❌</span>
+            <p class="text-sm font-semibold text-red-800">
+              <%= r[:errors].size %> Fehler beim Import
+            </p>
+          </div>
+          <ul class="ml-7 text-xs text-red-700 space-y-0.5 list-disc list-inside">
+            <% r[:errors].each do |e| %>
+              <li><%= e %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+    </div>
+  <% end %>
+
+  <%# ── Schritt 4 ──────────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">4</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Teilnehmende zurück importieren <span class="text-gray-400 font-normal">(in unsere Datenbank)</span></p>
+        <p class="text-xs text-gray-500 mt-0.5">NDS-Rückfile einlesen – aktualisiert J+S Personennummern via AHV-Abgleich.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5">
+      <%= form_with url: import_persons_admin_nds_path, method: :post, multipart: true do |f| %>
+        <div class="space-y-3">
+          <div>
+            <%= f.label :csv_file, "NDS-Rückfile (CSV)", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.file_field :csv_file, accept: ".csv",
+                  class: "block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 file:cursor-pointer cursor-pointer" %>
+          </div>
+          <%= f.submit "CSV importieren & abgleichen",
+                class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+        </div>
+      <% end %>
+      <p class="text-xs text-gray-500 mt-3">
+        Matching erfolgt über die <strong>AHV-Nummer</strong>. Datensätze ohne bekannte AHV-Nummer werden übersprungen und gemeldet.
+        Doppelte AHV-Nummern in der CSV werden als Fehler abgewiesen.
+      </p>
+    </div>
+  </div>
+
+  <%# ── Schritt 5 – Präsenzkontrolle prüfen ───────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">5</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Präsenzkontrolle prüfen <span class="text-gray-400 font-normal">(vor dem AWK-Export)</span></p>
+        <p class="text-xs text-gray-500 mt-0.5">Prüft, ob alle J+S-Trainings im gewählten Zeitraum vollständig erfasst wurden.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5">
+      <%= form_with url: check_attendance_admin_nds_path, method: :get do |f| %>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <div class="sm:col-span-3">
+            <%= f.label :course_id, "J+S-Kurs (leer = alle J+S-Kurse)", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.select :course_id,
+                  options_for_select([["Alle J+S-Kurse", ""]].concat(@js_courses.map { |c| [c.title, c.id] }),
+                                     @attendance_check&.dig(:course_id)),
+                  {},
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <div>
+            <%= f.label :date_from, "Von", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.date_field :date_from,
+                  value: (@attendance_check&.dig(:date_from) || Date.today.beginning_of_month).iso8601,
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <div>
+            <%= f.label :date_to, "Bis", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.date_field :date_to,
+                  value: (@attendance_check&.dig(:date_to) || Date.today).iso8601,
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <div class="flex items-end">
+            <%= f.submit "Präsenzkontrolle prüfen",
+                  class: "w-full bg-gray-700 hover:bg-gray-800 active:bg-gray-900 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+          </div>
+        </div>
+      <% end %>
+
+      <%# Ergebnis der Prüfung %>
+      <% if @attendance_check %>
+        <% chk = @attendance_check %>
+        <% if chk[:checked_count] == 0 %>
+          <div class="flex items-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 mt-2 text-sm text-gray-500">
+            Keine J+S-Kurse im gewählten Zeitraum gefunden.
+          </div>
+        <% elsif chk[:all_done] %>
+          <div class="flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 mt-2">
+            <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <p class="text-sm font-semibold text-green-800">
+              Alle Präsenzkontrollen vollständig erfasst
+              <span class="font-normal text-green-700">(<%=chk[:checked_count]%> J+S-Kurs<%= chk[:checked_count] == 1 ? "" : "e" %>, bis <%= chk[:effective_to].strftime("%d.%m.%Y") %>)</span>
+            </p>
+          </div>
+        <% else %>
+          <div class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 mt-2 space-y-3">
+            <div class="flex items-start gap-2">
+              <svg class="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <p class="text-sm font-semibold text-red-800">
+                <%= chk[:missing].size %> Kurs<%= chk[:missing].size == 1 ? "" : "e" %> mit unvollständigen Präsenzkontrollen
+                <span class="font-normal text-red-700">(bis <%= chk[:effective_to].strftime("%d.%m.%Y") %>)</span>
+              </p>
+            </div>
+            <% chk[:missing].each do |course_data| %>
+              <div class="ml-7">
+                <p class="text-xs font-bold text-red-700 mb-1.5"><%= course_data[:course_title] %></p>
+                <ul class="space-y-1">
+                  <% course_data[:sessions].each do |s| %>
+                    <li class="flex items-center gap-2 text-xs text-red-700">
+                      <span class="inline-block w-1.5 h-1.5 rounded-full bg-red-400 shrink-0"></span>
+                      <span class="font-medium"><%= s[:weekday] %>, <%= s[:date] %> <%= s[:time] %> Uhr</span>
+                      <span class="text-red-500">–  <%= s[:recorded] %>/<%= s[:total] %> erfasst</span>
+                    </li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Schritt 6 – AWK exportieren ────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">6</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Anwesenheitskontrolle exportieren <span class="text-gray-400 font-normal">(aus unserer Datenbank)</span></p>
+        <p class="text-xs text-gray-500 mt-0.5">Generiert die BASPO AWK-CSV für den Upload in die NDS.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5">
+      <%= form_with url: export_awk_admin_nds_path, method: :post do |f| %>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
+          <div class="sm:col-span-3">
+            <%= f.label :course_id, "Kurs (Pflicht)", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.select :course_id,
+                  options_for_select([["Kurs auswählen …", ""]].concat(@courses.map { |c| [c.title, c.id] })),
+                  {},
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <div>
+            <%= f.label :date_from, "Von", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.date_field :date_from,
+                  value: Date.today.beginning_of_month.iso8601,
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <div>
+            <%= f.label :date_to, "Bis", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.date_field :date_to,
+                  value: Date.today.iso8601,
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <div class="flex items-end">
+            <%= f.submit "AWK-CSV herunterladen",
+                  class: "w-full bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+          </div>
+        </div>
+      <% end %>
+      <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+        <strong>Hinweis:</strong> Die Trainings-Dauer wird automatisch auf maximal <strong>90 Minuten (1.5h)</strong> begrenzt.
+        Nur anwesende Teilnehmende werden exportiert.
+      </p>
+    </div>
+  </div>
+
+  <%# ── Schritt 7 ──────────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-gray-300 text-gray-600 text-xs font-extrabold flex items-center justify-center">7</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">AWK in NDS importieren <span class="text-gray-400 font-normal">(manuell)</span></p>
+        <p class="text-xs text-gray-500 mt-0.5">Die AWK-CSV in der NDS hochladen – letzter Schritt.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5 text-sm text-gray-600 space-y-2">
+      <p>Laden Sie die AWK-CSV aus Schritt 5 in der NDS hoch. Folgen Sie den Schritten in der NDS für den AWK-Import.</p>
+      <a href="https://www.jugendundsport.ch" target="_blank" rel="noopener noreferrer"
+         class="inline-flex items-center gap-1.5 text-primary-600 hover:text-primary-800 font-semibold text-xs transition">
+        jugendundsport.ch öffnen
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+</div>

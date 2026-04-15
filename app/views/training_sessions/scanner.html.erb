@@ -1,3 +1,6 @@
+<% content_for :title, "Scanner – #{@training_session.course.title}" %>
+<% content_for :full_width, true %>
+
 <%
   session     = @training_session
   course      = session.course
@@ -5,164 +8,397 @@
   attended    = session.attendances.count
 %>
 
-<%# Kein Navigation-Padding auf dieser Seite – volle Höhe für den Scanner %>
-<div class="min-h-screen bg-gray-950 flex flex-col">
+<%# ── Fullscreen-Scanner-Shell ────────────────────────────────────────────
+    z-[60] liegt über der Layout-Navigation (z-50). bg-black füllt jede
+    Lücke, falls die Kamera in einem nicht-passenden Aspect-Ratio läuft. %>
+<div id="scanner-shell"
+     class="fixed inset-0 z-[60] bg-black text-white overflow-hidden">
 
-  <%# ── Top-Bar ──────────────────────────────────────────────────────────── %>
-  <div class="bg-gray-900 border-b border-gray-800 px-4 py-3 flex items-center justify-between gap-3">
-    <%= link_to manage_course_path(course),
-          class: "flex items-center gap-1.5 text-gray-400 hover:text-white transition text-sm font-semibold shrink-0" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+  <%# ══ 1. Permission-Gate (initialer Zustand vor User-Geste) ═══════════ %>
+  <div id="permission-gate"
+       class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gray-950 px-6 text-center">
+    <div class="w-20 h-20 rounded-full bg-primary-600/20 border-2 border-primary-500 flex items-center justify-center mb-6">
+      <svg class="w-10 h-10 text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
       </svg>
-      Zurück
+    </div>
+    <h1 class="text-xl sm:text-2xl font-extrabold mb-2 break-words max-w-sm"><%= course.title %></h1>
+    <p class="text-sm text-gray-400 mb-1 break-words max-w-sm">
+      <% if session.start_time %>
+        <%= I18n.l(session.start_time, format: "%-d. %B %Y") %> · <%= session.start_time.strftime("%H:%M") %> Uhr
+      <% end %>
+    </p>
+    <p class="text-base text-gray-200 mt-6 max-w-sm">
+      Wir benötigen Zugriff auf die Kamera, um QR-Tickets der Teilnehmenden zu scannen.
+    </p>
+    <p class="text-xs text-gray-500 mt-2 max-w-sm">
+      Dein Browser fragt gleich nach der Berechtigung.
+    </p>
+
+    <button type="button"
+            id="start-camera-btn"
+            class="mt-8 w-full max-w-xs inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-extrabold py-4 px-6 rounded-2xl shadow-lg transition text-base min-h-[56px] cursor-pointer">
+      <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 001.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+      Kamera starten
+    </button>
+
+    <%= link_to training_session_path(session),
+          class: "mt-3 w-full max-w-xs inline-flex items-center justify-center text-sm text-gray-300 hover:text-white font-semibold py-3 min-h-[44px] transition" do %>
+      Manuelle Checkliste verwenden →
     <% end %>
 
-    <div class="text-center min-w-0">
-      <p class="text-white font-bold text-sm truncate"><%= course.title %></p>
-      <p class="text-gray-400 text-xs">
-        <% if session.start_time %>
-          <%= session.start_time.strftime("%-d. %B") %>
-          <% if session.end_time %>
-            · <%= session.start_time.strftime("%H:%M") %> – <%= session.end_time.strftime("%H:%M") %> Uhr
-          <% else %>
-            · <%= session.start_time.strftime("%H:%M") %> Uhr
-          <% end %>
-        <% end %>
-      </p>
-    </div>
+    <%= link_to manage_course_path(course),
+          class: "mt-1 inline-flex items-center justify-center text-xs text-gray-500 hover:text-gray-300 font-medium py-2 px-3 min-h-[36px] transition" do %>
+      Abbrechen
+    <% end %>
+  </div>
 
-    <%# Anwesenheits-Zähler %>
-    <div class="shrink-0 text-right">
-      <p class="text-white font-extrabold text-sm leading-none" id="attendance-count"><%= attended %></p>
-      <p class="text-gray-500 text-xs">/ <%= confirmed %></p>
+  <%# ══ 2. Permission-Error-Bildschirm ═══════════════════════════════════ %>
+  <div id="permission-error"
+       class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center bg-gray-950 px-6 text-center">
+    <div class="w-20 h-20 rounded-full bg-red-600/20 border-2 border-red-500 flex items-center justify-center mb-6">
+      <svg class="w-10 h-10 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+      </svg>
+    </div>
+    <h2 class="text-xl font-extrabold mb-2">Kamera-Zugriff fehlgeschlagen</h2>
+    <p id="permission-error-text" class="text-sm text-gray-300 mb-1 max-w-sm break-words">
+      Wir konnten die Kamera nicht starten.
+    </p>
+    <p class="text-xs text-gray-500 mb-6 max-w-sm">
+      Du kannst die Anwesenheit auch manuell über die Checkliste erfassen.
+    </p>
+
+    <%= link_to training_session_path(session),
+          class: "w-full max-w-xs inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-extrabold py-4 px-6 rounded-2xl shadow-lg transition text-base min-h-[56px]" do %>
+      Zur manuellen Checkliste
+    <% end %>
+
+    <button type="button"
+            id="retry-camera-btn"
+            class="mt-3 w-full max-w-xs inline-flex items-center justify-center text-sm text-gray-300 hover:text-white font-semibold py-3 min-h-[44px] transition cursor-pointer">
+      Erneut versuchen
+    </button>
+  </div>
+
+  <%# ══ 3. Kamera-Container (wird vom html5-qrcode befüllt) ═════════════ %>
+  <div id="reader" class="absolute inset-0 z-0 w-full h-full bg-black"></div>
+
+  <%# ══ 4. Scan-Frame Overlay (visueller Guide) ═════════════════════════ %>
+  <div id="scan-overlay"
+       class="hidden absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
+    <div class="relative w-64 h-64 sm:w-72 sm:h-72">
+      <span class="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-white rounded-tl-2xl"></span>
+      <span class="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-white rounded-tr-2xl"></span>
+      <span class="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-white rounded-bl-2xl"></span>
+      <span class="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-white rounded-br-2xl"></span>
     </div>
   </div>
 
-  <%# ── Kamera-Bereich ───────────────────────────────────────────────────── %>
-  <div class="flex-1 flex flex-col items-center justify-start px-4 pt-5 pb-4">
-
-    <%# Scanner-Rahmen %>
-    <div class="w-full max-w-sm">
-      <div id="reader"
-           class="w-full rounded-2xl overflow-hidden bg-gray-900 border border-gray-700 shadow-xl">
+  <%# ══ 5. Top-Overlay: Kursinfo + Schliessen + Counter ═════════════════ %>
+  <div id="top-overlay"
+       class="hidden absolute top-0 inset-x-0 z-20 bg-gradient-to-b from-black/85 via-black/50 to-transparent pt-[max(0.75rem,env(safe-area-inset-top))] pb-8 px-4">
+    <div class="flex items-start justify-between gap-3">
+      <div class="min-w-0 flex-1">
+        <p class="font-extrabold text-base sm:text-lg break-words leading-tight"><%= course.title %></p>
+        <p class="text-xs text-gray-300 mt-0.5 break-words">
+          <% if session.start_time %>
+            <%= I18n.l(session.start_time, format: "%-d. %B %Y") %> · <%= session.start_time.strftime("%H:%M") %> Uhr
+          <% end %>
+        </p>
       </div>
-    </div>
 
-    <%# Ergebnis-Feedback %>
-    <div id="scan-result"
-         class="mt-5 w-full max-w-sm min-h-20 flex flex-col items-center justify-center rounded-2xl px-5 py-4 text-center transition-all duration-300 bg-gray-800 border border-gray-700">
-      <p id="scan-icon"   class="text-3xl mb-1">📷</p>
-      <p id="scan-text"   class="text-gray-400 font-semibold text-base">Kamera starten und QR-Code scannen</p>
-    </div>
-
-    <%# Manuelle Checkliste %>
-    <div class="mt-5 w-full max-w-sm">
-      <%= link_to training_session_path(session),
-            class: "flex items-center justify-center gap-2 w-full bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 font-bold text-sm py-3.5 rounded-xl transition" do %>
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      <%= link_to manage_course_path(course),
+            "aria-label": "Scanner schliessen",
+            class: "shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-sm transition" do %>
+        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
-        Manuelle Checkliste
       <% end %>
     </div>
 
+    <div class="mt-3 inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-3.5 py-1.5">
+      <svg class="w-4 h-4 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+      </svg>
+      <span class="text-sm font-bold">
+        <span id="attendance-count"><%= attended %></span> / <%= confirmed %> erfasst
+      </span>
+    </div>
+  </div>
+
+  <%# ══ 6. Bottom-Overlay: Hinweis + Manuelle Checkliste ════════════════ %>
+  <div id="bottom-overlay"
+       class="hidden absolute bottom-0 inset-x-0 z-20 bg-gradient-to-t from-black/90 via-black/55 to-transparent px-4 pt-14 pb-[max(1rem,env(safe-area-inset-bottom))]">
+    <p class="text-center text-sm text-gray-200 mb-3 font-medium">
+      QR-Code des Tickets in den Rahmen halten
+    </p>
+    <%= link_to training_session_path(session),
+          class: "block w-full text-center bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-sm border border-white/20 text-white font-bold text-sm rounded-xl transition min-h-[48px] inline-flex items-center justify-center gap-2 py-3" do %>
+      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+      </svg>
+      Manuelle Checkliste
+    <% end %>
+  </div>
+
+  <%# ══ 7. Erfolgs-Splash (kurzer grüner Overlay nach Scan) ═════════════ %>
+  <div id="success-splash"
+       class="hidden absolute inset-0 z-40 flex flex-col items-center justify-center bg-green-600/95 text-white text-center px-6">
+    <div class="w-28 h-28 rounded-full bg-white/25 flex items-center justify-center mb-4 animate-pulse">
+      <svg class="w-16 h-16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+      </svg>
+    </div>
+    <p class="text-2xl sm:text-3xl font-extrabold break-words max-w-xs" id="success-name">Erfolgreich</p>
+    <p class="text-sm font-medium opacity-90 mt-1" id="success-detail"></p>
+  </div>
+
+  <%# ══ 8. Fehler-Splash (kurzer roter Overlay) ════════════════════════ %>
+  <div id="error-splash"
+       class="hidden absolute inset-0 z-40 flex flex-col items-center justify-center bg-red-600/95 text-white text-center px-6">
+    <div class="w-24 h-24 rounded-full bg-white/25 flex items-center justify-center mb-4">
+      <svg class="w-14 h-14" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </div>
+    <p class="text-xl font-extrabold max-w-xs break-words" id="error-text">Ungültiges Ticket</p>
   </div>
 
 </div>
 
-<%# CSP für diese Seite ist im Controller (content_security_policy) gezielt erweitert:
-    unpkg ist als script-src-Host erlaubt; das Inline-Script läuft per Nonce.
-    style-src bleibt strikt – nur style-src-attr 'unsafe-inline' erlaubt die
-    dynamischen style="..."-Attribute, die html5-qrcode zur Laufzeit setzt. %>
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript" nonce="<%= request.content_security_policy_nonce %>"></script>
+<%# ── CSP-Hinweis ─────────────────────────────────────────────────────────
+    Der TrainingSessionsController#scanner-Action erweitert die CSP gezielt:
+      script-src     :self + https://unpkg.com (+ Nonce für Inline)
+      style-src-attr :unsafe_inline (für inline style="..." der Library und
+                     unserer JS-gesetzten video-Properties)
+      worker-src     :self + blob:  (QR-Decoder als Web-Worker)
+      media-src      :self + blob:  (Kamera-Stream als Blob-URL)
+      img-src        zusätzlich blob: (Canvas-Snapshots)
+    Version 2.3.8 ist gepinnt — kein 'latest' (verhindert überraschende
+    Breaking Changes durch CDN-Updates). %>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
+        type="text/javascript"
+        nonce="<%= request.content_security_policy_nonce %>"></script>
 
 <script nonce="<%= request.content_security_policy_nonce %>">
-  setTimeout(() => {
-    if (!document.getElementById("reader")) return;
+(function() {
+  // ── DOM-Refs ─────────────────────────────────────────────────────────
+  const gate           = document.getElementById("permission-gate");
+  const errorView      = document.getElementById("permission-error");
+  const errorText      = document.getElementById("permission-error-text");
+  const startBtn       = document.getElementById("start-camera-btn");
+  const retryBtn       = document.getElementById("retry-camera-btn");
+  const topOverlay     = document.getElementById("top-overlay");
+  const bottomOverlay  = document.getElementById("bottom-overlay");
+  const scanOverlay    = document.getElementById("scan-overlay");
+  const successSplash  = document.getElementById("success-splash");
+  const successName    = document.getElementById("success-name");
+  const successDetail  = document.getElementById("success-detail");
+  const errorSplash    = document.getElementById("error-splash");
+  const errorSplashTxt = document.getElementById("error-text");
+  const counter        = document.getElementById("attendance-count");
 
-    const scanIcon   = document.getElementById("scan-icon");
-    const scanText   = document.getElementById("scan-result");
-    const scanResult = document.getElementById("scan-result");
+  const SESSION_ID = <%= @training_session.id.to_json %>;
+  const CSRF       = document.querySelector('meta[name="csrf-token"]')?.content || "";
 
-    const html5QrcodeScanner = new Html5QrcodeScanner(
-      "reader",
-      { fps: 10, qrbox: { width: 240, height: 240 } },
-      false
-    );
+  let html5Qrcode  = null;
+  let isScanning   = false;
+  let lastDecoded  = "";
+  let lastDecodedAt = 0;
 
-    let lastScannedUrl = "";
-    let resetTimer = null;
+  // ── Helpers ──────────────────────────────────────────────────────────
+  function show(el) { el.classList.remove("hidden"); }
+  function hide(el) { el.classList.add("hidden"); }
+  function vibrate(pattern) {
+    if (navigator.vibrate) {
+      try { navigator.vibrate(pattern); } catch (e) {}
+    }
+  }
+  function isSecure() {
+    if (window.isSecureContext) return true;
+    return ["localhost", "127.0.0.1"].includes(window.location.hostname);
+  }
 
-    function setState(state, message) {
-      const icon = document.getElementById("scan-icon");
-      const text = document.getElementById("scan-text");
+  function showScannerUI() {
+    hide(gate);
+    hide(errorView);
+    show(topOverlay);
+    show(bottomOverlay);
+    show(scanOverlay);
+  }
 
-      const states = {
-        idle:    { bg: "bg-gray-800 border-gray-700",       text: "text-gray-400",   icon: "📷" },
-        loading: { bg: "bg-primary-950 border-primary-700",       text: "text-primary-300",   icon: "⏳" },
-        success: { bg: "bg-green-950 border-green-600",     text: "text-green-300",  icon: "✅" },
-        error:   { bg: "bg-red-950 border-red-600",         text: "text-red-300",    icon: "❌" },
+  function showError(message) {
+    hide(gate);
+    hide(topOverlay);
+    hide(bottomOverlay);
+    hide(scanOverlay);
+    errorText.textContent = message;
+    show(errorView);
+  }
+
+  // ── Kamera starten ───────────────────────────────────────────────────
+  async function startCamera() {
+    if (!isSecure()) {
+      showError("Der Kamera-Zugriff funktioniert nur über HTTPS. Bitte rufe diese Seite über eine sichere Verbindung auf oder nutze die manuelle Checkliste.");
+      return;
+    }
+    if (typeof Html5Qrcode === "undefined") {
+      showError("Scanner-Bibliothek konnte nicht geladen werden. Bitte Internet-Verbindung prüfen und erneut versuchen.");
+      return;
+    }
+
+    try {
+      html5Qrcode = new Html5Qrcode("reader", { verbose: false });
+
+      const config = {
+        fps: 10,
+        qrbox: function(viewfinderWidth, viewfinderHeight) {
+          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+          const size = Math.floor(minEdge * 0.7);
+          return { width: size, height: size };
+        },
+        disableFlip: false
       };
 
-      const s = states[state] || states.idle;
-      scanResult.className = `mt-5 w-full max-w-sm min-h-20 flex flex-col items-center justify-center rounded-2xl px-5 py-4 text-center transition-all duration-300 border ${s.bg}`;
-      icon.textContent = s.icon;
-      text.className   = `font-semibold text-base mt-1 ${s.text}`;
-      text.textContent = message;
-    }
-
-    function onScanSuccess(decodedText) {
-      if (decodedText === lastScannedUrl) return;
-      lastScannedUrl = decodedText;
-
-      if (resetTimer) clearTimeout(resetTimer);
-
-      setState("loading", "Prüfe Ticket...");
-
-      let fetchUrl = decodedText;
+      // Bevorzugt Rückkamera (environment), Fallback Frontkamera (user).
       try {
-        const urlObj = new URL(decodedText);
-        urlObj.searchParams.append("session_id", "<%= @training_session.id.to_json %>");
-        fetchUrl = urlObj.pathname + urlObj.search;
-      } catch(e) {}
+        await html5Qrcode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailureSilent);
+      } catch (envErr) {
+        await html5Qrcode.start({ facingMode: "user" }, config, onScanSuccess, onScanFailureSilent);
+      }
 
-      fetch(fetchUrl, {
-        headers: {
-          "Accept": "application/json",
-          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]')?.content
-        },
-        credentials: "same-origin"
-      })
-      .then(async (response) => {
-        if (!response.ok || response.redirected || response.headers.get("content-type")?.includes("text/html")) {
-          throw new Error("Nicht autorisiert oder Netzwerkfehler.");
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.success) {
-          setState("success", data.message);
-          // Zähler hochzählen
-          const counter = document.getElementById("attendance-count");
-          if (counter) counter.textContent = parseInt(counter.textContent) + 1;
-        } else {
-          setState("error", data.message || "Ungültiges Ticket");
-        }
-        resetTimer = setTimeout(() => {
-          lastScannedUrl = "";
-          setState("idle", "Kamera starten und QR-Code scannen");
-        }, 2500);
-      })
-      .catch(() => {
-        setState("error", "Scan fehlgeschlagen — Netzwerk prüfen");
-        resetTimer = setTimeout(() => {
-          lastScannedUrl = "";
-          setState("idle", "Kamera starten und QR-Code scannen");
-        }, 3000);
-      });
+      isScanning = true;
+
+      // iOS-Safari: playsinline + object-fit cover für true fullscreen
+      const video = document.querySelector("#reader video");
+      if (video) {
+        video.setAttribute("playsinline", "true");
+        video.setAttribute("muted", "true");
+        video.style.objectFit = "cover";
+        video.style.width  = "100%";
+        video.style.height = "100%";
+        video.style.position = "absolute";
+        video.style.top  = "0";
+        video.style.left = "0";
+      }
+
+      showScannerUI();
+    } catch (e) {
+      const raw = (e && e.message) ? String(e.message) : (e ? String(e) : "Unbekannter Fehler");
+      const msg = raw.toLowerCase();
+
+      if (msg.includes("permission") || msg.includes("denied") || msg.includes("notallowed")) {
+        showError("Kamera-Zugriff wurde verweigert. Bitte erlaube den Kamera-Zugriff in den Browser-Einstellungen oder nutze die manuelle Checkliste.");
+      } else if (msg.includes("notfound") || msg.includes("nodevice") || msg.includes("not found")) {
+        showError("Es wurde keine Kamera gefunden. Bitte nutze die manuelle Checkliste.");
+      } else if (msg.includes("notreadable") || msg.includes("trackstart") || msg.includes("in use")) {
+        showError("Die Kamera wird gerade von einer anderen App verwendet. Bitte schliesse andere Apps und versuche es erneut.");
+      } else if (msg.includes("overconstrained")) {
+        showError("Die gewünschte Kamera-Konfiguration wird von diesem Gerät nicht unterstützt.");
+      } else {
+        showError("Kamera konnte nicht gestartet werden: " + raw);
+      }
+    }
+  }
+
+  // Per-Frame Decode-Failure: nichts tun (sonst spammt es das UI)
+  function onScanFailureSilent() {}
+
+  // ── Scan-Erfolg → Backend prüfen → UI-Feedback ───────────────────────
+  function onScanSuccess(decodedText) {
+    const now = Date.now();
+    // Same-code Throttling: 3 Sekunden Schutz vor Doppelscans
+    if (decodedText === lastDecoded && (now - lastDecodedAt) < 3000) return;
+    lastDecoded   = decodedText;
+    lastDecodedAt = now;
+
+    // ── Sicherheits-Validierung des gescannten QR-Codes ───────────────
+    // Niemals decodedText direkt für fetch verwenden — ein bösartiger
+    // QR-Code könnte sonst Daten an eine fremde Domain senden oder eine
+    // beliebige Route auf der eigenen Domain ansteuern. Wir prüfen:
+    //   1) Origin == window.location.origin (keine fremde Domain)
+    //   2) Pfad == /course_registrations/:id/scan (kein anderer Endpoint)
+    // Anschliessend bauen wir die fetch-URL selbst aus der validierten ID.
+    let registrationId = null;
+    try {
+      const u = new URL(decodedText, window.location.origin);
+      if (u.origin !== window.location.origin) {
+        throw new Error("foreign-origin");
+      }
+      const m = u.pathname.match(/^\/course_registrations\/(\d+)\/scan\/?$/);
+      if (!m) {
+        throw new Error("invalid-path");
+      }
+      registrationId = m[1];
+    } catch (e) {
+      vibrate([80, 60, 80]);
+      errorSplashTxt.textContent = "Ungültiger QR-Code";
+      show(errorSplash);
+      setTimeout(() => hide(errorSplash), 1600);
+      return;
     }
 
-    html5QrcodeScanner.render(onScanSuccess);
-  }, 500);
+    const fetchUrl = "/course_registrations/" + encodeURIComponent(registrationId) +
+                     "/scan?session_id=" + encodeURIComponent(SESSION_ID);
+
+    fetch(fetchUrl, {
+      method: "POST",
+      headers: {
+        "Accept":       "application/json",
+        "X-CSRF-Token": CSRF
+      },
+      credentials: "same-origin"
+    })
+    .then(async (resp) => {
+      if (!resp.ok || resp.redirected || (resp.headers.get("content-type") || "").includes("text/html")) {
+        throw new Error("not-authorized");
+      }
+      return resp.json();
+    })
+    .then((data) => {
+      if (data && data.success) {
+        vibrate(150);
+        successName.textContent   = data.participant_name || "Erfolgreich";
+        successDetail.textContent = data.message || "Anwesenheit erfasst";
+        show(successSplash);
+        if (counter) {
+          const next = parseInt(counter.textContent, 10) + 1;
+          counter.textContent = String(isNaN(next) ? 0 : next);
+        }
+        setTimeout(() => hide(successSplash), 1300);
+      } else {
+        vibrate([80, 60, 80]);
+        errorSplashTxt.textContent = (data && data.message) || "Ungültiges Ticket";
+        show(errorSplash);
+        setTimeout(() => hide(errorSplash), 1600);
+      }
+    })
+    .catch(() => {
+      vibrate([80, 60, 80]);
+      errorSplashTxt.textContent = "Scan fehlgeschlagen — Netzwerk prüfen";
+      show(errorSplash);
+      setTimeout(() => hide(errorSplash), 1800);
+    });
+  }
+
+  // ── Bindings ─────────────────────────────────────────────────────────
+  startBtn?.addEventListener("click", startCamera);
+  retryBtn?.addEventListener("click", function() {
+    hide(errorView);
+    show(gate);
+  });
+
+  // Cleanup beim Verlassen der Seite (Kamera-Stream stoppen)
+  window.addEventListener("pagehide", function() {
+    if (html5Qrcode && isScanning) {
+      try { html5Qrcode.stop(); } catch (e) {}
+      isScanning = false;
+    }
+  });
+})();
 </script>

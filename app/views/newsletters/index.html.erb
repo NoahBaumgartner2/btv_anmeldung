@@ -4,13 +4,13 @@
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
     <div>
       <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1">Admin</p>
-      <h1 class="text-3xl font-extrabold text-gray-900">Mailing-Zentrale</h1>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Mailing-Zentrale</h1>
     </div>
     <div class="flex gap-3 flex-wrap">
       <%= link_to "Empfängerliste", newsletter_subscribers_path,
-            class: "bg-white border border-gray-300 text-gray-700 font-bold text-sm py-2.5 px-4 rounded-lg hover:bg-gray-50 transition" %>
+            class: "bg-white border border-gray-300 text-gray-700 font-bold text-sm py-2.5 px-4 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition min-h-11" %>
       <%= link_to "+ Neuer Newsletter", new_newsletter_path,
-            class: "bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm py-2.5 px-5 rounded-lg transition" %>
+            class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold text-sm py-2.5 px-5 rounded-lg transition min-h-11" %>
     </div>
   </div>
 
@@ -45,12 +45,12 @@
               <p class="text-xs text-gray-400 mt-0.5">Zuletzt bearbeitet: <%= nl.updated_at.strftime("%-d. %B %Y, %H:%M") %></p>
             </div>
             <div class="flex items-center gap-2 shrink-0">
-              <span class="text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full">Entwurf</span>
+              <span class="hidden sm:inline-flex text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full">Entwurf</span>
               <%= link_to "Bearbeiten", edit_newsletter_path(nl),
-                    class: "text-sm font-bold text-primary-600 hover:text-primary-800 bg-primary-50 hover:bg-primary-100 px-3 py-1.5 rounded-lg transition" %>
+                    class: "text-sm font-bold text-primary-600 hover:text-primary-800 bg-primary-50 hover:bg-primary-100 active:bg-primary-200 px-3 py-1.5 rounded-lg transition min-h-11 inline-flex items-center" %>
               <%= button_to "Löschen", newsletter_path(nl), method: :delete,
                     data: { turbo_confirm: "\"#{nl.title}\" wirklich löschen?" },
-                    class: "text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition cursor-pointer" %>
+                    class: "text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 active:bg-red-200 px-3 py-1.5 rounded-lg transition cursor-pointer min-h-11" %>
             </div>
           </li>
         <% end %>

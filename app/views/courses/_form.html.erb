@@ -1,8 +1,8 @@
 <%= form_with(model: course, class: "contents") do |form| %>
   <% if course.errors.any? %>
-    <div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg mb-6 border border-red-200">
-      <h2><%= pluralize(course.errors.count, "Fehler") %> verhinderten das Speichern:</h2>
-      <ul class="list-disc ml-5 mt-2 text-sm">
+    <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-4 mb-6">
+      <p class="text-sm font-bold text-red-800 mb-2"><%= course.errors.count %> Fehler:</p>
+      <ul class="list-disc list-inside text-sm text-red-700 space-y-0.5">
         <% course.errors.each do |error| %>
           <li><%= error.full_message %></li>
         <% end %>
@@ -10,264 +10,306 @@
     </div>
   <% end %>
 
-  <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200 mb-8 space-y-8">
-
-    <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">1. Benennung &amp; Kategorie</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+  <%# ── 1. Benennung & Kategorie ──────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Benennung &amp; Kategorie</p>
+    </div>
+    <div class="p-6 space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:items-end">
         <div>
-          <%= form.label :registration_type, "Kategorie / Oberbegriff (z.B. Kids Gym)", class: "block text-sm font-bold text-gray-700 mb-2" %>
-          <%= form.text_field :registration_type, placeholder: "z.B. Kids Gym, Krabbel Gym...", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500" %>
-          <p class="text-xs text-gray-500 mt-1">Kurse mit der gleichen Kategorie werden auf der Startseite gruppiert.</p>
+          <%= form.label :registration_type, "Kategorie / Oberbegriff", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <p class="text-xs text-gray-400 mb-1.5">z.B. Kids Gym, Krabbel Gym — gleiche Kategorie wird auf der Startseite gruppiert.</p>
+          <%= form.text_field :registration_type,
+                placeholder: "z.B. Kids Gym",
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
         </div>
         <div>
-          <%= form.label :title, "Durchführung / Termin (z.B. Mittwoch Morgen)", class: "block text-sm font-bold text-gray-700 mb-2" %>
-          <%= form.text_field :title, placeholder: "z.B. Mittwoch 09:00 - 10:00", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500" %>
+          <%= form.label :title, "Durchführung / Termin", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <p class="text-xs text-gray-400 mb-1.5">z.B. Mittwoch 09:00 – 10:00</p>
+          <%= form.text_field :title,
+                placeholder: "z.B. Mittwoch 09:00 – 10:00",
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
         </div>
       </div>
-
-      <div class="mt-6">
-        <%= form.label :description, "Kursbeschreibung", class: "block text-sm font-bold text-gray-700 mb-2" %>
-        <%= form.text_area :description, rows: 3, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500" %>
+      <div>
+        <%= form.label :description, "Kursbeschreibung", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <%= form.text_area :description,
+              rows: 3,
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
-
-    <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">2. Zeitraum &amp; Ort</h3>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <%= form.label :start_date, "Startdatum", class: "block text-sm font-bold text-gray-700 mb-2" %>
-          <%= form.date_field :start_date, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500" %>
-        </div>
-        <div>
-          <%= form.label :end_date, "Enddatum", class: "block text-sm font-bold text-gray-700 mb-2" %>
-          <%= form.date_field :end_date, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500" %>
-        </div>
-        <div>
-          <%= form.label :location, "Ort / Halle", class: "block text-sm font-bold text-gray-700 mb-2" %>
-          <%= form.text_field :location, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500" %>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">3. Trainingszeit</h3>
-      <% hours   = (6..22).map { |h| [format("%02d", h), h] } %>
-      <% minutes = [["00", 0], ["15", 15], ["30", 30], ["45", 45]] %>
-      <div class="grid grid-cols-2 gap-6">
-        <div>
-          <p class="text-sm font-bold text-gray-700 mb-2">Beginn</p>
-          <div class="flex items-center gap-2">
-            <select name="course[default_start_hour]"
-                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
-              <option value="">Std.</option>
-              <% hours.each do |label, val| %>
-                <% if course.default_start_hour == val %>
-                  <option value="<%= val %>" selected><%= label %></option>
-                <% else %>
-                  <option value="<%= val %>"><%= label %></option>
-                <% end %>
-              <% end %>
-            </select>
-            <span class="text-gray-500 font-bold">:</span>
-            <select name="course[default_start_minute]"
-                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
-              <% minutes.each do |label, val| %>
-                <% if course.default_start_minute == val %>
-                  <option value="<%= val %>" selected><%= label %></option>
-                <% else %>
-                  <option value="<%= val %>"><%= label %></option>
-                <% end %>
-              <% end %>
-            </select>
-            <span class="text-sm text-gray-400">Uhr</span>
-          </div>
-        </div>
-        <div>
-          <p class="text-sm font-bold text-gray-700 mb-2">Ende <span class="font-normal text-gray-400">(optional)</span></p>
-          <div class="flex items-center gap-2">
-            <select name="course[default_end_hour]"
-                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
-              <option value="">Std.</option>
-              <% hours.each do |label, val| %>
-                <% if course.default_end_hour == val %>
-                  <option value="<%= val %>" selected><%= label %></option>
-                <% else %>
-                  <option value="<%= val %>"><%= label %></option>
-                <% end %>
-              <% end %>
-            </select>
-            <span class="text-gray-500 font-bold">:</span>
-            <select name="course[default_end_minute]"
-                    class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
-              <% minutes.each do |label, val| %>
-                <% if course.default_end_minute == val %>
-                  <option value="<%= val %>" selected><%= label %></option>
-                <% else %>
-                  <option value="<%= val %>"><%= label %></option>
-                <% end %>
-              <% end %>
-            </select>
-            <span class="text-sm text-gray-400">Uhr</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">4. Anmeldemodus &amp; Kapazität</h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-primary-50 p-5 rounded-xl border border-primary-100">
-        <div>
-          <%= form.label :registration_mode, "Wie melden sich die Kinder an?", class: "block text-sm font-bold text-primary-900 mb-2" %>
-          <%= form.select :registration_mode, [
-            ['Für das gesamte Semester (Einmalige Anmeldung)', 'semester'], 
-            ['Für jedes Training einzeln (Drop-In / Krabbel Gym)', 'single_session']
-          ], { prompt: "Bitte wählen..." }, class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white" %>
-        </div>
-        <div>
-          <%= form.label :max_participants, "Maximale Teilnehmerzahl", class: "block text-sm font-bold text-primary-900 mb-2" %>
-          <%= form.number_field :max_participants, min: 1, placeholder: "z.B. 20", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white" %>
-        </div>
-      </div>
-
-      <div class="mt-6 bg-amber-50 p-5 rounded-xl border border-amber-100">
-        <p class="text-sm font-bold text-amber-900 mb-1">Altersbeschränkung <span class="font-normal text-amber-700">(optional)</span></p>
-        <p class="text-xs text-amber-700 mb-3">
-          Lege fest, welche Altersgruppe sich anmelden darf (z.B. 3–5 Jahre für Kids Gym).
-          Das Alter wird anhand des Kursstarts berechnet. Leer lassen = keine Einschränkung.
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <%= form.label :min_age, "Mindestalter", class: "block text-xs font-bold text-amber-900 mb-1" %>
-            <div class="flex items-center gap-2">
-              <%= form.number_field :min_age, min: 0, max: 120, placeholder: "z.B. 3", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 bg-white" %>
-              <span class="text-xs text-amber-700 whitespace-nowrap">Jahre</span>
-            </div>
-          </div>
-          <div>
-            <%= form.label :max_age, "Höchstalter", class: "block text-xs font-bold text-amber-900 mb-1" %>
-            <div class="flex items-center gap-2">
-              <%= form.number_field :max_age, min: 0, max: 120, placeholder: "z.B. 5", class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-amber-500 focus:ring-amber-500 bg-white" %>
-              <span class="text-xs text-amber-700 whitespace-nowrap">Jahre</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">5. Trainer-Zuweisung</h3>
-      <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
-        <p class="text-sm text-gray-600 mb-4">Wähle aus, welche Trainer diesen Kurs in ihrem Dashboard sehen und verwalten dürfen:</p>
-
-        <% if Trainer.any? %>
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-            <%= form.collection_check_boxes(:trainer_ids, Trainer.includes(:user).all, :id, ->(t) { t.user.email }) do |b| %>
-              <div class="flex items-center bg-white px-3 py-2 rounded-lg border border-gray-200 shadow-sm hover:border-primary-400 transition">
-                <%= b.check_box class: "h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" %>
-                <%= b.label class: "ml-3 text-sm font-bold text-gray-700 cursor-pointer w-full" do %>
-                  <%= b.text %>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        <% else %>
-          <div class="text-sm text-red-600 font-medium">
-            Es wurden noch keine Trainer im System angelegt.
-            <%= link_to "Klicke hier", new_trainer_path, class: "underline hover:text-red-800" %>, um deinen ersten Trainer zu erstellen.
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-4">6. Weitere Einstellungen</h3>
-      <div class="space-y-4">
-        <div>
-          <div class="flex items-center">
-            <%= form.check_box :has_payment,
-                  id: "course_has_payment",
-                  class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" %>
-            <%= form.label :has_payment, "Dieser Kurs ist kostenpflichtig", class: "ml-3 text-sm font-bold text-gray-800 cursor-pointer" %>
-          </div>
-          <div id="price-field" class="<%= course.has_payment? ? '' : 'hidden' %> mt-3 ml-8 space-y-4">
-            <div>
-              <div class="flex items-center gap-2 max-w-xs">
-                <span class="text-sm font-semibold text-gray-500">CHF</span>
-                <%= form.text_field :price_chf,
-                      placeholder: "0.00",
-                      class: "block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm" %>
-              </div>
-              <p class="text-xs text-gray-400 mt-1">Preis in Schweizer Franken (z.B. 120.00)</p>
-            </div>
-            <div>
-              <p class="text-sm font-bold text-gray-700 mb-2">Akzeptierte Zahlungsmethoden</p>
-              <%# Sentinel: stellt sicher dass payment_methods[] zurückgesetzt wird wenn alle abgehakt %>
-              <input type="hidden" name="course[payment_methods][]" value="">
-              <div class="flex flex-col gap-2">
-                <% Course::PAYMENT_METHODS.each do |value, label| %>
-                  <label class="flex items-center gap-2.5 cursor-pointer">
-                    <%= check_box_tag "course[payment_methods][]", value,
-                          course.payment_methods.include?(value),
-                          id: "course_payment_methods_#{value}",
-                          class: "h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" %>
-                    <span class="text-sm text-gray-700"><%= label %></span>
-                  </label>
-                <% end %>
-              </div>
-            </div>
-          </div>
-          <script nonce="<%= content_security_policy_nonce %>">
-            document.getElementById('course_has_payment').addEventListener('change', function() {
-              document.getElementById('price-field').classList.toggle('hidden', !this.checked);
-            });
-          </script>
-        </div>
-        <div class="flex items-center">
-          <%= form.check_box :has_ticketing, class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" %>
-          <%= form.label :has_ticketing, "Ticketing / QR-Codes für diesen Kurs aktivieren", class: "ml-3 text-sm font-bold text-gray-800 cursor-pointer" %>
-        </div>
-        <div>
-          <div class="flex items-center">
-            <%= form.check_box :is_js_training, class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" %>
-            <%= form.label :is_js_training, "Dies ist ein J+S-Training", class: "ml-3 text-sm font-bold text-gray-800 cursor-pointer" %>
-          </div>
-          <p class="text-xs text-gray-500 mt-1 ml-8">Aktiviere diese Option, wenn der Kurs bei Jugend+Sport (BASPO) gemeldet wird.</p>
-        </div>
-      </div>
-    </div>
-
-    <div>
-      <h3 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-2 mb-1">7. Pflichtangaben bei Anmeldung</h3>
-      <p class="text-sm text-gray-500 mb-4">Welche Angaben müssen Teilnehmende zusätzlich zu Vorname, Nachname, Geburtsdatum und Geschlecht zwingend hinterlegt haben?</p>
-      <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 space-y-3">
-        <% Course::CONFIGURABLE_REQUIRED_FIELDS.each do |field, label| %>
-          <div class="flex items-start gap-3">
-            <%= form.check_box :"requires_#{field}",
-                  class: "h-5 w-5 mt-0.5 text-amber-600 rounded border-gray-300 focus:ring-amber-500 cursor-pointer" %>
-            <div>
-              <%= form.label :"requires_#{field}", label, class: "text-sm font-bold text-gray-800 cursor-pointer block" %>
-              <% hints = {
-                   ahv_number:       "Wird für die Meldung ans Amt für Sport benötigt.",
-                   js_person_number: "Wird für die BASPO J+S Meldung benötigt.",
-                   nationality:      "Wird für die BASPO J+S Meldung benötigt.",
-                   mother_tongue:    "Wird für die BASPO J+S Meldung benötigt.",
-                   zip_code:         "Wird für die BASPO J+S Meldung benötigt.",
-                   city:             "Wird für die BASPO J+S Meldung benötigt.",
-                   country:          "Wird für die BASPO J+S Meldung benötigt.",
-                   street:           "Wird für die BASPO J+S Meldung benötigt."
-                 } %>
-              <p class="text-xs text-gray-500 mt-0.5"><%= hints[field] %></p>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
   </div>
 
-  <div class="flex justify-end gap-3">
-    <%= link_to "Abbrechen", courses_path, class: "bg-white py-2.5 px-5 border border-gray-300 rounded-lg shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
-    <%= form.submit "Kurs speichern", class: "cursor-pointer inline-flex justify-center py-2.5 px-6 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-primary-600 hover:bg-primary-700 transition" %>
+  <%# ── 2. Zeitraum & Ort ─────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Zeitraum &amp; Ort</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div>
+          <%= form.label :start_date, "Startdatum", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.date_field :start_date,
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+        </div>
+        <div>
+          <%= form.label :end_date, "Enddatum", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.date_field :end_date,
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+        </div>
+        <div>
+          <%= form.label :location, "Ort / Halle", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.text_field :location,
+                placeholder: "z.B. Turnhalle Mitte",
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# ── 3. Trainingszeit ──────────────────────────────────────────────────── %>
+  <% hours   = (6..22).map { |h| [format("%02d", h), h] } %>
+  <% minutes = [["00", 0], ["15", 15], ["30", 30], ["45", 45]] %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Trainingszeit</p>
+    </div>
+    <div class="p-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <p class="text-sm font-medium text-gray-700 mb-2">Beginn</p>
+          <div class="flex items-center gap-2">
+            <select name="course[default_start_hour]"
+                    class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white min-h-11">
+              <option value="">Std.</option>
+              <% hours.each do |label, val| %>
+                <option value="<%= val %>" <%= "selected" if course.default_start_hour == val %>><%= label %></option>
+              <% end %>
+            </select>
+            <span class="text-gray-500 font-bold shrink-0">:</span>
+            <select name="course[default_start_minute]"
+                    class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white min-h-11">
+              <% minutes.each do |label, val| %>
+                <option value="<%= val %>" <%= "selected" if course.default_start_minute == val %>><%= label %></option>
+              <% end %>
+            </select>
+            <span class="text-sm text-gray-400 shrink-0">Uhr</span>
+          </div>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-700 mb-2">Ende <span class="font-normal text-gray-400">(optional)</span></p>
+          <div class="flex items-center gap-2">
+            <select name="course[default_end_hour]"
+                    class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white min-h-11">
+              <option value="">Std.</option>
+              <% hours.each do |label, val| %>
+                <option value="<%= val %>" <%= "selected" if course.default_end_hour == val %>><%= label %></option>
+              <% end %>
+            </select>
+            <span class="text-gray-500 font-bold shrink-0">:</span>
+            <select name="course[default_end_minute]"
+                    class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white min-h-11">
+              <% minutes.each do |label, val| %>
+                <option value="<%= val %>" <%= "selected" if course.default_end_minute == val %>><%= label %></option>
+              <% end %>
+            </select>
+            <span class="text-sm text-gray-400 shrink-0">Uhr</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# ── 4. Anmeldemodus & Kapazität ───────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Anmeldemodus &amp; Kapazität</p>
+    </div>
+    <div class="p-6 space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+        <div>
+          <%= form.label :registration_mode, "Anmeldemodus", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.select :registration_mode,
+                [["Für das gesamte Semester (einmalige Anmeldung)", "semester"],
+                 ["Für jedes Training einzeln (Drop-In / Krabbel Gym)", "single_session"]],
+                { prompt: "Bitte wählen…" },
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+        </div>
+        <div>
+          <%= form.label :max_participants, "Max. Teilnehmerzahl", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.number_field :max_participants,
+                min: 1, placeholder: "z.B. 20",
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+        </div>
+      </div>
+
+      <%# Altersbeschränkung %>
+      <div class="border-t border-gray-100 pt-5">
+        <p class="text-sm font-medium text-gray-700 mb-0.5">Altersbeschränkung <span class="font-normal text-gray-400">(optional)</span></p>
+        <p class="text-xs text-gray-400 mb-3">Leer lassen = keine Einschränkung. Das Alter wird anhand des Kursstarts berechnet.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <%= form.label :min_age, "Mindestalter", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <div class="flex items-center gap-2">
+              <%= form.number_field :min_age,
+                    min: 0, max: 120, placeholder: "z.B. 3",
+                    class: "flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+              <span class="text-sm text-gray-400 shrink-0">Jahre</span>
+            </div>
+          </div>
+          <div>
+            <%= form.label :max_age, "Höchstalter", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <div class="flex items-center gap-2">
+              <%= form.number_field :max_age,
+                    min: 0, max: 120, placeholder: "z.B. 5",
+                    class: "flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+              <span class="text-sm text-gray-400 shrink-0">Jahre</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# ── 5. Trainer-Zuweisung ──────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Trainer-Zuweisung</p>
+    </div>
+    <div class="p-6">
+      <% if Trainer.any? %>
+        <p class="text-sm text-gray-500 mb-4">Wähle aus, welche Trainer diesen Kurs in ihrem Dashboard sehen und verwalten dürfen.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <%= form.collection_check_boxes(:trainer_ids, Trainer.includes(:user).all, :id, ->(t) { t.user.email }) do |b| %>
+            <label class="flex items-center gap-3 bg-gray-50 hover:bg-primary-50 border border-gray-200 hover:border-primary-300 px-4 py-3 rounded-lg transition cursor-pointer min-h-11">
+              <%= b.check_box class: "h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 shrink-0 cursor-pointer" %>
+              <span class="text-sm font-medium text-gray-700 truncate"><%= b.text %></span>
+            </label>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-sm text-gray-500">
+          Noch keine Trainer angelegt.
+          <%= link_to "Jetzt Trainer erstellen →", new_trainer_path, class: "font-semibold text-primary-600 hover:text-primary-800" %>
+        </p>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── 6. Weitere Einstellungen ──────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Weitere Einstellungen</p>
+    </div>
+    <div class="p-6 space-y-5">
+
+      <%# Kostenpflichtig %>
+      <div>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <%= form.check_box :has_payment,
+                id: "course_has_payment",
+                class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+          <div>
+            <span class="text-sm font-medium text-gray-800">Dieser Kurs ist kostenpflichtig</span>
+          </div>
+        </label>
+
+        <div id="price-field" class="<%= course.has_payment? ? "" : "hidden" %> mt-4 ml-8 space-y-4">
+          <div>
+            <p class="text-sm font-medium text-gray-700 mb-1">Preis</p>
+            <div class="flex items-center gap-2 max-w-xs">
+              <span class="text-sm font-semibold text-gray-500 shrink-0">CHF</span>
+              <%= form.text_field :price_chf,
+                    placeholder: "0.00",
+                    class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+            </div>
+            <p class="text-xs text-gray-400 mt-1">Preis in Schweizer Franken (z.B. 120.00)</p>
+          </div>
+          <div>
+            <p class="text-sm font-medium text-gray-700 mb-2">Akzeptierte Zahlungsmethoden</p>
+            <input type="hidden" name="course[payment_methods][]" value="">
+            <div class="flex flex-col gap-2">
+              <% Course::PAYMENT_METHODS.each do |value, label| %>
+                <label class="flex items-center gap-2.5 cursor-pointer">
+                  <%= check_box_tag "course[payment_methods][]", value,
+                        course.payment_methods.include?(value),
+                        id: "course_payment_methods_#{value}",
+                        class: "h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" %>
+                  <span class="text-sm text-gray-700"><%= label %></span>
+                </label>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <script nonce="<%= content_security_policy_nonce %>">
+          document.getElementById('course_has_payment').addEventListener('change', function() {
+            document.getElementById('price-field').classList.toggle('hidden', !this.checked);
+          });
+        </script>
+      </div>
+
+      <div class="border-t border-gray-100 pt-5 space-y-4">
+        <%# Ticketing %>
+        <label class="flex items-center gap-3 cursor-pointer">
+          <%= form.check_box :has_ticketing,
+                class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+          <span class="text-sm font-medium text-gray-800">Ticketing / QR-Codes für diesen Kurs aktivieren</span>
+        </label>
+
+        <%# J+S %>
+        <div>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <%= form.check_box :is_js_training,
+                  class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+            <span class="text-sm font-medium text-gray-800">Dies ist ein J+S-Training</span>
+          </label>
+          <p class="text-xs text-gray-400 mt-1 ml-8">Aktiviere diese Option, wenn der Kurs bei Jugend+Sport (BASPO) gemeldet wird.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# ── 7. Pflichtangaben bei Anmeldung ───────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Pflichtangaben bei Anmeldung</p>
+    </div>
+    <div class="p-6">
+      <p class="text-sm text-gray-500 mb-4">Welche Angaben müssen Teilnehmende zusätzlich zu Vorname, Nachname, Geburtsdatum und Geschlecht zwingend hinterlegt haben?</p>
+      <div class="space-y-3">
+        <% Course::CONFIGURABLE_REQUIRED_FIELDS.each do |field, label| %>
+          <%
+            hints = {
+              ahv_number:       "Wird für die Meldung ans Amt für Sport benötigt.",
+              js_person_number: "Wird für die BASPO J+S Meldung benötigt.",
+              nationality:      "Wird für die BASPO J+S Meldung benötigt.",
+              mother_tongue:    "Wird für die BASPO J+S Meldung benötigt.",
+              zip_code:         "Wird für die BASPO J+S Meldung benötigt.",
+              city:             "Wird für die BASPO J+S Meldung benötigt.",
+              country:          "Wird für die BASPO J+S Meldung benötigt.",
+              street:           "Wird für die BASPO J+S Meldung benötigt."
+            }
+          %>
+          <div class="flex items-start gap-3">
+            <%= form.check_box :"requires_#{field}",
+                  class: "h-5 w-5 mt-0.5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+            <div>
+              <%= form.label :"requires_#{field}", label, class: "text-sm font-medium text-gray-800 cursor-pointer block" %>
+              <p class="text-xs text-gray-400 mt-0.5"><%= hints[field] %></p>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%# ── Aktionen ───────────────────────────────────────────────────────────── %>
+  <div class="flex flex-col sm:flex-row gap-3">
+    <%= form.submit course.new_record? ? "Kurs erstellen" : "Änderungen speichern",
+          class: "w-full sm:w-auto cursor-pointer bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition min-h-11" %>
+    <%= link_to "Abbrechen", course.new_record? ? courses_path : manage_course_path(course),
+          class: "w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-sm transition min-h-11 flex items-center justify-center" %>
   </div>
 <% end %>

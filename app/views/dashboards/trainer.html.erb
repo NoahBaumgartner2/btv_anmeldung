@@ -8,7 +8,7 @@
   <%# ── Header ──────────────────────────────────────────────────────────── %>
   <div class="mb-8">
     <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1">Trainer-Dashboard</p>
-    <h1 class="text-3xl font-extrabold text-gray-900">Hallo, <%= trainer_name %></h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Hallo, <%= trainer_name %></h1>
     <p class="text-gray-500 mt-1 text-sm">
       Du bist für <span class="font-semibold text-gray-700"><%= @assigned_courses.size %> <%= @assigned_courses.size == 1 ? "Kurs" : "Kurse" %></span> eingeteilt.
     </p>
@@ -42,7 +42,7 @@
           <% @todays_sessions.each do |s| %>
             <%= link_to "Präsenzkontrolle — #{s.course.title.truncate(20)}",
                   training_session_path(s),
-                  class: "bg-white text-primary-700 hover:bg-primary-50 font-bold text-sm py-2 px-4 rounded-lg transition shrink-0" %>
+                  class: "bg-white text-primary-700 hover:bg-primary-50 active:bg-primary-100 font-bold text-sm py-2 px-4 rounded-lg transition shrink-0 min-h-11" %>
           <% end %>
         </div>
       </div>
@@ -65,7 +65,7 @@
         <% end %>
       </div>
       <%= link_to "Präsenzkontrolle", training_session_path(@next_session),
-            class: "shrink-0 bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm py-2 px-5 rounded-lg transition" %>
+            class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold text-sm py-2 px-5 rounded-lg transition min-h-11" %>
     </div>
   <% end %>
 
@@ -131,10 +131,10 @@
           <%# Aktionen %>
           <div class="px-5 pb-5 pt-2 flex gap-2">
             <%= link_to "Maschinenraum", manage_course_path(course),
-                  class: "flex-1 text-center bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm py-2.5 rounded-xl transition" %>
+                  class: "flex-1 text-center bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold text-sm py-2.5 rounded-xl transition min-h-11" %>
             <% if next_s %>
               <%= link_to "Präsenzkontrolle", training_session_path(next_s),
-                    class: "flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-sm py-2.5 rounded-xl transition" %>
+                    class: "flex-1 text-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold text-sm py-2.5 rounded-xl transition min-h-11" %>
             <% end %>
           </div>
 

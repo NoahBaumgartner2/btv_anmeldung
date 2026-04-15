@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_09_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -156,6 +156,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_09_140000) do
     t.date "end_date"
     t.date "start_date"
     t.string "title"
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "infomaniak_settings", force: :cascade do |t|
+    t.boolean "active", default: false, null: false
+    t.text "api_token_encrypted"
+    t.string "base_url"
+    t.datetime "created_at", null: false
+    t.string "mailing_list_id"
     t.datetime "updated_at", null: false
   end
 

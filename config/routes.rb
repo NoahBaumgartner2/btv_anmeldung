@@ -14,11 +14,20 @@ Rails.application.routes.draw do
       post :test_connection
       post :sync_payments
     end
+    resource :infomaniak_setting, only: [:show, :edit, :update] do
+      post :test_connection
+    end
     resource :club_setting, only: [:show, :edit, :update] do
       delete :destroy_logo, on: :member
     end
     resources :export_profiles, only: %i[index new create edit update destroy] do
       member { get :download }
+    end
+    resource :nds, only: [:show], controller: "nds" do
+      post :export_persons
+      post :import_persons
+      post :export_awk
+      get  :check_attendance
     end
   end
 
@@ -36,7 +45,7 @@ Rails.application.routes.draw do
 
   resources :course_registrations do
     member do
-      get :scan
+      post :scan
       post :unsubscribe_from_session
       post :mark_as_paid
       post :cancel
@@ -82,6 +91,9 @@ Rails.application.routes.draw do
     post :subscribe_newsletter,  on: :member
     post :unsubscribe_newsletter, on: :member
   end
+
+  # Dynamische CSS-Variablen (Vereinsfarben) – öffentlich, versioniert via ?v=
+  get '/club_colors.css', to: 'club_colors#show', as: :club_colors
 
   devise_for :users, controllers: { confirmations: "users/confirmations" }
   root "pages#home"

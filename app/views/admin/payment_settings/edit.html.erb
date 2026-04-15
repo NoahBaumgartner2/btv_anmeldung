@@ -4,7 +4,7 @@
   <div class="mb-8">
     <%= link_to "← Zahlungseinstellungen", admin_payment_setting_path,
           class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
-    <h1 class="text-3xl font-extrabold text-gray-900 mt-2">Zahlungseinstellungen bearbeiten</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">Zahlungseinstellungen bearbeiten</h1>
     <p class="text-gray-500 mt-1 text-sm">SumUp API-Zugangsdaten und Konfiguration für Online-Zahlungen.</p>
   </div>
 
@@ -58,7 +58,7 @@
         <%= f.text_field :sumup_api_key,
               placeholder: "sup_sk_...",
               autocomplete: "off",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
 
       <%# Access Token (verschlüsselt) %>
@@ -96,7 +96,7 @@
         <%= f.text_field :sumup_merchant_code,
               placeholder: "MXXXXXXXX",
               autocomplete: "off",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
 
@@ -111,7 +111,7 @@
         <%= f.select :currency,
               [["CHF – Schweizer Franken", "chf"], ["EUR – Euro", "eur"], ["USD – US-Dollar", "usd"]],
               {},
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
 
@@ -124,11 +124,11 @@
       <code class="bg-gray-200 rounded px-1">SUMUP_CURRENCY</code> verwendet.
     </div>
 
-    <div class="flex gap-3">
+    <div class="flex flex-col sm:flex-row gap-3">
       <%= f.submit "Einstellungen speichern",
-            class: "bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer" %>
+            class: "w-full sm:w-auto bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" %>
       <%= link_to "Abbrechen", admin_payment_setting_path,
-            class: "bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-sm transition" %>
+            class: "w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-sm transition min-h-11" %>
     </div>
   <% end %>
 

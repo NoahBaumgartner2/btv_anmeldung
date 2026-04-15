@@ -1,13 +1,13 @@
-<div class="max-w-7xl mx-auto mt-10 mb-16 px-4">
+<div class="max-w-7xl mx-auto mt-6 sm:mt-10 mb-16 px-4">
 
   <%# ── Header ─────────────────────────────────────────────────────────── %>
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 sm:gap-4">
     <div>
-      <h1 class="text-4xl font-extrabold text-gray-900">Kommandozentrale</h1>
-      <p class="text-gray-500 mt-2">Willkommen, Boss! Hier steuerst du den gesamten Verein.</p>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900">Kommandozentrale</h1>
+      <p class="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base">Willkommen, Boss! Hier steuerst du den gesamten Verein.</p>
     </div>
     <%= link_to new_course_path,
-          class: "shrink-0 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition" do %>
+          class: "shrink-0 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition" do %>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
       </svg>
@@ -16,7 +16,7 @@
   </div>
 
   <%# ── Schnellzugriff ──────────────────────────────────────────────────── %>
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 sm:mb-10">
 
     <%# Gruppe: Verwaltung %>
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
@@ -25,7 +25,7 @@
       </div>
       <div class="divide-y divide-gray-50">
         <%= link_to trainers_path,
-              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-primary-50 transition" do %>
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-primary-50 active:bg-primary-100 transition min-h-12" do %>
           <div class="shrink-0 w-9 h-9 rounded-xl bg-primary-100 group-hover:bg-primary-200 flex items-center justify-center transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4.13a4 4 0 10-8 0 4 4 0 008 0z"/>
@@ -41,7 +41,7 @@
         <% end %>
 
         <%= link_to holidays_path,
-              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-yellow-50 transition" do %>
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-yellow-50 active:bg-yellow-100 transition min-h-12" do %>
           <div class="shrink-0 w-9 h-9 rounded-xl bg-yellow-100 group-hover:bg-yellow-200 flex items-center justify-center transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -65,7 +65,7 @@
       </div>
       <div class="divide-y divide-gray-50">
         <%= link_to newsletters_path,
-              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-purple-50 transition" do %>
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-purple-50 active:bg-purple-100 transition min-h-12" do %>
           <div class="shrink-0 w-9 h-9 rounded-xl bg-purple-100 group-hover:bg-purple-200 flex items-center justify-center transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
@@ -81,7 +81,7 @@
         <% end %>
 
         <%= link_to dashboards_stats_path,
-              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-green-50 transition" do %>
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-green-50 active:bg-green-100 transition min-h-12" do %>
           <div class="shrink-0 w-9 h-9 rounded-xl bg-green-100 group-hover:bg-green-200 flex items-center justify-center transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -105,7 +105,7 @@
       </div>
       <div class="divide-y divide-gray-50">
         <%= link_to mail_setting_path,
-              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-100 transition" do %>
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-gray-100 active:bg-gray-200 transition min-h-12" do %>
           <div class="shrink-0 w-9 h-9 rounded-xl bg-gray-100 group-hover:bg-gray-200 flex items-center justify-center transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
@@ -122,7 +122,7 @@
         <% end %>
 
         <%= link_to admin_payment_setting_path,
-              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-indigo-50 transition" do %>
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-indigo-50 active:bg-indigo-100 transition min-h-12" do %>
           <div class="shrink-0 w-9 h-9 rounded-xl bg-indigo-100 group-hover:bg-indigo-200 flex items-center justify-center transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
@@ -137,8 +137,24 @@
           </svg>
         <% end %>
 
+        <%= link_to admin_infomaniak_setting_path,
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-sky-50 active:bg-sky-100 transition min-h-12" do %>
+          <div class="shrink-0 w-9 h-9 rounded-xl bg-sky-100 group-hover:bg-sky-200 flex items-center justify-center transition">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-gray-800 group-hover:text-sky-700 transition">Newsletter-API</p>
+            <p class="text-xs text-gray-400 truncate">Infomaniak API-Zugangsdaten</p>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-sky-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        <% end %>
+
         <%= link_to admin_club_setting_path,
-              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-orange-50 transition" do %>
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-orange-50 active:bg-orange-100 transition min-h-12" do %>
           <div class="shrink-0 w-9 h-9 rounded-xl bg-orange-100 group-hover:bg-orange-200 flex items-center justify-center transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -154,7 +170,7 @@
         <% end %>
 
         <%= link_to admin_export_profiles_path,
-              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-teal-50 transition" do %>
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-teal-50 active:bg-teal-100 transition min-h-12" do %>
           <div class="shrink-0 w-9 h-9 rounded-xl bg-teal-100 group-hover:bg-teal-200 flex items-center justify-center transition">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
@@ -176,9 +192,30 @@
 
   </div>
 
-  <%# ── Kurs-Tabelle ────────────────────────────────────────────────────── %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden mb-16">
-    <table class="min-w-full divide-y divide-gray-200">
+  <%# ── Kurs-Übersicht ──────────────────────────────────────────────────── %>
+  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden mb-10 sm:mb-16">
+
+    <%# Mobile: Cards %>
+    <div class="sm:hidden divide-y divide-gray-100">
+      <% @courses.each do |course| %>
+        <div class="p-4">
+          <div class="flex items-start justify-between gap-3 mb-2">
+            <div class="min-w-0">
+              <h3 class="font-bold text-gray-900 text-sm truncate"><%= course.title %></h3>
+              <p class="text-xs text-gray-500 mt-0.5"><%= course.registration_type %></p>
+            </div>
+            <span class="shrink-0 text-xs font-bold text-primary-600 bg-primary-50 px-2 py-1 rounded-md">
+              <%= course.course_registrations.size %> TN
+            </span>
+          </div>
+          <%= link_to "Verwalten", manage_course_path(course),
+                class: "block w-full text-center text-red-600 font-bold bg-red-50 active:bg-red-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Desktop: Tabelle %>
+    <table class="hidden sm:table min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
           <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kurs</th>
@@ -203,14 +240,14 @@
   </div>
 
   <%# ── Teilnehmer-Suche ────────────────────────────────────────────────── %>
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 gap-4">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-5 gap-3 sm:gap-4">
     <div>
-      <h2 class="text-2xl font-bold text-gray-900">Teilnehmer-Suche</h2>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Teilnehmer-Suche</h2>
       <p class="text-gray-500 mt-1 text-sm">Suche nach Name oder E-Mail-Adresse des verknüpften Kontos.</p>
     </div>
     <% if @export_profiles.any? %>
       <details class="relative shrink-0 group">
-        <summary class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition cursor-pointer list-none select-none">
+        <summary class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm text-sm transition cursor-pointer list-none select-none min-h-11">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
           </svg>
@@ -219,14 +256,14 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
           </svg>
         </summary>
-        <div class="absolute right-0 mt-1.5 w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
+        <div class="absolute right-0 sm:right-0 left-0 sm:left-auto mt-1.5 sm:w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
           <div class="px-3 py-2 border-b border-gray-100">
             <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Exportprofil wählen</p>
           </div>
           <div class="py-1">
             <% @export_profiles.each do |profile| %>
               <%= link_to export_participants_dashboard_path(profile_id: profile.id, q: params[:q]),
-                    class: "flex items-center gap-2.5 px-3 py-2.5 text-sm text-gray-700 font-medium hover:bg-teal-50 hover:text-teal-700 transition" do %>
+                    class: "flex items-center gap-2.5 px-3 py-3 sm:py-2.5 text-sm text-gray-700 font-medium hover:bg-teal-50 active:bg-teal-100 hover:text-teal-700 transition min-h-11" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-teal-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                 </svg>
@@ -236,7 +273,7 @@
           </div>
           <div class="border-t border-gray-100 px-3 py-2">
             <%= link_to admin_export_profiles_path,
-                  class: "flex items-center gap-2 text-xs text-gray-400 hover:text-gray-600 transition font-medium" do %>
+                  class: "flex items-center gap-2 text-xs text-gray-400 hover:text-gray-600 transition font-medium min-h-11 sm:min-h-0" do %>
               <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -248,7 +285,7 @@
       </details>
     <% else %>
       <%= link_to admin_export_profiles_path,
-            class: "shrink-0 inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 py-2 px-4 rounded-lg font-medium border border-gray-200 text-sm transition" do %>
+            class: "shrink-0 inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-500 hover:text-gray-700 py-2.5 px-4 rounded-lg font-medium border border-gray-200 text-sm transition min-h-11" do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
         </svg>
@@ -257,30 +294,47 @@
     <% end %>
   </div>
 
-  <%= form_with url: dashboards_admin_path, method: :get, class: "flex gap-2 mb-4" do |f| %>
+  <%= form_with url: dashboards_admin_path, method: :get, class: "flex flex-col sm:flex-row gap-2 mb-4" do |f| %>
     <%= f.text_field :q,
           value: params[:q],
-          placeholder: "Name oder E-Mail eingeben (min. 2 Zeichen)…",
+          placeholder: "Name oder E-Mail eingeben (min. 2 Zeichen)...",
           autofocus: params[:q].present?,
           autocomplete: "off",
-          class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
     <%= f.submit "Suchen",
-          class: "shrink-0 rounded-lg px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
+          class: "shrink-0 rounded-lg px-4 py-2.5 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-sm font-bold cursor-pointer transition shadow-sm min-h-11" %>
   <% end %>
 
   <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
     <% if params[:q].to_s.strip.length >= 2 %>
       <% if @participants.any? %>
-        <div class="px-5 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+        <div class="px-4 sm:px-5 py-3 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
           <p class="text-xs font-semibold text-gray-500">
             <% if @participants.size == 50 %>
-              Erste 50 Treffer für „<%= params[:q] %>" — Suche verfeinern für genauere Ergebnisse
+              Erste 50 Treffer für &bdquo;<%= params[:q] %>&ldquo; &mdash; Suche verfeinern für genauere Ergebnisse
             <% else %>
-              <%= @participants.size %> <%= @participants.size == 1 ? "Treffer" : "Treffer" %> für „<%= params[:q] %>"
+              <%= @participants.size %> <%= @participants.size == 1 ? "Treffer" : "Treffer" %> für &bdquo;<%= params[:q] %>&ldquo;
             <% end %>
           </p>
         </div>
-        <table class="min-w-full divide-y divide-gray-200">
+
+        <%# Mobile: Cards %>
+        <div class="sm:hidden divide-y divide-gray-100">
+          <% @participants.each do |participant| %>
+            <div class="p-4">
+              <div class="flex items-start justify-between gap-3 mb-1">
+                <p class="font-semibold text-gray-900 text-sm"><%= participant.last_name %>, <%= participant.first_name %></p>
+                <p class="text-xs text-gray-500 shrink-0"><%= participant.date_of_birth&.strftime("%d.%m.%Y") || "&mdash;".html_safe %></p>
+              </div>
+              <p class="text-xs text-gray-400 mb-3 truncate"><%= participant.user.email %></p>
+              <%= link_to "Profil ansehen", participant_path(participant),
+                    class: "block w-full text-center text-primary-600 font-bold bg-primary-50 active:bg-primary-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
+            </div>
+          <% end %>
+        </div>
+
+        <%# Desktop: Tabelle %>
+        <table class="hidden sm:table min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
               <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
@@ -311,7 +365,7 @@
         </table>
       <% else %>
         <div class="py-12 text-center">
-          <p class="text-sm font-semibold text-gray-700">Keine Treffer für „<%= params[:q] %>"</p>
+          <p class="text-sm font-semibold text-gray-700">Keine Treffer für &bdquo;<%= params[:q] %>&ldquo;</p>
           <p class="text-xs text-gray-400 mt-1">Prüfe die Schreibweise oder suche nach der E-Mail-Adresse.</p>
         </div>
       <% end %>

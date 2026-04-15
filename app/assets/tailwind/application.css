@@ -1,5 +1,18 @@
 @import "tailwindcss";
 
+/* Safe-area-Hilfsklassen für Geräte mit Notch (iPhone etc.) */
+.pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
+
+/* ── Fallback-Vereinsfarben ─────────────────────────────────────────────────
+   Werden von club_colors.css (server-seitig aus ClubSetting) überschrieben.
+   Ohne diesen Block wäre var(--color-primary) undefiniert falls club_colors.css
+   noch nicht geladen ist oder kein ClubSetting-Record existiert → weisse UI. */
+:root {
+  --color-primary:   #dc2626;
+  --color-secondary: #1d4ed8;
+}
+
 /* ── Vereinsfarben als Tailwind-Utilities ───────────────────────────────────
    Die CSS-Variablen --color-primary und --color-secondary werden vom Server
    im Layout-<style>-Block gesetzt (aus ClubSetting).

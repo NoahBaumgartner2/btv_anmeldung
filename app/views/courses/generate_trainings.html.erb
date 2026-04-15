@@ -13,8 +13,8 @@
   <%# ── Header ─────────────────────────────────────────────────────────── %>
   <div class="mb-8">
     <%= link_to "← Zurück zum Maschinenraum", manage_course_path(@course),
-          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
-    <h1 class="font-extrabold text-3xl text-gray-900 mt-3">Trainings generieren</h1>
+          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition min-h-11 inline-flex items-center" %>
+    <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900 mt-3">Trainings generieren</h1>
     <p class="text-gray-500 mt-1">Erstelle automatisch alle Einzel-Sessions für diesen Kurs.</p>
   </div>
 
@@ -91,33 +91,25 @@
         </div>
 
         <%# Uhrzeit – Dropdowns statt Browser-Timepicker %>
-        <div class="grid grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <div>
             <p class="text-sm font-bold text-gray-700 mb-2">Beginn</p>
             <div class="flex items-center gap-2">
               <select name="start_hour" required
-                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+                      class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white min-h-11">
                 <option value="">Std.</option>
                 <% hours.each do |label, val| %>
-                  <% if @course.default_start_hour == val %>
-                    <option value="<%= val %>" selected><%= label %></option>
-                  <% else %>
-                    <option value="<%= val %>"><%= label %></option>
-                  <% end %>
+                  <option value="<%= val %>" <%= "selected" if @course.default_start_hour == val %>><%= label %></option>
                 <% end %>
               </select>
-              <span class="text-gray-500 font-bold">:</span>
+              <span class="text-gray-500 font-bold shrink-0">:</span>
               <select name="start_minute" required
-                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+                      class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white min-h-11">
                 <% minutes.each do |label, val| %>
-                  <% if @course.default_start_minute == val %>
-                    <option value="<%= val %>" selected><%= label %></option>
-                  <% else %>
-                    <option value="<%= val %>"><%= label %></option>
-                  <% end %>
+                  <option value="<%= val %>" <%= "selected" if @course.default_start_minute == val %>><%= label %></option>
                 <% end %>
               </select>
-              <span class="text-sm text-gray-400">Uhr</span>
+              <span class="text-sm text-gray-400 shrink-0">Uhr</span>
             </div>
           </div>
 
@@ -125,28 +117,20 @@
             <p class="text-sm font-bold text-gray-700 mb-2">Ende <span class="font-normal text-gray-400">(optional)</span></p>
             <div class="flex items-center gap-2">
               <select name="end_hour"
-                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+                      class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white min-h-11">
                 <option value="">Std.</option>
                 <% hours.each do |label, val| %>
-                  <% if @course.default_end_hour == val %>
-                    <option value="<%= val %>" selected><%= label %></option>
-                  <% else %>
-                    <option value="<%= val %>"><%= label %></option>
-                  <% end %>
+                  <option value="<%= val %>" <%= "selected" if @course.default_end_hour == val %>><%= label %></option>
                 <% end %>
               </select>
-              <span class="text-gray-500 font-bold">:</span>
+              <span class="text-gray-500 font-bold shrink-0">:</span>
               <select name="end_minute"
-                      class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+                      class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white min-h-11">
                 <% minutes.each do |label, val| %>
-                  <% if @course.default_end_minute == val %>
-                    <option value="<%= val %>" selected><%= label %></option>
-                  <% else %>
-                    <option value="<%= val %>"><%= label %></option>
-                  <% end %>
+                  <option value="<%= val %>" <%= "selected" if @course.default_end_minute == val %>><%= label %></option>
                 <% end %>
               </select>
-              <span class="text-sm text-gray-400">Uhr</span>
+              <span class="text-sm text-gray-400 shrink-0">Uhr</span>
             </div>
           </div>
         </div>
@@ -157,14 +141,16 @@
           <% if course_holidays.any? %>
             <div class="rounded-lg border border-yellow-200 bg-yellow-50 divide-y divide-yellow-100 overflow-hidden">
               <% course_holidays.each do |holiday| %>
-                <label class="px-4 py-2.5 flex items-center gap-3 text-sm cursor-pointer hover:bg-yellow-100 transition">
+                <label class="px-4 py-2.5 flex items-start gap-3 text-sm cursor-pointer hover:bg-yellow-100 transition min-h-11">
                   <input type="checkbox" name="holiday_ids[]" value="<%= holiday.id %>"
                          checked
-                         class="w-4 h-4 rounded border-yellow-400 text-primary-600 focus:ring-primary-500 shrink-0">
-                  <span class="flex-1 font-semibold text-yellow-900"><%= holiday.title %></span>
-                  <span class="text-yellow-700 font-medium">
-                    <%= holiday.start_date.strftime("%-d. %b") %> – <%= holiday.end_date.strftime("%-d. %b %Y") %>
-                  </span>
+                         class="w-4 h-4 mt-0.5 rounded border-yellow-400 text-primary-600 focus:ring-primary-500 shrink-0">
+                  <div class="flex-1 min-w-0">
+                    <span class="block font-semibold text-yellow-900 leading-snug"><%= holiday.title %></span>
+                    <span class="block text-xs text-yellow-700 font-medium mt-0.5">
+                      <%= holiday.start_date.strftime("%-d. %b") %> – <%= holiday.end_date.strftime("%-d. %b %Y") %>
+                    </span>
+                  </div>
                 </label>
               <% end %>
             </div>
@@ -203,18 +189,20 @@
             btn.addEventListener('click', function() {
               var i = idx++;
               var row = document.createElement('div');
-              row.className = 'flex flex-wrap items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5';
+              row.className = 'flex flex-col gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-3';
               row.innerHTML =
                 '<input type="text" name="extra_holidays[' + i + '][title]" placeholder="Bezeichnung (z.B. Sportferien)" ' +
-                  'class="flex-1 min-w-32 rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">' +
-                '<input type="date" name="extra_holidays[' + i + '][start_date]" ' +
-                  'class="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">' +
-                '<span class="text-gray-400 text-sm">–</span>' +
-                '<input type="date" name="extra_holidays[' + i + '][end_date]" ' +
-                  'class="rounded-lg border border-gray-300 px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500">' +
-                '<button type="button" class="remove-holiday text-gray-400 hover:text-red-500 transition p-0.5" title="Entfernen">' +
-                  '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
-                '</button>';
+                  'class="w-full rounded-lg border border-gray-300 px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11">' +
+                '<div class="flex items-center gap-2">' +
+                  '<input type="date" name="extra_holidays[' + i + '][start_date]" ' +
+                    'class="flex-1 min-w-0 rounded-lg border border-gray-300 px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11">' +
+                  '<span class="text-gray-400 text-sm shrink-0">–</span>' +
+                  '<input type="date" name="extra_holidays[' + i + '][end_date]" ' +
+                    'class="flex-1 min-w-0 rounded-lg border border-gray-300 px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11">' +
+                  '<button type="button" class="remove-holiday shrink-0 text-gray-400 hover:text-red-500 transition p-1 min-h-11 flex items-center" title="Entfernen">' +
+                    '<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>' +
+                  '</button>' +
+                '</div>';
               row.querySelector('.remove-holiday').addEventListener('click', function() {
                 row.remove();
               });

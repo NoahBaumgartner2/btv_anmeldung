@@ -12,20 +12,20 @@
   end
 %>
 
-<div class="max-w-7xl mx-auto mt-10 mb-16 px-4">
+<div class="max-w-7xl mx-auto mt-6 sm:mt-10 mb-16 px-4">
 
   <%# ── Header ────────────────────────────────────────────────────────────── %>
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 sm:mb-8 gap-4">
     <div>
       <%= link_to "← Kommandozentrale", dashboards_admin_path,
-            class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
-      <h1 class="text-4xl font-extrabold text-gray-900 mt-2">Statistiken</h1>
-      <p class="text-gray-500 mt-1">Übersicht über alle Trainings, Sessions und Anwesenheiten.</p>
+            class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition min-h-11 inline-flex items-center" %>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900 mt-1 sm:mt-2">Statistiken</h1>
+      <p class="text-gray-500 mt-1 text-sm sm:text-base">Übersicht über alle Trainings, Sessions und Anwesenheiten.</p>
     </div>
   </div>
 
   <%# ── Globale Kennzahlen ─────────────────────────────────────────────────── %>
-  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-10">
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8 sm:mb-10">
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Sessions total</p>
       <p class="text-3xl font-extrabold text-gray-900"><%= @total_sessions %></p>
@@ -55,19 +55,57 @@
   </div>
 
   <%# ── Kurs-Filter ────────────────────────────────────────────────────────── %>
-  <div class="flex flex-wrap gap-2 mb-6">
-    <%= link_to "Alle Kurse",
-          dashboards_stats_path,
-          class: "px-3 py-1.5 rounded-lg text-sm font-semibold transition border #{@selected_course_id.nil? ? "bg-primary-600 text-white border-primary-600" : "bg-white text-gray-700 border-gray-300 hover:border-primary-400"}" %>
-    <% @courses.each do |course| %>
-      <%= link_to course.title,
-            dashboards_stats_path(course_id: course.id),
-            class: "px-3 py-1.5 rounded-lg text-sm font-semibold transition border #{@selected_course_id == course.id ? "bg-primary-600 text-white border-primary-600" : "bg-white text-gray-700 border-gray-300 hover:border-primary-400"}" %>
-    <% end %>
-  </div>
+  <%
+    selected_count = @selected_course_ids.size
+    filter_label   = selected_count == 0 ? "Alle Kurse" : "#{selected_count} #{selected_count == 1 ? "Kurs" : "Kurse"} ausgewählt"
+  %>
+  <%= form_with url: dashboards_stats_path, method: :get, class: "mb-6" do |f| %>
+    <details id="course-filter-dropdown" class="relative group inline-block w-full sm:w-auto" <%= "open" if selected_count > 0 %>>
+      <summary class="flex items-center justify-between gap-3 px-4 py-2.5 bg-white border border-gray-300 rounded-xl cursor-pointer select-none hover:border-primary-400 transition text-sm font-semibold text-gray-700 min-w-[220px] min-h-11 list-none [&::-webkit-details-marker]:hidden">
+        <span class="flex items-center gap-2">
+          <svg class="h-4 w-4 text-gray-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+          </svg>
+          <%= filter_label %>
+        </span>
+        <svg class="h-4 w-4 text-gray-400 transition-transform group-open:rotate-180 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </summary>
+
+      <div class="absolute left-0 top-full mt-1.5 z-30 bg-white border border-gray-200 rounded-xl shadow-lg w-72 overflow-hidden">
+        <%# Alle auswählen / keine %>
+        <div class="px-4 py-2.5 border-b border-gray-100 flex items-center justify-between">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Kurse filtern</p>
+          <% if selected_count > 0 %>
+            <%= link_to "Alle anzeigen", dashboards_stats_path,
+                  class: "text-xs font-semibold text-primary-600 hover:text-primary-800 transition" %>
+          <% end %>
+        </div>
+
+        <div class="max-h-72 overflow-y-auto divide-y divide-gray-50 py-1">
+          <% @courses.each do |course| %>
+            <label class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition min-h-11">
+              <%= f.check_box :course_ids,
+                    { multiple: true,
+                      checked: @selected_course_ids.include?(course.id),
+                      id: "course_filter_#{course.id}" },
+                    course.id.to_s, nil %>
+              <span class="text-sm text-gray-700 leading-tight"><%= course.title %></span>
+            </label>
+          <% end %>
+        </div>
+
+        <div class="px-4 py-3 border-t border-gray-100 bg-gray-50">
+          <%= f.submit "Anwenden",
+                class: "w-full bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2 px-4 rounded-lg text-sm transition cursor-pointer min-h-11" %>
+        </div>
+      </div>
+    </details>
+  <% end %>
 
   <%# ── Kurs-Sektionen ─────────────────────────────────────────────────────── %>
-  <% filtered_courses = @selected_course_id ? @courses.select { |c| c.id == @selected_course_id } : @courses %>
+  <% filtered_courses = @selected_course_ids.any? ? @courses.select { |c| @selected_course_ids.include?(c.id) } : @courses %>
 
   <% if filtered_courses.empty? %>
     <div class="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400 text-sm">
@@ -90,7 +128,7 @@
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-8 overflow-hidden">
 
       <%# Kurs-Header %>
-      <div class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="px-4 sm:px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 class="text-lg font-extrabold text-gray-900"><%= course.title %></h2>
           <p class="text-xs text-gray-400 mt-0.5">
@@ -107,29 +145,29 @@
       </div>
 
       <%# Kurs-Kennzahlen %>
-      <div class="grid grid-cols-2 sm:grid-cols-5 divide-x divide-y sm:divide-y-0 divide-gray-100 border-b border-gray-100">
-        <div class="px-5 py-3">
+      <div class="grid grid-cols-2 sm:grid-cols-5 divide-y sm:divide-y-0 divide-gray-100 border-b border-gray-100">
+        <div class="px-3 sm:px-5 py-3 border-r border-gray-100">
           <p class="text-xs font-semibold text-gray-400 mb-0.5">Sessions</p>
-          <p class="text-xl font-extrabold text-gray-900"><%= sessions.size %></p>
-          <p class="text-xs text-gray-400"><%= past_sessions.size %> vergangen · <%= upcoming_sessions.size %> bevorstehend</p>
+          <p class="text-lg sm:text-xl font-extrabold text-gray-900"><%= sessions.size %></p>
+          <p class="text-xs text-gray-400"><%= past_sessions.size %> verg. &middot; <%= upcoming_sessions.size %> bev.</p>
         </div>
-        <div class="px-5 py-3">
+        <div class="px-3 sm:px-5 py-3">
           <p class="text-xs font-semibold text-gray-400 mb-0.5">Abgesagt</p>
-          <p class="text-xl font-extrabold <%= canceled > 0 ? "text-orange-500" : "text-gray-400" %>"><%= canceled %></p>
+          <p class="text-lg sm:text-xl font-extrabold <%= canceled > 0 ? "text-orange-500" : "text-gray-400" %>"><%= canceled %></p>
         </div>
-        <div class="px-5 py-3">
+        <div class="px-3 sm:px-5 py-3 border-r border-gray-100 sm:border-r-0">
           <p class="text-xs font-semibold text-gray-400 mb-0.5">Angemeldet</p>
-          <p class="text-xl font-extrabold text-gray-900"><%= registrations.size %></p>
+          <p class="text-lg sm:text-xl font-extrabold text-gray-900"><%= registrations.size %></p>
         </div>
-        <div class="px-5 py-3">
-          <p class="text-xs font-semibold text-gray-400 mb-0.5">Ø Anwesenheit</p>
-          <p class="text-xl font-extrabold <%= course_rate && course_rate >= 75 ? "text-green-600" : course_rate ? "text-yellow-500" : "text-gray-400" %>">
-            <%= course_rate ? "#{course_rate}%" : "—" %>
+        <div class="px-3 sm:px-5 py-3">
+          <p class="text-xs font-semibold text-gray-400 mb-0.5">Ø Anwesenh.</p>
+          <p class="text-lg sm:text-xl font-extrabold <%= course_rate && course_rate >= 75 ? "text-green-600" : course_rate ? "text-yellow-500" : "text-gray-400" %>">
+            <%= course_rate ? "#{course_rate}%" : "&mdash;".html_safe %>
           </p>
         </div>
-        <div class="px-5 py-3">
+        <div class="col-span-2 sm:col-span-1 px-3 sm:px-5 py-3">
           <p class="text-xs font-semibold text-gray-400 mb-0.5">Nicht erfasst</p>
-          <p class="text-xl font-extrabold <%= sessions_without_record.any? ? "text-red-500" : "text-gray-400" %>">
+          <p class="text-lg sm:text-xl font-extrabold <%= sessions_without_record.any? ? "text-red-500" : "text-gray-400" %>">
             <%= sessions_without_record.size %>
           </p>
           <p class="text-xs text-gray-400">vergangene ohne Eintrag</p>
@@ -138,7 +176,7 @@
 
       <%# Session-Tabelle (auf-/zuklappbar) %>
       <details class="group" <%= sessions_without_record.any? ? "open" : "" %>>
-        <summary class="flex items-center justify-between px-6 py-3 cursor-pointer select-none border-t border-gray-100 hover:bg-gray-50 transition list-none">
+        <summary class="flex items-center justify-between px-4 sm:px-6 py-3 cursor-pointer select-none border-t border-gray-100 hover:bg-gray-50 active:bg-gray-100 transition list-none min-h-11">
           <span class="text-sm font-bold text-gray-600">
             Sessions (<%= sessions.size %>)
             <% if sessions_without_record.any? %>

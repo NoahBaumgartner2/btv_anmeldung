@@ -25,6 +25,38 @@ class Participant < ApplicationRecord
     message: "– diese Person ist in deinem Profil bereits erfasst"
   }
 
+  # AHV-Nummer: 756.XXXX.XXXX.XX
+  validates :ahv_number,
+            format: {
+              with: /\A756\.\d{4}\.\d{4}\.\d{2}\z/,
+              message: "muss im Format 756.XXXX.XXXX.XX angegeben werden"
+            },
+            allow_blank: true
+
+  # Telefonnummer: mindestens 7 Zeichen, nur +, Ziffern, Leerzeichen, Bindestriche
+  validates :phone_number,
+            format: {
+              with: /\A[+\d][\d\s\-\/]{6,}\z/,
+              message: "muss mindestens 7 Zeichen haben (erlaubt: +, Ziffern, Leerzeichen, -)"
+            },
+            allow_blank: true
+
+  # PLZ: 4–6 Ziffern
+  validates :zip_code,
+            format: {
+              with: /\A\d{4,6}\z/,
+              message: "muss aus 4–6 Ziffern bestehen"
+            },
+            allow_blank: true
+
+  # J+S Personennummer: genau 9 Ziffern
+  validates :js_person_number,
+            format: {
+              with: /\A\d{9}\z/,
+              message: "muss genau 9 Ziffern enthalten"
+            },
+            allow_blank: true
+
   # Gibt fehlende Pflichtfelder für einen bestimmten Kurs zurück (als Symbole)
   def missing_fields_for(course)
     course.required_participant_fields.select { |field| self[field].blank? }

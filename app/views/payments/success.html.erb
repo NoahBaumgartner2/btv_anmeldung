@@ -1,39 +1,44 @@
-<div class="max-w-md mx-auto mt-16 mb-16 px-4 text-center">
+<div class="max-w-md mx-auto mt-8 sm:mt-16 mb-16 text-center">
 
-  <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
-    <svg class="w-8 h-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+  <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+    <svg class="w-10 h-10 sm:w-12 sm:h-12 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
       <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
     </svg>
   </div>
 
-  <h1 class="text-3xl font-extrabold text-gray-900 mb-2">Zahlung erfolgreich!</h1>
-  <p class="text-gray-500 mb-8">Vielen Dank. Deine Zahlung wurde erfolgreich verarbeitet.</p>
+  <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2 break-words">Zahlung erfolgreich!</h1>
+  <p class="text-gray-500 mb-8 text-sm sm:text-base">Vielen Dank. Deine Zahlung wurde erfolgreich verarbeitet.</p>
 
   <% if @registration %>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-8 text-left">
-      <div class="flex justify-between items-center text-sm mb-3">
-        <span class="font-medium text-gray-500">Kurs</span>
-        <span class="font-bold text-gray-900"><%= @registration.course.title %></span>
-      </div>
-      <div class="flex justify-between items-center text-sm mb-3">
-        <span class="font-medium text-gray-500">Teilnehmer</span>
-        <span class="font-semibold text-gray-800">
-          <%= @registration.participant.first_name %> <%= @registration.participant.last_name %>
-        </span>
-      </div>
-      <div class="flex justify-between items-center text-sm">
-        <span class="font-medium text-gray-500">Betrag</span>
-        <span class="font-bold text-green-700"><%= @registration.course.price_display %></span>
-      </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8 text-left">
+      <dl class="divide-y divide-gray-100">
+        <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
+          <dt class="font-medium text-gray-500 shrink-0">Kurs</dt>
+          <dd class="font-bold text-gray-900 text-base sm:text-sm break-words sm:text-right"><%= @registration.course.title %></dd>
+        </div>
+        <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
+          <dt class="font-medium text-gray-500 shrink-0">Teilnehmer</dt>
+          <dd class="font-semibold text-gray-800 break-words sm:text-right">
+            <%= @registration.participant.first_name %> <%= @registration.participant.last_name %>
+          </dd>
+        </div>
+        <div class="px-5 py-4 flex items-baseline justify-between gap-3 bg-green-50">
+          <dt class="text-sm font-bold text-gray-700 uppercase tracking-wide">Bezahlt</dt>
+          <dd class="text-2xl sm:text-3xl font-extrabold text-green-700 break-words text-right"><%= @registration.course.price_display %></dd>
+        </div>
+      </dl>
     </div>
 
     <%= link_to course_registration_path(@registration),
-          class: "inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition text-sm" do %>
+          class: "w-full inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-6 rounded-xl shadow-sm transition text-base min-h-[52px]" do %>
       Zur Anmeldungs-Übersicht
+      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+      </svg>
     <% end %>
   <% else %>
     <%= link_to root_path,
-          class: "inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm transition text-sm" do %>
+          class: "w-full inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-6 rounded-xl shadow-sm transition text-base min-h-[52px]" do %>
       Zur Startseite
     <% end %>
   <% end %>

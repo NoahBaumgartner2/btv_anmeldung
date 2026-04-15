@@ -1,52 +1,77 @@
-<div class="max-w-5xl mx-auto w-full mt-8">
+<div class="max-w-5xl mx-auto w-full mt-6 sm:mt-8 px-4">
 
-  <div class="mb-10">
-    <h1 class="font-bold text-3xl text-gray-900">Mein Profil</h1>
-    <p class="text-gray-500 mt-2">Angemeldet als: <span class="font-semibold text-primary-700"><%= current_user.email %></span></p>
+  <div class="mb-8 sm:mb-10">
+    <h1 class="font-bold text-2xl sm:text-3xl text-gray-900">Mein Profil</h1>
+    <p class="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base">Angemeldet als: <span class="font-semibold text-primary-700"><%= current_user.email %></span></p>
   </div>
 
-  <div class="mb-12">
+  <div class="mb-10 sm:mb-12">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-4 gap-3">
-      <h2 class="text-2xl font-bold text-gray-800">Meine Kinder</h2>
-      <%= link_to "+ Neues Kind hinzufügen", new_participant_path, class: "bg-primary-600 hover:bg-primary-700 text-white py-2 px-4 rounded-md text-sm font-medium transition shadow-sm text-center" %>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Meine Kinder</h2>
+      <%= link_to "+ Neues Kind hinzufügen", new_participant_path, class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white py-2.5 px-4 rounded-md text-sm font-medium transition shadow-sm text-center min-h-11" %>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       <% if @my_participants.any? %>
         <% @my_participants.each do |child| %>
-          <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
+          <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
             <h3 class="font-bold text-lg text-gray-900"><%= child.first_name %> <%= child.last_name %></h3>
             <p class="text-sm text-gray-500 mt-1">Geboren: <%= child.date_of_birth&.strftime("%d.%m.%Y") %></p>
             <div class="mt-4 pt-3 border-t border-gray-100 flex justify-end">
-              <%= link_to "Daten bearbeiten", edit_participant_path(child), class: "text-orange-500 hover:text-orange-700 text-sm font-medium" %>
+              <%= link_to "Daten bearbeiten", edit_participant_path(child), class: "text-orange-500 hover:text-orange-700 text-sm font-medium min-h-11 flex items-center" %>
             </div>
           </div>
         <% end %>
       <% else %>
         <div class="col-span-full bg-yellow-50 text-yellow-800 p-4 rounded-lg border border-yellow-200 shadow-sm text-center py-8">
           <p class="font-medium text-lg">Du hast noch keine Kinder in deinem Profil hinterlegt.</p>
-          <p class="text-sm mt-1">Klicke oben rechts auf den blauen Button, um dein erstes Kind hinzuzufügen!</p>
+          <p class="text-sm mt-1">Klicke oben auf den Button, um dein erstes Kind hinzuzufügen!</p>
         </div>
       <% end %>
     </div>
   </div>
 
   <div>
-    <h2 class="text-2xl font-bold text-gray-800 mb-4">Aktuelle Kursanmeldungen</h2>
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Aktuelle Kursanmeldungen</h2>
 
-    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-lg overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kind</th>
-            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kurs</th>
-            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Status</th>
-            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Bezahlt?</th>
-            <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase">Aktionen</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200 bg-white">
-          <% if @my_registrations.any? %>
+    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-lg overflow-hidden">
+      <% if @my_registrations.any? %>
+
+        <%# Mobile: Cards %>
+        <div class="sm:hidden divide-y divide-gray-100">
+          <% @my_registrations.each do |reg| %>
+            <div class="p-4">
+              <div class="flex items-start justify-between gap-2 mb-1">
+                <div class="min-w-0">
+                  <p class="font-medium text-gray-900 text-sm"><%= reg.participant.first_name %></p>
+                  <p class="text-sm text-gray-600 font-medium truncate"><%= reg.course.title %></p>
+                </div>
+                <% status_color = reg.status == 'bestätigt' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' %>
+                <span class="shrink-0 px-2 py-1 rounded-full text-xs font-medium <%= status_color %>">
+                  <%= reg.status.capitalize %>
+                </span>
+              </div>
+              <div class="flex items-center justify-between mt-2">
+                <span class="text-xs text-gray-500"><%= reg.payment_cleared ? "Bezahlt" : "Zahlung offen" %></span>
+                <%= link_to "Zum Kurs", course_path(reg.course),
+                      class: "text-primary-600 hover:text-primary-900 font-bold text-sm min-h-11 flex items-center" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <%# Desktop: Tabelle %>
+        <table class="hidden sm:table min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kind</th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kurs</th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Status</th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Bezahlt?</th>
+              <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase">Aktionen</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 bg-white">
             <% @my_registrations.each do |reg| %>
               <tr class="hover:bg-gray-50 transition duration-150">
                 <td class="py-4 px-4 whitespace-nowrap text-sm font-medium text-gray-900">
@@ -62,22 +87,23 @@
                   </span>
                 </td>
                 <td class="py-4 px-4 whitespace-nowrap text-sm text-gray-600">
-                  <%= reg.payment_cleared ? "✅ Ja" : "⏳ Offen" %>
+                  <%= reg.payment_cleared ? "Ja" : "Offen" %>
                 </td>
                 <td class="py-4 px-4 whitespace-nowrap text-right text-sm">
                   <%= link_to "Zum Kurs", course_path(reg.course), class: "text-primary-600 hover:text-primary-900 font-bold" %>
                 </td>
               </tr>
             <% end %>
-          <% else %>
-            <tr>
-              <td colspan="5" class="py-8 text-center text-sm text-gray-500">
-                Es liegen noch keine Kursanmeldungen vor. Buche jetzt deinen ersten Kurs!
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+
+      <% else %>
+        <div class="py-8 text-center">
+          <p class="text-sm text-gray-500">
+            Es liegen noch keine Kursanmeldungen vor. Buche jetzt deinen ersten Kurs!
+          </p>
+        </div>
+      <% end %>
     </div>
   </div>
 

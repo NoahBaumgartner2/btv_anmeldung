@@ -1,13 +1,20 @@
 <% training_session ||= nil %>
 <%= form_with(model: course_registration, class: "contents") do |form| %>
   <% if course_registration.errors.any? %>
-    <div class="bg-red-50 text-red-700 px-4 py-3 rounded-lg mb-6 border border-red-200">
-      <p class="font-semibold mb-1"><%= course_registration.errors.count == 1 ? "Es gibt einen Fehler:" : "Es gibt #{course_registration.errors.count} Fehler:" %></p>
-      <ul class="list-disc ml-5 mt-1 text-sm space-y-0.5">
-        <% course_registration.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
+    <div class="bg-red-50 text-red-800 px-4 sm:px-5 py-4 rounded-xl mb-6 border-2 border-red-300 shadow-sm" role="alert">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-red-600 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+        <div class="flex-1 min-w-0">
+          <p class="text-base font-bold mb-1"><%= course_registration.errors.count == 1 ? "Es gibt einen Fehler:" : "Es gibt #{course_registration.errors.count} Fehler:" %></p>
+          <ul class="list-disc ml-5 mt-1 text-sm sm:text-base space-y-1 break-words">
+            <% course_registration.errors.each do |error| %>
+              <li><%= error.full_message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
     </div>
   <% end %>
 
@@ -19,21 +26,21 @@
       <%= form.hidden_field :training_session_id %>
     <% else %>
       <div>
-        <%= form.label :course_id, "Kurs", class: "block text-sm font-bold text-gray-700 mb-1" %>
+        <%= form.label :course_id, "Kurs", class: "block text-sm font-bold text-gray-700 mb-1.5" %>
         <%= form.collection_select :course_id, selectable_courses, :id, :title,
               { prompt: "Kurs wählen..." },
-              class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-sm py-2.5 px-3" %>
+              class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]" %>
       </div>
     <% end %>
 
     <%# Teilnehmer-Auswahl %>
     <div>
-      <%= form.label :participant_id, "Wer soll angemeldet werden?", class: "block text-sm font-bold text-gray-700 mb-1" %>
+      <%= form.label :participant_id, "Wer soll angemeldet werden?", class: "block text-sm font-bold text-gray-700 mb-1.5" %>
       <% if my_participants.any? %>
         <%= form.collection_select :participant_id, my_participants, :id,
               ->(p) { "#{p.first_name} #{p.last_name}" },
               { prompt: "Person auswählen..." },
-              class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-sm py-2.5 px-3" %>
+              class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]" %>
 
         <%# Vorab-Prüfung: fehlende Pflichtfelder pro Teilnehmer %>
         <% if course&.required_participant_fields.present? %>
@@ -42,16 +49,21 @@
                [p, missing] if missing.any?
              end %>
           <% if warnings.any? %>
-            <div class="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-4 space-y-2">
-              <p class="text-xs font-bold text-amber-800 uppercase tracking-wide">Pflichtangaben fehlen</p>
+            <div class="mt-3 bg-amber-50 border-2 border-amber-300 rounded-xl p-4 sm:p-5 space-y-3">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-amber-600 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                </svg>
+                <p class="text-sm font-bold text-amber-900 uppercase tracking-wide">Pflichtangaben fehlen</p>
+              </div>
               <% warnings.each do |participant, missing_fields| %>
-                <div class="flex items-start justify-between gap-3 text-sm">
-                  <div>
-                    <span class="font-semibold text-amber-900"><%= participant.first_name %> <%= participant.last_name %></span>
-                    <span class="text-amber-700"> – fehlend: <%= missing_fields.map { |f| Participant.field_label(f) }.join(", ") %></span>
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 text-sm bg-white/60 rounded-lg p-3 border border-amber-200">
+                  <div class="min-w-0 break-words">
+                    <p class="font-bold text-amber-900"><%= participant.first_name %> <%= participant.last_name %></p>
+                    <p class="text-amber-800 mt-0.5">Fehlend: <%= missing_fields.map { |f| Participant.field_label(f) }.join(", ") %></p>
                   </div>
                   <%= link_to "Profil ergänzen", edit_participant_path(participant),
-                        class: "shrink-0 text-xs font-bold text-amber-700 underline hover:text-amber-900" %>
+                        class: "shrink-0 inline-flex items-center justify-center w-full sm:w-auto min-h-[44px] px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-lg shadow-sm transition" %>
                 </div>
               <% end %>
             </div>
@@ -84,9 +96,10 @@
           </div>
         <% end %>
       <% else %>
-        <div class="p-4 bg-yellow-50 text-yellow-800 rounded-lg border border-yellow-200 text-sm">
-          Du hast noch keine Teilnehmer in deinem Profil hinterlegt.<br>
-          <%= link_to "Jetzt Person erfassen", new_participant_path, class: "font-bold underline hover:text-yellow-900" %>
+        <div class="p-4 sm:p-5 bg-yellow-50 text-yellow-900 rounded-xl border-2 border-yellow-300 space-y-3">
+          <p class="text-sm sm:text-base font-medium">Du hast noch keine Teilnehmer in deinem Profil hinterlegt.</p>
+          <%= link_to "Jetzt Person erfassen", new_participant_path,
+                class: "block w-full text-center min-h-[44px] inline-flex items-center justify-center px-4 py-3 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-bold rounded-lg shadow-sm transition" %>
         </div>
       <% end %>
     </div>
@@ -98,16 +111,16 @@
       <%= form.hidden_field :payment_cleared, value: false %>
     <% else %>
       <% if current_user.admin? || Trainer.exists?(user: current_user) %>
-        <div class="pt-5 border-t border-gray-100 grid grid-cols-2 gap-4">
+        <div class="pt-5 border-t border-gray-100 grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
             <%= form.label :status, "Anmelde-Status", class: "block text-sm font-bold text-gray-700 mb-1" %>
             <%= form.select :status, ["warteliste", "bestätigt", "storniert"], {},
-                  class: "block w-full rounded-lg border border-gray-300 shadow-sm text-sm bg-white focus:ring-primary-500 focus:border-primary-500 py-2.5 px-3" %>
+                  class: "block w-full rounded-lg border border-gray-300 shadow-sm text-base sm:text-sm bg-white focus:ring-primary-500 focus:border-primary-500 py-3 sm:py-2.5 px-3 min-h-[44px]" %>
           </div>
-          <div class="flex items-end pb-0.5">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <%= form.check_box :payment_cleared, class: "h-5 w-5 text-green-600 rounded border-gray-300 focus:ring-green-500 cursor-pointer" %>
-              <span class="text-sm font-bold text-gray-900">Zahlung eingegangen</span>
+          <div class="flex sm:items-end sm:pb-0.5">
+            <label class="flex items-center gap-3 cursor-pointer min-h-[44px] py-2 select-none">
+              <%= form.check_box :payment_cleared, class: "h-6 w-6 text-green-600 rounded border-gray-300 focus:ring-green-500 cursor-pointer" %>
+              <span class="text-base sm:text-sm font-bold text-gray-900">Zahlung eingegangen</span>
             </label>
           </div>
         </div>
@@ -116,10 +129,10 @@
 
   </div>
 
-  <div class="flex justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
+  <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
     <%= link_to "Abbrechen", :back,
-          class: "bg-white py-2 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition" %>
+          class: "block w-full sm:w-auto text-center bg-white py-3 sm:py-2 px-5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition min-h-[44px] inline-flex items-center justify-center" %>
     <%= form.submit course_registration.new_record? ? "Jetzt anmelden" : "Änderungen speichern",
-          class: "cursor-pointer inline-flex justify-center py-2 px-5 border border-transparent shadow-sm text-sm font-bold rounded-lg text-white bg-secondary-600 hover:bg-secondary-700 transition" %>
+          class: "cursor-pointer w-full sm:w-auto inline-flex justify-center items-center py-3 sm:py-2 px-5 border border-transparent shadow-sm text-base sm:text-sm font-bold rounded-lg text-white bg-secondary-600 hover:bg-secondary-700 transition min-h-[44px]" %>
   </div>
 <% end %>
