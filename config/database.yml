@@ -88,8 +88,9 @@ production:
   primary: &primary_production
     <<: *default
     database: btv_anmeldung_production
-    username: btv_anmeldung
-    password: <%= ENV["BTV_ANMELDUNG_DATABASE_PASSWORD"] %>
+    username: btv_app
+    password: <%= ENV["POSTGRES_PASSWORD"] %>
+    host: <%= ENV["DB_HOST"] %>
   cache:
     <<: *primary_production
     database: btv_anmeldung_production_cache
