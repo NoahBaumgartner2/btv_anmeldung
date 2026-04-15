@@ -1,5 +1,5 @@
 class ClubColorsController < ApplicationController
-  skip_before_action :authenticate_user!
+  skip_before_action :authenticate_user!, raise: false
 
   def show
     # first gibt nil zurück wenn die Tabelle leer ist → Fallback auf leere Instanz mit Defaults
