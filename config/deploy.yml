@@ -28,7 +28,7 @@ registry:
 # Umgebungsvariablen für die Rails App
 env:
   clear:
-    SOLID_QUEUE_IN_PUMA: true
+    SOLID_QUEUE_IN_PUMA: false
     DB_HOST: btv_anmeldung-db # App nutzt diesen internen Namen
   secret:
     - RAILS_MASTER_KEY
