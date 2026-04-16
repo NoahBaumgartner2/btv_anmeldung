@@ -60,8 +60,10 @@ begin
   InfomaniakConfig.load!
   Rails.logger.info "[InfomaniakConfig] Konfiguration geladen – " \
                     "#{InfomaniakConfig.configured? ? 'vollständig' : 'unvollständig (Dev/Test)'}"
-rescue RuntimeError => e
-  raise e  # In Production immer hart fehlschlagen
 rescue => e
-  Rails.logger.warn "[InfomaniakConfig] Initializer übersprungen: #{e.message}"
+  if Rails.env.production?
+    raise e
+  else
+    Rails.logger.warn "[InfomaniakConfig] Initializer übersprungen: #{e.message}"
+  end
 end

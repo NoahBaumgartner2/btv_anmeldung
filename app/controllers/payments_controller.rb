@@ -110,6 +110,15 @@ class PaymentsController < ApplicationController
         end
       end
     end
+  rescue StandardError => e
+    Rails.logger.error "[SumUp] success callback error: #{e.class}: #{e.message}"
+    if @registration
+      redirect_to course_registration_path(@registration),
+                  notice: "Deine Zahlung wird möglicherweise noch verarbeitet. Bitte lade die Seite in einigen Minuten neu."
+    else
+      redirect_to root_path,
+                  alert: "Ein Fehler ist aufgetreten. Bitte kontaktiere uns falls deine Zahlung nicht verarbeitet wurde."
+    end
   end
 
   def cancel

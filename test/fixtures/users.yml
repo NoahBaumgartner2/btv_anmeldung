@@ -2,13 +2,16 @@ one:
   email: parent@example.com
   encrypted_password: $2a$12$xwZ1pdh88HwMVOeW2CIWxeCTWhcpMZ6UyoTnTq1cSlScbmQPGYb/q
   admin: false
+  confirmed_at: 2020-01-01 00:00:00
 
 two:
   email: other@example.com
   encrypted_password: $2a$12$xwZ1pdh88HwMVOeW2CIWxeCTWhcpMZ6UyoTnTq1cSlScbmQPGYb/q
   admin: false
+  confirmed_at: 2020-01-01 00:00:00
 
 admin:
   email: admin@example.com
   encrypted_password: $2a$12$xwZ1pdh88HwMVOeW2CIWxeCTWhcpMZ6UyoTnTq1cSlScbmQPGYb/q
   admin: true
+  confirmed_at: 2020-01-01 00:00:00

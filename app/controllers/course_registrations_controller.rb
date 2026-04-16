@@ -181,7 +181,7 @@ def unsubscribe_from_session
     authorize_parent_owns_registration!(@course_registration)
     return if performed?
 
-    @training_session = TrainingSession.find(params[:training_session_id])
+    @training_session = @course_registration.course.training_sessions.find(params[:training_session_id])
 
     unless @training_session.start_time > 24.hours.from_now
       redirect_to participants_path, alert: "Eine Abmeldung ist nur bis 24 Stunden vor dem Training möglich."
@@ -212,7 +212,12 @@ def unsubscribe_from_session
 
     # 1. Wir nehmen EXAKT die Checkliste, aus der der Trainer den Scanner gestartet hat!
     if params[:session_id].present?
-      @session = TrainingSession.find(params[:session_id])
+      begin
+        @session = TrainingSession.find(params[:session_id])
+      rescue ActiveRecord::RecordNotFound
+        return render json: { success: false, message: "Session nicht gefunden" }, status: :not_found if request.format.json?
+        return redirect_to root_path, alert: "Training-Session nicht gefunden."
+      end
     else
       # Fallback, falls jemand den Link ohne ID aufruft
       @session = @registration.course.training_sessions.order(start_time: :desc).first
