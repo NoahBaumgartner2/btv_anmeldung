@@ -97,6 +97,11 @@ class TrainingSessionsController < ApplicationController
     # Wir fangen jetzt die ID der Kursanmeldung auf
     course_registration_id = params[:course_registration_id]
 
+    course_registration = CourseRegistration.find_by(id: course_registration_id)
+    unless course_registration && course_registration.course_id == @training_session.course_id
+      return redirect_to @training_session, alert: "Ungültige Kursanmeldung."
+    end
+
     # Prüfen, ob für diese Anmeldung schon eine Anwesenheit existiert
     attendance = @training_session.attendances.find_by(course_registration_id: course_registration_id)
 

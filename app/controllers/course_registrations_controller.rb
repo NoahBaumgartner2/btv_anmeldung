@@ -218,6 +218,11 @@ def unsubscribe_from_session
       @session = @registration.course.training_sessions.order(start_time: :desc).first
     end
 
+    unless @session
+      return render json: { success: false, message: "Keine Training-Session gefunden" }, status: :not_found if request.format.json?
+      return redirect_to root_path, alert: "Keine Training-Session für diesen Kurs gefunden."
+    end
+
     # 2. Kind in dieser Liste abhaken!
     attendance = @session.attendances.find_or_initialize_by(course_registration_id: @registration.id)
     attendance.update!(status: "anwesend")

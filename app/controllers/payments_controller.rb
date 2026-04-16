@@ -96,35 +96,14 @@ class PaymentsController < ApplicationController
       @registration = CourseRegistration.find_by(sumup_checkout_id: checkout_id)
 
       if @registration && !@registration.payment_cleared?
-        uri = URI("https://api.sumup.com/v0.1/checkouts/#{checkout_id}")
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
-
-        request = Net::HTTP::Get.new(uri.path, {
-          "Authorization" => "Bearer #{::SumupConfig.access_token}"
-        })
-
-        response = http.request(request)
+        response = PaymentSyncService.send(:fetch_checkout, checkout_id)
 
         if response.is_a?(Net::HTTPSuccess)
           checkout = JSON.parse(response.body)
 
           if checkout["status"] == "PAID"
-            course = @registration.course
-            if course.max_participants.present?
-              confirmed_count = course.course_registrations.where(status: "bestätigt").count
-              new_status = confirmed_count >= course.max_participants ? "warteliste" : "bestätigt"
-            else
-              new_status = "bestätigt"
-            end
-
             transaction_id = checkout.dig("transactions", 0, "id")
-
-            @registration.update!(
-              payment_cleared:     true,
-              sumup_transaction_id: transaction_id,
-              status:              new_status
-            )
+            PaymentSyncService.mark_paid!(@registration, transaction_id: transaction_id, checkout_id: checkout_id)
           end
         else
           Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
