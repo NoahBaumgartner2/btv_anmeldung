@@ -1,10 +1,11 @@
 Rails.application.routes.draw do
   # NEU: Die Routen für unsere Dashboards
+  get "up" => "rails/health#show", as: :rails_health_check
   get  "dashboards/admin"
   get  "dashboards/trainer"
   get  "dashboards/stats"
   get  "dashboards/export_participants", as: "export_participants_dashboard"
-  get "up" => "rails/health#show", as: :rails_health_check
+
 
   resource :mail_setting, only: [ :show, :edit, :update ] do
     post :test_email
