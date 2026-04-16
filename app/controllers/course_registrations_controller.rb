@@ -176,7 +176,7 @@ class CourseRegistrationsController < ApplicationController
     redirect_to manage_course_path(course), notice: notice
   end
 
-def unsubscribe_from_session
+  def unsubscribe_from_session
     @course_registration = CourseRegistration.find(params[:id])
     authorize_parent_owns_registration!(@course_registration)
     return if performed?
@@ -211,21 +211,18 @@ def unsubscribe_from_session
     @registration = CourseRegistration.find(params[:id])
 
     # 1. Wir nehmen EXAKT die Checkliste, aus der der Trainer den Scanner gestartet hat!
-    if params[:session_id].present?
-      begin
-        @session = TrainingSession.find(params[:session_id])
-      rescue ActiveRecord::RecordNotFound
-        return render json: { success: false, message: "Session nicht gefunden" }, status: :not_found if request.format.json?
-        return redirect_to root_path, alert: "Training-Session nicht gefunden."
-      end
+    @session = if params[:session_id].present?
+      TrainingSession.find_by(id: params[:session_id])
     else
-      # Fallback, falls jemand den Link ohne ID aufruft
-      @session = @registration.course.training_sessions.order(start_time: :desc).first
+      @registration.course.training_sessions.order(start_time: :desc).first
     end
 
     unless @session
-      return render json: { success: false, message: "Keine Training-Session gefunden" }, status: :not_found if request.format.json?
-      return redirect_to root_path, alert: "Keine Training-Session für diesen Kurs gefunden."
+      respond_to do |format|
+        format.html { redirect_to root_path, alert: "Training-Session nicht gefunden." }
+        format.json { render json: { success: false, message: "Session nicht gefunden" }, status: :not_found }
+      end
+      return
     end
 
     # 2. Kind in dieser Liste abhaken!
