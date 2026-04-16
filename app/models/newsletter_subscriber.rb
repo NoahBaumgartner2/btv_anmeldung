@@ -9,7 +9,7 @@ class NewsletterSubscriber < ApplicationRecord
   before_save { self.email = email.downcase.strip }
 
   after_commit  :sync_to_infomaniak,           on: [ :create, :update ]
-  after_destroy :unsubscribe_from_infomaniak
+  after_destroy_commit :unsubscribe_from_infomaniak
 
   scope :subscribed,   -> { where(status: "subscribed") }
   scope :unsubscribed, -> { where(status: "unsubscribed") }
