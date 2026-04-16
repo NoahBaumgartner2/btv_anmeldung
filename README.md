@@ -10,6 +10,7 @@ Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung 
 - https://www.kids-sport.ch/
 - notifications anpassen beispiel abmelden kommt default notification
 - check ob alle trainings präsenzkontrolle ausgefühllt ist (verbessert werden)
+- sprachen auf englisch deutsch französisch
 
 ### Workflow NDS
 - 1. Teilnehmende exportieren meine datenbank (Beides möglich: alle Kurse oder ecpliziter Kurs)
