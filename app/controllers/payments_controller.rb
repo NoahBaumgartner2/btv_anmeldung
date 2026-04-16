@@ -82,7 +82,14 @@ class PaymentsController < ApplicationController
     checkout = JSON.parse(response.body)
     @registration.update!(sumup_checkout_id: checkout["id"])
 
-    redirect_to checkout["hosted_checkout_url"] || checkout["url"], allow_other_host: true
+    checkout_url = checkout["hosted_checkout_url"] || checkout["url"]
+    unless checkout_url.present?
+      Rails.logger.error "[SumUp] Checkout response enthält keine URL: #{checkout.inspect}"
+      return redirect_to course_registration_path(@registration),
+                         alert: "Zahlung konnte nicht gestartet werden. Bitte versuche es später erneut."
+    end
+
+    redirect_to checkout_url, allow_other_host: true
   rescue StandardError => e
     Rails.logger.error "[SumUp] Unexpected error: #{e.message}"
     redirect_to course_registration_path(@registration),
@@ -110,6 +117,8 @@ class PaymentsController < ApplicationController
         end
       end
     end
+
+    redirect_to root_path, alert: "Zahlung nicht gefunden." if checkout_id.present? && @registration.nil?
   rescue StandardError => e
     Rails.logger.error "[SumUp] success callback error: #{e.class}: #{e.message}"
     if @registration

@@ -1,3 +1,5 @@
+require "timeout"
+
 # Kapselt die Logik zum Abgleichen ausstehender Zahlungen mit SumUp.
 # Genutzt von:
 #   - Admin::PaymentSettingsController#sync_payments (Admin-UI)
