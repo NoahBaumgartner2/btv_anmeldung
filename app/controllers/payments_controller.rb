@@ -96,7 +96,7 @@ class PaymentsController < ApplicationController
       @registration = CourseRegistration.find_by(sumup_checkout_id: checkout_id)
 
       if @registration && !@registration.payment_cleared?
-        response = PaymentSyncService.send(:fetch_checkout, checkout_id)
+        response = PaymentSyncService.fetch_checkout(checkout_id)
 
         if response.is_a?(Net::HTTPSuccess)
           checkout = JSON.parse(response.body)

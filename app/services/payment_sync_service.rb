@@ -82,5 +82,4 @@ class PaymentSyncService
 
     http.request(request)
   end
-  private_class_method :fetch_checkout
 end
