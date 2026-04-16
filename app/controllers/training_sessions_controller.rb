@@ -76,6 +76,7 @@ class TrainingSessionsController < ApplicationController
       .where(status: "bestätigt")
       .includes(participant: :user)
       .each do |registration|
+        next unless registration.participant&.user.present?
         TrainingSessionMailer.cancellation_notice(@training_session, registration.participant.user).deliver_later
       end
 
@@ -110,7 +111,10 @@ class TrainingSessionsController < ApplicationController
 
       attendance.destroy
     else
-      @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
+      attendance = @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
+      unless attendance.persisted?
+        return redirect_to @training_session, alert: "Anwesenheit konnte nicht gespeichert werden."
+      end
     end
 
     redirect_to @training_session

@@ -225,9 +225,23 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
+    if @registration.course_id != @session.course_id
+      respond_to do |format|
+        format.html { redirect_to @session, alert: "Diese Anmeldung gehört nicht zu diesem Training." }
+        format.json { render json: { success: false, message: "Anmeldung gehört nicht zu diesem Training" }, status: :unprocessable_entity }
+      end
+      return
+    end
+
     # 2. Kind in dieser Liste abhaken!
     attendance = @session.attendances.find_or_initialize_by(course_registration_id: @registration.id)
-    attendance.update!(status: "anwesend")
+    unless attendance.update(status: "anwesend")
+      respond_to do |format|
+        format.html { redirect_to @session, alert: "Anwesenheit konnte nicht gespeichert werden." }
+        format.json { render json: { success: false, message: "Anwesenheit konnte nicht gespeichert werden" }, status: :unprocessable_entity }
+      end
+      return
+    end
 
     respond_to do |format|
       format.html { redirect_to @session, notice: "✅ BING! #{@registration.participant.first_name} wurde eingecheckt!" }
