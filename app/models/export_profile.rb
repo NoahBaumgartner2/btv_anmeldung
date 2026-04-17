@@ -366,7 +366,7 @@ class ExportProfile < ApplicationRecord
 
   GENDER_MAP = { "männlich" => "m", "weiblich" => "w" }.freeze
 
-  def generate_baspo_person_csv(participants)
+  def self.generate_baspo_person_csv(participants)
     bom = "\xEF\xBB\xBF"
     csv = CSV.generate(col_sep: ";", row_sep: "\r\n", headers: BASPO_HEADERS, write_headers: true) do |csv|
       participants.each do |p|
@@ -463,7 +463,7 @@ class ExportProfile < ApplicationRecord
       else             generate_attendance_csv(participants_or_course, dr)
       end
     elsif export_type == "baspo_personenimport"
-      generate_baspo_person_csv(participants_or_course)
+      ExportProfile.generate_baspo_person_csv(participants_or_course)
     elsif export_type == "baspo_awk"
       dr = date_range || effective_date_range
       generate_baspo_awk_csv(participants_or_course, dr)

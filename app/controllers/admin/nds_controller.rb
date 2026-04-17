@@ -98,7 +98,7 @@ module Admin
       participants = course ? course.participants.includes(:user, :courses) : Participant.includes(:user, :courses)
       suffix       = course ? course.title.parameterize : "alle-kurse"
 
-      csv_data = ExportProfile.new.generate_baspo_person_csv(participants)
+      csv_data = ExportProfile.generate_baspo_person_csv(participants)
       filename = "nds-personenimport-#{suffix}-#{Date.today.iso8601}.csv"
       send_data csv_data, filename: filename, type: "text/csv; charset=utf-8-bom", disposition: "attachment"
     end

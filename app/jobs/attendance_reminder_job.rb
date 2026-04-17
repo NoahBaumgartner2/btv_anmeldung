@@ -14,12 +14,12 @@ class AttendanceReminderJob < ApplicationJob
         session.course.course_trainers.each do |ct|
           AttendanceReminderMailer.trainer_reminder(session, ct.trainer).deliver_later
         end
-        session.update_column(:trainer_reminded_at, Time.current)
+        session.update_columns(trainer_reminded_at: Time.current)
       end
 
       if session.needs_admin_notification?
         AttendanceReminderMailer.admin_notification(session).deliver_later
-        session.update_column(:admin_notified_at, Time.current)
+        session.update_columns(admin_notified_at: Time.current)
       end
     end
   end

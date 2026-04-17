@@ -79,7 +79,7 @@ module Admin
                       else
                         Participant.includes(:user, :courses)
                       end
-        data     = @export_profile.generate_baspo_person_csv(participants)
+        data     = ExportProfile.generate_baspo_person_csv(participants)
         mime     = "text/csv; charset=utf-8-bom"
         filename = "#{@export_profile.name.parameterize}-baspo-#{Date.today.iso8601}.csv"
       else
