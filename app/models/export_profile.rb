@@ -149,7 +149,7 @@ class ExportProfile < ApplicationRecord
       when "phone_number"  then participant.phone_number
       when "gender"        then participant.gender
       when "ahv_number"    then participant.ahv_number
-      when "user_email"    then participant.user.email
+      when "user_email"    then participant.user&.email
       when "courses"       then participant.courses.map(&:title).join(", ")
       end
     end
@@ -529,7 +529,7 @@ class ExportProfile < ApplicationRecord
       when "phone_number"  then participant.phone_number
       when "gender"        then participant.gender
       when "ahv_number"    then participant.ahv_number
-      when "user_email"    then participant.user.email
+      when "user_email"    then participant.user&.email
       when "courses"       then participant.courses.map(&:title).join(", ")
       end
     end

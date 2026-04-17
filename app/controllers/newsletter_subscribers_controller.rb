@@ -53,7 +53,7 @@ class NewsletterSubscribersController < ApplicationController
     errors = []
 
     begin
-      CSV.foreach(file.path, headers: true, encoding: "UTF-8") do |row|
+      CSV.foreach(file.path, headers: true, encoding: "UTF-8", liberal_parsing: true) do |row|
         # Unterstützt Spalten: email, name, status — oder einfach nur eine Spalte mit der E-Mail
         email  = (row["email"] || row["Email"] || row["E-Mail"] || row[0]).to_s.strip.downcase
         name   = (row["name"]  || row["Name"]  || row[1]).to_s.strip.presence
@@ -73,14 +73,12 @@ class NewsletterSubscribersController < ApplicationController
           skipped += 1
           errors << "#{email}: #{sub.errors.full_messages.join(', ')}"
         end
-      rescue CSV::MalformedCSVError
-        skipped += 1
       end
     rescue CSV::MalformedCSVError => e
       return redirect_to newsletter_subscribers_path, alert: "Die CSV-Datei ist ungültig und konnte nicht gelesen werden: #{e.message}"
     end
 
-    msg = "#{added} #{"Adresse".pluralize(added)} importiert"
+    msg = "#{added} #{added == 1 ? 'Adresse' : 'Adressen'} importiert"
     msg += ", #{skipped} übersprungen" if skipped > 0
     redirect_to newsletter_subscribers_path, notice: msg
   end
