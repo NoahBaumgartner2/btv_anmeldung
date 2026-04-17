@@ -70,6 +70,9 @@ class TrainingSessionsController < ApplicationController
   end
 
   def cancel
+    authorize_admin!
+    return if performed?
+
     @training_session.update!(is_canceled: true)
 
     @training_session.course.course_registrations

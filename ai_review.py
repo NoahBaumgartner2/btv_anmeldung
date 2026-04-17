@@ -57,4 +57,4 @@ try:
 
 except Exception as e:
     print(f"⚠️ Warnung: Das KI-Review konnte nicht durchgeführt werden ({e}).")
-    sys.exit(0)
+    sys.exit(1)
