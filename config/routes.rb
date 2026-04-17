@@ -71,13 +71,12 @@ Rails.application.routes.draw do
     end
   end
 
+  get "newsletter_subscribers/unsubscribe", to: "newsletter_subscribers#unsubscribe", as: "unsubscribe_newsletter_subscriber"
+
   resources :newsletter_subscribers, only: %i[index create update destroy] do
     collection do
       post :import
       get  :export
-    end
-    member do
-      get :unsubscribe
     end
   end
 

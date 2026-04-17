@@ -9,8 +9,6 @@ class User < ApplicationRecord
 
   has_one :trainer, dependent: :destroy
 
-  after_create :subscribe_to_newsletter
-
   def newsletter_subscriber
     NewsletterSubscriber.find_by(email: email.downcase.strip)
   end
@@ -19,13 +17,4 @@ class User < ApplicationRecord
     newsletter_subscriber&.subscribed? || false
   end
 
-  private
-
-  def subscribe_to_newsletter
-    NewsletterSubscriber.find_or_initialize_by(email: email.downcase.strip).tap do |sub|
-      sub.status = "subscribed"
-      sub.source = "manual"
-      sub.save
-    end
-  end
 end

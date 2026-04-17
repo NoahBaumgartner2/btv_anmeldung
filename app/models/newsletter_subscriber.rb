@@ -6,6 +6,7 @@ class NewsletterSubscriber < ApplicationRecord
                      format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :status, inclusion: { in: STATUSES }
 
+  before_create { self.unsubscribe_token = SecureRandom.urlsafe_base64(32) }
   before_save { self.email = email.downcase.strip }
 
   after_commit  :sync_to_infomaniak,           on: [ :create, :update ]

@@ -5,7 +5,7 @@ Ein Trainer hat <%= @participant.first_name %> <%= @participant.last_name %> vom
 Teilnehmer:        <%= @participant.first_name %> <%= @participant.last_name %>
 Kurs:               <%= @course.title %>
 Abgemeldet durch:   <%= @cancelled_by || "—" %>
-Elternkontakt:      <%= @parent.email %>
+Elternkontakt:      <%= @parent&.email || "—" %>
 <% if @course.has_payment? %>
 Kursbetrag:         <%= @course.price_display %>
 Zahlungsstatus:     <%= @course_registration.payment_cleared? ? "Bezahlt" : "Nicht bezahlt" %>
@@ -16,7 +16,7 @@ Begründung:
 <%= @reason %>
 <% end %>
 
-Bitte prüfe, ob eine Rückerstattung an <%= @parent.email %> ausgelöst werden soll.
+Bitte prüfe, ob eine Rückerstattung an <%= @parent&.email || "den Elternteil" %> ausgelöst werden soll.
 
 ---
 Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

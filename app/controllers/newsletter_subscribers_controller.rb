@@ -84,9 +84,13 @@ class NewsletterSubscribersController < ApplicationController
   end
 
   def unsubscribe
-    subscriber = NewsletterSubscriber.find(params[:id])
-    subscriber.update!(status: "unsubscribed")
-    render plain: "Du wurdest erfolgreich vom Newsletter abgemeldet.", status: :ok
+    subscriber = NewsletterSubscriber.find_by(unsubscribe_token: params[:token])
+    if subscriber
+      subscriber.update!(status: "unsubscribed")
+      render plain: "Du wurdest erfolgreich vom Newsletter abgemeldet.", status: :ok
+    else
+      render plain: "Ungültiger Abmeldelink.", status: :not_found
+    end
   end
 
   def export
