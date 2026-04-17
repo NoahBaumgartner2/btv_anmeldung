@@ -1,7 +1,7 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel ]
   before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
 
   def show
@@ -10,7 +10,9 @@ class CourseRegistrationsController < ApplicationController
       confirmed = course.course_registrations.where(status: "bestätigt").count
       max       = course.max_participants
       new_status = (max.present? && confirmed >= max) ? "warteliste" : "bestätigt"
-      @course_registration.update_columns(status: new_status)
+      CourseRegistration.where(id: @course_registration.id, status: "ausstehend")
+                        .update_all(status: new_status)
+      @course_registration.reload
     end
   end
 
@@ -136,7 +138,6 @@ class CourseRegistrationsController < ApplicationController
   # Eltern werden per E-Mail informiert; optional wird der Admin
   # für eine allfällige Rückerstattung benachrichtigt.
   def trainer_cancel
-    @course_registration = CourseRegistration.find(params[:id])
     course = @course_registration.course
 
     unless current_user.admin? || trainer_assigned_to_course?(course)
