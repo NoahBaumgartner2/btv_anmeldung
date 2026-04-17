@@ -18,7 +18,7 @@ class AttendanceReminderMailer < ApplicationMailer
     @training_session_url = training_session_url(training_session)
 
     mail(
-      to: User.where(role: "admin").pluck(:email),
+      to: User.where(admin: true).pluck(:email),
       subject: "⚠️ Anwesenheit nicht erfasst: #{@course.title} (#{I18n.l(training_session.start_time.to_date)})"
     )
   end

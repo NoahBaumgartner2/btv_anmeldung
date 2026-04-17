@@ -4,6 +4,7 @@ class AttendanceReminderJob < ApplicationJob
   def perform
     sessions = TrainingSession
       .where(is_canceled: false)
+      .where.not(end_time: nil)
       .where("end_time < ?", Time.current)
       .includes(course: { course_trainers: { trainer: :user } })
 
@@ -21,6 +22,8 @@ class AttendanceReminderJob < ApplicationJob
         AttendanceReminderMailer.admin_notification(session).deliver_later
         session.update_columns(admin_notified_at: Time.current)
       end
+    rescue => e
+      Rails.logger.error "[AttendanceReminderJob] Fehler bei Session #{session.id}: #{e.class}: #{e.message}"
     end
   end
 end
