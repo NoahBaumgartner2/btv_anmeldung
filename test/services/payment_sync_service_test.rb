@@ -13,6 +13,8 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
   def fake_http(response)
     obj = Object.new
     obj.define_singleton_method(:use_ssl=) { |_| }
+    obj.define_singleton_method(:open_timeout=) { |_| }
+    obj.define_singleton_method(:read_timeout=) { |_| }
     obj.define_singleton_method(:request) { |_req| response }
     obj
   end
@@ -20,6 +22,8 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
   def fake_http_raising(error)
     obj = Object.new
     obj.define_singleton_method(:use_ssl=) { |_| }
+    obj.define_singleton_method(:open_timeout=) { |_| }
+    obj.define_singleton_method(:read_timeout=) { |_| }
     obj.define_singleton_method(:request) { |_req| raise error }
     obj
   end

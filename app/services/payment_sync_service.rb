@@ -12,7 +12,7 @@ class PaymentSyncService
   # Wird direkt vom Webhook aufgerufen. Pessimistischer Lock verhindert Race Conditions
   # bei gleichzeitigen Webhook- und Success-Callback-Aufrufen.
   def self.mark_paid!(registration, transaction_id: nil, checkout_id: nil)
-    registration.course.with_lock do
+    Course.find(registration.course_id).with_lock do
       registration.reload
       return if registration.payment_cleared?
 
@@ -83,6 +83,8 @@ class PaymentSyncService
     uri = URI("https://api.sumup.com/v0.1/checkouts/#{checkout_id}")
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
+    http.open_timeout = 5
+    http.read_timeout = 10
 
     request = Net::HTTP::Get.new(uri.path, {
       "Authorization" => "Bearer #{::SumupConfig.access_token}"

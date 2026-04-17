@@ -19,7 +19,7 @@ class NewsletterSubscriber < ApplicationRecord
   private
 
   def unsubscribe_from_infomaniak
-    InfomaniakUnsubscribeJob.perform_later(email) if subscribed?
+    InfomaniakUnsubscribeJob.perform_later(email)
   end
 
   def sync_to_infomaniak
