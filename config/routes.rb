@@ -98,6 +98,9 @@ Rails.application.routes.draw do
   # Dynamische CSS-Variablen (Vereinsfarben) – öffentlich, versioniert via ?v=
   get "/club_colors.css", to: "club_colors#show", as: :club_colors
 
-  devise_for :users, controllers: { confirmations: "users/confirmations" }
+  devise_for :users, controllers: {
+    confirmations: "users/confirmations",
+    registrations: "users/registrations"
+  }
   root "pages#home"
 end

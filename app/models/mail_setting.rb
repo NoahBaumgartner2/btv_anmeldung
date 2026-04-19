@@ -33,14 +33,14 @@ class MailSetting < ApplicationRecord
     setting = first
 
     if setting&.smtp_host.present?
-      ActionMailer::Base.delivery_method  = :smtp
-      ActionMailer::Base.smtp_settings    = setting.to_smtp_hash
-      ActionMailer::Base.default_options  = { from: setting.from_header }
+      ActionMailer::Base.delivery_method = :smtp
+      ActionMailer::Base.smtp_settings   = setting.to_smtp_hash
+      ActionMailer::Base.default(from: setting.from_header) if setting.from_header.present?
     else
       apply_from_env!
     end
 
-    from = ActionMailer::Base.default_options[:from]
+    from = ActionMailer::Base.default_params[:from]
     Devise.mailer_sender = from if from.present?
 
     if setting&.app_host.present? && setting.app_host.match?(HOSTNAME_REGEXP)
@@ -65,7 +65,7 @@ class MailSetting < ApplicationRecord
     }.compact
 
     from = [ENV["SMTP_FROM_NAME"], ENV["SMTP_FROM_ADDRESS"]].compact.join(" ")
-    ActionMailer::Base.default_options = { from: from } if from.present?
+    ActionMailer::Base.default(from: from) if from.present?
   end
 
   def to_smtp_hash

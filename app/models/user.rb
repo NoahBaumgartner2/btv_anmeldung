@@ -17,4 +17,5 @@ class User < ApplicationRecord
     newsletter_subscriber&.subscribed? || false
   end
 
+
 end
