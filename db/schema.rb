@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_17_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_19_215728) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -169,6 +169,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_17_000001) do
   end
 
   create_table "mail_settings", force: :cascade do |t|
+    t.string "app_host"
     t.datetime "created_at", null: false
     t.string "smtp_authentication", default: "plain"
     t.boolean "smtp_enable_starttls", default: true, null: false

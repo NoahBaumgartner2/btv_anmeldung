@@ -211,6 +211,7 @@
     <script nonce="<%= content_security_policy_nonce %>">
       (function() {
         var DURATION = 5000;
+        var timers = new WeakMap();
 
         function dismissToast(toast) {
           toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -219,14 +220,28 @@
           setTimeout(function() { toast.remove(); }, 300);
         }
 
-        document.querySelectorAll('.flash-toast').forEach(function(toast) {
-          var timer = setTimeout(function() { dismissToast(toast); }, DURATION);
-
-          toast.querySelector('.flash-close').addEventListener('click', function() {
-            clearTimeout(timer);
-            dismissToast(toast);
+        function initToasts() {
+          document.querySelectorAll('.flash-toast:not([data-flash-init])').forEach(function(toast) {
+            toast.setAttribute('data-flash-init', '1');
+            var timer = setTimeout(function() { dismissToast(toast); }, DURATION);
+            timers.set(toast, timer);
           });
+        }
+
+        // Event-Delegation: funktioniert auch nach Turbo-Navigation
+        document.addEventListener('click', function(e) {
+          var btn = e.target.closest('.flash-close');
+          if (!btn) return;
+          var toast = btn.closest('.flash-toast');
+          if (!toast) return;
+          var timer = timers.get(toast);
+          if (timer) clearTimeout(timer);
+          dismissToast(toast);
         });
+
+        initToasts();
+        document.addEventListener('turbo:load', initToasts);
+        document.addEventListener('turbo:render', initToasts);
       })();
     </script>
 

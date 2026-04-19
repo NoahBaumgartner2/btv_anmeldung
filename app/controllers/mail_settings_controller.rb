@@ -40,7 +40,7 @@ class MailSettingsController < ApplicationController
     params.require(:mail_setting).permit(
       :smtp_host, :smtp_port, :smtp_username, :smtp_password,
       :smtp_from_address, :smtp_from_name, :smtp_authentication,
-      :smtp_enable_starttls
+      :smtp_enable_starttls, :app_host
     )
   end
 end

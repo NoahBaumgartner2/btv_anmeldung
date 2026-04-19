@@ -73,6 +73,19 @@
     </dl>
   </div>
 
+  <%# ── App-URL ───────────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">App-URL (für E-Mail-Links)</p>
+    </div>
+    <dl class="divide-y divide-gray-100">
+      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+        <dt class="font-medium text-gray-500 w-40 shrink-0">Domain</dt>
+        <dd class="text-gray-900 font-semibold"><%= @mail_setting.app_host.presence || ENV.fetch("APP_HOST", "btvbern-anmeldung.ch") %></dd>
+      </div>
+    </dl>
+  </div>
+
   <%# ── Test-E-Mail ────────────────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
     <p class="text-sm font-bold text-gray-700 mb-1">Test-E-Mail senden</p>

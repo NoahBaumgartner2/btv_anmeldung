@@ -1,8 +1,11 @@
 class MailSetting < ApplicationRecord
   AUTHENTICATION_OPTIONS = %w[plain login cram_md5].freeze
 
+  HOSTNAME_REGEXP = /\A[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*\z/i
+
   validates :smtp_port, numericality: { only_integer: true, greater_than: 0, less_than: 65_536 }, allow_blank: true
   validates :smtp_authentication, inclusion: { in: AUTHENTICATION_OPTIONS }, allow_blank: true
+  validates :app_host, format: { with: HOSTNAME_REGEXP, message: "muss ein gültiger Hostname sein (z.B. btvbern-anmeldung.ch)" }, allow_blank: true
 
   # ── Virtual attribute for password (stored encrypted) ──────────────────────
   attr_reader :smtp_password
@@ -39,6 +42,10 @@ class MailSetting < ApplicationRecord
 
     from = ActionMailer::Base.default_options[:from]
     Devise.mailer_sender = from if from.present?
+
+    if setting&.app_host.present? && setting.app_host.match?(HOSTNAME_REGEXP)
+      ActionMailer::Base.default_url_options = { host: setting.app_host, protocol: "https" }
+    end
   rescue => e
     Rails.logger.warn "[MailSetting] Could not apply DB settings: #{e.message}. Falling back to ENV."
     apply_from_env!
