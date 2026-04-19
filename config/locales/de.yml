@@ -146,3 +146,242 @@ de:
       wrong_length:
         one: "hat die falsche Länge (muss genau 1 Zeichen haben)"
         other: "hat die falsche Länge (muss genau %{count} Zeichen haben)"
+
+  nav:
+    courses: "Kurse"
+    my_profile: "Mein Profil"
+    admin_dashboard: "Admin-Dashboard"
+    nds: "NDS / J+S"
+    my_courses: "Meine Kurse"
+    login: "Anmelden"
+    register: "Registrieren"
+    logout: "Logout"
+
+  language:
+    de: "Deutsch"
+    fr: "Français"
+    en: "English"
+    switch: "Sprache wechseln"
+
+  courses:
+    index:
+      title: "Kursangebot"
+      subtitle: "Wähle die passende Kategorie und melde dich direkt an."
+      new_course: "+ Neuen Kurs erstellen"
+      slots_available:
+        one: "1 Termin verfügbar"
+        other: "%{count} Termine verfügbar"
+      more_locations: "weitere"
+      status:
+        drop_in: "Drop-In"
+        full: "Ausgebucht"
+        spots_last:
+          one: "Nur noch 1 Platz"
+          other: "Nur noch %{count} Plätze"
+        spots_free:
+          one: "1 Platz frei"
+          other: "%{count} Plätze frei"
+      date:
+        single_session: "Einzeltermine · jederzeit einsteigen"
+        tba: "Termin folgt"
+      participants_count: "%{confirmed} von %{max} angemeldet"
+      actions:
+        manage: "Verwalten"
+        view_dates: "Termine ansehen"
+        join_waitlist: "Auf Warteliste setzen"
+        register: "Jetzt anmelden"
+      empty:
+        title: "Noch keine Kurse vorhanden"
+        subtitle: "Sobald Kurse erstellt werden, erscheinen sie hier."
+    show:
+      back: "Zurück"
+      type_default: "Kurs"
+      select_date: "Termin auswählen"
+      join_waitlist: "Auf die Warteliste"
+      register_now: "Jetzt anmelden"
+      details_title: "Details zum Kurs"
+      description: "Beschreibung"
+      no_description: "Für diesen Kurs ist keine weitere Beschreibung verfügbar."
+      when_where: "Wann & Wo"
+      location_unknown: "Ort noch unbekannt"
+      registration_info: "Informationen zur Anmeldung"
+      drop_in_label: "Einzel-Anmeldung (Drop-In)"
+      semester_label: "Semester-Anmeldung (Einmalig)"
+      paid_label: "Kostenpflichtiger Kurs"
+      free_label: "Kostenlos"
+      choose_date: "Wähle deinen Termin"
+      fully_booked: "Ausgebucht"
+      spots_free:
+        one: "1 Platz frei"
+        other: "%{count} Plätze frei"
+      waitlist_btn: "Warteliste"
+      register_btn: "Dafür anmelden"
+      no_bookable_sessions: "Momentan sind keine buchbaren Termine für diesen Kurs verfügbar."
+      trainer_area:
+        title: "Trainer & Admin Bereich"
+        edit: "Kurs bearbeiten"
+        new_session: "Neue Session"
+        date_pending: "Datum ausstehend"
+        no_location: "Kein spezifischer Ort"
+        open_attendance: "Präsenzkontrolle öffnen"
+        no_sessions: "Noch keine Trainings-Sessions geplant."
+      tickets:
+        title: "Eure digitalen Tickets"
+        enlarge: "Ticket vergrößern"
+        close: "Schließen"
+
+  dashboards:
+    admin:
+      title: "Kommandozentrale"
+      subtitle: "Willkommen, Boss! Hier steuerst du den gesamten Verein."
+      new_course: "Neuer Kurs"
+      sections:
+        management: "Verwaltung"
+        communication: "Kommunikation"
+        configuration: "Konfiguration"
+      links:
+        trainers: "Trainer"
+        trainers_desc: "Trainer verwalten & zuweisen"
+        holidays: "Ferientage"
+        holidays_desc: "Sperrdaten konfigurieren"
+        newsletters: "Mailing-Zentrale"
+        newsletters_desc: "Newsletter erstellen & versenden"
+        stats: "Statistiken"
+        stats_desc: "Auswertungen & Berichte"
+        email_settings: "E-Mail-Einstellungen"
+        email_settings_desc: "SMTP & Absender konfigurieren"
+        payments: "Zahlungen"
+        payments_desc: "SumUp & Payment-Setup"
+        newsletter_api: "Newsletter-API"
+        newsletter_api_desc: "Infomaniak API-Zugangsdaten"
+        club_design: "Vereinsdesign"
+        club_design_desc: "Logo, Farben & Name"
+        export_profiles: "Exportprofile"
+        export_profiles_desc: "Export-Vorlagen verwalten"
+      table:
+        course: "Kurs"
+        category: "Kategorie"
+        registrations: "Anmeldungen"
+        action: "Aktion"
+        participants: "Teilnehmende"
+        manage: "Verwalten"
+      search:
+        title: "Teilnehmer-Suche"
+        subtitle: "Suche nach Name oder E-Mail-Adresse des verknüpften Kontos."
+        export: "Exportieren"
+        select_profile: "Exportprofil wählen"
+        create_profile: "Exportprofil erstellen"
+        manage_profiles: "Profile verwalten"
+        placeholder: "Name oder E-Mail eingeben (min. 2 Zeichen)..."
+        submit: "Suchen"
+        col_name: "Name"
+        col_birthdate: "Geburtsdatum"
+        col_account: "Konto (E-Mail)"
+        view_profile: "Profil ansehen"
+        no_results: "Keine Treffer für \"%{q}\""
+        no_results_hint: "Prüfe die Schreibweise oder suche nach der E-Mail-Adresse."
+        enter_query: "Gib mindestens 2 Zeichen ein, um zu suchen."
+    trainer:
+      label: "Trainer-Dashboard"
+      greeting: "Hallo, %{name}"
+      courses_assigned:
+        one: "Du bist für 1 Kurs eingeteilt."
+        other: "Du bist für %{count} Kurse eingeteilt."
+      today: "Heute"
+      next_session_label: "Nächste Session"
+      attendance: "Präsenzkontrolle"
+      attendance_link: "Präsenzkontrolle — %{course}"
+      course:
+        confirmed: "Bestätigt"
+        waitlist: "Warteliste"
+        capacity: "Kapazität"
+        next_session: "Nächste Session"
+        no_more_sessions: "Keine weiteren Sessions geplant"
+        no_sessions_yet: "Noch keine Sessions generiert"
+        manage: "Maschinenraum"
+      no_courses:
+        title: "Noch keine Kurse zugewiesen"
+        hint: "Bitte wende dich an einen Admin, um Kursen zugewiesen zu werden."
+
+  pages:
+    home:
+      title: "Willkommen"
+      hero:
+        subtitle: "Melde dich jetzt für unsere Kurse an – einfach, schnell und direkt online."
+        register: "Jetzt registrieren"
+      courses:
+        title: "Aktuelle Kurse"
+        subtitle: "Entdecke unser aktuelles Angebot und melde dich direkt an."
+        join_anytime: "Jederzeit einsteigen"
+        spots_free:
+          one: "Noch 1 Platz frei"
+          other: "Noch %{count} Plätze frei"
+        view_full: "Details ansehen"
+        view_more: "Mehr erfahren"
+        view_all: "Alle Kurse ansehen →"
+        empty: "Aktuell sind keine Kurse verfügbar. Schau bald wieder vorbei!"
+      how_it_works:
+        title: "So funktioniert's"
+        subtitle: "In drei einfachen Schritten zum Kurs."
+        step1:
+          label: "Schritt 1"
+          title: "Konto erstellen"
+          body: "Registriere dich kostenlos mit deiner E-Mail-Adresse und erstelle dein persönliches Konto."
+        step2:
+          label: "Schritt 2"
+          title: "Teilnehmer anmelden"
+          body: "Erfasse eine oder mehrere Personen und wähle den gewünschten Kurs aus unserem aktuellen Angebot aus."
+        step3:
+          label: "Schritt 3"
+          title: "Loslegen!"
+          body: "Nach der Anmeldung erhältst du eine Bestätigung per E-Mail – und es kann direkt losgehen."
+        cta: "Jetzt kostenlos registrieren"
+      footer:
+        portal: "Anmeldeportal"
+        tagline: "Online-Anmeldung für Kurse & Trainings"
+
+  course_registrations:
+    show:
+      title_payment: "Anmeldung bestätigt"
+      subtitle_payment: "Bitte schliesse die Zahlung ab, um deinen Platz zu sichern."
+      title_success: "Anmeldung erfolgreich"
+      subtitle_single: "Dein Termin ist gebucht."
+      subtitle_course: "Dein Platz im Kurs ist gesichert."
+      booked_date: "Dein gebuchter Termin"
+      details_title: "Anmeldungs-Details"
+      fields:
+        course: "Kurs"
+        category: "Kategorie"
+        date: "Termin"
+        location: "Ort"
+        participant: "Teilnehmer"
+        status: "Status"
+        price: "Preis"
+        payment: "Zahlung"
+      status:
+        confirmed: "Bestätigt"
+        waitlist: "Warteliste"
+        payment_pending: "Zahlung ausstehend"
+        paid: "Bezahlt"
+        pending: "Ausstehend"
+      payment:
+        reserved_html: "Dein Platz ist <strong>vorläufig reserviert</strong>. Bitte bezahle jetzt <strong>%{price}</strong>, um die Anmeldung definitiv zu bestätigen."
+        pay_now: "Jetzt bezahlen – %{price}"
+        secure: "Sichere Zahlung via SumUp · Kreditkarte / Debitkarte"
+      nav:
+        more_dates: "Weitere Termine buchen"
+        back_to_course: "Zurück zum Kurs"
+        my_profile: "Mein Profil"
+      cancel:
+        title_single: "Termin stornieren"
+        title_course: "Vom Kurs abmelden"
+        heading_single: "Termin stornieren"
+        heading_course: "Kurs abmelden"
+        body_single_html: "Willst du die Buchung für <strong>%{date}</strong> wirklich stornieren?"
+        body_course_html: "Willst du dich wirklich vom Kurs <strong>%{title}</strong> abmelden?"
+        irreversible: "Diese Aktion kann nicht rückgängig gemacht werden."
+        cancel_btn: "Abbrechen"
+        confirm_btn: "Ja, stornieren"
+
+  misc:
+    time_suffix: "Uhr"

@@ -2,7 +2,17 @@ class ApplicationController < ActionController::Base
   # Erlaubt moderne Browser-Features wie Web-Push (Standard von Rails 8)
   allow_browser versions: :modern
 
+  before_action :set_locale
+
+  def default_url_options
+    { locale: nil }
+  end
+
   private
+
+  def set_locale
+    I18n.locale = session[:locale] || I18n.default_locale
+  end
 
   # Türsteher 1: NUR für Reto (Admin)
   def authorize_admin!

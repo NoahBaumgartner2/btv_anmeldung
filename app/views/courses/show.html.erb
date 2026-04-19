@@ -4,45 +4,45 @@
     <div>
       <h1 class="font-extrabold text-2xl sm:text-4xl text-gray-900"><%= @course.title %></h1>
       <span class="inline-block mt-3 bg-primary-100 text-primary-800 text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-wide">
-        <%= @course.registration_type.presence || "Kurs" %>
+        <%= @course.registration_type.presence || t("courses.show.type_default") %>
       </span>
     </div>
 
     <div class="flex flex-wrap gap-3 w-full md:w-auto">
-      <%= link_to "Zurück", courses_path, class: "flex-1 md:flex-none text-center bg-white py-3 px-6 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
+      <%= link_to t("courses.show.back"), courses_path, class: "flex-1 md:flex-none text-center bg-white py-3 px-6 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
 
       <% if @course.registration_mode == 'single_session' %>
         <a href="#termine" class="flex-1 md:flex-none text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition">
-          Termin auswählen
+          <%= t("courses.show.select_date") %>
         </a>
       <% else %>
         <% bestaetigte_plaetze = @course.course_registrations.where(status: 'bestätigt').count %>
         <% is_full = @course.max_participants.present? && bestaetigte_plaetze >= @course.max_participants %>
 
         <% if is_full %>
-          <%= link_to "Auf die Warteliste", new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-orange-500 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-orange-600 transition" %>
+          <%= link_to t("courses.show.join_waitlist"), new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-orange-500 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-orange-600 transition" %>
         <% else %>
-          <%= link_to "Jetzt anmelden", new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition" %>
+          <%= link_to t("courses.show.register_now"), new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition" %>
         <% end %>
       <% end %>
     </div>
   </div>
 
   <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-200">
-    <h2 class="text-xl font-bold text-gray-900 border-b border-gray-100 pb-4 mb-6">Details zum Kurs</h2>
+    <h2 class="text-xl font-bold text-gray-900 border-b border-gray-100 pb-4 mb-6"><%= t("courses.show.details_title") %></h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <div class="md:col-span-2">
-        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Beschreibung</p>
-        <p class="text-gray-800 leading-relaxed text-lg"><%= @course.description.presence || "Für diesen Kurs ist keine weitere Beschreibung verfügbar." %></p>
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><%= t("courses.show.description") %></p>
+        <p class="text-gray-800 leading-relaxed text-lg"><%= @course.description.presence || t("courses.show.no_description") %></p>
       </div>
 
       <div class="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-100">
-        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Wann &amp; Wo</p>
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3"><%= t("courses.show.when_where") %></p>
         <ul class="space-y-4 text-gray-900 font-medium">
           <li class="flex items-start">
             <span class="mr-3 text-xl"></span>
-            <span><%= @course.location.presence || "Ort noch unbekannt" %></span>
+            <span><%= @course.location.presence || t("courses.show.location_unknown") %></span>
           </li>
           <li class="flex items-start">
             <span class="mr-3 text-xl"></span>
@@ -52,15 +52,15 @@
       </div>
 
       <div class="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-100">
-        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Informationen zur Anmeldung</p>
+        <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3"><%= t("courses.show.registration_info") %></p>
         <ul class="space-y-4 text-gray-900 font-medium">
           <li class="flex items-start">
             <span class="mr-3 text-xl"><%= @course.registration_mode == 'single_session' ? "" : "" %></span>
-            <span><%= @course.registration_mode == 'single_session' ? "Einzel-Anmeldung (Drop-In)" : "Semester-Anmeldung (Einmalig)" %></span>
+            <span><%= @course.registration_mode == 'single_session' ? t("courses.show.drop_in_label") : t("courses.show.semester_label") %></span>
           </li>
           <li class="flex items-start">
             <span class="mr-3 text-xl"><%= @course.has_payment ? "" : "" %></span>
-            <span><%= @course.has_payment ? "Kostenpflichtiger Kurs" : "Kostenlos" %></span>
+            <span><%= @course.has_payment ? t("courses.show.paid_label") : t("courses.show.free_label") %></span>
           </li>
         </ul>
       </div>
@@ -70,7 +70,7 @@
   <% if @course.registration_mode == 'single_session' %>
     <div id="termine" class="mt-6 sm:mt-8 bg-secondary-50 p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-secondary-200 shadow-sm scroll-mt-6">
       <h2 class="text-2xl font-extrabold text-secondary-900 mb-6 flex items-center gap-2">
-        <span></span> Wähle deinen Termin
+        <span></span> <%= t("courses.show.choose_date") %>
       </h2>
 
       <%
@@ -94,7 +94,7 @@
                     <%= I18n.l(session.start_time, format: "%A, %-d. %B %Y") %>
                   </p>
                   <p class="text-sm font-medium text-secondary-600 mt-1">
-                    <%= session.start_time.strftime("%H:%M") %> Uhr
+                    <%= session.start_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
                     <% if @course.location.present? %>
                       <span class="text-gray-400 mx-2">·</span>
                       <%= @course.location %>
@@ -102,7 +102,7 @@
                     <% if @course.max_participants.present? %>
                       <span class="text-gray-400 mx-2">·</span>
                       <span class="<%= is_full ? 'text-red-500' : 'text-green-600' %> font-bold">
-                        <%= is_full ? "Ausgebucht" : "#{@course.max_participants - spots_taken} Plätze frei" %>
+                        <%= is_full ? t("courses.show.fully_booked") : t("courses.show.spots_free", count: @course.max_participants - spots_taken) %>
                       </span>
                     <% end %>
                   </p>
@@ -110,10 +110,10 @@
 
                 <div>
                   <% if is_full %>
-                    <%= link_to "Warteliste", new_course_registration_path(course_id: @course.id, training_session_id: session.id),
+                    <%= link_to t("courses.show.waitlist_btn"), new_course_registration_path(course_id: @course.id, training_session_id: session.id),
                           class: "block w-full sm:w-auto bg-orange-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-orange-600 transition text-sm text-center shadow-sm whitespace-nowrap" %>
                   <% else %>
-                    <%= link_to "Dafür anmelden", new_course_registration_path(course_id: @course.id, training_session_id: session.id),
+                    <%= link_to t("courses.show.register_btn"), new_course_registration_path(course_id: @course.id, training_session_id: session.id),
                           class: "block w-full sm:w-auto bg-secondary-600 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-secondary-700 transition text-sm text-center shadow-sm whitespace-nowrap" %>
                   <% end %>
                 </div>
@@ -123,7 +123,7 @@
         </div>
       <% else %>
         <div class="text-center py-8 bg-white rounded-2xl border border-secondary-100 border-dashed">
-          <p class="text-secondary-700 text-sm font-medium">Momentan sind keine buchbaren Termine für diesen Kurs verfügbar.</p>
+          <p class="text-secondary-700 text-sm font-medium"><%= t("courses.show.no_bookable_sessions") %></p>
         </div>
       <% end %>
     </div>
@@ -134,15 +134,15 @@
     <div class="mt-6 sm:mt-8 bg-primary-50/50 p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-primary-100">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
         <h2 class="text-lg sm:text-xl font-extrabold text-primary-900 flex items-center gap-2">
-          Trainer &amp; Admin Bereich
+          <%= t("courses.show.trainer_area.title") %>
         </h2>
 
         <div class="flex gap-2">
           <% if current_user.admin? %>
-            <%= link_to "Kurs bearbeiten", edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-gray-50 active:bg-gray-100 transition min-h-11 flex items-center" %>
+            <%= link_to t("courses.show.trainer_area.edit"), edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-gray-50 active:bg-gray-100 transition min-h-11 flex items-center" %>
           <% end %>
 
-          <%= link_to "Neue Session", new_training_session_path(course_id: @course.id), class: "bg-primary-600 text-white text-sm font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-primary-700 active:bg-primary-800 transition min-h-11 flex items-center" %>
+          <%= link_to t("courses.show.trainer_area.new_session"), new_training_session_path(course_id: @course.id), class: "bg-primary-600 text-white text-sm font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-primary-700 active:bg-primary-800 transition min-h-11 flex items-center" %>
         </div>
       </div>
 
@@ -153,13 +153,13 @@
               <li class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 transition">
                 <div>
                   <p class="font-bold text-gray-900">
-                    <%= session.start_time ? session.start_time.strftime("%d.%m.%Y - %H:%M") + " Uhr" : "Datum ausstehend" %>
+                    <%= session.start_time ? "#{session.start_time.strftime('%d.%m.%Y - %H:%M')} #{t('misc.time_suffix')}" : t("courses.show.trainer_area.date_pending") %>
                   </p>
-                  <p class="text-sm text-gray-500"><%= @course.location.presence || "Kein spezifischer Ort" %></p>
+                  <p class="text-sm text-gray-500"><%= @course.location.presence || t("courses.show.trainer_area.no_location") %></p>
                 </div>
 
                 <div class="flex gap-2">
-                  <%= link_to 'Präsenzkontrolle öffnen', scanner_training_session_path(session), class: "bg-indigo-100 text-indigo-700 font-bold py-2 px-4 rounded-xl hover:bg-indigo-200 transition text-sm flex-1 sm:flex-none text-center" %>
+                  <%= link_to t("courses.show.trainer_area.open_attendance"), scanner_training_session_path(session), class: "bg-indigo-100 text-indigo-700 font-bold py-2 px-4 rounded-xl hover:bg-indigo-200 transition text-sm flex-1 sm:flex-none text-center" %>
                 </div>
               </li>
             <% end %>
@@ -167,7 +167,7 @@
         </div>
       <% else %>
         <div class="text-center py-6 bg-white rounded-2xl border border-primary-100 border-dashed">
-          <p class="text-primary-700 text-sm font-medium">Noch keine Trainings-Sessions geplant.</p>
+          <p class="text-primary-700 text-sm font-medium"><%= t("courses.show.trainer_area.no_sessions") %></p>
         </div>
       <% end %>
     </div>
@@ -179,7 +179,7 @@
 
     <% if my_registrations.any? %>
       <div class="mt-8 sm:mt-12 bg-secondary-50 p-4 sm:p-8 rounded-2xl sm:rounded-3xl border border-secondary-200">
-        <h2 class="text-xl sm:text-2xl font-extrabold text-secondary-900 mb-6 text-center">Eure digitalen Tickets</h2>
+        <h2 class="text-xl sm:text-2xl font-extrabold text-secondary-900 mb-6 text-center"><%= t("courses.show.tickets.title") %></h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <% my_registrations.each do |reg| %>
@@ -192,7 +192,7 @@
                   <%= generate_qr_code(scan_course_registration_url(reg)) %>
                 </div>
                 <p class="text-xs text-secondary-600 font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1">
-                  Ticket vergrößern
+                  <%= t("courses.show.tickets.enlarge") %>
                 </p>
               </div>
 
@@ -206,7 +206,7 @@
                   </div>
 
                   <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition w-full text-base sm:text-lg min-h-12" onclick="document.getElementById('qr-modal-course-<%= reg.id %>').classList.add('hidden')">
-                    Schließen
+                    <%= t("courses.show.tickets.close") %>
                   </button>
                 </div>
               </div>

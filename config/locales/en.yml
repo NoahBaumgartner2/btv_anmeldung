@@ -47,3 +47,242 @@ en:
       not_saved:
         one: "1 error prohibited this %{resource} from being saved:"
         other: "%{count} errors prohibited this %{resource} from being saved:"
+
+  nav:
+    courses: "Courses"
+    my_profile: "My Profile"
+    admin_dashboard: "Admin Dashboard"
+    nds: "NDS / J+S"
+    my_courses: "My Courses"
+    login: "Sign in"
+    register: "Register"
+    logout: "Logout"
+
+  language:
+    de: "Deutsch"
+    fr: "Français"
+    en: "English"
+    switch: "Change language"
+
+  courses:
+    index:
+      title: "Courses"
+      subtitle: "Choose a category and register directly."
+      new_course: "+ Create new course"
+      slots_available:
+        one: "1 date available"
+        other: "%{count} dates available"
+      more_locations: "more"
+      status:
+        drop_in: "Drop-In"
+        full: "Fully booked"
+        spots_last:
+          one: "Only 1 spot left"
+          other: "Only %{count} spots left"
+        spots_free:
+          one: "1 spot available"
+          other: "%{count} spots available"
+      date:
+        single_session: "Single sessions · join anytime"
+        tba: "Date to be announced"
+      participants_count: "%{confirmed} of %{max} registered"
+      actions:
+        manage: "Manage"
+        view_dates: "View dates"
+        join_waitlist: "Join waitlist"
+        register: "Register now"
+      empty:
+        title: "No courses yet"
+        subtitle: "Once courses are created, they will appear here."
+    show:
+      back: "Back"
+      type_default: "Course"
+      select_date: "Select a date"
+      join_waitlist: "Join waitlist"
+      register_now: "Register now"
+      details_title: "Course details"
+      description: "Description"
+      no_description: "No description available for this course."
+      when_where: "When & Where"
+      location_unknown: "Location to be announced"
+      registration_info: "Registration info"
+      drop_in_label: "Single session (Drop-In)"
+      semester_label: "Semester registration (Once)"
+      paid_label: "Paid course"
+      free_label: "Free"
+      choose_date: "Choose your date"
+      fully_booked: "Fully booked"
+      spots_free:
+        one: "1 spot available"
+        other: "%{count} spots available"
+      waitlist_btn: "Waitlist"
+      register_btn: "Register"
+      no_bookable_sessions: "No bookable sessions available for this course at the moment."
+      trainer_area:
+        title: "Trainer & Admin Area"
+        edit: "Edit course"
+        new_session: "New session"
+        date_pending: "Date pending"
+        no_location: "No specific location"
+        open_attendance: "Open attendance"
+        no_sessions: "No training sessions planned yet."
+      tickets:
+        title: "Your digital tickets"
+        enlarge: "Enlarge ticket"
+        close: "Close"
+
+  dashboards:
+    admin:
+      title: "Command Centre"
+      subtitle: "Welcome, Admin! Manage the entire club from here."
+      new_course: "New course"
+      sections:
+        management: "Management"
+        communication: "Communication"
+        configuration: "Configuration"
+      links:
+        trainers: "Trainers"
+        trainers_desc: "Manage & assign trainers"
+        holidays: "Holidays"
+        holidays_desc: "Configure blackout dates"
+        newsletters: "Mailing Centre"
+        newsletters_desc: "Create & send newsletters"
+        stats: "Statistics"
+        stats_desc: "Reports & analytics"
+        email_settings: "Email settings"
+        email_settings_desc: "SMTP & sender config"
+        payments: "Payments"
+        payments_desc: "SumUp & payment setup"
+        newsletter_api: "Newsletter API"
+        newsletter_api_desc: "Infomaniak API credentials"
+        club_design: "Club design"
+        club_design_desc: "Logo, colours & name"
+        export_profiles: "Export profiles"
+        export_profiles_desc: "Manage export templates"
+      table:
+        course: "Course"
+        category: "Category"
+        registrations: "Registrations"
+        action: "Action"
+        participants: "Participants"
+        manage: "Manage"
+      search:
+        title: "Participant search"
+        subtitle: "Search by name or email address of the linked account."
+        export: "Export"
+        select_profile: "Select export profile"
+        create_profile: "Create export profile"
+        manage_profiles: "Manage profiles"
+        placeholder: "Enter name or email (min. 2 characters)..."
+        submit: "Search"
+        col_name: "Name"
+        col_birthdate: "Date of birth"
+        col_account: "Account (email)"
+        view_profile: "View profile"
+        no_results: "No results for \"%{q}\""
+        no_results_hint: "Check the spelling or search by email address."
+        enter_query: "Enter at least 2 characters to search."
+    trainer:
+      label: "Trainer Dashboard"
+      greeting: "Hello, %{name}"
+      courses_assigned:
+        one: "You are assigned to 1 course."
+        other: "You are assigned to %{count} courses."
+      today: "Today"
+      next_session_label: "Next session"
+      attendance: "Attendance"
+      attendance_link: "Attendance — %{course}"
+      course:
+        confirmed: "Confirmed"
+        waitlist: "Waitlist"
+        capacity: "Capacity"
+        next_session: "Next session"
+        no_more_sessions: "No more sessions scheduled"
+        no_sessions_yet: "No sessions generated yet"
+        manage: "Manage"
+      no_courses:
+        title: "No courses assigned yet"
+        hint: "Please contact an admin to be assigned to courses."
+
+  pages:
+    home:
+      title: "Welcome"
+      hero:
+        subtitle: "Register for our courses now – simple, fast, and directly online."
+        register: "Register now"
+      courses:
+        title: "Current Courses"
+        subtitle: "Discover our current offer and register directly."
+        join_anytime: "Join anytime"
+        spots_free:
+          one: "1 spot left"
+          other: "%{count} spots left"
+        view_full: "View details"
+        view_more: "Learn more"
+        view_all: "View all courses →"
+        empty: "No courses currently available. Check back soon!"
+      how_it_works:
+        title: "How it works"
+        subtitle: "Three simple steps to your course."
+        step1:
+          label: "Step 1"
+          title: "Create account"
+          body: "Register for free with your email address and create your personal account."
+        step2:
+          label: "Step 2"
+          title: "Register participants"
+          body: "Add one or more participants and choose the desired course from our current offer."
+        step3:
+          label: "Step 3"
+          title: "Let's go!"
+          body: "After registration you'll receive a confirmation by email – and you're ready to go."
+        cta: "Register for free now"
+      footer:
+        portal: "Registration Portal"
+        tagline: "Online registration for courses & training"
+
+  course_registrations:
+    show:
+      title_payment: "Registration confirmed"
+      subtitle_payment: "Please complete payment to secure your spot."
+      title_success: "Registration successful"
+      subtitle_single: "Your session is booked."
+      subtitle_course: "Your spot in the course is secured."
+      booked_date: "Your booked session"
+      details_title: "Registration details"
+      fields:
+        course: "Course"
+        category: "Category"
+        date: "Date"
+        location: "Location"
+        participant: "Participant"
+        status: "Status"
+        price: "Price"
+        payment: "Payment"
+      status:
+        confirmed: "Confirmed"
+        waitlist: "Waitlist"
+        payment_pending: "Payment pending"
+        paid: "Paid"
+        pending: "Pending"
+      payment:
+        reserved_html: "Your spot is <strong>provisionally reserved</strong>. Please pay <strong>%{price}</strong> now to confirm your registration."
+        pay_now: "Pay now – %{price}"
+        secure: "Secure payment via SumUp · Credit card / Debit card"
+      nav:
+        more_dates: "Book more sessions"
+        back_to_course: "Back to course"
+        my_profile: "My profile"
+      cancel:
+        title_single: "Cancel session"
+        title_course: "Unregister from course"
+        heading_single: "Cancel session"
+        heading_course: "Unregister"
+        body_single_html: "Do you really want to cancel the booking for <strong>%{date}</strong>?"
+        body_course_html: "Do you really want to unregister from the course <strong>%{title}</strong>?"
+        irreversible: "This action cannot be undone."
+        cancel_btn: "Cancel"
+        confirm_btn: "Yes, cancel"
+
+  misc:
+    time_suffix: ""

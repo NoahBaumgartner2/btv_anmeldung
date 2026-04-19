@@ -3,15 +3,15 @@
   <%# ── Header ─────────────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3 sm:gap-4">
     <div>
-      <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900">Kommandozentrale</h1>
-      <p class="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base">Willkommen, Boss! Hier steuerst du den gesamten Verein.</p>
+      <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900"><%= t("dashboards.admin.title") %></h1>
+      <p class="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base"><%= t("dashboards.admin.subtitle") %></p>
     </div>
     <%= link_to new_course_path,
           class: "shrink-0 inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition" do %>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
       </svg>
-      Neuer Kurs
+      <%= t("dashboards.admin.new_course") %>
     <% end %>
   </div>
 
@@ -21,7 +21,7 @@
     <%# Gruppe: Verwaltung %>
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
       <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-100">
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Verwaltung</p>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider"><%= t("dashboards.admin.sections.management") %></p>
       </div>
       <div class="divide-y divide-gray-50">
         <%= link_to trainers_path,
@@ -32,8 +32,8 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-primary-700 transition">Trainer</p>
-            <p class="text-xs text-gray-400 truncate">Trainer verwalten &amp; zuweisen</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-primary-700 transition"><%= t("dashboards.admin.links.trainers") %></p>
+            <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.trainers_desc") %></p>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-primary-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -48,8 +48,8 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-yellow-700 transition">Ferientage</p>
-            <p class="text-xs text-gray-400 truncate">Sperrdaten konfigurieren</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-yellow-700 transition"><%= t("dashboards.admin.links.holidays") %></p>
+            <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.holidays_desc") %></p>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-yellow-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -61,7 +61,7 @@
     <%# Gruppe: Kommunikation & Auswertung %>
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
       <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-100">
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Kommunikation</p>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider"><%= t("dashboards.admin.sections.communication") %></p>
       </div>
       <div class="divide-y divide-gray-50">
         <%= link_to newsletters_path,
@@ -72,8 +72,8 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-purple-700 transition">Mailing-Zentrale</p>
-            <p class="text-xs text-gray-400 truncate">Newsletter erstellen &amp; versenden</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-purple-700 transition"><%= t("dashboards.admin.links.newsletters") %></p>
+            <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.newsletters_desc") %></p>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-purple-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -88,8 +88,8 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-green-700 transition">Statistiken</p>
-            <p class="text-xs text-gray-400 truncate">Auswertungen &amp; Berichte</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-green-700 transition"><%= t("dashboards.admin.links.stats") %></p>
+            <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.stats_desc") %></p>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-green-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -101,7 +101,7 @@
     <%# Gruppe: Konfiguration %>
     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
       <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-100">
-        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Konfiguration</p>
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider"><%= t("dashboards.admin.sections.configuration") %></p>
       </div>
       <div class="divide-y divide-gray-50">
         <%= link_to mail_setting_path,
@@ -113,8 +113,8 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-gray-900 transition">E-Mail-Einstellungen</p>
-            <p class="text-xs text-gray-400 truncate">SMTP &amp; Absender konfigurieren</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-gray-900 transition"><%= t("dashboards.admin.links.email_settings") %></p>
+            <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.email_settings_desc") %></p>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-gray-500 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -129,8 +129,8 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-indigo-700 transition">Zahlungen</p>
-            <p class="text-xs text-gray-400 truncate">SumUp &amp; Payment-Setup</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-indigo-700 transition"><%= t("dashboards.admin.links.payments") %></p>
+            <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.payments_desc") %></p>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-indigo-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -145,8 +145,8 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-sky-700 transition">Newsletter-API</p>
-            <p class="text-xs text-gray-400 truncate">Infomaniak API-Zugangsdaten</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-sky-700 transition"><%= t("dashboards.admin.links.newsletter_api") %></p>
+            <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.newsletter_api_desc") %></p>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-sky-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -161,8 +161,8 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-orange-700 transition">Vereinsdesign</p>
-            <p class="text-xs text-gray-400 truncate">Logo, Farben &amp; Name</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-orange-700 transition"><%= t("dashboards.admin.links.club_design") %></p>
+            <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.club_design_desc") %></p>
           </div>
           <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-orange-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -177,8 +177,8 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <p class="text-sm font-bold text-gray-800 group-hover:text-teal-700 transition">Exportprofile</p>
-            <p class="text-xs text-gray-400 truncate">Export-Vorlagen verwalten</p>
+            <p class="text-sm font-bold text-gray-800 group-hover:text-teal-700 transition"><%= t("dashboards.admin.links.export_profiles") %></p>
+            <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.export_profiles_desc") %></p>
           </div>
           <% if @export_profiles.any? %>
             <span class="ml-auto shrink-0 text-xs font-bold text-teal-600 bg-teal-100 px-2 py-0.5 rounded-full"><%= @export_profiles.size %></span>
@@ -208,7 +208,7 @@
               <%= course.course_registrations.size %> TN
             </span>
           </div>
-          <%= link_to "Verwalten", manage_course_path(course),
+          <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course),
                 class: "block w-full text-center text-red-600 font-bold bg-red-50 active:bg-red-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
         </div>
       <% end %>
@@ -218,10 +218,10 @@
     <table class="hidden sm:table min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
-          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kurs</th>
-          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kategorie</th>
-          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Anmeldungen</th>
-          <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase">Aktion</th>
+          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.course") %></th>
+          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.category") %></th>
+          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.registrations") %></th>
+          <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.action") %></th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200">
@@ -229,9 +229,9 @@
           <tr class="hover:bg-gray-50">
             <td class="py-4 px-4 font-bold text-gray-900 text-sm"><%= course.title %></td>
             <td class="py-4 px-4 text-sm text-gray-500"><%= course.registration_type %></td>
-            <td class="py-4 px-4 text-sm font-medium text-primary-600"><%= course.course_registrations.size %> Teilnehmende</td>
+            <td class="py-4 px-4 text-sm font-medium text-primary-600"><%= course.course_registrations.size %> <%= t("dashboards.admin.table.participants") %></td>
             <td class="py-4 px-4 text-right">
-              <%= link_to "Verwalten", manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
+              <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
             </td>
           </tr>
         <% end %>
@@ -242,8 +242,8 @@
   <%# ── Teilnehmer-Suche ────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-5 gap-3 sm:gap-4">
     <div>
-      <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Teilnehmer-Suche</h2>
-      <p class="text-gray-500 mt-1 text-sm">Suche nach Name oder E-Mail-Adresse des verknüpften Kontos.</p>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("dashboards.admin.search.title") %></h2>
+      <p class="text-gray-500 mt-1 text-sm"><%= t("dashboards.admin.search.subtitle") %></p>
     </div>
     <% if @export_profiles.any? %>
       <details class="relative shrink-0 group">
@@ -251,14 +251,14 @@
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
           </svg>
-          Exportieren
+          <%= t("dashboards.admin.search.export") %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 transition-transform group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
           </svg>
         </summary>
         <div class="absolute right-0 sm:right-0 left-0 sm:left-auto mt-1.5 sm:w-56 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden">
           <div class="px-3 py-2 border-b border-gray-100">
-            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Exportprofil wählen</p>
+            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider"><%= t("dashboards.admin.search.select_profile") %></p>
           </div>
           <div class="py-1">
             <% @export_profiles.each do |profile| %>
@@ -278,7 +278,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
-              Profile verwalten
+              <%= t("dashboards.admin.search.manage_profiles") %>
             <% end %>
           </div>
         </div>
@@ -289,7 +289,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
         </svg>
-        Exportprofil erstellen
+        <%= t("dashboards.admin.search.create_profile") %>
       <% end %>
     <% end %>
   </div>
@@ -297,11 +297,11 @@
   <%= form_with url: dashboards_admin_path, method: :get, class: "flex flex-col sm:flex-row gap-2 mb-4" do |f| %>
     <%= f.text_field :q,
           value: params[:q],
-          placeholder: "Name oder E-Mail eingeben (min. 2 Zeichen)...",
+          placeholder: t("dashboards.admin.search.placeholder"),
           autofocus: params[:q].present?,
           autocomplete: "off",
           class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
-    <%= f.submit "Suchen",
+    <%= f.submit t("dashboards.admin.search.submit"),
           class: "shrink-0 rounded-lg px-4 py-2.5 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-sm font-bold cursor-pointer transition shadow-sm min-h-11" %>
   <% end %>
 
@@ -327,7 +327,7 @@
                 <p class="text-xs text-gray-500 shrink-0"><%= participant.date_of_birth&.strftime("%d.%m.%Y") || "&mdash;".html_safe %></p>
               </div>
               <p class="text-xs text-gray-400 mb-3 truncate"><%= participant.user.email %></p>
-              <%= link_to "Profil ansehen", participant_path(participant),
+              <%= link_to t("dashboards.admin.search.view_profile"), participant_path(participant),
                     class: "block w-full text-center text-primary-600 font-bold bg-primary-50 active:bg-primary-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
             </div>
           <% end %>
@@ -337,9 +337,9 @@
         <table class="hidden sm:table min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Geburtsdatum</th>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Konto (E-Mail)</th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("dashboards.admin.search.col_name") %></th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("dashboards.admin.search.col_birthdate") %></th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("dashboards.admin.search.col_account") %></th>
               <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktion</th>
             </tr>
           </thead>
@@ -356,7 +356,7 @@
                   <%= participant.user.email %>
                 </td>
                 <td class="py-3.5 px-4 text-right">
-                  <%= link_to "Profil ansehen", participant_path(participant),
+                  <%= link_to t("dashboards.admin.search.view_profile"), participant_path(participant),
                         class: "text-primary-600 font-bold hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-md text-sm" %>
                 </td>
               </tr>
@@ -365,13 +365,13 @@
         </table>
       <% else %>
         <div class="py-12 text-center">
-          <p class="text-sm font-semibold text-gray-700">Keine Treffer für &bdquo;<%= params[:q] %>&ldquo;</p>
-          <p class="text-xs text-gray-400 mt-1">Prüfe die Schreibweise oder suche nach der E-Mail-Adresse.</p>
+          <p class="text-sm font-semibold text-gray-700"><%= t("dashboards.admin.search.no_results", q: params[:q]) %></p>
+          <p class="text-xs text-gray-400 mt-1"><%= t("dashboards.admin.search.no_results_hint") %></p>
         </div>
       <% end %>
     <% else %>
       <div class="py-12 text-center">
-        <p class="text-sm font-medium text-gray-500">Gib mindestens 2 Zeichen ein, um zu suchen.</p>
+        <p class="text-sm font-medium text-gray-500"><%= t("dashboards.admin.search.enter_query") %></p>
       </div>
     <% end %>
   </div>

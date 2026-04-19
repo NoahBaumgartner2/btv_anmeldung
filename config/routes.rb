@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  post "locale", to: "locales#update", as: :locale
+
   # NEU: Die Routen für unsere Dashboards
   get "up" => "rails/health#show", as: :rails_health_check
   get  "dashboards/admin"
