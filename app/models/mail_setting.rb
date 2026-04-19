@@ -36,6 +36,9 @@ class MailSetting < ApplicationRecord
     else
       apply_from_env!
     end
+
+    from = ActionMailer::Base.default_options[:from]
+    Devise.mailer_sender = from if from.present?
   rescue => e
     Rails.logger.warn "[MailSetting] Could not apply DB settings: #{e.message}. Falling back to ENV."
     apply_from_env!

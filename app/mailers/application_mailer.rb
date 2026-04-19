@@ -2,10 +2,7 @@ class ApplicationMailer < ActionMailer::Base
   before_action :set_club
   layout "mailer"
 
-  default from: -> {
-    name = @_club&.club_name.presence || "BTV Anmeldung"
-    "#{name} <noreply@example.com>"
-  }
+  default from: -> { MailSetting.current.from_header.presence || "BTV Anmeldung <noreply@btvbern-anmeldung.ch>" }
 
   private
 
