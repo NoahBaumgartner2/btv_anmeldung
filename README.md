@@ -11,6 +11,8 @@ Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung 
 - newsletter subscribtion geht nicht und muss wieder auf automatisch angemeldet gestellt werden
 - gewisse sachen wie zum beuspuel "kostenlos" bleibt deutsch obwohl die sprache gewechselt wird
 - Trainings generieren freizeit raum hinzufügen passiert nichts
+- präsenzkontrolle in nds page funktioniert noch gar nicht
+- allgemien datum auswahl ist sehr schlecht
 
 
 ### Workflow NDS
