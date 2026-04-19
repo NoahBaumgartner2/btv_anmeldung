@@ -7,10 +7,10 @@
 
   <%# ── Header ──────────────────────────────────────────────────────────── %>
   <div class="mb-8">
-    <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1">Trainer-Dashboard</p>
-    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Hallo, <%= trainer_name %></h1>
+    <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1"><%= t("dashboards.trainer.label") %></p>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900"><%= t("dashboards.trainer.greeting", name: trainer_name) %></h1>
     <p class="text-gray-500 mt-1 text-sm">
-      Du bist für <span class="font-semibold text-gray-700"><%= @assigned_courses.size %> <%= @assigned_courses.size == 1 ? "Kurs" : "Kurse" %></span> eingeteilt.
+      <%= t("dashboards.trainer.courses_assigned", count: @assigned_courses.size) %>
     </p>
   </div>
 
@@ -19,7 +19,7 @@
     <div class="mb-6 bg-primary-600 text-white rounded-2xl px-6 py-5">
       <div class="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <p class="text-xs font-bold uppercase tracking-widest text-primary-200 mb-1">Heute</p>
+          <p class="text-xs font-bold uppercase tracking-widest text-primary-200 mb-1"><%= t("dashboards.trainer.today") %></p>
           <% @todays_sessions.each do |s| %>
             <div class="flex items-center gap-3 mt-1">
               <% is_live = s.start_time <= now && s.end_time && s.end_time >= now %>
@@ -40,7 +40,7 @@
         </div>
         <div class="flex gap-2 flex-wrap">
           <% @todays_sessions.each do |s| %>
-            <%= link_to "Präsenzkontrolle — #{s.course.title.truncate(20)}",
+            <%= link_to t("dashboards.trainer.attendance_link", course: s.course.title.truncate(20)),
                   training_session_path(s),
                   class: "bg-white text-primary-700 hover:bg-primary-50 active:bg-primary-100 font-bold text-sm py-2 px-4 rounded-lg transition shrink-0 min-h-11" %>
           <% end %>
@@ -53,7 +53,7 @@
   <% if @next_session && @todays_sessions.none? %>
     <div class="mb-6 bg-gray-50 border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between gap-4 flex-wrap">
       <div>
-        <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-0.5">Nächste Session</p>
+        <p class="text-xs font-bold uppercase tracking-wider text-gray-400 mb-0.5"><%= t("dashboards.trainer.next_session_label") %></p>
         <p class="font-bold text-gray-900">
           <%= @next_session.course.title %>
           <span class="font-normal text-gray-500">
@@ -64,7 +64,7 @@
           <p class="text-xs text-gray-400 mt-0.5"><%= @next_session.course.location %></p>
         <% end %>
       </div>
-      <%= link_to "Präsenzkontrolle", training_session_path(@next_session),
+      <%= link_to t("dashboards.trainer.attendance"), training_session_path(@next_session),
             class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold text-sm py-2 px-5 rounded-lg transition min-h-11" %>
     </div>
   <% end %>
@@ -98,23 +98,23 @@
           <div class="grid grid-cols-3 divide-x divide-gray-100 border-b border-gray-100 text-center">
             <div class="py-3 px-2">
               <p class="text-xl font-extrabold text-green-600"><%= confirmed %></p>
-              <p class="text-xs text-gray-400 font-medium mt-0.5">Bestätigt</p>
+              <p class="text-xs text-gray-400 font-medium mt-0.5"><%= t("dashboards.trainer.course.confirmed") %></p>
             </div>
             <div class="py-3 px-2">
               <p class="text-xl font-extrabold <%= waitlisted > 0 ? "text-orange-500" : "text-gray-300" %>"><%= waitlisted %></p>
-              <p class="text-xs text-gray-400 font-medium mt-0.5">Warteliste</p>
+              <p class="text-xs text-gray-400 font-medium mt-0.5"><%= t("dashboards.trainer.course.waitlist") %></p>
             </div>
             <div class="py-3 px-2">
               <% cap = course.max_participants %>
               <p class="text-xl font-extrabold text-gray-700"><%= cap.present? ? "#{confirmed}/#{cap}" : confirmed %></p>
-              <p class="text-xs text-gray-400 font-medium mt-0.5">Kapazität</p>
+              <p class="text-xs text-gray-400 font-medium mt-0.5"><%= t("dashboards.trainer.course.capacity") %></p>
             </div>
           </div>
 
           <%# Nächste Session %>
           <div class="px-5 py-3 flex-1">
             <% if next_s %>
-              <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1">Nächste Session</p>
+              <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1"><%= t("dashboards.trainer.course.next_session") %></p>
               <p class="text-sm font-semibold text-gray-800">
                 <%= next_s.start_time.strftime("%-d. %B %Y") %>
                 <span class="text-gray-400 font-normal">
@@ -122,18 +122,18 @@
                 </span>
               </p>
             <% elsif has_dates %>
-              <p class="text-xs text-gray-400 italic">Keine weiteren Sessions geplant</p>
+              <p class="text-xs text-gray-400 italic"><%= t("dashboards.trainer.course.no_more_sessions") %></p>
             <% else %>
-              <p class="text-xs text-gray-400 italic">Noch keine Sessions generiert</p>
+              <p class="text-xs text-gray-400 italic"><%= t("dashboards.trainer.course.no_sessions_yet") %></p>
             <% end %>
           </div>
 
           <%# Aktionen %>
           <div class="px-5 pb-5 pt-2 flex gap-2">
-            <%= link_to "Maschinenraum", manage_course_path(course),
+            <%= link_to t("dashboards.trainer.course.manage"), manage_course_path(course),
                   class: "flex-1 text-center bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold text-sm py-2.5 rounded-xl transition min-h-11" %>
             <% if next_s %>
-              <%= link_to "Präsenzkontrolle", training_session_path(next_s),
+              <%= link_to t("dashboards.trainer.attendance"), training_session_path(next_s),
                     class: "flex-1 text-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold text-sm py-2.5 rounded-xl transition min-h-11" %>
             <% end %>
           </div>
@@ -144,8 +144,8 @@
 
   <% else %>
     <div class="bg-yellow-50 border border-yellow-200 text-yellow-800 p-8 rounded-2xl text-center">
-      <p class="font-bold text-lg mb-1">Noch keine Kurse zugewiesen</p>
-      <p class="text-sm text-yellow-700">Bitte wende dich an einen Admin, um Kursen zugewiesen zu werden.</p>
+      <p class="font-bold text-lg mb-1"><%= t("dashboards.trainer.no_courses.title") %></p>
+      <p class="text-sm text-yellow-700"><%= t("dashboards.trainer.no_courses.hint") %></p>
     </div>
   <% end %>
 

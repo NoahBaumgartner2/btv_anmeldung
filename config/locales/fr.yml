@@ -47,3 +47,242 @@ fr:
       not_saved:
         one: "1 erreur a empêché ce %{resource} d'être sauvegardé :"
         other: "%{count} erreurs ont empêché ce %{resource} d'être sauvegardé :"
+
+  nav:
+    courses: "Cours"
+    my_profile: "Mon profil"
+    admin_dashboard: "Tableau de bord admin"
+    nds: "NDS / J+S"
+    my_courses: "Mes cours"
+    login: "Se connecter"
+    register: "S'inscrire"
+    logout: "Déconnexion"
+
+  language:
+    de: "Deutsch"
+    fr: "Français"
+    en: "English"
+    switch: "Changer de langue"
+
+  courses:
+    index:
+      title: "Cours"
+      subtitle: "Choisissez une catégorie et inscrivez-vous directement."
+      new_course: "+ Créer un nouveau cours"
+      slots_available:
+        one: "1 date disponible"
+        other: "%{count} dates disponibles"
+      more_locations: "de plus"
+      status:
+        drop_in: "Drop-In"
+        full: "Complet"
+        spots_last:
+          one: "Plus qu'1 place"
+          other: "Plus que %{count} places"
+        spots_free:
+          one: "1 place disponible"
+          other: "%{count} places disponibles"
+      date:
+        single_session: "Sessions individuelles · rejoignez à tout moment"
+        tba: "Date à confirmer"
+      participants_count: "%{confirmed} sur %{max} inscrits"
+      actions:
+        manage: "Gérer"
+        view_dates: "Voir les dates"
+        join_waitlist: "S'inscrire sur liste d'attente"
+        register: "S'inscrire maintenant"
+      empty:
+        title: "Aucun cours disponible"
+        subtitle: "Les cours apparaîtront ici dès leur création."
+    show:
+      back: "Retour"
+      type_default: "Cours"
+      select_date: "Choisir une date"
+      join_waitlist: "Rejoindre la liste d'attente"
+      register_now: "S'inscrire maintenant"
+      details_title: "Détails du cours"
+      description: "Description"
+      no_description: "Aucune description disponible pour ce cours."
+      when_where: "Quand & Où"
+      location_unknown: "Lieu à confirmer"
+      registration_info: "Infos d'inscription"
+      drop_in_label: "Session individuelle (Drop-In)"
+      semester_label: "Inscription semestrielle (Une fois)"
+      paid_label: "Cours payant"
+      free_label: "Gratuit"
+      choose_date: "Choisissez votre date"
+      fully_booked: "Complet"
+      spots_free:
+        one: "1 place disponible"
+        other: "%{count} places disponibles"
+      waitlist_btn: "Liste d'attente"
+      register_btn: "S'inscrire"
+      no_bookable_sessions: "Aucune session réservable disponible pour ce cours pour le moment."
+      trainer_area:
+        title: "Zone Entraîneur & Admin"
+        edit: "Modifier le cours"
+        new_session: "Nouvelle session"
+        date_pending: "Date à confirmer"
+        no_location: "Pas de lieu spécifique"
+        open_attendance: "Ouvrir la présence"
+        no_sessions: "Aucune session d'entraînement planifiée."
+      tickets:
+        title: "Vos billets numériques"
+        enlarge: "Agrandir le billet"
+        close: "Fermer"
+
+  dashboards:
+    admin:
+      title: "Centre de commande"
+      subtitle: "Bienvenue, Admin ! Gérez l'ensemble du club depuis ici."
+      new_course: "Nouveau cours"
+      sections:
+        management: "Gestion"
+        communication: "Communication"
+        configuration: "Configuration"
+      links:
+        trainers: "Entraîneurs"
+        trainers_desc: "Gérer et assigner les entraîneurs"
+        holidays: "Jours fériés"
+        holidays_desc: "Configurer les dates de blocage"
+        newsletters: "Centre d'envoi"
+        newsletters_desc: "Créer et envoyer des newsletters"
+        stats: "Statistiques"
+        stats_desc: "Rapports et analyses"
+        email_settings: "Paramètres email"
+        email_settings_desc: "Config. SMTP & expéditeur"
+        payments: "Paiements"
+        payments_desc: "Configuration SumUp"
+        newsletter_api: "API Newsletter"
+        newsletter_api_desc: "Identifiants API Infomaniak"
+        club_design: "Design du club"
+        club_design_desc: "Logo, couleurs & nom"
+        export_profiles: "Profils d'export"
+        export_profiles_desc: "Gérer les modèles d'export"
+      table:
+        course: "Cours"
+        category: "Catégorie"
+        registrations: "Inscriptions"
+        action: "Action"
+        participants: "Participants"
+        manage: "Gérer"
+      search:
+        title: "Recherche de participants"
+        subtitle: "Rechercher par nom ou adresse e-mail du compte lié."
+        export: "Exporter"
+        select_profile: "Choisir un profil d'export"
+        create_profile: "Créer un profil d'export"
+        manage_profiles: "Gérer les profils"
+        placeholder: "Saisir nom ou e-mail (min. 2 caractères)..."
+        submit: "Rechercher"
+        col_name: "Nom"
+        col_birthdate: "Date de naissance"
+        col_account: "Compte (e-mail)"
+        view_profile: "Voir le profil"
+        no_results: "Aucun résultat pour \"%{q}\""
+        no_results_hint: "Vérifiez l'orthographe ou recherchez par e-mail."
+        enter_query: "Saisissez au moins 2 caractères pour rechercher."
+    trainer:
+      label: "Tableau de bord entraîneur"
+      greeting: "Bonjour, %{name}"
+      courses_assigned:
+        one: "Vous êtes assigné à 1 cours."
+        other: "Vous êtes assigné à %{count} cours."
+      today: "Aujourd'hui"
+      next_session_label: "Prochaine session"
+      attendance: "Contrôle de présence"
+      attendance_link: "Présence — %{course}"
+      course:
+        confirmed: "Confirmé"
+        waitlist: "Liste d'attente"
+        capacity: "Capacité"
+        next_session: "Prochaine session"
+        no_more_sessions: "Aucune session planifiée"
+        no_sessions_yet: "Aucune session générée"
+        manage: "Gestion"
+      no_courses:
+        title: "Aucun cours assigné"
+        hint: "Veuillez contacter un administrateur pour être assigné à des cours."
+
+  pages:
+    home:
+      title: "Bienvenue"
+      hero:
+        subtitle: "Inscrivez-vous maintenant à nos cours – simple, rapide et directement en ligne."
+        register: "S'inscrire"
+      courses:
+        title: "Cours actuels"
+        subtitle: "Découvrez notre offre actuelle et inscrivez-vous directement."
+        join_anytime: "Rejoindre à tout moment"
+        spots_free:
+          one: "Plus qu'1 place"
+          other: "Plus que %{count} places"
+        view_full: "Voir les détails"
+        view_more: "En savoir plus"
+        view_all: "Voir tous les cours →"
+        empty: "Aucun cours disponible actuellement. Revenez bientôt !"
+      how_it_works:
+        title: "Comment ça marche"
+        subtitle: "En trois étapes simples."
+        step1:
+          label: "Étape 1"
+          title: "Créer un compte"
+          body: "Inscrivez-vous gratuitement avec votre adresse e-mail et créez votre compte personnel."
+        step2:
+          label: "Étape 2"
+          title: "Inscrire des participants"
+          body: "Ajoutez une ou plusieurs personnes et choisissez le cours souhaité dans notre offre actuelle."
+        step3:
+          label: "Étape 3"
+          title: "C'est parti !"
+          body: "Après l'inscription, vous recevrez une confirmation par e-mail – et c'est parti !"
+        cta: "S'inscrire gratuitement"
+      footer:
+        portal: "Portail d'inscription"
+        tagline: "Inscription en ligne pour cours & entraînements"
+
+  course_registrations:
+    show:
+      title_payment: "Inscription confirmée"
+      subtitle_payment: "Veuillez compléter le paiement pour confirmer votre place."
+      title_success: "Inscription réussie"
+      subtitle_single: "Votre séance est réservée."
+      subtitle_course: "Votre place dans le cours est assurée."
+      booked_date: "Votre séance réservée"
+      details_title: "Détails de l'inscription"
+      fields:
+        course: "Cours"
+        category: "Catégorie"
+        date: "Date"
+        location: "Lieu"
+        participant: "Participant"
+        status: "Statut"
+        price: "Prix"
+        payment: "Paiement"
+      status:
+        confirmed: "Confirmé"
+        waitlist: "Liste d'attente"
+        payment_pending: "Paiement en attente"
+        paid: "Payé"
+        pending: "En attente"
+      payment:
+        reserved_html: "Votre place est <strong>provisoirement réservée</strong>. Veuillez payer <strong>%{price}</strong> maintenant pour confirmer votre inscription."
+        pay_now: "Payer maintenant – %{price}"
+        secure: "Paiement sécurisé via SumUp · Carte de crédit / Débit"
+      nav:
+        more_dates: "Réserver d'autres séances"
+        back_to_course: "Retour au cours"
+        my_profile: "Mon profil"
+      cancel:
+        title_single: "Annuler la séance"
+        title_course: "Se désinscrire du cours"
+        heading_single: "Annuler la séance"
+        heading_course: "Se désinscrire"
+        body_single_html: "Voulez-vous vraiment annuler la réservation du <strong>%{date}</strong> ?"
+        body_course_html: "Voulez-vous vraiment vous désinscrire du cours <strong>%{title}</strong> ?"
+        irreversible: "Cette action ne peut pas être annulée."
+        cancel_btn: "Annuler"
+        confirm_btn: "Oui, annuler"
+
+  misc:
+    time_suffix: ""

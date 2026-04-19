@@ -16,16 +16,16 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
         </svg>
       </div>
-      <h1 class="text-2xl font-extrabold text-gray-900">Anmeldung bestätigt</h1>
-      <p class="text-gray-500 mt-1 text-sm">Bitte schliesse die Zahlung ab, um deinen Platz zu sichern.</p>
+      <h1 class="text-2xl font-extrabold text-gray-900"><%= t("course_registrations.show.title_payment") %></h1>
+      <p class="text-gray-500 mt-1 text-sm"><%= t("course_registrations.show.subtitle_payment") %></p>
     <% else %>
       <div class="w-14 h-14 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
         <svg class="w-7 h-7 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
         </svg>
       </div>
-      <h1 class="text-2xl font-extrabold text-gray-900">Anmeldung erfolgreich</h1>
-      <p class="text-gray-500 mt-1 text-sm"><%= is_single ? "Dein Termin ist gebucht." : "Dein Platz im Kurs ist gesichert." %></p>
+      <h1 class="text-2xl font-extrabold text-gray-900"><%= t("course_registrations.show.title_success") %></h1>
+      <p class="text-gray-500 mt-1 text-sm"><%= is_single ? t("course_registrations.show.subtitle_single") : t("course_registrations.show.subtitle_course") %></p>
     <% end %>
   </div>
 
@@ -34,12 +34,12 @@
     <div class="mb-5 bg-purple-50 border border-purple-200 rounded-2xl p-5 flex items-start gap-4">
       <div class="shrink-0 w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-2xl">📅</div>
       <div>
-        <p class="text-xs font-bold text-purple-500 uppercase tracking-wider mb-1">Dein gebuchter Termin</p>
+        <p class="text-xs font-bold text-purple-500 uppercase tracking-wider mb-1"><%= t("course_registrations.show.booked_date") %></p>
         <p class="text-xl font-extrabold text-purple-900">
           <%= I18n.l(session.start_time, format: "%A, %-d. %B %Y") %>
         </p>
         <p class="text-base font-semibold text-purple-700 mt-0.5">
-          <%= session.start_time.strftime("%H:%M") %> Uhr
+          <%= session.start_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
           <% if course.location.present? %>
             <span class="text-purple-400 mx-1">·</span>
             <%= course.location %>
@@ -52,47 +52,47 @@
   <%# ── Anmeldungs-Details ─────────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
     <div class="px-5 py-4 bg-gray-50 border-b border-gray-100">
-      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Anmeldungs-Details</p>
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide"><%= t("course_registrations.show.details_title") %></p>
     </div>
     <dl class="divide-y divide-gray-100">
       <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
-        <dt class="font-medium text-gray-500 shrink-0">Kurs</dt>
+        <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.course") %></dt>
         <dd class="font-semibold text-gray-900 break-words sm:text-right"><%= course.title %></dd>
       </div>
       <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
-        <dt class="font-medium text-gray-500 shrink-0">Kategorie</dt>
+        <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.category") %></dt>
         <dd class="text-gray-700 break-words sm:text-right"><%= course.registration_type.presence || "—" %></dd>
       </div>
       <% if is_single %>
         <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
-          <dt class="font-medium text-gray-500 shrink-0">Termin</dt>
+          <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.date") %></dt>
           <dd class="font-semibold text-gray-900 break-words sm:text-right">
             <%= I18n.l(session.start_time, format: "%-d. %B %Y") %>,
-            <%= session.start_time.strftime("%H:%M") %> Uhr
+            <%= session.start_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
           </dd>
         </div>
         <% if course.location.present? %>
           <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
-            <dt class="font-medium text-gray-500 shrink-0">Ort</dt>
+            <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.location") %></dt>
             <dd class="text-gray-700 break-words sm:text-right"><%= course.location %></dd>
           </div>
         <% end %>
       <% end %>
       <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
-        <dt class="font-medium text-gray-500 shrink-0">Teilnehmer</dt>
+        <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.participant") %></dt>
         <dd class="font-semibold text-gray-900 break-words sm:text-right"><%= participant.first_name %> <%= participant.last_name %></dd>
       </div>
       <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
-        <dt class="font-medium text-gray-500 shrink-0">Status</dt>
+        <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.status") %></dt>
         <dd class="sm:text-right">
           <% case @course_registration.status %>
           <% when "bestätigt" %>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">Bestätigt</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800"><%= t("course_registrations.show.status.confirmed") %></span>
           <% when "warteliste" %>
-            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">Warteliste</span>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800"><%= t("course_registrations.show.status.waitlist") %></span>
           <% when "ausstehend" %>
             <% if course.price_cents.to_i > 0 %>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600">Zahlung ausstehend</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600"><%= t("course_registrations.show.status.payment_pending") %></span>
             <% else %>
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">Bestätigt</span>
             <% end %>
@@ -103,19 +103,19 @@
       </div>
       <% if course.has_payment? %>
         <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
-          <dt class="font-medium text-gray-500 shrink-0">Preis</dt>
+          <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.price") %></dt>
           <dd class="font-semibold text-gray-900 break-words sm:text-right"><%= course.price_display %></dd>
         </div>
         <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
-          <dt class="font-medium text-gray-500 shrink-0">Zahlung</dt>
+          <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.payment") %></dt>
           <dd class="sm:text-right">
             <% if @course_registration.payment_cleared? %>
               <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">
                 <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                Bezahlt
+                <%= t("course_registrations.show.status.paid") %>
               </span>
             <% else %>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700">Ausstehend</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700"><%= t("course_registrations.show.status.pending") %></span>
             <% end %>
           </dd>
         </div>
@@ -131,8 +131,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
         <p class="text-sm text-yellow-800">
-          Dein Platz ist <strong>vorläufig reserviert</strong>. Bitte bezahle jetzt <strong><%= course.price_display %></strong>,
-          um die Anmeldung definitiv zu bestätigen.
+          <%= t("course_registrations.show.payment.reserved_html", price: course.price_display) %>
         </p>
       </div>
       <%= link_to checkout_preview_registration_path(@course_registration),
@@ -140,9 +139,9 @@
         <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
         </svg>
-        Jetzt bezahlen – <%= course.price_display %>
+        <%= t("course_registrations.show.payment.pay_now", price: course.price_display) %>
       <% end %>
-      <p class="text-xs text-center text-yellow-600 mt-2">Sichere Zahlung via SumUp · Kreditkarte / Debitkarte</p>
+      <p class="text-xs text-center text-yellow-600 mt-2"><%= t("course_registrations.show.payment.secure") %></p>
     </div>
   <% end %>
 
@@ -151,29 +150,26 @@
     <% if is_single %>
       <%= link_to course_path(course, anchor: "termine"),
             class: "flex-1 inline-flex items-center justify-center text-center bg-purple-600 text-white font-semibold py-3 px-4 rounded-xl text-sm hover:bg-purple-700 transition min-h-[44px]" do %>
-        Weitere Termine buchen
+        <%= t("course_registrations.show.nav.more_dates") %>
       <% end %>
     <% else %>
       <%= link_to course_path(course),
             class: "flex-1 inline-flex items-center justify-center text-center bg-white border border-gray-300 text-gray-700 font-semibold py-3 px-4 rounded-xl text-sm hover:bg-gray-50 transition min-h-[44px]" do %>
-        Zurück zum Kurs
+        <%= t("course_registrations.show.nav.back_to_course") %>
       <% end %>
     <% end %>
     <%= link_to participants_path,
           class: "flex-1 inline-flex items-center justify-center text-center bg-gray-100 text-gray-700 font-semibold py-3 px-4 rounded-xl text-sm hover:bg-gray-200 transition min-h-[44px]" do %>
-      Mein Profil
+      <%= t("course_registrations.show.nav.my_profile") %>
     <% end %>
   </div>
 
   <%# ── Abmelden ───────────────────────────────────────────────────────────── %>
   <% if @course_registration.status != "storniert" %>
-    <% cancel_title   = is_single ? "Termin stornieren" : "Vom Kurs abmelden" %>
-    <% cancel_heading = is_single ? "Termin stornieren" : "Kurs abmelden" %>
-    <% cancel_body    = if is_single
-         "Willst du die Buchung für <strong>#{I18n.l(session.start_time, format: '%-d. %B %Y')}, #{session.start_time.strftime('%H:%M')} Uhr</strong> wirklich stornieren?"
-       else
-         "Willst du dich wirklich vom Kurs <strong>#{course.title}</strong> abmelden?"
-       end %>
+    <% cancel_title   = is_single ? t("course_registrations.show.cancel.title_single") : t("course_registrations.show.cancel.title_course") %>
+    <% cancel_heading = is_single ? t("course_registrations.show.cancel.heading_single") : t("course_registrations.show.cancel.heading_course") %>
+    <% date_str = is_single ? "#{I18n.l(session.start_time, format: '%-d. %B %Y')}, #{session.start_time.strftime('%H:%M')} #{t('misc.time_suffix')}" : nil %>
+    <% cancel_body = is_single ? t("course_registrations.show.cancel.body_single_html", date: date_str) : t("course_registrations.show.cancel.body_course_html", title: course.title) %>
     <div class="mt-4"
          data-controller="confirm-unsubscribe"
          data-confirm-unsubscribe-course-name-value="<%= course.title %>">
@@ -193,20 +189,20 @@
            data-action="click->confirm-unsubscribe#close">
         <div class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6" data-action="click->confirm-unsubscribe#close:stop">
           <h2 class="text-lg font-extrabold text-gray-900 mb-2"><%= cancel_heading %></h2>
-          <p class="text-sm text-gray-600 mb-1"><%= cancel_body.html_safe %></p>
+          <p class="text-sm text-gray-600 mb-1"><%= cancel_body %></p>
           <p class="text-sm font-semibold text-red-600 mb-6">
-            Diese Aktion kann nicht rückgängig gemacht werden.
+            <%= t("course_registrations.show.cancel.irreversible") %>
           </p>
           <div class="flex flex-col-reverse sm:flex-row gap-3">
             <button type="button"
                     data-action="confirm-unsubscribe#close"
                     class="flex-1 inline-flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl text-sm transition min-h-[44px] cursor-pointer">
-              Abbrechen
+              <%= t("course_registrations.show.cancel.cancel_btn") %>
             </button>
             <button type="button"
                     data-action="confirm-unsubscribe#confirm"
                     class="flex-1 inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition min-h-[44px] cursor-pointer">
-              Ja, stornieren
+              <%= t("course_registrations.show.cancel.confirm_btn") %>
             </button>
           </div>
         </div>

@@ -68,18 +68,18 @@
             <% end %>
 
             <div class="hidden md:flex items-center space-x-6 ml-10">
-              <%= link_to "Kurse", courses_path, class: "text-gray-600 hover:text-primary-700 hover:bg-primary-50 px-3 py-2 rounded-md font-medium transition" %>
+              <%= link_to t("nav.courses"), courses_path, class: "text-gray-600 hover:text-primary-700 hover:bg-primary-50 px-3 py-2 rounded-md font-medium transition" %>
 
               <% if user_signed_in? %>
                 <div class="h-6 w-px bg-gray-300 mx-2"></div>
-                <%= link_to "Mein Profil", participants_path, class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
+                <%= link_to t("nav.my_profile"), participants_path, class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
                 <% if current_user.admin? %>
-                  <%= link_to "Admin-Dashboard", dashboards_admin_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
-                  <%= link_to "NDS / J+S", admin_nds_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
+                  <%= link_to t("nav.admin_dashboard"), dashboards_admin_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
+                  <%= link_to t("nav.nds"), admin_nds_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
                 <% end %>
 
                 <% if Trainer.exists?(user: current_user) && !current_user.admin? %>
-                  <%= link_to "Meine Kurse", dashboards_trainer_path, class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
+                  <%= link_to t("nav.my_courses"), dashboards_trainer_path, class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
                 <% end %>
               <% end %>
             </div>
@@ -89,13 +89,14 @@
           <div class="flex items-center gap-3 shrink-0">
             <%# Desktop Auth-Cluster (≥ md) %>
             <div class="hidden md:flex items-center gap-3">
+              <%= render "shared/language_switcher" %>
               <% if user_signed_in? %>
-                <%= button_to "Logout", destroy_user_session_path, method: :delete,
+                <%= button_to t("nav.logout"), destroy_user_session_path, method: :delete,
                       class: "text-sm font-medium text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md transition cursor-pointer" %>
               <% else %>
-                <%= link_to "Anmelden", new_user_session_path,
+                <%= link_to t("nav.login"), new_user_session_path,
                       class: "text-sm font-medium text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md transition" %>
-                <%= link_to "Registrieren", new_user_registration_path,
+                <%= link_to t("nav.register"), new_user_registration_path,
                       class: "bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition" %>
               <% end %>
             </div>
@@ -125,42 +126,46 @@
       <div data-mobile-menu-target="panel"
            class="md:hidden absolute inset-x-0 top-full z-40 bg-white border-b border-gray-200 shadow-lg overflow-hidden max-h-0 opacity-0 pointer-events-none transition-[max-height,opacity] duration-200 ease-out">
         <div class="px-4 py-3 space-y-1">
-          <%= link_to "Kurse", courses_path,
+          <%= link_to t("nav.courses"), courses_path,
                 data: { action: "click->mobile-menu#close" },
                 class: "block px-3 py-2.5 rounded-lg text-base font-medium text-gray-700 hover:text-primary-700 hover:bg-primary-50 transition" %>
 
           <% if user_signed_in? %>
-            <%= link_to "Mein Profil", participants_path,
+            <%= link_to t("nav.my_profile"), participants_path,
                   data: { action: "click->mobile-menu#close" },
                   class: "block px-3 py-2.5 rounded-lg text-base font-bold text-primary-600 hover:text-primary-800 hover:bg-primary-50 transition" %>
 
             <% if current_user.admin? %>
-              <%= link_to "Admin-Dashboard", dashboards_admin_path,
+              <%= link_to t("nav.admin_dashboard"), dashboards_admin_path,
                     data: { action: "click->mobile-menu#close" },
                     class: "block px-3 py-2.5 rounded-lg text-base font-bold text-red-600 hover:text-red-800 hover:bg-red-50 transition" %>
-              <%= link_to "NDS / J+S", admin_nds_path,
+              <%= link_to t("nav.nds"), admin_nds_path,
                     data: { action: "click->mobile-menu#close" },
                     class: "block px-3 py-2.5 rounded-lg text-base font-bold text-red-600 hover:text-red-800 hover:bg-red-50 transition" %>
             <% end %>
 
             <% if Trainer.exists?(user: current_user) && !current_user.admin? %>
-              <%= link_to "Meine Kurse", dashboards_trainer_path,
+              <%= link_to t("nav.my_courses"), dashboards_trainer_path,
                     data: { action: "click->mobile-menu#close" },
                     class: "block px-3 py-2.5 rounded-lg text-base font-bold text-primary-600 hover:text-primary-800 hover:bg-primary-50 transition" %>
             <% end %>
 
             <div class="pt-2 mt-2 border-t border-gray-100">
-              <%= button_to "Logout", destroy_user_session_path, method: :delete,
+              <%= button_to t("nav.logout"), destroy_user_session_path, method: :delete,
                     class: "w-full text-base font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-2.5 rounded-lg transition cursor-pointer" %>
             </div>
           <% else %>
-            <%= link_to "Anmelden", new_user_session_path,
+            <%= link_to t("nav.login"), new_user_session_path,
                   data: { action: "click->mobile-menu#close" },
                   class: "block px-3 py-2.5 rounded-lg text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition" %>
-            <%= link_to "Registrieren", new_user_registration_path,
+            <%= link_to t("nav.register"), new_user_registration_path,
                   data: { action: "click->mobile-menu#close" },
                   class: "block px-3 py-2.5 rounded-lg text-base font-bold text-white bg-primary-600 hover:bg-primary-700 text-center transition" %>
           <% end %>
+
+          <div class="pt-2 mt-2 border-t border-gray-100 flex justify-center">
+            <%= render "shared/language_switcher" %>
+          </div>
         </div>
       </div>
     </nav>
