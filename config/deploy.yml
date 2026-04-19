@@ -15,7 +15,7 @@ ssh:
 
 # SSL (HTTPS) automatisch via Let's Encrypt
 proxy:
-  ssl: false
+  ssl: true
   host: btvbern-anmeldung.ch
 
 # Wo das gebaute Docker-Image gespeichert wird
