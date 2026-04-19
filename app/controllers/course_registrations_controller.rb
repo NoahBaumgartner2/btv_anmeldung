@@ -1,7 +1,7 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel ]
   before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
 
   def show
@@ -10,7 +10,9 @@ class CourseRegistrationsController < ApplicationController
       confirmed = course.course_registrations.where(status: "bestätigt").count
       max       = course.max_participants
       new_status = (max.present? && confirmed >= max) ? "warteliste" : "bestätigt"
-      @course_registration.update_columns(status: new_status)
+      CourseRegistration.where(id: @course_registration.id, status: "ausstehend")
+                        .update_all(status: new_status)
+      @course_registration.reload
     end
   end
 
@@ -136,7 +138,6 @@ class CourseRegistrationsController < ApplicationController
   # Eltern werden per E-Mail informiert; optional wird der Admin
   # für eine allfällige Rückerstattung benachrichtigt.
   def trainer_cancel
-    @course_registration = CourseRegistration.find(params[:id])
     course = @course_registration.course
 
     unless current_user.admin? || trainer_assigned_to_course?(course)
@@ -176,12 +177,12 @@ class CourseRegistrationsController < ApplicationController
     redirect_to manage_course_path(course), notice: notice
   end
 
-def unsubscribe_from_session
+  def unsubscribe_from_session
     @course_registration = CourseRegistration.find(params[:id])
     authorize_parent_owns_registration!(@course_registration)
     return if performed?
 
-    @training_session = TrainingSession.find(params[:training_session_id])
+    @training_session = @course_registration.course.training_sessions.find(params[:training_session_id])
 
     unless @training_session.start_time > 24.hours.from_now
       redirect_to participants_path, alert: "Eine Abmeldung ist nur bis 24 Stunden vor dem Training möglich."
@@ -211,16 +212,37 @@ def unsubscribe_from_session
     @registration = CourseRegistration.find(params[:id])
 
     # 1. Wir nehmen EXAKT die Checkliste, aus der der Trainer den Scanner gestartet hat!
-    if params[:session_id].present?
-      @session = TrainingSession.find(params[:session_id])
+    @session = if params[:session_id].present?
+      TrainingSession.find_by(id: params[:session_id])
     else
-      # Fallback, falls jemand den Link ohne ID aufruft
-      @session = @registration.course.training_sessions.order(start_time: :desc).first
+      @registration.course.training_sessions.order(start_time: :desc).first
+    end
+
+    unless @session
+      respond_to do |format|
+        format.html { redirect_to root_path, alert: "Training-Session nicht gefunden." }
+        format.json { render json: { success: false, message: "Session nicht gefunden" }, status: :not_found }
+      end
+      return
+    end
+
+    if @registration.course_id != @session.course_id
+      respond_to do |format|
+        format.html { redirect_to @session, alert: "Diese Anmeldung gehört nicht zu diesem Training." }
+        format.json { render json: { success: false, message: "Anmeldung gehört nicht zu diesem Training" }, status: :unprocessable_entity }
+      end
+      return
     end
 
     # 2. Kind in dieser Liste abhaken!
     attendance = @session.attendances.find_or_initialize_by(course_registration_id: @registration.id)
-    attendance.update!(status: "anwesend")
+    unless attendance.update(status: "anwesend")
+      respond_to do |format|
+        format.html { redirect_to @session, alert: "Anwesenheit konnte nicht gespeichert werden." }
+        format.json { render json: { success: false, message: "Anwesenheit konnte nicht gespeichert werden" }, status: :unprocessable_entity }
+      end
+      return
+    end
 
     respond_to do |format|
       format.html { redirect_to @session, notice: "✅ BING! #{@registration.participant.first_name} wurde eingecheckt!" }

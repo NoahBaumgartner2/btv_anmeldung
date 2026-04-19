@@ -8,10 +8,10 @@ class TrainingSession < ApplicationRecord
   end
 
   def needs_trainer_reminder?
-    end_time < 8.hours.ago && trainer_reminded_at.nil? && !attendance_recorded?
+    end_time.present? && end_time < 8.hours.ago && trainer_reminded_at.nil? && !attendance_recorded?
   end
 
   def needs_admin_notification?
-    end_time < 7.days.ago && admin_notified_at.nil? && !attendance_recorded?
+    end_time.present? && end_time < 7.days.ago && admin_notified_at.nil? && !attendance_recorded?
   end
 end

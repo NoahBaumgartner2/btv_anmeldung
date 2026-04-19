@@ -52,39 +52,45 @@ class NewsletterSubscribersController < ApplicationController
     skipped = 0
     errors = []
 
-    CSV.foreach(file.path, headers: true, encoding: "UTF-8") do |row|
-      # Unterstützt Spalten: email, name, status — oder einfach nur eine Spalte mit der E-Mail
-      email  = (row["email"] || row["Email"] || row["E-Mail"] || row[0]).to_s.strip.downcase
-      name   = (row["name"]  || row["Name"]  || row[1]).to_s.strip.presence
-      status = (row["status"] || row["Status"] || "subscribed").to_s.strip.downcase
-      status = "subscribed" unless NewsletterSubscriber::STATUSES.include?(status)
+    begin
+      CSV.foreach(file.path, headers: true, encoding: "UTF-8", liberal_parsing: true) do |row|
+        # Unterstützt Spalten: email, name, status — oder einfach nur eine Spalte mit der E-Mail
+        email  = (row["email"] || row["Email"] || row["E-Mail"] || row[0]).to_s.strip.downcase
+        name   = (row["name"]  || row["Name"]  || row[1]).to_s.strip.presence
+        status = (row["status"] || row["Status"] || "subscribed").to_s.strip.downcase
+        status = "subscribed" unless NewsletterSubscriber::STATUSES.include?(status)
 
-      next if email.blank?
+        next if email.blank?
 
-      sub = NewsletterSubscriber.find_or_initialize_by(email: email)
-      sub.name   = name   if name.present?
-      sub.status = status
-      sub.source = "csv_import"
+        sub = NewsletterSubscriber.find_or_initialize_by(email: email)
+        sub.name   = name   if name.present?
+        sub.status = status
+        sub.source = "csv_import"
 
-      if sub.save
-        added += 1
-      else
-        skipped += 1
-        errors << "#{email}: #{sub.errors.full_messages.join(', ')}"
+        if sub.save
+          added += 1
+        else
+          skipped += 1
+          errors << "#{email}: #{sub.errors.full_messages.join(', ')}"
+        end
       end
-    rescue CSV::MalformedCSVError
-      skipped += 1
+    rescue CSV::MalformedCSVError => e
+      return redirect_to newsletter_subscribers_path, alert: "Die CSV-Datei ist ungültig und konnte nicht gelesen werden: #{e.message}"
     end
 
-    msg = "#{added} #{"Adresse".pluralize(added)} importiert"
+    msg = "#{added} #{added == 1 ? 'Adresse' : 'Adressen'} importiert"
     msg += ", #{skipped} übersprungen" if skipped > 0
     redirect_to newsletter_subscribers_path, notice: msg
   end
 
   def unsubscribe
-    subscriber = NewsletterSubscriber.find(params[:id])
-    subscriber.update!(status: "unsubscribed")
-    render plain: "Du wurdest erfolgreich vom Newsletter abgemeldet.", status: :ok
+    subscriber = NewsletterSubscriber.find_by(unsubscribe_token: params[:token])
+    if subscriber
+      subscriber.update!(status: "unsubscribed")
+      render plain: "Du wurdest erfolgreich vom Newsletter abgemeldet.", status: :ok
+    else
+      render plain: "Ungültiger Abmeldelink.", status: :not_found
+    end
   end
 
   def export

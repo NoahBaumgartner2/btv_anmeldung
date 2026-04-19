@@ -4,6 +4,7 @@ class CourseRegistrationMailer < ApplicationMailer
     @course = course_registration.course
     @participant = course_registration.participant
     @recipient = @participant.user
+    return if @recipient.nil?
 
     subject = case course_registration.status
               when "bestätigt"  then "Anmeldung bestätigt: #{@course.title}"
@@ -19,6 +20,7 @@ class CourseRegistrationMailer < ApplicationMailer
     @course = course_registration.course
     @participant = course_registration.participant
     @recipient = @participant.user
+    return if @recipient.nil?
 
     mail(
       to: @recipient.email,
@@ -31,6 +33,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @course       = course_registration.course
     @participant  = course_registration.participant
     @recipient    = @participant.user
+    return if @recipient.nil?
+
     @reason       = course_registration.cancellation_reason
     @cancelled_by = course_registration.cancelled_by_trainer&.user&.email
 
@@ -60,6 +64,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @course = course_registration.course
     @participant = course_registration.participant
     @recipient = @participant.user
+    return if @recipient.nil?
+
     @new_status = course_registration.status
 
     subject = case @new_status

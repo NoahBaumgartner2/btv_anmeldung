@@ -27,7 +27,7 @@ class CourseRegistration < ApplicationRecord
                          .first
     return unless next_in_line
 
-    next_in_line.update_columns(status: "bestätigt")
+    next_in_line.update!(status: "bestätigt")
     CourseRegistrationMailer.waitlist_promoted(next_in_line).deliver_later
   end
 

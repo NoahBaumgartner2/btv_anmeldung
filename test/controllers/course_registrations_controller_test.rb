@@ -70,4 +70,28 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_user_session_path
   end
+
+  # ── scan ────────────────────────────────────────────────────────────────────
+
+  test "scan redirects with alert when session_id not found" do
+    sign_in @parent  # users(:one) ist auch Trainer (trainer fixture :one)
+
+    post scan_course_registration_path(@registration), params: { session_id: 0 }
+
+    assert_redirected_to root_path
+    assert_match "nicht gefunden", flash[:alert]
+  end
+
+  test "scan returns 404 JSON when session_id not found" do
+    sign_in @parent  # users(:one) ist auch Trainer (trainer fixture :one)
+
+    post scan_course_registration_path(@registration),
+         params: { session_id: 0 },
+         headers: { "Accept" => "application/json" }
+
+    assert_response :not_found
+    body = JSON.parse(response.body)
+    assert_equal false, body["success"]
+    assert_includes body["message"], "nicht gefunden"
+  end
 end

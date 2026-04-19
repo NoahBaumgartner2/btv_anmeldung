@@ -13,8 +13,6 @@ class InfomaniakSetting < ApplicationRecord
   end
 
   # ── api_token (encrypted) ───────────────────────────────────────────────────
-  attr_reader :api_token
-
   def api_token=(value)
     @api_token = value
     self.api_token_encrypted = encryptor.encrypt_and_sign(value) if value.present?

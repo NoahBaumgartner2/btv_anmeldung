@@ -39,7 +39,7 @@ class SumupWebhooksController < ActionController::Base
     end
 
     # Status per API-Call verifizieren (verhindert Manipulation durch gefälschte Webhooks)
-    response = PaymentSyncService.send(:fetch_checkout, checkout_id)
+    response = PaymentSyncService.fetch_checkout(checkout_id)
 
     unless response.is_a?(Net::HTTPSuccess)
       Rails.logger.error "[SumupWebhook] API-Verifizierung fehlgeschlagen (#{response.code}) für checkout_id=#{checkout_id}"

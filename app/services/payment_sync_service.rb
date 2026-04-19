@@ -1,3 +1,5 @@
+require "timeout"
+
 # Kapselt die Logik zum Abgleichen ausstehender Zahlungen mit SumUp.
 # Genutzt von:
 #   - Admin::PaymentSettingsController#sync_payments (Admin-UI)
@@ -7,22 +9,28 @@ class PaymentSyncService
   Result = Struct.new(:total, :paid, :still_pending, :errors, keyword_init: true)
 
   # Markiert eine einzelne Registration als bezahlt und setzt den korrekten Status.
-  # Wird direkt vom Webhook aufgerufen.
+  # Wird direkt vom Webhook aufgerufen. Pessimistischer Lock verhindert Race Conditions
+  # bei gleichzeitigen Webhook- und Success-Callback-Aufrufen.
   def self.mark_paid!(registration, transaction_id: nil, checkout_id: nil)
-    course = registration.course
-    confirmed_count = course.course_registrations.where(status: "bestätigt").count
-    new_status = if course.max_participants.present? && confirmed_count >= course.max_participants
-                   "warteliste"
-                 else
-                   "bestätigt"
-                 end
+    Course.find(registration.course_id).with_lock do
+      registration.reload
+      return if registration.payment_cleared?
 
-    registration.update!(
-      payment_cleared:      true,
-      sumup_transaction_id: transaction_id,
-      sumup_checkout_id:    checkout_id || registration.sumup_checkout_id,
-      status:               new_status
-    )
+      course = registration.course
+      confirmed_count = course.course_registrations.where(status: "bestätigt").count
+      new_status = if course.max_participants.present? && confirmed_count >= course.max_participants
+                     "warteliste"
+                   else
+                     "bestätigt"
+                   end
+
+      registration.update!(
+        payment_cleared:      true,
+        sumup_transaction_id: transaction_id,
+        sumup_checkout_id:    checkout_id || registration.sumup_checkout_id,
+        status:               new_status
+      )
+    end
   end
 
   # Holt alle ausstehenden Registrierungen mit SumUp-Checkout-ID und prüft den
@@ -75,12 +83,16 @@ class PaymentSyncService
     uri = URI("https://api.sumup.com/v0.1/checkouts/#{checkout_id}")
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
+    http.open_timeout = 5
+    http.read_timeout = 10
 
     request = Net::HTTP::Get.new(uri.path, {
       "Authorization" => "Bearer #{::SumupConfig.access_token}"
     })
 
     http.request(request)
+  rescue SocketError, Timeout::Error, Errno::ECONNREFUSED,
+         Net::OpenTimeout, Net::ReadTimeout => e
+    raise RuntimeError, "SumUp API nicht erreichbar: #{e.message}"
   end
-  private_class_method :fetch_checkout
 end

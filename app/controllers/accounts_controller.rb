@@ -12,8 +12,11 @@ class AccountsController < ApplicationController
     sub = NewsletterSubscriber.find_or_initialize_by(email: current_user.email.downcase.strip)
     sub.status = "subscribed"
     sub.source ||= "manual"
-    sub.save
-    redirect_to account_path, notice: "Du erhältst ab sofort wieder den BTV-Newsletter."
+    if sub.save
+      redirect_to account_path, notice: "Du erhältst ab sofort wieder den BTV-Newsletter."
+    else
+      redirect_to account_path, alert: "Fehler beim Anmelden: #{sub.errors.full_messages.join(', ')}"
+    end
   end
 
   def unsubscribe_newsletter

@@ -50,6 +50,8 @@ module Admin
       uri = URI("https://api.sumup.com/v0.1/me")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
+      http.open_timeout = 5
+      http.read_timeout = 10
 
       request = Net::HTTP::Get.new(uri.path, {
         "Authorization" => "Bearer #{::SumupConfig.access_token}"

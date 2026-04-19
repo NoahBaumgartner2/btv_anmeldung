@@ -15,9 +15,6 @@ module Admin
       @club_setting = ClubSetting.current
 
       if @club_setting.update(club_setting_params)
-        if params[:club_setting][:logo].present?
-          @club_setting.logo.attach(params[:club_setting][:logo])
-        end
         redirect_to admin_club_setting_path, notice: "Vereinseinstellungen wurden gespeichert."
       else
         render :edit, status: :unprocessable_entity
@@ -33,7 +30,7 @@ module Admin
     private
 
     def club_setting_params
-      params.require(:club_setting).permit(:club_name, :primary_color, :secondary_color)
+      params.require(:club_setting).permit(:club_name, :primary_color, :secondary_color, :logo)
     end
   end
 end

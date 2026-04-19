@@ -9,8 +9,6 @@ class PaymentSetting < ApplicationRecord
   end
 
   # ── sumup_access_token (encrypted) ─────────────────────────────────────────
-  attr_reader :sumup_access_token
-
   def sumup_access_token=(value)
     @sumup_access_token = value
     self.sumup_access_token_encrypted = encryptor.encrypt_and_sign(value) if value.present?

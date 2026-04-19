@@ -56,8 +56,7 @@ module Admin
                          .sort_by(&:start_time)
 
         missing_sessions = sessions.select do |s|
-          recorded = s.attendances.count { |a| a.status.present? }
-          recorded < reg_count
+          s.attendances.none? { |a| a.status == "anwesend" }
         end
 
         next if missing_sessions.empty?
@@ -67,12 +66,10 @@ module Admin
           course_title: course.title,
           sessions:     missing_sessions.map do |s|
             {
-              id:       s.id,
-              date:     s.start_time.strftime("%d.%m.%Y"),
-              weekday:  I18n.l(s.start_time, format: "%A"),
-              time:     s.start_time.strftime("%H:%M"),
-              recorded: s.attendances.count { |a| a.status.present? },
-              total:    reg_count
+              id:      s.id,
+              date:    s.start_time.strftime("%d.%m.%Y"),
+              weekday: I18n.l(s.start_time, format: "%A"),
+              time:    s.start_time.strftime("%H:%M")
             }
           end
         }
@@ -101,7 +98,7 @@ module Admin
       participants = course ? course.participants.includes(:user, :courses) : Participant.includes(:user, :courses)
       suffix       = course ? course.title.parameterize : "alle-kurse"
 
-      csv_data = ExportProfile.new.generate_baspo_person_csv(participants)
+      csv_data = ExportProfile.generate_baspo_person_csv(participants)
       filename = "nds-personenimport-#{suffix}-#{Date.today.iso8601}.csv"
       send_data csv_data, filename: filename, type: "text/csv; charset=utf-8-bom", disposition: "attachment"
     end

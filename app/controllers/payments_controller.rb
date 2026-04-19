@@ -64,6 +64,8 @@ class PaymentsController < ApplicationController
     uri = URI("https://api.sumup.com/v0.1/checkouts")
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
+    http.open_timeout = 5
+    http.read_timeout = 10
 
     request = Net::HTTP::Post.new(uri.path, {
       "Content-Type"  => "application/json",
@@ -82,7 +84,14 @@ class PaymentsController < ApplicationController
     checkout = JSON.parse(response.body)
     @registration.update!(sumup_checkout_id: checkout["id"])
 
-    redirect_to checkout["hosted_checkout_url"] || checkout["url"], allow_other_host: true
+    checkout_url = checkout["hosted_checkout_url"] || checkout["url"]
+    unless checkout_url.present?
+      Rails.logger.error "[SumUp] Checkout response enthält keine URL: #{checkout.inspect}"
+      return redirect_to course_registration_path(@registration),
+                         alert: "Zahlung konnte nicht gestartet werden. Bitte versuche es später erneut."
+    end
+
+    redirect_to checkout_url, allow_other_host: true
   rescue StandardError => e
     Rails.logger.error "[SumUp] Unexpected error: #{e.message}"
     redirect_to course_registration_path(@registration),
@@ -92,44 +101,40 @@ class PaymentsController < ApplicationController
   def success
     checkout_id = params[:checkout_id]
 
-    if checkout_id.present?
-      @registration = CourseRegistration.find_by(sumup_checkout_id: checkout_id)
+    unless checkout_id.present?
+      return redirect_to root_path, alert: "Zahlung nicht gefunden."
+    end
 
-      if @registration && !@registration.payment_cleared?
-        uri = URI("https://api.sumup.com/v0.1/checkouts/#{checkout_id}")
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
+    @registration = CourseRegistration.find_by(sumup_checkout_id: checkout_id)
 
-        request = Net::HTTP::Get.new(uri.path, {
-          "Authorization" => "Bearer #{::SumupConfig.access_token}"
-        })
+    unless @registration
+      return redirect_to root_path, alert: "Zahlung nicht gefunden."
+    end
 
-        response = http.request(request)
+    unless @registration.payment_cleared?
+      response = PaymentSyncService.fetch_checkout(checkout_id)
 
-        if response.is_a?(Net::HTTPSuccess)
-          checkout = JSON.parse(response.body)
+      if response.is_a?(Net::HTTPSuccess)
+        checkout = JSON.parse(response.body)
 
-          if checkout["status"] == "PAID"
-            course = @registration.course
-            if course.max_participants.present?
-              confirmed_count = course.course_registrations.where(status: "bestätigt").count
-              new_status = confirmed_count >= course.max_participants ? "warteliste" : "bestätigt"
-            else
-              new_status = "bestätigt"
-            end
-
-            transaction_id = checkout.dig("transactions", 0, "id")
-
-            @registration.update!(
-              payment_cleared:     true,
-              sumup_transaction_id: transaction_id,
-              status:              new_status
-            )
-          end
-        else
-          Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
+        if checkout["status"] == "PAID"
+          transaction_id = checkout.dig("transactions", 0, "id")
+          PaymentSyncService.mark_paid!(@registration, transaction_id: transaction_id, checkout_id: checkout_id)
         end
+      else
+        Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
       end
+    end
+
+    redirect_to course_registration_path(@registration), notice: "Deine Zahlung wurde erfolgreich verarbeitet."
+  rescue StandardError => e
+    Rails.logger.error "[SumUp] success callback error: #{e.class}: #{e.message}"
+    if @registration
+      redirect_to course_registration_path(@registration),
+                  notice: "Deine Zahlung wird möglicherweise noch verarbeitet. Bitte lade die Seite in einigen Minuten neu."
+    else
+      redirect_to root_path,
+                  alert: "Ein Fehler ist aufgetreten. Bitte kontaktiere uns falls deine Zahlung nicht verarbeitet wurde."
     end
   end
 
