@@ -88,7 +88,10 @@ Rails.application.configure do
   #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
   # ]
   #
+# Allow requests from your specific domain
   config.hosts << "btvbern-anmeldung.ch"
+
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  # This is CRITICAL for Kamal to know the app is running.
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end
