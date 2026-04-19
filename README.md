@@ -10,7 +10,7 @@ Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung 
 - https://www.kids-sport.ch/
 - newsletter subscribtion geht nicht und muss wieder auf automatisch angemeldet gestellt werden
 - gewisse sachen wie zum beuspuel "kostenlos" bleibt deutsch obwohl die sprache gewechselt wird
-- 
+- Trainings generieren freizeit raum hinzufügen passiert nichts
 
 
 ### Workflow NDS
