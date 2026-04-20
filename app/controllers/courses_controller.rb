@@ -67,12 +67,14 @@ class CoursesController < ApplicationController
   def create_generated_trainings
     unless @course.start_date.present? && @course.end_date.present?
       redirect_to generate_trainings_course_path(@course),
-                  alert: "Dieser Kurs hat kein Start- oder Enddatum. Bitte zuerst den Kurs bearbeiten." and return
+                  alert: "Dieser Kurs hat kein Start- oder Enddatum. Bitte zuerst den Kurs bearbeiten.",
+                  status: :see_other and return
     end
 
     unless params[:start_hour].present? && params[:day_of_week].present?
       redirect_to generate_trainings_course_path(@course),
-                  alert: "Bitte Wochentag und Startzeit auswählen." and return
+                  alert: "Bitte Wochentag und Startzeit auswählen.",
+                  status: :see_other and return
     end
 
     wochentag = params[:day_of_week].to_i
@@ -123,7 +125,7 @@ class CoursesController < ApplicationController
     notice = "#{created_count} #{"Training".pluralize(created_count)} erstellt"
     notice += ", #{skipped_count} übersprungen (Ferien oder bereits vorhanden)" if skipped_count > 0
 
-    redirect_to manage_course_path(@course), notice: notice
+    redirect_to manage_course_path(@course), notice: notice, status: :see_other
   end
 
   def manage
