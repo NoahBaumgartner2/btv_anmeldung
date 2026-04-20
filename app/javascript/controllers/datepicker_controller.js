@@ -1,5 +1,4 @@
 import { Controller } from "@hotwired/stimulus"
-import flatpickr from "flatpickr"
 
 const German = {
   weekdays: {
@@ -26,7 +25,7 @@ export default class extends Controller {
   }
 
   connect() {
-    this.fp = flatpickr(this.element, {
+    this.fp = window.flatpickr(this.element, {
       locale: German,
       dateFormat: "Y-m-d",
       altInput: true,
