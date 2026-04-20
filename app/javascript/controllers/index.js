@@ -7,6 +7,7 @@ import CancelTrainingController from "controllers/cancel_training_controller"
 import DeleteAccountController from "controllers/delete_account_controller"
 import ModalController from "controllers/modal_controller"
 import MobileMenuController from "controllers/mobile_menu_controller"
+import DatepickerController from "controllers/datepicker_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -17,3 +18,4 @@ application.register("cancel-training", CancelTrainingController)
 application.register("delete-account", DeleteAccountController)
 application.register("modal", ModalController)
 application.register("mobile-menu", MobileMenuController)
+application.register("datepicker", DatepickerController)

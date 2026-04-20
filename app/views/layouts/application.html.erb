@@ -16,6 +16,7 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "flatpickr.min", "data-turbo-track": "reload" %>
 
     <%# ── Vereinsfarben als versionierter CSS-Link ──────────────────────────── %>
     <%# ?v=<updated_at> sorgt dafür, dass Turbo Drive die Datei bei Farbänderung neu lädt %>
@@ -36,6 +37,8 @@
         "controllers/delete_account_controller":      "<%= asset_path 'controllers/delete_account_controller.js' %>",
         "controllers/modal_controller":               "<%= asset_path 'controllers/modal_controller.js' %>",
         "controllers/mobile_menu_controller":         "<%= asset_path 'controllers/mobile_menu_controller.js' %>",
+        "controllers/datepicker_controller":          "<%= asset_path 'controllers/datepicker_controller.js' %>",
+        "flatpickr":                                  "<%= asset_path 'vendor/flatpickr/index.js' %>",
         "controllers":                    "<%= asset_path 'controllers/index.js' %>"
       }
     }

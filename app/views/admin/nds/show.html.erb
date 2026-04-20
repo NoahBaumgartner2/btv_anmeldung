@@ -187,12 +187,14 @@
             <%= f.label :date_from, "Von", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_from,
                   value: (@attendance_check&.dig(:date_from) || Date.today.beginning_of_month).iso8601,
+                  data: { controller: "datepicker" },
                   class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <div>
             <%= f.label :date_to, "Bis", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_to,
                   value: (@attendance_check&.dig(:date_to) || Date.today).iso8601,
+                  data: { controller: "datepicker" },
                   class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <div class="flex items-end">
@@ -273,12 +275,14 @@
             <%= f.label :date_from, "Von", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_from,
                   value: Date.today.beginning_of_month.iso8601,
+                  data: { controller: "datepicker" },
                   class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <div>
             <%= f.label :date_to, "Bis", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_to,
                   value: Date.today.iso8601,
+                  data: { controller: "datepicker" },
                   class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <div class="flex items-end">

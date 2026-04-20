@@ -5,5 +5,8 @@
   "scripts": {
     "build": "echo 'No JS bundle configured'",
     "build:css": "echo 'CSS bundled by tailwindcss-rails'"
+  },
+  "dependencies": {
+    "flatpickr": "^4.6.13"
   }
 }

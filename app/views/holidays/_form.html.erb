@@ -27,6 +27,7 @@
     <div>
       <%= form.label :start_date, "Von", class: "block text-sm font-semibold text-gray-700 mb-1" %>
       <%= form.date_field :start_date,
+            data: { controller: "datepicker" },
             class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
                     holiday.errors[:start_date].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
       <% if holiday.errors[:start_date].any? %>
@@ -37,6 +38,7 @@
     <div>
       <%= form.label :end_date, "Bis (letzter Ferientag)", class: "block text-sm font-semibold text-gray-700 mb-1" %>
       <%= form.date_field :end_date,
+            data: { controller: "datepicker" },
             class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
                     holiday.errors[:end_date].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
       <% if holiday.errors[:end_date].any? %>

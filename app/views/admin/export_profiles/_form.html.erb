@@ -184,11 +184,13 @@
           <div>
             <%= f.label :date_from, "Von", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_from,
+                  data: { controller: "datepicker" },
                   class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div>
             <%= f.label :date_to, "Bis", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_to,
+                  data: { controller: "datepicker" },
                   class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
         </div>
@@ -225,11 +227,13 @@
           <div>
             <%= f.label :date_from, "Von", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_from,
+                  data: { controller: "datepicker" },
                   class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div>
             <%= f.label :date_to, "Bis", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_to,
+                  data: { controller: "datepicker" },
                   class: "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
         </div>
