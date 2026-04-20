@@ -4,10 +4,16 @@ class MailSettingsController < ApplicationController
 
   def show
     @mail_setting = MailSetting.current
+  rescue => e
+    Rails.logger.error "[MailSettingsController] show Fehler: #{e.message}"
+    redirect_to dashboards_admin_path, alert: "E-Mail-Einstellungen konnten nicht geladen werden: #{e.message}"
   end
 
   def edit
     @mail_setting = MailSetting.current
+  rescue => e
+    Rails.logger.error "[MailSettingsController] edit Fehler: #{e.message}"
+    redirect_to dashboards_admin_path, alert: "E-Mail-Einstellungen konnten nicht geladen werden: #{e.message}"
   end
 
   def update

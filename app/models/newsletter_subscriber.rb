@@ -1,6 +1,6 @@
 class NewsletterSubscriber < ApplicationRecord
   STATUSES = %w[subscribed unsubscribed].freeze
-  SOURCES  = %w[manual csv_import].freeze
+  SOURCES  = %w[manual csv_import registration].freeze
 
   validates :email,  presence: true, uniqueness: { case_sensitive: false },
                      format: { with: URI::MailTo::EMAIL_REGEXP }

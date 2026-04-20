@@ -17,6 +17,9 @@ class AccountsController < ApplicationController
     else
       redirect_to account_path, alert: "Fehler beim Anmelden: #{sub.errors.full_messages.join(', ')}"
     end
+  rescue => e
+    Rails.logger.error "[AccountsController] subscribe_newsletter Fehler: #{e.message}"
+    redirect_to account_path, alert: "Technischer Fehler beim Anmelden. Bitte später erneut versuchen."
   end
 
   def unsubscribe_newsletter
