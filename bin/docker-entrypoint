@@ -6,5 +6,8 @@ if [ -f "/rails/tmp/pids/server.pid" ]; then
   rm /rails/tmp/pids/server.pid
 fi
 
+# Migrationen beim Start des neuen Containers ausführen
+bin/rails db:migrate 2>&1
+
 # Führe das aus, was als Command übergeben wurde (z.B. bin/dev)
 exec "$@"

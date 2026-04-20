@@ -52,3 +52,6 @@ accessories:
       # Configure the image builder
 builder:
   arch: amd64
+
+aliases:
+  migrate: app exec --interactive --reuse 'bin/rails db:migrate'
