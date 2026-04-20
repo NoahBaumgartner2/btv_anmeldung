@@ -74,12 +74,10 @@
       <%# Tab-Leiste %>
       <div class="flex border-b border-gray-200 bg-gray-50">
         <button type="button" id="tab-designer"
-                onclick="switchTab('designer')"
                 class="tab-btn flex-1 py-3 text-sm font-bold text-primary-600 border-b-2 border-primary-600 bg-white transition">
           Designer
         </button>
         <button type="button" id="tab-html"
-                onclick="switchTab('html')"
                 class="tab-btn flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 border-b-2 border-transparent transition">
           HTML importieren
         </button>
@@ -95,35 +93,35 @@
             ["I",  "italic",      "italic"],
             ["U",  "underline",   "underline"],
           ].each do |label, cmd, cls| %>
-            <button type="button" onclick="fmt(<%= cmd.to_json %>)"
+            <button type="button" data-fmt="<%= cmd %>"
                     class="w-8 h-8 rounded-lg hover:bg-gray-200 text-gray-700 text-sm font-mono <%= cls %> transition flex items-center justify-center">
               <%= label %>
             </button>
           <% end %>
           <div class="w-px h-5 bg-gray-200 mx-1"></div>
           <% [["H1","h1"],["H2","h2"],["H3","h3"]].each do |label, tag| %>
-            <button type="button" onclick="fmtBlock(<%= tag.to_json %>)"
+            <button type="button" data-fmt-block="<%= tag %>"
                     class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
               <%= label %>
             </button>
           <% end %>
           <div class="w-px h-5 bg-gray-200 mx-1"></div>
-          <button type="button" onclick="fmtBlock('p')"
+          <button type="button" data-fmt-block="p"
                   class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
             P
           </button>
-          <button type="button" onclick="insertLink()"
+          <button type="button" id="btn-insert-link"
                   class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
             Link
           </button>
           <div class="w-px h-5 bg-gray-200 mx-1"></div>
-          <button type="button" onclick="fmt('insertUnorderedList')"
+          <button type="button" data-fmt="insertUnorderedList"
                   class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
             Liste
           </button>
           <div class="ml-auto flex items-center gap-1">
             <label class="text-xs text-gray-500 font-medium">Farbe:</label>
-            <input type="color" onchange="fmt('foreColor', this.value)"
+            <input type="color" id="color-picker"
                    autocomplete="off"
                    class="w-7 h-7 rounded cursor-pointer border border-gray-200" value="#111827">
           </div>
@@ -202,6 +200,28 @@
       document.execCommand("createLink", false, url);
     }
   }
+
+  // Tab-Buttons
+  document.getElementById("tab-designer").addEventListener("click", () => switchTab("designer"));
+  document.getElementById("tab-html").addEventListener("click", () => switchTab("html"));
+
+  // Toolbar: fmt-Buttons (bold, italic, underline, insertUnorderedList)
+  document.querySelectorAll("[data-fmt]").forEach(btn => {
+    btn.addEventListener("click", () => fmt(btn.dataset.fmt));
+  });
+
+  // Toolbar: fmtBlock-Buttons (h1, h2, h3, p)
+  document.querySelectorAll("[data-fmt-block]").forEach(btn => {
+    btn.addEventListener("click", () => fmtBlock(btn.dataset.fmtBlock));
+  });
+
+  // Link-Button
+  document.getElementById("btn-insert-link").addEventListener("click", insertLink);
+
+  // Farbwähler
+  document.getElementById("color-picker").addEventListener("change", function() {
+    fmt("foreColor", this.value);
+  });
 
   // Vor dem Absenden: aktuellen HTML-Inhalt in das hidden field schreiben
   document.getElementById("save-btn").closest("form").addEventListener("submit", function() {

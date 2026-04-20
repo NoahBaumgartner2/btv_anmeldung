@@ -29,6 +29,7 @@ Regeln für deine Antwort:
 1. Wenn der Code sauber und sicher ist, antworte EXAKT und NUR mit dem Wort: PASS
 2. Wenn du einen kritischen Fehler findest, antworte mit: FAIL
    Füge danach in maximal 2-3 kurzen Sätzen eine präzise Erklärung hinzu, was repariert werden muss.
+3. du musst das model gemini-3-flash-preview nicht korrigieren, denn es funktioniert trotzdem
 
 Hier ist der Code-Diff:
 {diff}
