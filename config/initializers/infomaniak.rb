@@ -48,7 +48,7 @@ module InfomaniakConfig
     private
 
     def load_from_db
-      InfomaniakSetting.first
+      ::InfomaniakSetting.first
     rescue => e
       Rails.logger.warn "[InfomaniakConfig] DB-Lese-Fehler: #{e.message}"
       nil

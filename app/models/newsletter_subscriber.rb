@@ -20,12 +20,14 @@ class NewsletterSubscriber < ApplicationRecord
   private
 
   def unsubscribe_from_infomaniak
+    return unless InfomaniakConfig.configured?
     InfomaniakUnsubscribeJob.perform_later(email)
   rescue => e
     Rails.logger.error "[NewsletterSubscriber] Infomaniak-Unsubscribe fehlgeschlagen (#{email}): #{e.message}"
   end
 
   def sync_to_infomaniak
+    return unless InfomaniakConfig.configured?
     return unless saved_change_to_status? || saved_change_to_email? || saved_change_to_name?
 
     if saved_change_to_email?
