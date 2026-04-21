@@ -19,15 +19,15 @@
 
     <div>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 break-words">
-        Präsenzkontrolle
+        <%= t("training_sessions.show.title") %>
       </h1>
       <p class="text-gray-500 text-sm sm:text-base mt-1 break-words">
         <% if @training_session.start_time %>
           <%= @training_session.start_time.strftime("%-d. %B %Y") %>
           <% if @training_session.end_time %>
-            · <%= @training_session.start_time.strftime("%H:%M") %> – <%= @training_session.end_time.strftime("%H:%M") %> Uhr
+            · <%= @training_session.start_time.strftime("%H:%M") %> – <%= @training_session.end_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
           <% else %>
-            · <%= @training_session.start_time.strftime("%H:%M") %> Uhr
+            · <%= @training_session.start_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
           <% end %>
         <% end %>
         <% if course.location.present? %>
@@ -37,7 +37,7 @@
     </div>
   </div>
 
-  <%# ── Abgesagt-Warnung (prominent oben, ersetzt den kleinen Hinweis im Progress-Card) ── %>
+  <%# ── Abgesagt-Warnung ── %>
   <% if @training_session.is_canceled? %>
     <div class="mb-6 bg-red-50 border-2 border-red-300 rounded-2xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4" role="alert">
       <div class="shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-red-100 flex items-center justify-center">
@@ -46,8 +46,8 @@
         </svg>
       </div>
       <div class="min-w-0 flex-1">
-        <p class="text-base sm:text-lg font-extrabold text-red-900">Dieses Training ist abgesagt</p>
-        <p class="text-sm text-red-800 mt-1 break-words">Anwesenheit kann nicht erfasst werden. Alle Teilnehmenden wurden per E-Mail informiert.</p>
+        <p class="text-base sm:text-lg font-extrabold text-red-900"><%= t("training_sessions.show.cancelled_title") %></p>
+        <p class="text-sm text-red-800 mt-1 break-words"><%= t("training_sessions.show.cancelled_body") %></p>
       </div>
     </div>
   <% end %>
@@ -60,7 +60,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
       </svg>
-      QR-Scanner öffnen
+      <%= t("training_sessions.show.open_scanner") %>
     <% end %>
   <% end %>
 
@@ -70,12 +70,12 @@
       <div class="mb-6">
         <%= button_to uncancel_training_session_path(@training_session),
               method: :post,
-              data: { turbo_confirm: "Absage wirklich rückgängig machen? Das Training wird wieder als aktiv markiert." },
+              data: { turbo_confirm: t("training_sessions.show.uncancel_confirm") },
               class: "inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg transition shadow-sm cursor-pointer" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
-          Absage rückgängig machen
+          <%= t("training_sessions.show.uncancel_btn") %>
         <% end %>
       </div>
     <% end %>
@@ -89,29 +89,29 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
-        Training absagen
+        <%= t("training_sessions.show.cancel_btn") %>
       </button>
 
       <%# Bestätigungs-Panel %>
       <div data-cancel-training-target="panel"
            class="hidden mt-3 bg-red-50 border border-red-200 rounded-xl p-5">
-        <h3 class="font-bold text-red-800 text-sm mb-3">Was passiert beim Absagen?</h3>
+        <h3 class="font-bold text-red-800 text-sm mb-3"><%= t("training_sessions.show.cancel_panel_title") %></h3>
         <ul class="text-sm text-red-700 space-y-1.5 mb-4 list-disc list-inside">
-          <li>Das Training wird dauerhaft als <strong>abgesagt</strong> markiert.</li>
-          <li>Alle <strong><%= @registrations.size %> bestätigten Teilnehmenden</strong> erhalten sofort eine Absage per E-Mail.</li>
-          <li>Die Anwesenheitskontrolle für dieses Training ist dann gesperrt.</li>
-          <li>Nur Admins können die Absage danach rückgängig machen.</li>
+          <li><%= t("training_sessions.show.cancel_bullet_1_html").html_safe %></li>
+          <li><%= t("training_sessions.show.cancel_bullet_2_html", count: @registrations.size).html_safe %></li>
+          <li><%= t("training_sessions.show.cancel_bullet_3") %></li>
+          <li><%= t("training_sessions.show.cancel_bullet_4") %></li>
         </ul>
         <div class="flex items-center gap-3">
           <%= button_to cancel_training_session_path(@training_session),
                 method: :post,
                 class: "inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2 px-4 rounded-lg transition cursor-pointer" do %>
-            Ja, Training absagen
+            <%= t("training_sessions.show.confirm_cancel_btn") %>
           <% end %>
           <button type="button"
                   data-action="click->cancel-training#close"
                   class="text-sm font-semibold text-gray-600 hover:text-gray-900 transition cursor-pointer">
-            Abbrechen
+            <%= t("training_sessions.show.cancel_abort") %>
           </button>
         </div>
       </div>
@@ -123,7 +123,7 @@
     <div class="flex items-center justify-between mb-3 gap-3">
       <div class="flex items-baseline gap-2 min-w-0">
         <span class="text-3xl sm:text-4xl font-extrabold text-gray-900"><%= attended %></span>
-        <span class="text-gray-500 font-semibold text-sm sm:text-base">/ <%= total %> Teilnehmende</span>
+        <span class="text-gray-500 font-semibold text-sm sm:text-base">/ <%= total %> <%= t("training_sessions.show.participants_label") %></span>
       </div>
       <span class="shrink-0 text-base font-extrabold <%= pct == 100 ? 'text-green-600' : 'text-gray-700' %>">
         <%= pct %> %
@@ -138,8 +138,8 @@
   <%# ── Teilnehmerliste ─────────────────────────────────────────────────── %>
   <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-      <h2 class="font-bold text-gray-900">Teilnehmende</h2>
-      <span class="text-xs text-gray-400 font-medium"><%= total %> angemeldet</span>
+      <h2 class="font-bold text-gray-900"><%= t("training_sessions.show.participants_label") %></h2>
+      <span class="text-xs text-gray-400 font-medium"><%= t("training_sessions.show.registered_count", count: total) %></span>
     </div>
 
     <% if @registrations.any? %>
@@ -162,32 +162,32 @@
                   <%= participant.first_name %> <%= participant.last_name %>
                 </p>
                 <% if is_unsubscribed %>
-                  <p class="text-xs text-red-600 font-semibold mt-0.5">Von Eltern abgemeldet</p>
+                  <p class="text-xs text-red-600 font-semibold mt-0.5"><%= t("training_sessions.show.unsubscribed_by_parents") %></p>
                 <% end %>
               </div>
             </div>
 
             <% if is_unsubscribed %>
               <span class="shrink-0 inline-flex items-center text-xs font-bold px-3 py-2 rounded-full bg-red-100 text-red-600 min-h-[36px]">
-                Abgemeldet
+                <%= t("training_sessions.show.status_unsubscribed") %>
               </span>
             <% elsif @training_session.is_canceled? %>
               <span class="shrink-0 inline-flex items-center text-xs font-bold px-3 py-2 rounded-full bg-gray-100 text-gray-400 min-h-[36px]">
-                Abwesend
+                <%= t("training_sessions.show.status_absent") %>
               </span>
             <% else %>
               <%= button_to toggle_attendance_training_session_path(@training_session, course_registration_id: reg.id),
                     method: :post,
-                    "aria-label": (is_present ? "#{participant.first_name} als abwesend markieren" : "#{participant.first_name} als anwesend markieren"),
+                    "aria-label": (is_present ? t("training_sessions.show.mark_absent_aria", name: participant.first_name) : t("training_sessions.show.mark_present_aria", name: participant.first_name)),
                     class: "shrink-0 cursor-pointer inline-flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-2.5 rounded-full transition min-h-[44px] min-w-[110px]
                             #{is_present ? 'bg-green-600 text-white hover:bg-green-700 active:bg-green-800 shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300 border border-gray-300'}" do %>
                 <% if is_present %>
                   <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                   </svg>
-                  Anwesend
+                  <%= t("training_sessions.show.status_present") %>
                 <% else %>
-                  Abwesend
+                  <%= t("training_sessions.show.status_absent") %>
                 <% end %>
               <% end %>
             <% end %>
@@ -196,7 +196,7 @@
       </ul>
     <% else %>
       <div class="px-6 py-12 text-center">
-        <p class="text-gray-500 font-semibold text-sm">Keine bestätigten Teilnehmenden.</p>
+        <p class="text-gray-500 font-semibold text-sm"><%= t("training_sessions.show.no_participants") %></p>
       </div>
     <% end %>
   </div>
