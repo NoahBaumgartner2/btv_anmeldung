@@ -1,6 +1,8 @@
 require "test_helper"
 
 class CoursesControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
     @course = courses(:one)
   end
@@ -44,5 +46,21 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_redirected_to courses_url
+  end
+
+  test "confirm_destroy deletes course with correct password" do
+    sign_in users(:admin)
+    assert_difference("Course.count", -1) do
+      post confirm_destroy_course_url(@course), params: { admin_password: "password" }
+    end
+    assert_redirected_to courses_url
+  end
+
+  test "confirm_destroy does not delete course with wrong password" do
+    sign_in users(:admin)
+    assert_no_difference("Course.count") do
+      post confirm_destroy_course_url(@course), params: { admin_password: "wrongpassword" }
+    end
+    assert_redirected_to course_url(@course)
   end
 end

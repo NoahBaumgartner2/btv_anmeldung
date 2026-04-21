@@ -3,7 +3,7 @@ class CoursesController < ApplicationController
   before_action :authorize_admin!, except: [:index, :show, :manage]
   # GET /courses or /courses.json
   before_action :authorize_trainer!, only: [:manage]
-  before_action :set_course, only: %i[ show edit update destroy generate_trainings create_generated_trainings manage ]
+  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage ]
   def index
     @courses = Course.includes(:course_registrations).order(:title)
   end
@@ -60,6 +60,22 @@ class CoursesController < ApplicationController
       format.html { redirect_to courses_path, notice: "Kurs wurde erfolgreich gelöscht.", status: :see_other }
       format.json { head :no_content }
     end
+  end
+
+  # POST /courses/1/confirm_destroy
+  def confirm_destroy
+    unless current_user.valid_password?(params[:admin_password])
+      return redirect_to @course,
+        alert: "Falsches Passwort. Der Kurs wurde nicht gelöscht.",
+        status: :see_other
+    end
+
+    course_title = @course.title
+    @course.destroy!
+
+    redirect_to courses_path,
+      notice: "Kurs \"#{course_title}\" wurde erfolgreich gelöscht.",
+      status: :see_other
   end
 
   # Zeigt das Formular für den Generator an

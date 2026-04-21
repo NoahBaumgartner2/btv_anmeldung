@@ -41,9 +41,10 @@ Rails.application.routes.draw do
 
   resources :courses do
     member do
-      get :generate_trainings
+      get  :generate_trainings
       post :create_generated_trainings
-      get :manage # NEU: Der Maschinenraum für einen einzelnen Kurs!
+      get  :manage
+      post :confirm_destroy
     end
   end
 

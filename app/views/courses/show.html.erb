@@ -140,6 +140,7 @@
         <div class="flex gap-2">
           <% if current_user.admin? %>
             <%= link_to t("courses.show.trainer_area.edit"), edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-gray-50 active:bg-gray-100 transition min-h-11 flex items-center" %>
+            <%= render 'delete_modal', course: @course %>
           <% end %>
 
           <%= link_to t("courses.show.trainer_area.new_session"), new_training_session_path(course_id: @course.id), class: "bg-primary-600 text-white text-sm font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-primary-700 active:bg-primary-800 transition min-h-11 flex items-center" %>
