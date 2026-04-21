@@ -53,7 +53,7 @@ try:
         print("=" * 50)
         print(feedback)
         print("=" * 50)
-        print("Bitte repariere den Code und versuche den Commit erneut.\n")
+        print("Bitte repariere den Code und versuche den Commit erneut. Ändere es nur wenn es Sinn macht.\n")
         sys.exit(1)
 
 except Exception as e:

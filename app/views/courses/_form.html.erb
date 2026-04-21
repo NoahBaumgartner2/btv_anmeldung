@@ -16,19 +16,19 @@
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Benennung &amp; Kategorie</p>
     </div>
     <div class="p-6 space-y-5">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:items-end">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
-          <%= form.label :registration_type, "Kategorie / Oberbegriff", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.label :category, "Kategorie", class: "block text-sm font-medium text-gray-700 mb-1" %>
           <p class="text-xs text-gray-400 mb-1.5">z.B. Kids Gym, Krabbel Gym — gleiche Kategorie wird auf der Startseite gruppiert.</p>
-          <%= form.text_field :registration_type,
+          <%= form.text_field :category,
                 placeholder: "z.B. Kids Gym",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
         </div>
         <div>
-          <%= form.label :title, "Durchführung / Termin", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <p class="text-xs text-gray-400 mb-1.5">z.B. Mittwoch 09:00 – 10:00</p>
+          <%= form.label :title, "Kursname", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <p class="text-xs text-gray-400 mb-1.5">Vollständiger Name des Kurses, z.B. Kids Gym (Mittwoch Morgen).</p>
           <%= form.text_field :title,
-                placeholder: "z.B. Mittwoch 09:00 – 10:00",
+                placeholder: "z.B. Kids Gym (Mittwoch Morgen)",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
         </div>
       </div>

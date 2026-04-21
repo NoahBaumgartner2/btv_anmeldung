@@ -24,6 +24,7 @@ class CoursesController < ApplicationController
   # POST /courses or /courses.json
   def create
     @course = Course.new(course_params)
+    @course.registration_type = derive_registration_type(@course.registration_mode)
 
     respond_to do |format|
       if @course.save
@@ -39,7 +40,9 @@ class CoursesController < ApplicationController
   # PATCH/PUT /courses/1 or /courses/1.json
   def update
     respond_to do |format|
-      if @course.update(course_params)
+      p = course_params
+      p[:registration_type] = derive_registration_type(p[:registration_mode])
+      if @course.update(p)
         format.html { redirect_to @course, notice: "Kurs wurde erfolgreich aktualisiert.", status: :see_other }
         format.json { render :show, status: :ok, location: @course }
       else
@@ -140,6 +143,10 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :description, :start_date, :end_date, :location, :registration_type, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [], payment_methods: [])
+    end
+
+    def derive_registration_type(registration_mode)
+      registration_mode == "single_session" ? "pro_training" : "semester"
     end
 end

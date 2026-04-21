@@ -10,7 +10,6 @@ Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung 
 - https://www.kids-sport.ch/
 - gewisse sachen wie zum beispiel "kostenlos" bleibt deutsch obwohl die sprache gewechselt wird
 - überprüfen, ob das automatische mailing bei nicht gemachter anwesenheitskontrolle funktioniert
-- gewisse fehlercode sind noch standartisiert
 - course form sind die placeholder noch durcheinannder
 
 

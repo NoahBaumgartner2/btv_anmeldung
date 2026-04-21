@@ -83,6 +83,7 @@ semester_end   = semester_start + 5.months
 # 1. Krabbel Gym – montags, Drop-In, Ticketing aktiv
 krabbel_gym = Course.create!(
   title: 'Krabbel Gym',
+  category: 'Krabbel Gym',
   description: 'Wöchentliches Turnen für die Kleinsten. Bitte für jedes Training einzeln anmelden!',
   location: 'Turnhalle BTV',
   start_date: semester_start,
@@ -99,6 +100,7 @@ krabbel_gym = Course.create!(
 # 2. Kids Gym Kurse – Semester-Anmeldung
 kids_gym_mi_morgen = Course.create!(
   title: 'Kids Gym (Mittwoch Morgen)',
+  category: 'Kids Gym',
   description: 'Semesterkurs für Kids. Einmalige Anmeldung sichert den Platz für das ganze Semester.',
   location: 'Turnhalle BTV',
   start_date: semester_start,
@@ -115,6 +117,7 @@ kids_gym_mi_morgen = Course.create!(
 
 kids_gym_mi_nachmittag = Course.create!(
   title: 'Kids Gym (Mittwoch Nachmittag)',
+  category: 'Kids Gym',
   description: 'Semesterkurs für Kids. Einmalige Anmeldung sichert den Platz für das ganze Semester.',
   location: 'Turnhalle BTV',
   start_date: semester_start,
@@ -131,6 +134,7 @@ kids_gym_mi_nachmittag = Course.create!(
 
 kids_gym_do_morgen = Course.create!(
   title: 'Kids Gym (Donnerstag Morgen)',
+  category: 'Kids Gym',
   description: 'Semesterkurs für Kids. Einmalige Anmeldung sichert den Platz für das ganze Semester.',
   location: 'Turnhalle BTV',
   start_date: semester_start,
