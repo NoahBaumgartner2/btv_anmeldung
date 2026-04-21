@@ -40,16 +40,12 @@ module Admin
         : Course.where(is_js_training: true)
 
       js_courses = js_courses
-                     .includes(:course_registrations,
-                               training_sessions: :attendances)
+                     .includes(training_sessions: :attendances)
                      .order(:title)
 
       missing_by_course = []
 
       js_courses.each do |course|
-        reg_count = course.course_registrations.count { |r| r.status == "bestätigt" }
-        next if reg_count == 0
-
         sessions = course.training_sessions
                          .reject(&:is_canceled?)
                          .select { |s| s.start_time && s.start_time.to_date.between?(date_from, effective_to) }
