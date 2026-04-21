@@ -37,8 +37,8 @@ module Admin
         redirect_to admin_payment_setting_path, notice: msg
       end
     rescue => e
-      Rails.logger.error "[Admin::PaymentSettings] sync_payments Fehler: #{e.message}"
-      redirect_to admin_payment_setting_path, alert: "Fehler beim Abgleich: #{e.message}"
+      Rails.logger.error "[Admin::PaymentSettings] sync_payments Fehler: #{e.class}: #{e.message}"
+      redirect_to admin_payment_setting_path, alert: "Der Zahlungsabgleich konnte nicht durchgeführt werden. Bitte versuche es erneut."
     end
 
     def test_connection
@@ -71,8 +71,9 @@ module Admin
                     alert: "SumUp API antwortete mit Status #{response.code}."
       end
     rescue => e
+      Rails.logger.error "[Admin::PaymentSettings] test_connection Fehler: #{e.class}: #{e.message}"
       redirect_to admin_payment_setting_path,
-                  alert: "Verbindungsfehler: #{e.message}"
+                  alert: "Es ist ein Verbindungsfehler aufgetreten. Bitte versuche es später erneut."
     end
 
     private

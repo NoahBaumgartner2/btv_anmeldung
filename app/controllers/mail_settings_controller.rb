@@ -5,15 +5,15 @@ class MailSettingsController < ApplicationController
   def show
     @mail_setting = MailSetting.current
   rescue => e
-    Rails.logger.error "[MailSettingsController] show Fehler: #{e.message}"
-    redirect_to dashboards_admin_path, alert: "E-Mail-Einstellungen konnten nicht geladen werden: #{e.message}"
+    Rails.logger.error "[MailSettingsController] show Fehler: #{e.class}: #{e.message}"
+    redirect_to dashboards_admin_path, alert: "Die E-Mail-Einstellungen konnten nicht geladen werden. Bitte versuche es später erneut."
   end
 
   def edit
     @mail_setting = MailSetting.current
   rescue => e
-    Rails.logger.error "[MailSettingsController] edit Fehler: #{e.message}"
-    redirect_to dashboards_admin_path, alert: "E-Mail-Einstellungen konnten nicht geladen werden: #{e.message}"
+    Rails.logger.error "[MailSettingsController] edit Fehler: #{e.class}: #{e.message}"
+    redirect_to dashboards_admin_path, alert: "Die E-Mail-Einstellungen konnten nicht geladen werden. Bitte versuche es später erneut."
   end
 
   def update
@@ -37,7 +37,8 @@ class MailSettingsController < ApplicationController
     TestMailer.test_email(to).deliver_now
     redirect_to mail_setting_path, notice: "Test-E-Mail wurde an #{to} gesendet."
   rescue => e
-    redirect_to mail_setting_path, alert: "Fehler beim Senden: #{e.message}"
+    Rails.logger.error "[MailSettingsController] test_email Fehler: #{e.class}: #{e.message}"
+    redirect_to mail_setting_path, alert: "Die Test-E-Mail konnte nicht gesendet werden. Bitte prüfe die SMTP-Einstellungen."
   end
 
   private

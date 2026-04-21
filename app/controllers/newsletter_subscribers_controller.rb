@@ -75,7 +75,8 @@ class NewsletterSubscribersController < ApplicationController
         end
       end
     rescue CSV::MalformedCSVError => e
-      return redirect_to newsletter_subscribers_path, alert: "Die CSV-Datei ist ungültig und konnte nicht gelesen werden: #{e.message}"
+      Rails.logger.error "[NewsletterSubscribersController] import Fehler: #{e.class}: #{e.message}"
+      return redirect_to newsletter_subscribers_path, alert: "Die CSV-Datei ist ungültig und konnte nicht gelesen werden. Bitte prüfe das Format und versuche es erneut."
     end
 
     msg = "#{added} #{added == 1 ? 'Adresse' : 'Adressen'} importiert"
