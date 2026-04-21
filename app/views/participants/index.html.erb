@@ -3,18 +3,18 @@
   <%# ── Header ─────────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-10 gap-3 sm:gap-4">
     <div>
-      <h1 class="font-extrabold text-2xl sm:text-4xl text-gray-900 tracking-tight">Mein Profil</h1>
-      <p class="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-lg">Verwalte hier deine angemeldeten Personen und ihre Kurs-Tickets.</p>
+      <h1 class="font-extrabold text-2xl sm:text-4xl text-gray-900 tracking-tight"><%= t("participants.index.title") %></h1>
+      <p class="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-lg"><%= t("participants.index.subtitle") %></p>
       <%= link_to account_path, class: "inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 mt-1.5 sm:mt-2 transition" do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
         </svg>
-        Kontoeinstellungen
+        <%= t("participants.index.account_settings") %>
       <% end %>
     </div>
     <%# Desktop: inline button, Mobile: hidden (FAB unten) %>
-    <%= link_to "+ Person erfassen", new_participant_path, class: "hidden sm:inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm transition whitespace-nowrap" %>
+    <%= link_to t("participants.index.add_participant"), new_participant_path, class: "hidden sm:inline-block bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm transition whitespace-nowrap" %>
   </div>
 
   <% if @participants.any? %>
@@ -31,13 +31,13 @@
               </div>
               <div class="min-w-0 flex-1">
                 <h2 class="text-xl sm:text-2xl font-bold text-gray-900 truncate"><%= participant.first_name %> <%= participant.last_name %></h2>
-                <p class="text-sm font-medium text-gray-500">Geb. <%= participant.date_of_birth&.strftime("%d.%m.%Y") || "Nicht angegeben" %></p>
+                <p class="text-sm font-medium text-gray-500"><%= t("participants.index.birthdate_prefix") %><%= participant.date_of_birth&.strftime("%d.%m.%Y") || t("participants.index.not_provided") %></p>
               </div>
               <%# Desktop: Text-Button, Mobile: Icon-Button %>
               <%= link_to edit_participant_path(participant), class: "hidden sm:inline-flex text-sm font-bold text-gray-600 hover:text-gray-900 bg-white border border-gray-300 shadow-sm px-4 py-2 rounded-lg transition shrink-0" do %>
-                Bearbeiten
+                <%= t("participants.index.edit") %>
               <% end %>
-              <%= link_to edit_participant_path(participant), class: "sm:hidden flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-gray-300 shadow-sm text-gray-600 active:bg-gray-100 shrink-0", aria: { label: "#{participant.first_name} bearbeiten" } do %>
+              <%= link_to edit_participant_path(participant), class: "sm:hidden flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-gray-300 shadow-sm text-gray-600 active:bg-gray-100 shrink-0", aria: { label: t("participants.index.edit_aria", name: participant.first_name) } do %>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                 </svg>
@@ -82,7 +82,7 @@
 
             <%# ── Aktive Kurse ────────────────────────────────────────── %>
             <% if any_active %>
-              <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 sm:mb-5">Angemeldete Kurse &amp; Tickets</h3>
+              <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 sm:mb-5"><%= t("participants.index.enrolled_section") %></h3>
 
               <%# ── Semester-Karten ──────────────────────────────────── %>
               <% if active_semester.any? %>
@@ -93,9 +93,9 @@
 
                       <div class="absolute top-3 sm:top-4 right-3 sm:right-4">
                         <% if reg.status == "bestätigt" %>
-                          <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-md">Bestätigt</span>
+                          <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-md"><%= t("participants.index.confirmed") %></span>
                         <% else %>
-                          <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-1 rounded-md">Warteliste</span>
+                          <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-1 rounded-md"><%= t("participants.index.waitlist") %></span>
                         <% end %>
                       </div>
 
@@ -106,15 +106,15 @@
                       <% upcoming_sessions = @upcoming_by_course[course.id] || [] %>
                       <% if reg.status == "bestätigt" && upcoming_sessions.any? %>
                         <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100">
-                          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 sm:mb-3">Nächste Trainings</p>
+                          <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 sm:mb-3"><%= t("participants.index.upcoming_trainings") %></p>
                           <ul class="space-y-2">
                             <% upcoming_sessions.each do |session| %>
                               <% is_unsubscribed = @unsubscribed_pairs.include?([reg.id, session.id]) %>
                               <% can_unsubscribe = !is_unsubscribed && session.start_time > 24.hours.from_now %>
                               <li class="flex items-center justify-between gap-2 text-sm">
-                                <span class="text-gray-700 font-medium"><%= session.start_time.strftime("%-d. %b, %H:%M") %> Uhr</span>
+                                <span class="text-gray-700 font-medium"><%= session.start_time.strftime("%-d. %b, %H:%M") %> <%= t("misc.time_suffix") %></span>
                                 <% if is_unsubscribed %>
-                                  <span class="text-xs font-bold px-2 py-1 rounded-md bg-red-100 text-red-600">Abgemeldet</span>
+                                  <span class="text-xs font-bold px-2 py-1 rounded-md bg-red-100 text-red-600"><%= t("participants.index.unsubscribed") %></span>
                                 <% elsif can_unsubscribe %>
                                   <div data-controller="confirm-unsubscribe" class="contents">
                                     <%= form_with url: unsubscribe_from_session_course_registration_path(reg),
@@ -124,7 +124,7 @@
                                       <button type="submit"
                                               data-action="confirm-unsubscribe#open"
                                               class="text-xs font-bold px-2.5 py-1.5 min-h-11 min-w-[44px] flex items-center justify-center rounded-md bg-red-50 text-red-600 hover:bg-red-100 active:bg-red-200 transition cursor-pointer">
-                                        Abmelden
+                                        <%= t("participants.index.unsubscribe_btn") %>
                                       </button>
                                     <% end %>
                                     <div data-confirm-unsubscribe-target="modal"
@@ -137,18 +137,18 @@
                                               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
                                             </svg>
                                           </div>
-                                          <h2 class="text-lg font-extrabold text-gray-900 leading-snug"><%= participant.first_name %> vom Training am <%= I18n.l(session.start_time, format: '%-d. %B') %> abmelden?</h2>
+                                          <h2 class="text-lg font-extrabold text-gray-900 leading-snug"><%= t("participants.index.unsubscribe_session_confirm", name: participant.first_name, date: I18n.l(session.start_time, format: '%-d. %B')) %></h2>
                                         </div>
                                         <div class="flex flex-col-reverse sm:flex-row gap-3">
                                           <button type="button"
                                                   data-action="confirm-unsubscribe#close"
                                                   class="flex-1 inline-flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl text-sm transition min-h-[44px] cursor-pointer">
-                                            Abbrechen
+                                            <%= t("participants.index.cancel") %>
                                           </button>
                                           <button type="button"
                                                   data-action="confirm-unsubscribe#confirm"
                                                   class="flex-1 inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition min-h-[44px] cursor-pointer">
-                                            Ja, abmelden
+                                            <%= t("participants.index.confirm_unsubscribe") %>
                                           </button>
                                         </div>
                                       </div>
@@ -172,30 +172,30 @@
                               <div class="bg-white p-2 rounded-xl border-2 border-dashed border-gray-300 mb-3 w-28 h-28 sm:w-32 sm:h-32 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full group-hover:border-purple-400">
                                 <%= generate_qr_code(scan_course_registration_url(reg)) %>
                               </div>
-                              <p class="text-xs text-purple-600 font-bold uppercase tracking-wider text-center">Ticket vergrössern</p>
+                              <p class="text-xs text-purple-600 font-bold uppercase tracking-wider text-center"><%= t("participants.index.ticket_enlarge") %></p>
                             </div>
                             <%# QR Modal %>
                             <div data-modal-target="dialog"
                                  data-action="click->modal#backdropClose"
                                  class="hidden fixed inset-0 z-100 items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4">
                               <div class="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center">
-                                <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-1">Ticket &ndash; <%= participant.first_name %></h3>
+                                <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-1"><%= t("participants.index.ticket_modal_title", name: participant.first_name) %></h3>
                                 <p class="text-gray-500 mb-6 sm:mb-8 text-center font-medium text-sm sm:text-base"><%= course.title %></p>
                                 <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-6 sm:mb-8 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
                                   <%= generate_qr_code(scan_course_registration_url(reg)) %>
                                 </div>
                                 <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition w-full text-base sm:text-lg min-h-12"
-                                        data-action="click->modal#close">Schliessen</button>
+                                        data-action="click->modal#close"><%= t("participants.index.close") %></button>
                               </div>
                             </div>
                           </div>
                         <% elsif reg.status == "bestätigt" %>
                           <div class="bg-gray-50 rounded-xl p-4 text-center w-full border border-gray-100">
-                            <span class="text-xs text-gray-500 font-bold uppercase">Kein Ticket benötigt</span>
+                            <span class="text-xs text-gray-500 font-bold uppercase"><%= t("participants.index.no_ticket_needed") %></span>
                           </div>
                         <% else %>
                           <div class="bg-orange-50 rounded-xl p-4 text-center w-full border border-orange-100">
-                            <span class="text-xs text-orange-600 font-bold uppercase">Warten auf Platz</span>
+                            <span class="text-xs text-orange-600 font-bold uppercase"><%= t("participants.index.waiting_for_spot") %></span>
                           </div>
                         <% end %>
                       </div>
@@ -209,7 +209,7 @@
                           <button type="submit"
                                   data-action="confirm-unsubscribe#open"
                                   class="w-full text-xs font-bold text-red-500 hover:text-red-700 hover:bg-red-50 active:bg-red-100 py-2.5 min-h-11 rounded-lg transition cursor-pointer">
-                            Vom Kurs abmelden
+                            <%= t("participants.index.unsubscribe_course_btn") %>
                           </button>
                         <% end %>
                         <div data-confirm-unsubscribe-target="modal"
@@ -223,21 +223,21 @@
                                 </svg>
                               </div>
                               <div>
-                                <h2 class="text-lg font-extrabold text-gray-900"><%= participant.first_name %> vom Kurs abmelden?</h2>
+                                <h2 class="text-lg font-extrabold text-gray-900"><%= t("participants.index.unsubscribe_course_confirm", name: participant.first_name) %></h2>
                                 <p class="text-sm text-gray-500 mt-0.5"><%= course.title %></p>
                               </div>
                             </div>
-                            <p class="text-sm font-semibold text-red-600 mb-5">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+                            <p class="text-sm font-semibold text-red-600 mb-5"><%= t("participants.index.irreversible") %></p>
                             <div class="flex flex-col-reverse sm:flex-row gap-3">
                               <button type="button"
                                       data-action="confirm-unsubscribe#close"
                                       class="flex-1 inline-flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl text-sm transition min-h-[44px] cursor-pointer">
-                                Abbrechen
+                                <%= t("participants.index.cancel") %>
                               </button>
                               <button type="button"
                                       data-action="confirm-unsubscribe#confirm"
                                       class="flex-1 inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition min-h-[44px] cursor-pointer">
-                                Ja, abmelden
+                                <%= t("participants.index.confirm_unsubscribe") %>
                               </button>
                             </div>
                           </div>
@@ -261,14 +261,14 @@
                   <div class="px-4 sm:px-5 pt-4 sm:pt-5 pb-3 sm:pb-4 flex items-start justify-between gap-3">
                     <div class="min-w-0">
                       <h4 class="font-bold text-gray-900 text-base sm:text-lg leading-tight truncate"><%= course.title %></h4>
-                      <p class="text-xs font-bold text-primary-600 mt-0.5 uppercase tracking-wide">Drop-In</p>
+                      <p class="text-xs font-bold text-primary-600 mt-0.5 uppercase tracking-wide"><%= t("participants.index.drop_in_label") %></p>
                     </div>
                     <% if active_count > 0 %>
                       <span class="shrink-0 bg-blue-100 text-blue-700 text-xs font-bold px-2.5 py-1 rounded-md mt-0.5">
-                        <%= active_count %> <%= active_count == 1 ? "Termin" : "Termine" %>
+                        <%= t("participants.index.dates_count", count: active_count) %>
                       </span>
                     <% else %>
-                      <span class="shrink-0 bg-gray-100 text-gray-400 text-xs font-bold px-2.5 py-1 rounded-md mt-0.5">Keine aktiven Termine</span>
+                      <span class="shrink-0 bg-gray-100 text-gray-400 text-xs font-bold px-2.5 py-1 rounded-md mt-0.5"><%= t("participants.index.no_active_dates") %></span>
                     <% end %>
                   </div>
                   <div class="border-t border-gray-100 divide-y divide-gray-50">
@@ -282,14 +282,14 @@
                         <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
                           <div class="shrink-0 w-2 h-2 rounded-full <%= is_past || is_storniert ? 'bg-gray-300' : 'bg-blue-400' %>"></div>
                           <span class="text-sm font-medium text-gray-800 truncate <%= is_storniert ? 'line-through' : '' %>">
-                            <%= session.start_time.strftime("%-d. %b %Y, %H:%M") %> Uhr
+                            <%= session.start_time.strftime("%-d. %b %Y, %H:%M") %> <%= t("misc.time_suffix") %>
                           </span>
                         </div>
                         <div class="shrink-0">
                           <% if is_storniert %>
-                            <span class="text-xs font-bold px-2 py-1 rounded-md bg-red-100 text-red-600">Abgemeldet</span>
+                            <span class="text-xs font-bold px-2 py-1 rounded-md bg-red-100 text-red-600"><%= t("participants.index.unsubscribed") %></span>
                           <% elsif is_past %>
-                            <span class="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 text-gray-400">Vergangen</span>
+                            <span class="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 text-gray-400"><%= t("participants.index.past") %></span>
                           <% elsif can_cancel %>
                             <div data-controller="confirm-unsubscribe" class="contents">
                               <%= form_with url: cancel_course_registration_path(reg),
@@ -298,7 +298,7 @@
                                 <button type="submit"
                                         data-action="confirm-unsubscribe#open"
                                         class="text-xs font-bold px-2.5 py-1.5 min-h-11 min-w-[44px] flex items-center justify-center rounded-md bg-red-50 text-red-500 hover:bg-red-100 active:bg-red-200 transition cursor-pointer">
-                                  Abmelden
+                                  <%= t("participants.index.unsubscribe_btn") %>
                                 </button>
                               <% end %>
                               <div data-confirm-unsubscribe-target="modal"
@@ -311,19 +311,19 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
                                       </svg>
                                     </div>
-                                    <h2 class="text-lg font-extrabold text-gray-900 leading-snug">Termin am <%= I18n.l(session.start_time, format: '%-d. %B') %> stornieren?</h2>
+                                    <h2 class="text-lg font-extrabold text-gray-900 leading-snug"><%= t("participants.index.cancel_session_confirm", date: I18n.l(session.start_time, format: '%-d. %B')) %></h2>
                                   </div>
-                                  <p class="text-sm font-semibold text-red-600 mb-5">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+                                  <p class="text-sm font-semibold text-red-600 mb-5"><%= t("participants.index.irreversible") %></p>
                                   <div class="flex flex-col-reverse sm:flex-row gap-3">
                                     <button type="button"
                                             data-action="confirm-unsubscribe#close"
                                             class="flex-1 inline-flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-3 px-4 rounded-xl text-sm transition min-h-[44px] cursor-pointer">
-                                      Abbrechen
+                                      <%= t("participants.index.cancel") %>
                                     </button>
                                     <button type="button"
                                             data-action="confirm-unsubscribe#confirm"
                                             class="flex-1 inline-flex items-center justify-center bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl text-sm transition min-h-[44px] cursor-pointer">
-                                      Ja, abmelden
+                                      <%= t("participants.index.confirm_unsubscribe") %>
                                     </button>
                                   </div>
                                 </div>
@@ -339,7 +339,7 @@
                   <% if course.has_ticketing && next_reg %>
                     <div data-controller="modal" class="contents">
                       <div class="border-t border-gray-100 px-4 sm:px-5 py-4">
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Ticket &ndash; nächster Termin</p>
+                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3"><%= t("participants.index.ticket_next_session") %></p>
                         <div class="flex items-center gap-4">
                           <div class="cursor-pointer hover:scale-105 active:scale-95 transition transform group flex flex-col items-center shrink-0"
                                data-action="click->modal#open">
@@ -349,9 +349,9 @@
                           </div>
                           <div class="min-w-0">
                             <p class="text-sm font-bold text-gray-800"><%= next_reg.training_session.start_time.strftime("%-d. %B %Y") %></p>
-                            <p class="text-xs text-gray-500"><%= next_reg.training_session.start_time.strftime("%H:%M") %> &ndash; <%= next_reg.training_session.end_time&.strftime("%H:%M") %> Uhr</p>
+                            <p class="text-xs text-gray-500"><%= next_reg.training_session.start_time.strftime("%H:%M") %> &ndash; <%= next_reg.training_session.end_time&.strftime("%H:%M") %> <%= t("misc.time_suffix") %></p>
                             <button class="mt-1.5 text-xs text-purple-600 font-bold hover:underline min-h-11 flex items-center"
-                                    data-action="click->modal#open">Vergrössern</button>
+                                    data-action="click->modal#open"><%= t("participants.index.enlarge") %></button>
                           </div>
                         </div>
                       </div>
@@ -360,14 +360,14 @@
                            data-action="click->modal#backdropClose"
                            class="hidden fixed inset-0 z-100 items-center justify-center bg-gray-900/80 backdrop-blur-sm p-4">
                         <div class="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center">
-                          <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-1">Ticket &ndash; <%= participant.first_name %></h3>
+                          <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-1"><%= t("participants.index.ticket_modal_title", name: participant.first_name) %></h3>
                           <p class="text-gray-500 mb-1 text-center font-medium text-sm sm:text-base"><%= course.title %></p>
-                          <p class="text-sm text-gray-400 mb-6 sm:mb-8 text-center"><%= next_reg.training_session.start_time.strftime("%-d. %B %Y, %H:%M") %> Uhr</p>
+                          <p class="text-sm text-gray-400 mb-6 sm:mb-8 text-center"><%= next_reg.training_session.start_time.strftime("%-d. %B %Y, %H:%M") %> <%= t("misc.time_suffix") %></p>
                           <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-6 sm:mb-8 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
                             <%= generate_qr_code(scan_course_registration_url(next_reg)) %>
                           </div>
                           <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition w-full text-base sm:text-lg min-h-12"
-                                  data-action="click->modal#close">Schliessen</button>
+                                  data-action="click->modal#close"><%= t("participants.index.close") %></button>
                         </div>
                       </div>
                     </div>
@@ -377,8 +377,8 @@
 
             <% else %>
               <div class="bg-gray-50 rounded-xl p-6 text-center border border-gray-100 border-dashed">
-                <p class="text-gray-500 text-sm font-medium"><%= participant.first_name %> ist aktuell für keine Kurse angemeldet.</p>
-                <%= link_to "Zu den Kursen", courses_path, class: "mt-3 inline-block text-primary-600 font-bold hover:underline min-h-11 leading-[44px]" %>
+                <p class="text-gray-500 text-sm font-medium"><%= t("participants.index.not_enrolled", name: participant.first_name) %></p>
+                <%= link_to t("participants.index.to_courses"), courses_path, class: "mt-3 inline-block text-primary-600 font-bold hover:underline min-h-11 leading-[44px]" %>
               </div>
             <% end %>
 
@@ -389,7 +389,7 @@
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
                   </svg>
-                  Vergangene &amp; stornierte Kurse
+                  <%= t("participants.index.past_section") %>
                   <span class="font-normal text-gray-300">(<%= past_semester.size + past_single.size %>)</span>
                 </summary>
 
@@ -404,14 +404,14 @@
                         <p class="font-bold text-gray-600 text-sm truncate"><%= course.title %></p>
                         <p class="text-xs text-gray-400 mt-0.5">
                           <% if course.end_date.present? %>
-                            Beendet <%= course.end_date.strftime("%-d. %B %Y") %>
+                            <%= t("participants.index.course_ended", date: course.end_date.strftime("%-d. %B %Y")) %>
                           <% end %>
                         </p>
                       </div>
                       <% if storniert %>
-                        <span class="shrink-0 bg-red-100 text-red-500 text-xs font-bold px-2 py-1 rounded-md">Storniert</span>
+                        <span class="shrink-0 bg-red-100 text-red-500 text-xs font-bold px-2 py-1 rounded-md"><%= t("participants.index.cancelled") %></span>
                       <% else %>
-                        <span class="shrink-0 bg-gray-200 text-gray-500 text-xs font-bold px-2 py-1 rounded-md">Abgeschlossen</span>
+                        <span class="shrink-0 bg-gray-200 text-gray-500 text-xs font-bold px-2 py-1 rounded-md"><%= t("participants.index.completed") %></span>
                       <% end %>
                     </div>
                   <% end %>
@@ -423,13 +423,13 @@
                       <div class="min-w-0">
                         <p class="font-bold text-gray-600 text-sm truncate"><%= course.title %></p>
                         <p class="text-xs text-gray-400 mt-0.5">
-                          Drop-In &middot; <%= regs.size %> <%= regs.size == 1 ? "Termin" : "Termine" %>
+                          <%= t("participants.index.drop_in_label") %> &middot; <%= t("participants.index.dates_count", count: regs.size) %>
                           <% if course.end_date.present? %>
-                            &middot; Beendet <%= course.end_date.strftime("%-d. %B %Y") %>
+                            &middot; <%= t("participants.index.course_ended", date: course.end_date.strftime("%-d. %B %Y")) %>
                           <% end %>
                         </p>
                       </div>
-                      <span class="shrink-0 bg-gray-200 text-gray-500 text-xs font-bold px-2 py-1 rounded-md">Abgeschlossen</span>
+                      <span class="shrink-0 bg-gray-200 text-gray-500 text-xs font-bold px-2 py-1 rounded-md"><%= t("participants.index.completed") %></span>
                     </div>
                   <% end %>
 
@@ -450,20 +450,20 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
         </svg>
       </div>
-      <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">Noch keine Personen erfasst</h2>
-      <p class="text-gray-500 mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-lg">Erfasse jetzt eine Person, um sie für Kurse anzumelden.</p>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3"><%= t("participants.index.no_participants_title") %></h2>
+      <p class="text-gray-500 mb-6 sm:mb-8 max-w-md mx-auto text-sm sm:text-lg"><%= t("participants.index.no_participants_body") %></p>
       <%= link_to new_participant_path, class: "inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-3.5 px-8 rounded-xl shadow-sm transition text-base sm:text-lg min-h-12 w-full sm:w-auto" do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
         </svg>
-        Erstes Kind erfassen
+        <%= t("participants.index.add_first_child") %>
       <% end %>
     </div>
   <% end %>
 
   <%# ── FAB: "Person erfassen" (nur Mobile, nur wenn Kinder vorhanden) ── %>
   <% if @participants.any? %>
-    <%= link_to new_participant_path, class: "sm:hidden fixed bottom-6 mb-safe right-4 z-50 w-14 h-14 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white rounded-full shadow-lg flex items-center justify-center transition", aria: { label: "Person erfassen" } do %>
+    <%= link_to new_participant_path, class: "sm:hidden fixed bottom-6 mb-safe right-4 z-50 w-14 h-14 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white rounded-full shadow-lg flex items-center justify-center transition", aria: { label: t("participants.index.add_participant_aria") } do %>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
       </svg>

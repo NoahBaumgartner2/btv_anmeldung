@@ -2,7 +2,7 @@
   <button type="button"
           data-action="click->modal#open"
           class="bg-red-50 border border-red-200 text-red-600 hover:bg-red-100 text-sm font-bold py-2 px-4 rounded-lg transition">
-    Kurs löschen
+    <%= t("courses.delete_modal.btn") %>
   </button>
 
   <div data-modal-target="dialog"
@@ -16,31 +16,30 @@
           </svg>
         </div>
         <div>
-          <h3 class="font-extrabold text-gray-900">Kurs löschen</h3>
-          <p class="text-sm text-gray-500">Diese Aktion kann nicht rückgängig gemacht werden.</p>
+          <h3 class="font-extrabold text-gray-900"><%= t("courses.delete_modal.title") %></h3>
+          <p class="text-sm text-gray-500"><%= t("courses.delete_modal.irreversible") %></p>
         </div>
       </div>
 
       <p class="text-sm text-gray-700 mb-4">
-        Möchtest du den Kurs <strong><%= course.title %></strong> wirklich löschen?
-        Alle Trainingseinheiten und Anmeldungen werden ebenfalls gelöscht.
+        <%= t("courses.delete_modal.confirmation_html", title: course.title) %>
       </p>
 
       <%= form_with url: confirm_destroy_course_path(course), method: :post do |f| %>
         <div class="mb-4">
-          <%= f.label :admin_password, "Admin-Passwort zur Bestätigung", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+          <%= f.label :admin_password, t("courses.delete_modal.password_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
           <%= f.password_field :admin_password,
                 required: true,
-                placeholder: "Dein Passwort eingeben",
+                placeholder: t("courses.delete_modal.password_placeholder"),
                 class: "w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 focus:border-transparent" %>
         </div>
         <div class="flex gap-3">
           <button type="button"
                   data-action="click->modal#close"
                   class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition cursor-pointer text-sm">
-            Abbrechen
+            <%= t("courses.delete_modal.cancel") %>
           </button>
-          <%= f.submit "Endgültig löschen",
+          <%= f.submit t("courses.delete_modal.confirm"),
                 class: "flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl transition cursor-pointer text-sm" %>
         </div>
       <% end %>
