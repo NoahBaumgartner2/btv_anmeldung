@@ -1,7 +1,7 @@
 <%= form_with(model: holiday, class: "contents") do |form| %>
   <% if holiday.errors.any? %>
     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
-      <p class="font-semibold mb-1"><%= holiday.errors.count == 1 ? "Es gibt einen Fehler:" : "Es gibt #{holiday.errors.count} Fehler:" %></p>
+      <p class="font-semibold mb-1"><%= t('holidays.form.errors', count: holiday.errors.count) %></p>
       <ul class="list-disc ml-5 text-sm space-y-0.5">
         <% holiday.errors.each do |error| %>
           <li><%= error.full_message %></li>
@@ -12,9 +12,9 @@
 
   <%# Bezeichnung %>
   <div class="mb-6">
-    <%= form.label :title, "Bezeichnung", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+    <%= form.label :title, t('holidays.form.label_title'), class: "block text-sm font-semibold text-gray-700 mb-1" %>
     <%= form.text_field :title,
-          placeholder: "z.B. Herbstferien 2026",
+          placeholder: t('holidays.form.placeholder_title'),
           class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
                   holiday.errors[:title].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
     <% if holiday.errors[:title].any? %>
@@ -25,7 +25,7 @@
   <%# Von / Bis nebeneinander %>
   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
     <div>
-      <%= form.label :start_date, "Von", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+      <%= form.label :start_date, t('holidays.form.label_from'), class: "block text-sm font-semibold text-gray-700 mb-1" %>
       <%= form.date_field :start_date,
             data: { controller: "datepicker" },
             class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
@@ -36,7 +36,7 @@
     </div>
 
     <div>
-      <%= form.label :end_date, "Bis (letzter Ferientag)", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+      <%= form.label :end_date, t('holidays.form.label_to'), class: "block text-sm font-semibold text-gray-700 mb-1" %>
       <%= form.date_field :end_date,
             data: { controller: "datepicker" },
             class: ["block w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2",
@@ -50,7 +50,7 @@
   <%# Dauer-Anzeige — nur wenn beide Daten gesetzt und gültig %>
   <% if holiday.start_date && holiday.end_date && holiday.end_date >= holiday.start_date %>
     <div class="mb-6 flex items-center gap-2 bg-primary-50 border border-primary-200 rounded-lg px-4 py-2.5 text-sm text-primary-800">
-      <span class="font-semibold"><%= (holiday.end_date - holiday.start_date).to_i + 1 %> Tage</span>
+      <span class="font-semibold"><%= t('holidays.index.days', count: (holiday.end_date - holiday.start_date).to_i + 1) %></span>
       <span class="text-primary-400">|</span>
       <span><%= holiday.start_date.strftime("%-d. %B %Y") %> – <%= holiday.end_date.strftime("%-d. %B %Y") %></span>
     </div>
@@ -58,9 +58,9 @@
 
   <%# Aktionen %>
   <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
-    <%= form.submit holiday.new_record? ? "Ferien speichern" : "Änderungen speichern",
+    <%= form.submit holiday.new_record? ? t('holidays.form.save_new') : t('holidays.form.save_edit'),
           class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold cursor-pointer transition shadow-sm" %>
-    <%= link_to "Abbrechen", holidays_path,
+    <%= link_to t('holidays.form.cancel'), holidays_path,
           class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
   </div>
 <% end %>

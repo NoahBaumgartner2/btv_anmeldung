@@ -3,17 +3,17 @@
 <div class="max-w-3xl mx-auto w-full px-4 mt-10 mb-16">
 
   <div class="mb-8">
-    <%= link_to "← Zurück zur Trainerliste", trainers_path,
+    <%= link_to t('trainers.show.back'), trainers_path,
           class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
     <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900 mt-3"><%= @trainer.user.email %></h1>
-    <p class="text-gray-500 mt-1"><%= @trainer.phone.presence || "Keine Telefonnummer hinterlegt" %></p>
+    <p class="text-gray-500 mt-1"><%= @trainer.phone.presence || t('trainers.show.no_phone') %></p>
   </div>
 
   <%# ── Zugewiesene Kurse (Übersicht) ──────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
     <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
-      <h2 class="text-sm font-bold text-gray-700">Zugewiesene Kurse</h2>
-      <span class="text-xs font-semibold text-gray-400"><%= @trainer.courses.size %> Kurse</span>
+      <h2 class="text-sm font-bold text-gray-700"><%= t('trainers.show.assigned_courses') %></h2>
+      <span class="text-xs font-semibold text-gray-400"><%= @trainer.courses.size %> <%= t('courses.index.title') %></span>
     </div>
 
     <% if @trainer.courses.any? %>
@@ -28,7 +28,7 @@
         <% end %>
       </ul>
     <% else %>
-      <p class="px-5 py-6 text-sm text-gray-400 text-center">Noch keine Kurse zugewiesen.</p>
+      <p class="px-5 py-6 text-sm text-gray-400 text-center"><%= t('trainers.show.no_courses') %></p>
     <% end %>
   </div>
 
@@ -36,8 +36,8 @@
   <%= form_with model: @trainer, method: :patch do |f| %>
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
       <div class="px-5 py-4 border-b border-gray-100">
-        <h2 class="text-sm font-bold text-gray-700">Kurs-Zuweisung bearbeiten</h2>
-        <p class="text-xs text-gray-400 mt-0.5">Kurse ankreuzen, die dieser Trainer leitet.</p>
+        <h2 class="text-sm font-bold text-gray-700"><%= t('trainers.show.assignment_title') %></h2>
+        <p class="text-xs text-gray-400 mt-0.5"><%= t('trainers.show.assignment_hint') %></p>
       </div>
 
       <%# Leeres hidden field damit Rails course_ids=[] sendet wenn nichts angekreuzt ist %>
@@ -75,12 +75,12 @@
     </div>
 
     <div class="flex flex-col sm:flex-row items-center gap-3">
-      <%= f.submit "Zuweisung speichern",
+      <%= f.submit t('trainers.show.save_assignment'),
             class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
-      <%= link_to "Trainer bearbeiten", edit_trainer_path(@trainer),
+      <%= link_to t('trainers.show.edit_trainer'), edit_trainer_path(@trainer),
             class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
-      <%= button_to "Trainer löschen", @trainer, method: :delete,
-            data: { turbo_confirm: "#{@trainer.user.email} wirklich als Trainer entfernen?" },
+      <%= button_to t('trainers.show.delete_trainer'), @trainer, method: :delete,
+            data: { turbo_confirm: t('trainers.show.delete_confirm', email: @trainer.user.email) },
             class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium cursor-pointer transition" %>
     </div>
   <% end %>

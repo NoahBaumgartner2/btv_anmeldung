@@ -9,6 +9,7 @@ Für die Schweiz und DSGVO/DSG brauchst du unbedingt eine Datenschutzerklärung 
 
 - https://www.kids-sport.ch/
 - gewisse sachen wie zum beispiel "kostenlos" bleibt deutsch obwohl die sprache gewechselt wird
+- datum auswahlcontainer ist in mobile ansicht nicht gut
 
 
 

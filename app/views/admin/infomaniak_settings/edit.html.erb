@@ -2,10 +2,10 @@
 
   <%# ── Header ────────────────────────────────────────────────────────────── %>
   <div class="mb-8">
-    <%= link_to "← Newsletter-API", admin_infomaniak_setting_path,
+    <%= link_to t('admin.infomaniak_settings.edit.back'), admin_infomaniak_setting_path,
           class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
-    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">Newsletter-API bearbeiten</h1>
-    <p class="text-gray-500 mt-1 text-sm">Infomaniak API-Zugangsdaten für den Newsletter-Versand.</p>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2"><%= t('admin.infomaniak_settings.edit.title') %></h1>
+    <p class="text-gray-500 mt-1 text-sm"><%= t('admin.infomaniak_settings.edit.subtitle') %></p>
   </div>
 
   <%= form_with model: @infomaniak_setting,
@@ -27,9 +27,9 @@
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm font-bold text-gray-800">Infomaniak aktiv</p>
+          <p class="text-sm font-bold text-gray-800"><%= t('admin.infomaniak_settings.edit.toggle_title') %></p>
           <p class="text-xs text-gray-500 mt-0.5">
-            Aktiviert den Newsletter-Versand über die Infomaniak API.
+            <%= t('admin.infomaniak_settings.edit.toggle_body') %>
           </p>
         </div>
         <label class="relative inline-flex items-center cursor-pointer">
@@ -48,7 +48,7 @@
     <%# ── API-Zugangsdaten ───────────────────────────────────────────────── %>
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6 space-y-5">
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-3">
-        API-Zugangsdaten
+        <%= t('admin.infomaniak_settings.edit.section_credentials') %>
       </p>
 
       <%# API-Token (verschlüsselt) %>
@@ -57,7 +57,7 @@
         <p class="text-xs text-gray-400 mb-1.5">
           Bearer-Token für die Infomaniak API-Authentifizierung. Leer lassen, um den gespeicherten Token beizubehalten.
           <% if @infomaniak_setting.api_token_present? %>
-            <span class="text-green-600 font-semibold">· Aktuell gesetzt</span>
+            <span class="text-green-600 font-semibold"><%= t('admin.infomaniak_settings.edit.token_set') %></span>
           <% end %>
         </p>
         <div class="relative">
@@ -112,9 +112,9 @@
     </div>
 
     <div class="flex flex-col sm:flex-row gap-3">
-      <%= f.submit "Einstellungen speichern",
+      <%= f.submit t('admin.infomaniak_settings.edit.save'),
             class: "w-full sm:w-auto bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" %>
-      <%= link_to "Abbrechen", admin_infomaniak_setting_path,
+      <%= link_to t('admin.infomaniak_settings.edit.cancel'), admin_infomaniak_setting_path,
             class: "w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-sm transition min-h-11" %>
     </div>
   <% end %>

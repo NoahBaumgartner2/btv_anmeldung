@@ -1,14 +1,14 @@
 <div class="max-w-5xl mx-auto w-full mt-6 sm:mt-8 px-4">
 
   <div class="mb-8 sm:mb-10">
-    <h1 class="font-bold text-2xl sm:text-3xl text-gray-900">Mein Profil</h1>
-    <p class="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base">Angemeldet als: <span class="font-semibold text-primary-700"><%= current_user.email %></span></p>
+    <h1 class="font-bold text-2xl sm:text-3xl text-gray-900"><%= t('dashboards.show.title') %></h1>
+    <p class="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-base"><%= t('dashboards.show.logged_in_as') %> <span class="font-semibold text-primary-700"><%= current_user.email %></span></p>
   </div>
 
   <div class="mb-10 sm:mb-12">
     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end mb-4 gap-3">
-      <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Meine Kinder</h2>
-      <%= link_to "+ Neues Kind hinzufügen", new_participant_path, class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white py-2.5 px-4 rounded-md text-sm font-medium transition shadow-sm text-center min-h-11" %>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-800"><%= t('dashboards.show.my_children') %></h2>
+      <%= link_to t('dashboards.show.add_child'), new_participant_path, class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white py-2.5 px-4 rounded-md text-sm font-medium transition shadow-sm text-center min-h-11" %>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -16,23 +16,23 @@
         <% @my_participants.each do |child| %>
           <div class="bg-white p-4 sm:p-5 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition">
             <h3 class="font-bold text-lg text-gray-900"><%= child.first_name %> <%= child.last_name %></h3>
-            <p class="text-sm text-gray-500 mt-1">Geboren: <%= child.date_of_birth&.strftime("%d.%m.%Y") %></p>
+            <p class="text-sm text-gray-500 mt-1"><%= t('dashboards.show.birthdate_prefix') %> <%= child.date_of_birth&.strftime("%d.%m.%Y") %></p>
             <div class="mt-4 pt-3 border-t border-gray-100 flex justify-end">
-              <%= link_to "Daten bearbeiten", edit_participant_path(child), class: "text-orange-500 hover:text-orange-700 text-sm font-medium min-h-11 flex items-center" %>
+              <%= link_to t('dashboards.show.edit_data'), edit_participant_path(child), class: "text-orange-500 hover:text-orange-700 text-sm font-medium min-h-11 flex items-center" %>
             </div>
           </div>
         <% end %>
       <% else %>
         <div class="col-span-full bg-yellow-50 text-yellow-800 p-4 rounded-lg border border-yellow-200 shadow-sm text-center py-8">
-          <p class="font-medium text-lg">Du hast noch keine Kinder in deinem Profil hinterlegt.</p>
-          <p class="text-sm mt-1">Klicke oben auf den Button, um dein erstes Kind hinzuzufügen!</p>
+          <p class="font-medium text-lg"><%= t('dashboards.show.no_children_title') %></p>
+          <p class="text-sm mt-1"><%= t('dashboards.show.no_children_body') %></p>
         </div>
       <% end %>
     </div>
   </div>
 
   <div>
-    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Aktuelle Kursanmeldungen</h2>
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4"><%= t('dashboards.show.current_registrations') %></h2>
 
     <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-lg overflow-hidden">
       <% if @my_registrations.any? %>
@@ -52,8 +52,8 @@
                 </span>
               </div>
               <div class="flex items-center justify-between mt-2">
-                <span class="text-xs text-gray-500"><%= reg.payment_cleared ? "Bezahlt" : "Zahlung offen" %></span>
-                <%= link_to "Zum Kurs", course_path(reg.course),
+                <span class="text-xs text-gray-500"><%= reg.payment_cleared ? t('dashboards.show.payment_cleared_mobile') : t('dashboards.show.payment_open_mobile') %></span>
+                <%= link_to t('dashboards.show.to_course'), course_path(reg.course),
                       class: "text-primary-600 hover:text-primary-900 font-bold text-sm min-h-11 flex items-center" %>
               </div>
             </div>
@@ -64,11 +64,11 @@
         <table class="hidden sm:table min-w-full divide-y divide-gray-200">
           <thead class="bg-gray-50">
             <tr>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kind</th>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Kurs</th>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Status</th>
-              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase">Bezahlt?</th>
-              <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase">Aktionen</th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t('dashboards.show.col_child') %></th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t('dashboards.show.col_course') %></th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t('dashboards.show.col_status') %></th>
+              <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t('dashboards.show.col_paid') %></th>
+              <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase"><%= t('dashboards.show.col_actions') %></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 bg-white">
@@ -87,10 +87,10 @@
                   </span>
                 </td>
                 <td class="py-4 px-4 whitespace-nowrap text-sm text-gray-600">
-                  <%= reg.payment_cleared ? "Ja" : "Offen" %>
+                  <%= reg.payment_cleared ? t('dashboards.show.payment_yes') : t('dashboards.show.payment_no') %>
                 </td>
                 <td class="py-4 px-4 whitespace-nowrap text-right text-sm">
-                  <%= link_to "Zum Kurs", course_path(reg.course), class: "text-primary-600 hover:text-primary-900 font-bold" %>
+                  <%= link_to t('dashboards.show.to_course'), course_path(reg.course), class: "text-primary-600 hover:text-primary-900 font-bold" %>
                 </td>
               </tr>
             <% end %>
@@ -100,7 +100,7 @@
       <% else %>
         <div class="py-8 text-center">
           <p class="text-sm text-gray-500">
-            Es liegen noch keine Kursanmeldungen vor. Buche jetzt deinen ersten Kurs!
+            <%= t('dashboards.show.no_registrations') %>
           </p>
         </div>
       <% end %>
