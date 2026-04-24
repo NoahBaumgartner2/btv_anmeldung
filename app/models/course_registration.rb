@@ -10,26 +10,7 @@ class CourseRegistration < ApplicationRecord
   validate :no_duplicate_single_session_registration, on: :create
   validate :training_session_bookable, on: :create
 
-  after_destroy :promote_from_waitlist
-  after_update :promote_from_waitlist, if: -> { saved_change_to_status?(to: "storniert") }
-
   private
-
-  def promote_from_waitlist
-    return unless course.max_participants.present?
-
-    confirmed_count = course.course_registrations.where(status: "bestätigt").count
-    return unless confirmed_count < course.max_participants
-
-    next_in_line = course.course_registrations
-                         .where(status: "warteliste")
-                         .order(:created_at)
-                         .first
-    return unless next_in_line
-
-    next_in_line.update!(status: "bestätigt")
-    CourseRegistrationMailer.waitlist_promoted(next_in_line).deliver_later
-  end
 
   def no_duplicate_single_session_registration
     return unless course&.registration_mode == "single_session" && training_session_id.present? && participant_id.present?

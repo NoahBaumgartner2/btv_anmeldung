@@ -120,7 +120,10 @@ class CourseRegistrationsController < ApplicationController
 
   # NEU: Eine Anmeldung komplett löschen/stornieren
   def destroy
+    course               = @course_registration.course
+    training_session_id  = @course_registration.training_session_id
     @course_registration.destroy
+    WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
     redirect_to participants_path, notice: "Die Anmeldung wurde gelöscht."
   end
 
@@ -131,6 +134,10 @@ class CourseRegistrationsController < ApplicationController
     end
 
     @course_registration.update!(status: "storniert")
+    WaitlistPromotionService.promote_next_from_waitlist(
+      @course_registration.course,
+      training_session_id: @course_registration.training_session_id
+    )
     redirect_to participants_path, notice: "Die Anmeldung für \"#{@course_registration.course.title}\" wurde storniert."
   end
 
@@ -160,6 +167,11 @@ class CourseRegistrationsController < ApplicationController
       cancellation_notify_admin: notify_admin,
       cancelled_at: Time.current,
       cancelled_by_trainer: trainer
+    )
+
+    WaitlistPromotionService.promote_next_from_waitlist(
+      course,
+      training_session_id: @course_registration.training_session_id
     )
 
     # Eltern immer benachrichtigen
