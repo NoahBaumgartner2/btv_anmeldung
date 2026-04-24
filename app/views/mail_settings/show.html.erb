@@ -81,7 +81,14 @@
     <dl class="divide-y divide-gray-100">
       <div class="px-6 py-3.5 flex items-center justify-between text-sm">
         <dt class="font-medium text-gray-500 w-40 shrink-0"><%= t('mail_settings.show.label_domain') %></dt>
-        <dd class="text-gray-900 font-semibold"><%= @mail_setting.app_host.presence || ENV.fetch("APP_HOST", "btvbern-anmeldung.ch") %></dd>
+        <dd class="flex items-center gap-2 flex-wrap">
+          <% if @mail_setting.app_host.present? %>
+            <span class="text-gray-900 font-semibold"><%= @mail_setting.app_host %></span>
+          <% else %>
+            <span class="text-gray-900 font-semibold"><%= ENV.fetch("APP_HOST", "nicht gesetzt") %></span>
+            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-700">ENV-Fallback aktiv</span>
+          <% end %>
+        </dd>
       </div>
     </dl>
   </div>

@@ -43,6 +43,9 @@ class MailSetting < ApplicationRecord
     from = ActionMailer::Base.default_params[:from]
     Devise.mailer_sender = from if from.present?
 
+    # config/environments/production.rb setzt default_url_options aus ENV während der
+    # Config-Phase. Dieser Block läuft in after_initialize – nach den Railtie-Initializers –
+    # und überschreibt den ENV-Wert bewusst, damit der DB-Wert immer Vorrang hat.
     if setting&.app_host.present? && setting.app_host.match?(HOSTNAME_REGEXP)
       ActionMailer::Base.default_url_options = { host: setting.app_host, protocol: "https" }
     end
