@@ -10,7 +10,13 @@ class CourseRegistration < ApplicationRecord
   validate :no_duplicate_single_session_registration, on: :create
   validate :training_session_bookable, on: :create
 
+  before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") && payment_expires_at.nil? }
+
   private
+
+  def set_payment_expiry
+    self.payment_expires_at = 48.hours.from_now
+  end
 
   def no_duplicate_single_session_registration
     return unless course&.registration_mode == "single_session" && training_session_id.present? && participant_id.present?

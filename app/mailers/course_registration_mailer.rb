@@ -7,10 +7,10 @@ class CourseRegistrationMailer < ApplicationMailer
     return if @recipient.nil?
 
     subject = case course_registration.status
-              when "bestätigt"  then "Anmeldung bestätigt: #{@course.title}"
-              when "warteliste" then "Auf der Warteliste: #{@course.title}"
-              else "Anmeldung erhalten: #{@course.title}"
-              end
+    when "bestätigt"  then "Anmeldung bestätigt: #{@course.title}"
+    when "warteliste" then "Auf der Warteliste: #{@course.title}"
+    else "Anmeldung erhalten: #{@course.title}"
+    end
 
     mail(to: @recipient.email, subject: subject)
   end
@@ -59,6 +59,19 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
+  def payment_expired(course_registration)
+    @course_registration = course_registration
+    @course = course_registration.course
+    @participant = course_registration.participant
+    @recipient = @participant.user
+    return if @recipient.nil?
+
+    mail(
+      to: @recipient.email,
+      subject: "Reservierung abgelaufen: #{@course.title}"
+    )
+  end
+
   def status_changed(course_registration)
     @course_registration = course_registration
     @course = course_registration.course
@@ -69,11 +82,11 @@ class CourseRegistrationMailer < ApplicationMailer
     @new_status = course_registration.status
 
     subject = case @new_status
-              when "bestätigt"   then "Anmeldung bestätigt: #{@course.title}"
-              when "storniert"   then "Anmeldung storniert: #{@course.title}"
-              when "warteliste"  then "Auf der Warteliste: #{@course.title}"
-              else "Status aktualisiert: #{@course.title}"
-              end
+    when "bestätigt"   then "Anmeldung bestätigt: #{@course.title}"
+    when "storniert"   then "Anmeldung storniert: #{@course.title}"
+    when "warteliste"  then "Auf der Warteliste: #{@course.title}"
+    else "Status aktualisiert: #{@course.title}"
+    end
 
     mail(to: @recipient.email, subject: subject)
   end

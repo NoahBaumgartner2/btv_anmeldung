@@ -23,3 +23,8 @@ production:
     class: PaymentSyncJob
     queue: default
     schedule: every 15 minutes
+
+  expire_pending_payments:
+    class: ExpirePendingPaymentsJob
+    queue: default
+    schedule: every 1 hour
