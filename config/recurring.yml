@@ -18,3 +18,8 @@ production:
     class: AttendanceReminderJob
     queue: default
     schedule: every hour at minute 30
+
+  payment_sync:
+    class: PaymentSyncJob
+    queue: default
+    schedule: every 15 minutes
