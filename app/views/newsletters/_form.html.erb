@@ -12,18 +12,18 @@
     <%# Speichern-Formular (eigenständig, kein Nesting) %>
     <%= form_with model: newsletter do |f| %>
       <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 space-y-4">
-        <h2 class="font-bold text-gray-900 border-b border-gray-100 pb-3">Einstellungen</h2>
+        <h2 class="font-bold text-gray-900 border-b border-gray-100 pb-3"><%= t('newsletters.form.section_settings') %></h2>
 
         <div>
-          <%= f.label :title, "Interner Titel", class: "block text-xs font-bold text-gray-600 mb-1" %>
+          <%= f.label :title, t('newsletters.form.label_title'), class: "block text-xs font-bold text-gray-600 mb-1" %>
           <%= f.text_field :title, placeholder: "z.B. Sommer-Newsletter 2026",
                 autocomplete: "off",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none" %>
-          <p class="text-xs text-gray-400 mt-1">Wird nicht an den Empfänger gesendet.</p>
+          <p class="text-xs text-gray-400 mt-1"><%= t('newsletters.form.title_hint') %></p>
         </div>
 
         <div>
-          <%= f.label :subject, "Betreff der E-Mail *", class: "block text-xs font-bold text-gray-600 mb-1" %>
+          <%= f.label :subject, t('newsletters.form.label_subject'), class: "block text-xs font-bold text-gray-600 mb-1" %>
           <%= f.text_field :subject, placeholder: "z.B. Neue Kurse im Herbst!",
                 autocomplete: "off",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none" %>
@@ -31,7 +31,7 @@
 
         <div class="pt-1">
           <%= f.hidden_field :body_html, id: "newsletter_body_html" %>
-          <%= f.submit newsletter.new_record? ? "Entwurf speichern" : "Änderungen speichern",
+          <%= f.submit newsletter.new_record? ? t('newsletters.form.save_draft') : t('newsletters.form.save_changes'),
                 id: "save-btn",
                 class: "cursor-pointer w-full bg-gray-800 hover:bg-gray-900 text-white font-bold text-sm py-3 rounded-xl transition" %>
         </div>
@@ -41,15 +41,14 @@
     <%# Versenden (eigenständiges button_to — kein Nesting) %>
     <% if newsletter.persisted? && newsletter.draft? %>
       <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
-        <h2 class="font-bold text-gray-900 mb-1">Newsletter versenden</h2>
+        <h2 class="font-bold text-gray-900 mb-1"><%= t('newsletters.form.section_send') %></h2>
         <p class="text-xs text-gray-500 mb-4">
-          Wird sofort an alle <strong><%= NewsletterSubscriber.subscribed.count %></strong> angemeldeten
-          Empfänger verschickt. Diese Aktion kann nicht rückgängig gemacht werden.
+          <%= t('newsletters.form.send_description', count: NewsletterSubscriber.subscribed.count) %>
         </p>
-        <%= button_to "Jetzt versenden →",
+        <%= button_to t('newsletters.form.send_btn'),
               send_newsletter_newsletter_path(newsletter),
               method: :post,
-              data: { turbo_confirm: "Newsletter an alle angemeldeten Empfänger senden? Diese Aktion kann nicht rückgängig gemacht werden." },
+              data: { turbo_confirm: t('newsletters.form.send_confirm') },
               class: "cursor-pointer w-full bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm py-3 rounded-xl transition" %>
       </div>
     <% end %>
@@ -61,7 +60,7 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
         </svg>
-        Vorschau (neuer Tab)
+        <%= t('newsletters.form.preview_btn') %>
       </a>
     <% end %>
 
@@ -75,11 +74,11 @@
       <div class="flex border-b border-gray-200 bg-gray-50">
         <button type="button" id="tab-designer"
                 class="tab-btn flex-1 py-3 text-sm font-bold text-primary-600 border-b-2 border-primary-600 bg-white transition">
-          Designer
+          <%= t('newsletters.form.tab_designer') %>
         </button>
         <button type="button" id="tab-html"
                 class="tab-btn flex-1 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 border-b-2 border-transparent transition">
-          HTML importieren
+          <%= t('newsletters.form.tab_html') %>
         </button>
       </div>
 
@@ -117,10 +116,10 @@
           <div class="w-px h-5 bg-gray-200 mx-1"></div>
           <button type="button" data-fmt="insertUnorderedList"
                   class="px-2.5 h-8 rounded-lg hover:bg-gray-200 text-gray-600 text-xs font-bold transition">
-            Liste
+            <%= t('newsletters.form.toolbar_list') %>
           </button>
           <div class="ml-auto flex items-center gap-1">
-            <label class="text-xs text-gray-500 font-medium">Farbe:</label>
+            <label class="text-xs text-gray-500 font-medium"><%= t('newsletters.form.toolbar_color') %></label>
             <input type="color" id="color-picker"
                    autocomplete="off"
                    class="w-7 h-7 rounded cursor-pointer border border-gray-200" value="#111827">
@@ -132,7 +131,7 @@
              contenteditable="true"
              class="min-h-96 p-5 text-sm text-gray-800 leading-relaxed focus:outline-none"
              style="font-family: Arial, sans-serif;">
-          <%= newsletter.body_html.present? ? sanitize(newsletter.body_html) : sanitize("<p>Schreibe deinen Newsletter hier...</p>") %>
+          <%= newsletter.body_html.present? ? sanitize(newsletter.body_html) : sanitize("<p>#{t('newsletters.form.editor_placeholder')}</p>") %>
         </div>
       </div>
 

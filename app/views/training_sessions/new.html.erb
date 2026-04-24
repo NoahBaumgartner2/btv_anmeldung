@@ -1,19 +1,19 @@
-<% content_for :title, "Training manuell hinzufügen" %>
+<% content_for :title, t('training_sessions.new.title') %>
 
 <div class="max-w-2xl mx-auto mt-10 w-full px-4 mb-16">
 
   <div class="mb-8">
     <% if @course %>
-      <%= link_to "← Zurück zum Maschinenraum", manage_course_path(@course),
+      <%= link_to t('training_sessions.new.back'), manage_course_path(@course),
             class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
     <% end %>
-    <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900 mt-3">Training manuell hinzufügen</h1>
-    <p class="text-gray-500 mt-1">Erstelle eine einzelne Training-Session für diesen Kurs.</p>
+    <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900 mt-3"><%= t('training_sessions.new.title') %></h1>
+    <p class="text-gray-500 mt-1"><%= t('training_sessions.new.subtitle') %></p>
   </div>
 
   <% if @course %>
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-6">
-      <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Kurs</p>
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2"><%= t('training_sessions.new.section_course') %></p>
       <p class="font-bold text-gray-900 text-lg"><%= @course.title %></p>
       <p class="text-sm text-gray-500 mt-0.5">
         <%= @course.start_date&.strftime("%-d. %b %Y") %> –
