@@ -383,7 +383,7 @@ de:
       completed: "Abgeschlossen"
       no_participants_title: "Noch keine Personen erfasst"
       no_participants_body: "Erfasse jetzt eine Person, um sie für Kurse anzumelden."
-      add_first_child: "Erstes Kind erfassen"
+      add_first_child: "Teilnehmer erfassen"
       add_participant_aria: "Person erfassen"
     new:
       title: "Person erfassen"

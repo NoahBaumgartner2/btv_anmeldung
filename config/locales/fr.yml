@@ -284,7 +284,7 @@ fr:
       completed: "Terminé"
       no_participants_title: "Aucune personne enregistrée"
       no_participants_body: "Ajoutez une personne pour l'inscrire à des cours."
-      add_first_child: "Ajouter le premier enfant"
+      add_first_child: "Ajouter un participant"
       add_participant_aria: "Ajouter une personne"
     new:
       title: "Ajouter une personne"

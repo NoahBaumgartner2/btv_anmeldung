@@ -284,7 +284,7 @@ en:
       completed: "Completed"
       no_participants_title: "No participants added yet"
       no_participants_body: "Add a person now to register them for courses."
-      add_first_child: "Add first child"
+      add_first_child: "Add participant"
       add_participant_aria: "Add person"
     new:
       title: "Add person"
