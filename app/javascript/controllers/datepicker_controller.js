@@ -34,6 +34,14 @@ export default class extends Controller {
       allowInput: true,
       minDate: this.minDateValue || null,
       maxDate: this.maxDateValue || null,
+      onOpen: [(_dates, _str, instance) => {
+        const cal = instance.calendarContainer
+        const rect = cal.getBoundingClientRect()
+        const currentLeft = parseFloat(cal.style.left) || 0
+        // Shift left by however many pixels overflow the right edge, clamp to 0
+        const newLeft = currentLeft - Math.max(0, rect.right - window.innerWidth)
+        cal.style.left = Math.max(0, newLeft) + "px"
+      }],
     })
   }
 
