@@ -574,6 +574,9 @@ de:
         other: "Es gibt %{count} Fehler:"
       age_over: "ist %{age} Jahre alt und kann sich für diesen Kurs nicht anmelden."
       age_no_dob: "hat kein Geburtsdatum hinterlegt."
+      cancel: "Abbrechen"
+      submit_new: "Jetzt anmelden"
+      submit_edit: "Änderungen speichern"
     flash:
       waitlisted: "Der Kurs ist leider voll. %{name} wurde auf die Warteliste gesetzt."
       confirmed: "%{name} hat einen festen Platz im Kurs."
@@ -585,6 +588,13 @@ de:
       session_cancelled: "Dieser Termin wurde leider abgesagt."
       session_in_past: "Dieser Termin liegt in der Vergangenheit und kann nicht mehr gebucht werden."
       missing_field: "%{field} fehlt für %{name}. Bitte zuerst im Profil ergänzen."
+    new:
+      title: "Kursanmeldung"
+      back: "Zurück zum Kurs"
+      chosen_date: "Dein gewählter Termin"
+    edit:
+      title: "Anmeldung bearbeiten"
+      subtitle: "Status und Bezahlung für diese Kursanmeldung anpassen."
     show:
       title_payment: "Anmeldung bestätigt"
       subtitle_payment: "Bitte schliesse die Zahlung ab, um deinen Platz zu sichern."
@@ -1061,6 +1071,68 @@ de:
       has_subscribers_hint: "Suche nach E-Mail oder Name, um Einträge anzuzeigen."
       empty: "Noch keine Empfänger erfasst."
       empty_hint: "Füge einzelne Adressen hinzu oder importiere eine CSV-Datei."
+
+  devise:
+    sessions:
+      new:
+        title: "Willkommen zurück!"
+        subtitle: "Bitte melde dich an, um fortzufahren."
+        email_label: "E-Mail Adresse"
+        password_label: "Passwort"
+        remember_me: "Angemeldet bleiben"
+        submit: "Anmelden"
+    registrations:
+      new:
+        title: "Konto erstellen"
+        subtitle: "Registriere dich, um Kurse für den BTV zu buchen."
+        email_label: "E-Mail Adresse"
+        password_label: "Passwort"
+        password_min_hint: "Mindestens %{count} Zeichen"
+        password_confirm_label: "Passwort bestätigen"
+        newsletter_label_html: "Ja, ich möchte den <strong>BTV-Newsletter</strong> mit Infos zu neuen Kursen und Angeboten erhalten. Du kannst dich jederzeit in deinen Kontoeinstellungen wieder abmelden."
+        submit: "Konto erstellen"
+      edit:
+        title: "Konto bearbeiten"
+        subtitle: "Passe deine Anmeldedaten an."
+        email_label: "E-Mail Adresse"
+        pending_reconfirmation: "Ausstehende Bestätigung für:"
+        new_password_label: "Neues Passwort (leer lassen um beizubehalten)"
+        password_min_hint: "Mindestens %{count} Zeichen"
+        confirm_password_label: "Neues Passwort bestätigen"
+        current_password_label: "Aktuelles Passwort (zur Bestätigung der Änderungen)"
+        submit: "Konto aktualisieren"
+        delete_title: "Konto löschen"
+        delete_warning: "Diese Aktion kann nicht rückgängig gemacht werden."
+        delete_btn: "Konto unwiderruflich löschen"
+        delete_confirm: "Bist du sicher? Diese Aktion kann nicht rückgängig gemacht werden."
+    passwords:
+      new:
+        title: "Passwort zurücksetzen"
+        subtitle: "Wir schicken dir einen Link per E-Mail zum Zurücksetzen."
+        email_label: "E-Mail Adresse"
+        submit: "Link zum Zurücksetzen senden"
+      edit:
+        title: "Neues Passwort setzen"
+        subtitle: "Bitte wähle ein sicheres Passwort für dein Konto."
+        new_password_label: "Neues Passwort"
+        password_min_hint: "Mindestens %{count} Zeichen"
+        confirm_password_label: "Passwort bestätigen"
+        submit: "Passwort speichern"
+    confirmations:
+      new:
+        title: "E-Mail erneut bestätigen"
+        subtitle: "Wir schicken dir die Bestätigungs-E-Mail nochmals zu."
+        email_label: "E-Mail Adresse"
+        submit: "Bestätigungs-E-Mail senden"
+    shared:
+      links:
+        back_to_login: "Zurück zum Login"
+        no_account: "Noch kein Konto?"
+        sign_up: "Jetzt registrieren"
+        forgot_password: "Passwort vergessen?"
+        resend_confirmation: "Bestätigungs-E-Mail erneut senden"
+      password_field:
+        show_password: "Passwort anzeigen"
 
   misc:
     time_suffix: "Uhr"

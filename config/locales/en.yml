@@ -475,6 +475,9 @@ en:
         other: "There are %{count} errors:"
       age_over: "is %{age} years old and cannot register for this course."
       age_no_dob: "has no date of birth saved."
+      cancel: "Cancel"
+      submit_new: "Register now"
+      submit_edit: "Save changes"
     flash:
       waitlisted: "The course is full. %{name} has been added to the waitlist."
       confirmed: "%{name} has a confirmed spot in the course."
@@ -486,6 +489,13 @@ en:
       session_cancelled: "This session has unfortunately been cancelled."
       session_in_past: "This session is in the past and can no longer be booked."
       missing_field: "%{field} is missing for %{name}. Please update the profile first."
+    new:
+      title: "Course registration"
+      back: "Back to course"
+      chosen_date: "Your chosen date"
+    edit:
+      title: "Edit registration"
+      subtitle: "Adjust the status and payment for this registration."
     show:
       title_payment: "Registration confirmed"
       subtitle_payment: "Please complete payment to secure your spot."
@@ -962,6 +972,68 @@ en:
       has_subscribers_hint: "Search by email or name to display entries."
       empty: "No recipients registered yet."
       empty_hint: "Add individual addresses or import a CSV file."
+
+  devise:
+    sessions:
+      new:
+        title: "Welcome back!"
+        subtitle: "Please sign in to continue."
+        email_label: "Email address"
+        password_label: "Password"
+        remember_me: "Stay signed in"
+        submit: "Sign in"
+    registrations:
+      new:
+        title: "Create account"
+        subtitle: "Register to book courses with BTV."
+        email_label: "Email address"
+        password_label: "Password"
+        password_min_hint: "At least %{count} characters"
+        password_confirm_label: "Confirm password"
+        newsletter_label_html: "Yes, I'd like to receive the <strong>BTV newsletter</strong> with info about new courses and offers. You can unsubscribe at any time in your account settings."
+        submit: "Create account"
+      edit:
+        title: "Edit account"
+        subtitle: "Update your login details."
+        email_label: "Email address"
+        pending_reconfirmation: "Pending confirmation for:"
+        new_password_label: "New password (leave blank to keep)"
+        password_min_hint: "At least %{count} characters"
+        confirm_password_label: "Confirm new password"
+        current_password_label: "Current password (to confirm changes)"
+        submit: "Update account"
+        delete_title: "Delete account"
+        delete_warning: "This action cannot be undone."
+        delete_btn: "Permanently delete account"
+        delete_confirm: "Are you sure? This action cannot be undone."
+    passwords:
+      new:
+        title: "Reset password"
+        subtitle: "We'll send you a reset link by email."
+        email_label: "Email address"
+        submit: "Send reset link"
+      edit:
+        title: "Set new password"
+        subtitle: "Please choose a secure password for your account."
+        new_password_label: "New password"
+        password_min_hint: "At least %{count} characters"
+        confirm_password_label: "Confirm password"
+        submit: "Save password"
+    confirmations:
+      new:
+        title: "Resend confirmation"
+        subtitle: "We'll resend your confirmation email."
+        email_label: "Email address"
+        submit: "Resend confirmation email"
+    shared:
+      links:
+        back_to_login: "Back to login"
+        no_account: "No account yet?"
+        sign_up: "Register now"
+        forgot_password: "Forgot password?"
+        resend_confirmation: "Resend confirmation email"
+      password_field:
+        show_password: "Show password"
 
   misc:
     time_suffix: ""

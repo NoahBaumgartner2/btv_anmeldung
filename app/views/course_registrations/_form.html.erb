@@ -130,9 +130,9 @@
   </div>
 
   <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
-    <%= link_to "Abbrechen", :back,
+    <%= link_to t("course_registrations.form.cancel"), :back,
           class: "block w-full sm:w-auto text-center bg-white py-3 sm:py-2 px-5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition min-h-[44px] inline-flex items-center justify-center" %>
-    <%= form.submit course_registration.new_record? ? "Jetzt anmelden" : "Änderungen speichern",
+    <%= form.submit course_registration.new_record? ? t("course_registrations.form.submit_new") : t("course_registrations.form.submit_edit"),
           class: "cursor-pointer w-full sm:w-auto inline-flex justify-center items-center py-3 sm:py-2 px-5 border border-transparent shadow-sm text-base sm:text-sm font-bold rounded-lg text-white bg-secondary-600 hover:bg-secondary-700 transition min-h-[44px]" %>
   </div>
 <% end %>

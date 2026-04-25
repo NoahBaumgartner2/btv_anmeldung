@@ -475,6 +475,9 @@ fr:
         other: "Il y a %{count} erreurs :"
       age_over: "a %{age} ans et ne peut pas s'inscrire à ce cours."
       age_no_dob: "n'a pas de date de naissance enregistrée."
+      cancel: "Annuler"
+      submit_new: "S'inscrire maintenant"
+      submit_edit: "Enregistrer les modifications"
     flash:
       waitlisted: "Le cours est malheureusement complet. %{name} a été ajouté(e) à la liste d'attente."
       confirmed: "%{name} a une place confirmée dans le cours."
@@ -486,6 +489,13 @@ fr:
       session_cancelled: "Cette séance a malheureusement été annulée."
       session_in_past: "Cette séance est dans le passé et ne peut plus être réservée."
       missing_field: "%{field} manque pour %{name}. Veuillez d'abord compléter le profil."
+    new:
+      title: "Inscription au cours"
+      back: "Retour au cours"
+      chosen_date: "Votre date choisie"
+    edit:
+      title: "Modifier l'inscription"
+      subtitle: "Ajuster le statut et le paiement de cette inscription."
     show:
       title_payment: "Inscription confirmée"
       subtitle_payment: "Veuillez compléter le paiement pour confirmer votre place."
@@ -962,6 +972,68 @@ fr:
       has_subscribers_hint: "Recherchez par e-mail ou nom pour afficher les entrées."
       empty: "Aucun destinataire enregistré."
       empty_hint: "Ajoutez des adresses individuellement ou importez un fichier CSV."
+
+  devise:
+    sessions:
+      new:
+        title: "Bon retour !"
+        subtitle: "Veuillez vous connecter pour continuer."
+        email_label: "Adresse e-mail"
+        password_label: "Mot de passe"
+        remember_me: "Rester connecté"
+        submit: "Se connecter"
+    registrations:
+      new:
+        title: "Créer un compte"
+        subtitle: "Inscrivez-vous pour réserver des cours BTV."
+        email_label: "Adresse e-mail"
+        password_label: "Mot de passe"
+        password_min_hint: "Au moins %{count} caractères"
+        password_confirm_label: "Confirmer le mot de passe"
+        newsletter_label_html: "Oui, je souhaite recevoir la <strong>newsletter BTV</strong> avec des infos sur les nouveaux cours et offres. Vous pouvez vous désabonner à tout moment dans les paramètres du compte."
+        submit: "Créer un compte"
+      edit:
+        title: "Modifier le compte"
+        subtitle: "Mettez à jour vos informations de connexion."
+        email_label: "Adresse e-mail"
+        pending_reconfirmation: "Confirmation en attente pour :"
+        new_password_label: "Nouveau mot de passe (laisser vide pour conserver)"
+        password_min_hint: "Au moins %{count} caractères"
+        confirm_password_label: "Confirmer le nouveau mot de passe"
+        current_password_label: "Mot de passe actuel (pour confirmer les modifications)"
+        submit: "Mettre à jour le compte"
+        delete_title: "Supprimer le compte"
+        delete_warning: "Cette action ne peut pas être annulée."
+        delete_btn: "Supprimer définitivement le compte"
+        delete_confirm: "Êtes-vous sûr(e) ? Cette action ne peut pas être annulée."
+    passwords:
+      new:
+        title: "Réinitialiser le mot de passe"
+        subtitle: "Nous vous enverrons un lien de réinitialisation par e-mail."
+        email_label: "Adresse e-mail"
+        submit: "Envoyer le lien de réinitialisation"
+      edit:
+        title: "Définir un nouveau mot de passe"
+        subtitle: "Veuillez choisir un mot de passe sécurisé pour votre compte."
+        new_password_label: "Nouveau mot de passe"
+        password_min_hint: "Au moins %{count} caractères"
+        confirm_password_label: "Confirmer le mot de passe"
+        submit: "Enregistrer le mot de passe"
+    confirmations:
+      new:
+        title: "Renvoyer la confirmation"
+        subtitle: "Nous vous renverrons l'e-mail de confirmation."
+        email_label: "Adresse e-mail"
+        submit: "Renvoyer l'e-mail de confirmation"
+    shared:
+      links:
+        back_to_login: "Retour à la connexion"
+        no_account: "Pas encore de compte ?"
+        sign_up: "S'inscrire maintenant"
+        forgot_password: "Mot de passe oublié ?"
+        resend_confirmation: "Renvoyer l'e-mail de confirmation"
+      password_field:
+        show_password: "Afficher le mot de passe"
 
   misc:
     time_suffix: ""

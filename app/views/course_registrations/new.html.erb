@@ -1,14 +1,14 @@
-<% content_for :title, "Kursanmeldung" %>
+<% content_for :title, t("course_registrations.new.title") %>
 
 <div class="max-w-2xl mx-auto w-full mt-6 sm:mt-10 mb-16">
   <div class="mb-6">
     <% if @course %>
       <%= link_to course_path(@course),
             class: "inline-flex items-center gap-1 text-sm font-semibold text-gray-500 hover:text-gray-800 transition min-h-[44px] py-2 -ml-1 px-1" do %>
-        <span aria-hidden="true">←</span> Zurück zum Kurs
+        <span aria-hidden="true">←</span> <%= t("course_registrations.new.back") %>
       <% end %>
     <% end %>
-    <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900 mt-2 break-words">Kursanmeldung</h1>
+    <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900 mt-2 break-words"><%= t("course_registrations.new.title") %></h1>
     <% if @course %>
       <p class="text-gray-500 mt-1 text-sm sm:text-base break-words"><%= @course.registration_type_label %> – <%= @course.title %></p>
     <% end %>
@@ -19,12 +19,12 @@
     <div class="mb-5 bg-purple-50 border border-purple-200 rounded-2xl p-4 sm:p-5 flex items-start gap-3 sm:gap-4">
       <div class="shrink-0 w-11 h-11 sm:w-12 sm:h-12 bg-purple-100 rounded-xl flex items-center justify-center text-2xl">📅</div>
       <div class="min-w-0">
-        <p class="text-xs font-bold text-purple-500 uppercase tracking-wider mb-1">Dein gewählter Termin</p>
+        <p class="text-xs font-bold text-purple-500 uppercase tracking-wider mb-1"><%= t("course_registrations.new.chosen_date") %></p>
         <p class="text-lg sm:text-xl font-extrabold text-purple-900 break-words">
           <%= I18n.l(@training_session.start_time, format: "%A, %-d. %B %Y") %>
         </p>
         <p class="text-sm sm:text-base font-semibold text-purple-700 mt-0.5 break-words">
-          <%= @training_session.start_time.strftime("%H:%M") %> Uhr
+          <%= @training_session.start_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
           <% if @course&.location.present? %>
             <span class="text-purple-400 mx-1">·</span>
             <%= @course.location %>
