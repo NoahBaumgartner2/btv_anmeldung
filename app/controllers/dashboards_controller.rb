@@ -57,6 +57,7 @@ class DashboardsController < ApplicationController
     now = Time.current
 
     @courses = Course.includes(
+      { trainers: :user },
       training_sessions: :attendances,
       course_registrations: :participant
     ).order(start_date: :desc)

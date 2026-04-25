@@ -139,6 +139,11 @@
             <% end %>
             <% if course.location.present? %>· <%= course.location %><% end %>
           </p>
+          <% if course.trainers.any? %>
+            <p class="text-xs text-gray-400 mt-1">
+              <%= course.trainers.filter_map { |trainer| trainer.user&.email }.join(", ") %>
+            </p>
+          <% end %>
         </div>
         <%= link_to t('dashboards.stats.manage_link'), manage_course_path(course),
               class: "shrink-0 text-sm font-bold text-primary-600 hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-lg transition" %>
@@ -175,7 +180,7 @@
       </div>
 
       <%# Session-Tabelle (auf-/zuklappbar) %>
-      <details class="group" <%= sessions_without_record.any? ? "open" : "" %>>
+      <details class="group">
         <summary class="flex items-center justify-between px-4 sm:px-6 py-3 cursor-pointer select-none border-t border-gray-100 hover:bg-gray-50 active:bg-gray-100 transition list-none min-h-11">
           <span class="text-sm font-bold text-gray-600">
             <%= t('dashboards.stats.sessions_header', count: sessions.size) %>
