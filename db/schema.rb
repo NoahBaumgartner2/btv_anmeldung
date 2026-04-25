@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_24_075531) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_25_161550) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -108,6 +108,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_24_075531) do
     t.boolean "has_ticketing"
     t.boolean "is_js_training", default: false, null: false
     t.string "location"
+    t.string "location_address"
     t.integer "max_age"
     t.integer "max_participants"
     t.integer "min_age"

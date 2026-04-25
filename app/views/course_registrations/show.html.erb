@@ -74,7 +74,12 @@
         <% if course.location.present? %>
           <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
             <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.location") %></dt>
-            <dd class="text-gray-700 break-words sm:text-right"><%= course.location %></dd>
+            <dd class="text-gray-700 break-words sm:text-right">
+              <%= course.location %>
+              <% if course.location_address.present? %>
+                <br><span class="text-gray-500"><%= course.location_address %></span>
+              <% end %>
+            </dd>
           </div>
         <% end %>
       <% end %>

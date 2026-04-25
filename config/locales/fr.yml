@@ -232,6 +232,10 @@ fr:
       add_holiday: "Ajouter une période de congé"
       submit: "Générer les entraînements maintenant"
       cancel: "Annuler"
+    form:
+      location_address_label: "Adresse"
+      location_address_placeholder: "Rue Principale 12, 3000 Berne"
+      location_address_hint: "Adresse complète pour la navigation (optionnel)"
     free: "Gratuit"
     registration_modes:
       semester: "Par semestre"

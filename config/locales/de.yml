@@ -331,6 +331,10 @@ de:
       add_holiday: "Ferienzeitraum hinzufügen"
       submit: "Trainings jetzt generieren"
       cancel: "Abbrechen"
+    form:
+      location_address_label: "Adresse / Halle"
+      location_address_placeholder: "Musterstrasse 12, 3000 Bern"
+      location_address_hint: "Vollständige Adresse für die Navigation (optional)"
     free: "Kostenlos"
     registration_modes:
       semester: "Pro Semester"

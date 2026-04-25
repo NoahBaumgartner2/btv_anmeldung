@@ -1,8 +1,8 @@
 class CoursesController < ApplicationController
   # Für neue Kurse oder Bearbeitung MUSS man Admin sein
-  before_action :authorize_admin!, except: [:index, :show, :manage]
+  before_action :authorize_admin!, except: [ :index, :show, :manage ]
   # GET /courses or /courses.json
-  before_action :authorize_trainer!, only: [:manage]
+  before_action :authorize_trainer!, only: [ :manage ]
   before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage ]
   def index
     @courses = Course.includes(:course_registrations).order(:title)
@@ -159,7 +159,7 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [], payment_methods: [])
     end
 
     def derive_registration_type(registration_mode)

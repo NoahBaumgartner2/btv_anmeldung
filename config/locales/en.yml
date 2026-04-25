@@ -232,6 +232,10 @@ en:
       add_holiday: "Add holiday period"
       submit: "Generate training sessions now"
       cancel: "Cancel"
+    form:
+      location_address_label: "Address"
+      location_address_placeholder: "Main Street 12, 3000 Bern"
+      location_address_hint: "Full address for navigation (optional)"
     free: "Free"
     registration_modes:
       semester: "Per semester"

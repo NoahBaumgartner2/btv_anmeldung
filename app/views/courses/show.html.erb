@@ -42,7 +42,18 @@
         <ul class="space-y-4 text-gray-900 font-medium">
           <li class="flex items-start">
             <span class="mr-3 text-xl"></span>
-            <span><%= @course.location.presence || t("courses.show.location_unknown") %></span>
+            <span>
+              <%= @course.location.presence || t("courses.show.location_unknown") %>
+              <% if @course.location_address.present? %>
+                <br>
+                <span class="text-sm text-gray-500"><%= @course.location_address %></span>
+                <br>
+                <%= link_to "Google Maps →",
+                      "https://www.google.com/maps/search/#{URI.encode_www_form_component(@course.location_address)}",
+                      target: "_blank", rel: "noopener",
+                      class: "text-xs text-primary-600 hover:text-primary-800 font-semibold" %>
+              <% end %>
+            </span>
           </li>
           <li class="flex items-start">
             <span class="mr-3 text-xl"></span>
