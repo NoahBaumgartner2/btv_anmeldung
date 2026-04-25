@@ -100,7 +100,7 @@
                       </div>
 
                       <h4 class="font-bold text-gray-900 pr-20 sm:pr-16 mb-1 text-base sm:text-lg"><%= course.title %></h4>
-                      <p class="text-xs font-bold text-primary-600 mb-3 sm:mb-4 uppercase tracking-wide"><%= course.registration_type %></p>
+                      <p class="text-xs font-bold text-primary-600 mb-3 sm:mb-4 uppercase tracking-wide"><%= course.registration_type_label %></p>
 
                       <%# ── Nächste Trainings ─────────────────────────── %>
                       <% upcoming_sessions = @upcoming_by_course[course.id] || [] %>

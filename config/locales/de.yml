@@ -331,6 +331,13 @@ de:
       add_holiday: "Ferienzeitraum hinzufügen"
       submit: "Trainings jetzt generieren"
       cancel: "Abbrechen"
+    free: "Kostenlos"
+    registration_modes:
+      semester: "Pro Semester"
+      single_session: "Pro Training (Drop-In)"
+    registration_types:
+      semester: "Semesterkurs"
+      pro_training: "Pro Training"
 
   participants:
     index:
@@ -550,6 +557,34 @@ de:
         tagline: "Online-Anmeldung für Kurse & Trainings"
 
   course_registrations:
+    statuses:
+      bestätigt: "Bestätigt"
+      warteliste: "Warteliste"
+      storniert: "Storniert"
+      ausstehend: "Ausstehend"
+    form:
+      course_label: "Kurs"
+      course_prompt: "Kurs wählen..."
+      participant_label: "Wer soll angemeldet werden?"
+      participant_prompt: "Person auswählen..."
+      no_participants: "Du hast noch keine Teilnehmer in deinem Profil hinterlegt."
+      add_participant: "Jetzt Person erfassen"
+      error_count:
+        one: "Es gibt 1 Fehler:"
+        other: "Es gibt %{count} Fehler:"
+      age_over: "ist %{age} Jahre alt und kann sich für diesen Kurs nicht anmelden."
+      age_no_dob: "hat kein Geburtsdatum hinterlegt."
+    flash:
+      waitlisted: "Der Kurs ist leider voll. %{name} wurde auf die Warteliste gesetzt."
+      confirmed: "%{name} hat einen festen Platz im Kurs."
+      updated: "Anmeldung wurde erfolgreich aktualisiert."
+      destroyed: "Die Anmeldung wurde gelöscht."
+      already_cancelled: "Diese Anmeldung ist bereits storniert."
+    errors:
+      duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
+      session_cancelled: "Dieser Termin wurde leider abgesagt."
+      session_in_past: "Dieser Termin liegt in der Vergangenheit und kann nicht mehr gebucht werden."
+      missing_field: "%{field} fehlt für %{name}. Bitte zuerst im Profil ergänzen."
     show:
       title_payment: "Anmeldung bestätigt"
       subtitle_payment: "Bitte schliesse die Zahlung ab, um deinen Platz zu sichern."

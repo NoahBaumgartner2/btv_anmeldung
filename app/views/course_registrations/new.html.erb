@@ -10,7 +10,7 @@
     <% end %>
     <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900 mt-2 break-words">Kursanmeldung</h1>
     <% if @course %>
-      <p class="text-gray-500 mt-1 text-sm sm:text-base break-words"><%= @course.registration_type %> – <%= @course.title %></p>
+      <p class="text-gray-500 mt-1 text-sm sm:text-base break-words"><%= @course.registration_type_label %> – <%= @course.title %></p>
     <% end %>
   </div>
 

@@ -37,7 +37,7 @@
       <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
 
       <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Status</p>
-      <p style="margin:0 <%= @course.has_payment? ? '0 12px 0' : '0' %>;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course_registration.status.capitalize %></p>
+      <p style="margin:0 <%= @course.has_payment? ? '0 12px 0' : '0' %>;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course_registration.status_label %></p>
 
       <% if @course.has_payment? %>
         <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Betrag</p>

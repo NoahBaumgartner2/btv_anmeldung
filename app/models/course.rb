@@ -16,7 +16,7 @@ class Course < ApplicationRecord
   # Gibt die tatsächlich nutzbaren Zahlungsmethoden zurück (bereinigt, mit Fallback)
   def effective_payment_methods
     m = (payment_methods.presence || []).select { |v| PAYMENT_METHODS.key?(v) }
-    m.any? ? m : ["card"]
+    m.any? ? m : [ "card" ]
   end
 
   # Konfigurierbare Pflichtfelder: Symbol → Anzeigename
@@ -88,15 +88,25 @@ class Course < ApplicationRecord
   end
 
   def price_display
-    return "Kostenlos" unless has_payment? && price_cents
+    return I18n.t("courses.free") unless has_payment? && price_cents
     "CHF #{price_chf}"
+  end
+
+  def registration_mode_label
+    return nil unless registration_mode.present?
+    I18n.t("courses.registration_modes.#{registration_mode}", default: registration_mode.humanize)
+  end
+
+  def registration_type_label
+    return nil unless registration_type.present?
+    I18n.t("courses.registration_types.#{registration_type}", default: registration_type.humanize)
   end
 
   private
 
   def clean_payment_methods
     self.payment_methods = (payment_methods || []).reject(&:blank?).select { |v| PAYMENT_METHODS.key?(v) }
-    self.payment_methods = ["card"] if payment_methods.empty?
+    self.payment_methods = [ "card" ] if payment_methods.empty?
   end
 
   def max_age_must_be_greater_than_or_equal_to_min_age

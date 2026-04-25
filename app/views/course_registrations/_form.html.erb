@@ -7,7 +7,7 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
         </svg>
         <div class="flex-1 min-w-0">
-          <p class="text-base font-bold mb-1"><%= course_registration.errors.count == 1 ? "Es gibt einen Fehler:" : "Es gibt #{course_registration.errors.count} Fehler:" %></p>
+          <p class="text-base font-bold mb-1"><%= t("course_registrations.form.error_count", count: course_registration.errors.count) %></p>
           <ul class="list-disc ml-5 mt-1 text-sm sm:text-base space-y-1 break-words">
             <% course_registration.errors.each do |error| %>
               <li><%= error.full_message %></li>
@@ -26,20 +26,20 @@
       <%= form.hidden_field :training_session_id %>
     <% else %>
       <div>
-        <%= form.label :course_id, "Kurs", class: "block text-sm font-bold text-gray-700 mb-1.5" %>
+        <%= form.label :course_id, t("course_registrations.form.course_label"), class: "block text-sm font-bold text-gray-700 mb-1.5" %>
         <%= form.collection_select :course_id, selectable_courses, :id, :title,
-              { prompt: "Kurs wählen..." },
+              { prompt: t("course_registrations.form.course_prompt") },
               class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]" %>
       </div>
     <% end %>
 
     <%# Teilnehmer-Auswahl %>
     <div>
-      <%= form.label :participant_id, "Wer soll angemeldet werden?", class: "block text-sm font-bold text-gray-700 mb-1.5" %>
+      <%= form.label :participant_id, t("course_registrations.form.participant_label"), class: "block text-sm font-bold text-gray-700 mb-1.5" %>
       <% if my_participants.any? %>
         <%= form.collection_select :participant_id, my_participants, :id,
               ->(p) { "#{p.first_name} #{p.last_name}" },
-              { prompt: "Person auswählen..." },
+              { prompt: t("course_registrations.form.participant_prompt") },
               class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]" %>
 
         <%# Vorab-Prüfung: fehlende Pflichtfelder pro Teilnehmer %>
@@ -84,9 +84,9 @@
                     <div>
                       <span class="font-semibold"><%= p.first_name %> <%= p.last_name %></span>
                       <% if p.date_of_birth %>
-                        ist <%= p.age_at(course.age_reference_date) %> Jahre alt und kann sich für diesen Kurs nicht anmelden.
+                        <%= t("course_registrations.form.age_over", age: p.age_at(course.age_reference_date)) %>
                       <% else %>
-                        hat kein Geburtsdatum hinterlegt.
+                        <%= t("course_registrations.form.age_no_dob") %>
                       <% end %>
                     </div>
                   </div>
@@ -97,8 +97,8 @@
         <% end %>
       <% else %>
         <div class="p-4 sm:p-5 bg-yellow-50 text-yellow-900 rounded-xl border-2 border-yellow-300 space-y-3">
-          <p class="text-sm sm:text-base font-medium">Du hast noch keine Teilnehmer in deinem Profil hinterlegt.</p>
-          <%= link_to "Jetzt Person erfassen", new_participant_path,
+          <p class="text-sm sm:text-base font-medium"><%= t("course_registrations.form.no_participants") %></p>
+          <%= link_to t("course_registrations.form.add_participant"), new_participant_path,
                 class: "block w-full text-center min-h-[44px] inline-flex items-center justify-center px-4 py-3 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-bold rounded-lg shadow-sm transition" %>
         </div>
       <% end %>

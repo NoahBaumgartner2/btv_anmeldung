@@ -30,7 +30,7 @@
       <% if course.registration_type.present? %>
         <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
           <dt class="font-medium text-gray-500 shrink-0"><%= t('payments.checkout_preview.label_category') %></dt>
-          <dd class="text-gray-700 break-words sm:text-right"><%= course.registration_type %></dd>
+          <dd class="text-gray-700 break-words sm:text-right"><%= course.registration_type_label %></dd>
         </div>
       <% end %>
       <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">

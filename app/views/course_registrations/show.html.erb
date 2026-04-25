@@ -61,7 +61,7 @@
       </div>
       <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
         <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.category") %></dt>
-        <dd class="text-gray-700 break-words sm:text-right"><%= course.registration_type.presence || "—" %></dd>
+        <dd class="text-gray-700 break-words sm:text-right"><%= course.registration_type_label.presence || "—" %></dd>
       </div>
       <% if is_single %>
         <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
@@ -94,10 +94,10 @@
             <% if course.price_cents.to_i > 0 %>
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-600"><%= t("course_registrations.show.status.payment_pending") %></span>
             <% else %>
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800">Bestätigt</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-green-100 text-green-800"><%= t("course_registrations.show.status.confirmed") %></span>
             <% end %>
           <% else %>
-            <span class="text-gray-600 text-xs"><%= @course_registration.status %></span>
+            <span class="text-gray-600 text-xs"><%= @course_registration.status_label %></span>
           <% end %>
         </dd>
       </div>

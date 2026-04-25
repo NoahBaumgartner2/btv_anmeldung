@@ -81,10 +81,10 @@ class CourseRegistrationsController < ApplicationController
 
       if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
         @course_registration.status = "warteliste"
-        erfolgs_nachricht = "Der Kurs ist leider voll. Dein Kind wurde erfolgreich auf die Warteliste gesetzt!"
+        erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
       else
         @course_registration.status = "bestätigt"
-        erfolgs_nachricht = "Fantastisch! Dein Kind hat einen festen Platz im Kurs."
+        erfolgs_nachricht = t("course_registrations.flash.confirmed", name: participant.first_name)
       end
     end
 
@@ -112,7 +112,7 @@ class CourseRegistrationsController < ApplicationController
   # NEU: Die Änderungen in der Datenbank speichern
   def update
     if @course_registration.update(course_registration_params)
-      redirect_to course_path(@course_registration.course), notice: "Anmeldung wurde erfolgreich aktualisiert!"
+      redirect_to course_path(@course_registration.course), notice: t("course_registrations.flash.updated")
     else
       render :edit, status: :unprocessable_entity
     end
@@ -124,12 +124,12 @@ class CourseRegistrationsController < ApplicationController
     training_session_id  = @course_registration.training_session_id
     @course_registration.destroy
     WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
-    redirect_to participants_path, notice: "Die Anmeldung wurde gelöscht."
+    redirect_to participants_path, notice: t("course_registrations.flash.destroyed")
   end
 
   def cancel
     if @course_registration.status == "storniert"
-      redirect_to participants_path, alert: "Diese Anmeldung ist bereits storniert."
+      redirect_to participants_path, alert: t("course_registrations.flash.already_cancelled")
       return
     end
 
@@ -153,7 +153,7 @@ class CourseRegistrationsController < ApplicationController
     end
 
     if @course_registration.status == "storniert"
-      redirect_to manage_course_path(course), alert: "Diese Anmeldung ist bereits storniert."
+      redirect_to manage_course_path(course), alert: t("course_registrations.flash.already_cancelled")
       return
     end
 

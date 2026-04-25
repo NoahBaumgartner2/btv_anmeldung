@@ -232,6 +232,13 @@ fr:
       add_holiday: "Ajouter une période de congé"
       submit: "Générer les entraînements maintenant"
       cancel: "Annuler"
+    free: "Gratuit"
+    registration_modes:
+      semester: "Par semestre"
+      single_session: "Par séance (Drop-In)"
+    registration_types:
+      semester: "Cours semestriel"
+      pro_training: "Par séance"
 
   participants:
     index:
@@ -451,6 +458,34 @@ fr:
         tagline: "Inscription en ligne pour cours & entraînements"
 
   course_registrations:
+    statuses:
+      bestätigt: "Confirmé"
+      warteliste: "Liste d'attente"
+      storniert: "Annulé"
+      ausstehend: "En attente"
+    form:
+      course_label: "Cours"
+      course_prompt: "Choisir un cours..."
+      participant_label: "Qui doit être inscrit ?"
+      participant_prompt: "Sélectionner une personne..."
+      no_participants: "Vous n'avez pas encore de participants dans votre profil."
+      add_participant: "Ajouter une personne"
+      error_count:
+        one: "Il y a 1 erreur :"
+        other: "Il y a %{count} erreurs :"
+      age_over: "a %{age} ans et ne peut pas s'inscrire à ce cours."
+      age_no_dob: "n'a pas de date de naissance enregistrée."
+    flash:
+      waitlisted: "Le cours est malheureusement complet. %{name} a été ajouté(e) à la liste d'attente."
+      confirmed: "%{name} a une place confirmée dans le cours."
+      updated: "L'inscription a été mise à jour avec succès."
+      destroyed: "L'inscription a été supprimée."
+      already_cancelled: "Cette inscription est déjà annulée."
+    errors:
+      duplicate_session: "Cet enfant est déjà inscrit à cette séance."
+      session_cancelled: "Cette séance a malheureusement été annulée."
+      session_in_past: "Cette séance est dans le passé et ne peut plus être réservée."
+      missing_field: "%{field} manque pour %{name}. Veuillez d'abord compléter le profil."
     show:
       title_payment: "Inscription confirmée"
       subtitle_payment: "Veuillez compléter le paiement pour confirmer votre place."

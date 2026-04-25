@@ -232,6 +232,13 @@ en:
       add_holiday: "Add holiday period"
       submit: "Generate training sessions now"
       cancel: "Cancel"
+    free: "Free"
+    registration_modes:
+      semester: "Per semester"
+      single_session: "Per session (Drop-In)"
+    registration_types:
+      semester: "Semester course"
+      pro_training: "Per session"
 
   participants:
     index:
@@ -451,6 +458,34 @@ en:
         tagline: "Online registration for courses & training"
 
   course_registrations:
+    statuses:
+      bestätigt: "Confirmed"
+      warteliste: "Waitlist"
+      storniert: "Cancelled"
+      ausstehend: "Pending"
+    form:
+      course_label: "Course"
+      course_prompt: "Choose course..."
+      participant_label: "Who should be registered?"
+      participant_prompt: "Select person..."
+      no_participants: "You have no participants in your profile yet."
+      add_participant: "Add person now"
+      error_count:
+        one: "There is 1 error:"
+        other: "There are %{count} errors:"
+      age_over: "is %{age} years old and cannot register for this course."
+      age_no_dob: "has no date of birth saved."
+    flash:
+      waitlisted: "The course is full. %{name} has been added to the waitlist."
+      confirmed: "%{name} has a confirmed spot in the course."
+      updated: "Registration was successfully updated."
+      destroyed: "The registration was deleted."
+      already_cancelled: "This registration is already cancelled."
+    errors:
+      duplicate_session: "This child is already registered for this session."
+      session_cancelled: "This session has unfortunately been cancelled."
+      session_in_past: "This session is in the past and can no longer be booked."
+      missing_field: "%{field} is missing for %{name}. Please update the profile first."
     show:
       title_payment: "Registration confirmed"
       subtitle_payment: "Please complete payment to secure your spot."

@@ -260,7 +260,7 @@
               <% when 'ausstehend' %>
                 <span class="shrink-0 bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_open") %></span>
               <% else %>
-                <span class="shrink-0 bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status %></span>
+                <span class="shrink-0 bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
               <% end %>
             </div>
 
@@ -342,7 +342,7 @@
                           <% when 'ausstehend' %>
                             <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
                           <% else %>
-                            <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status %></span>
+                            <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
                           <% end %>
                         </dd>
                       </div>
@@ -475,7 +475,7 @@
                 <% when 'ausstehend' %>
                   <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
                 <% else %>
-                  <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status %></span>
+                  <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
                 <% end %>
               </td>
               <td class="py-4 px-6 text-sm">
@@ -554,7 +554,7 @@
                               <% when 'ausstehend' %>
                                 <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
                               <% else %>
-                                <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status %></span>
+                                <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
                               <% end %>
                             </dd>
                           </div>

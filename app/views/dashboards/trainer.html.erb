@@ -83,9 +83,9 @@
 
           <%# Kurs-Kopf %>
           <div class="px-5 pt-5 pb-4 border-b border-gray-100">
-            <% if course.registration_type.present? %>
+            <% if course.registration_type_label.present? %>
               <span class="inline-block text-xs font-bold uppercase tracking-wider text-primary-600 bg-primary-50 px-2.5 py-0.5 rounded-full mb-2">
-                <%= course.registration_type %>
+                <%= course.registration_type_label %>
               </span>
             <% end %>
             <h2 class="text-lg font-extrabold text-gray-900 leading-tight"><%= course.title %></h2>

@@ -8,7 +8,7 @@ der Kurs ist aktuell ausgebucht. Wir haben <%= @participant.first_name %> <%= @p
 
 Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
 Kurs:        <%= @course.title %>
-Status:      <%= @course_registration.status %>
+Status:      <%= @course_registration.status_label %>
 <% if @course.has_payment? %>
 Betrag:      <%= @course.price_display %>
 <% end %>

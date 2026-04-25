@@ -12,6 +12,10 @@ class CourseRegistration < ApplicationRecord
 
   before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") && payment_expires_at.nil? }
 
+  def status_label
+    I18n.t("course_registrations.statuses.#{status}", default: status.to_s.humanize)
+  end
+
   private
 
   def set_payment_expiry
@@ -27,16 +31,16 @@ class CourseRegistration < ApplicationRecord
       training_session_id: training_session_id
     ).where.not(status: "storniert").exists?
 
-    errors.add(:base, "Dieses Kind ist für diesen Termin bereits angemeldet.") if already_registered
+    errors.add(:base, I18n.t("course_registrations.errors.duplicate_session")) if already_registered
   end
 
   def training_session_bookable
     return unless training_session.present?
 
     if training_session.is_canceled?
-      errors.add(:base, "Dieser Termin wurde leider abgesagt.")
+      errors.add(:base, I18n.t("course_registrations.errors.session_cancelled"))
     elsif training_session.start_time <= Time.current
-      errors.add(:base, "Dieser Termin liegt in der Vergangenheit und kann nicht mehr gebucht werden.")
+      errors.add(:base, I18n.t("course_registrations.errors.session_in_past"))
     end
   end
 
@@ -45,7 +49,9 @@ class CourseRegistration < ApplicationRecord
 
     missing = participant.missing_fields_for(course)
     missing.each do |field|
-      errors.add(:base, "#{Participant.field_label(field)} fehlt für #{participant.first_name} #{participant.last_name}. Bitte zuerst im Profil ergänzen.")
+      errors.add(:base, I18n.t("course_registrations.errors.missing_field",
+                               field: Participant.field_label(field),
+                               name: "#{participant.first_name} #{participant.last_name}"))
     end
   end
 end
