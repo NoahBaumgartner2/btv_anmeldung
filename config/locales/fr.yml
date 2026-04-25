@@ -1,6 +1,68 @@
 fr:
   hello: "Bonjour monde"
 
+  date:
+    abbr_day_names:
+      - dim
+      - lun
+      - mar
+      - mer
+      - jeu
+      - ven
+      - sam
+    abbr_month_names:
+      - ~
+      - jan.
+      - fév.
+      - mars
+      - avr.
+      - mai
+      - juin
+      - juil.
+      - août
+      - sep.
+      - oct.
+      - nov.
+      - déc.
+    day_names:
+      - dimanche
+      - lundi
+      - mardi
+      - mercredi
+      - jeudi
+      - vendredi
+      - samedi
+    formats:
+      default: "%-d %B %Y"
+      long: "%-d %B %Y"
+      long_day: "%A %-d %B %Y"
+      short: "%-d %b"
+    month_names:
+      - ~
+      - janvier
+      - février
+      - mars
+      - avril
+      - mai
+      - juin
+      - juillet
+      - août
+      - septembre
+      - octobre
+      - novembre
+      - décembre
+    order:
+      - :day
+      - :month
+      - :year
+
+  time:
+    formats:
+      default: "%A %-d %B %Y, %H:%M"
+      long: "%A %-d %B %Y, %H:%M"
+      short: "%-d %b, %H:%M"
+      date_time_short: "%-d %b %Y – %H:%M"
+
   activemodel:
     errors:
       messages:

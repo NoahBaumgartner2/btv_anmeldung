@@ -57,7 +57,7 @@
           </li>
           <li class="flex items-start">
             <span class="mr-3 text-xl"></span>
-            <span><%= @course.start_date&.strftime("%d.%m.%Y") %> – <%= @course.end_date&.strftime("%d.%m.%Y") %></span>
+            <span><%= @course.start_date ? I18n.l(@course.start_date) : "–" %> – <%= @course.end_date ? I18n.l(@course.end_date) : "–" %></span>
           </li>
         </ul>
       </div>
@@ -102,10 +102,10 @@
               <li class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-secondary-50/50 transition">
                 <div>
                   <p class="font-bold text-gray-900 text-lg">
-                    <%= I18n.l(session.start_time, format: "%A, %-d. %B %Y") %>
+                    <%= session.start_time ? I18n.l(session.start_time.to_date, format: :long_day) : "" %>
                   </p>
                   <p class="text-sm font-medium text-secondary-600 mt-1">
-                    <%= session.start_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
+                    <%= session.start_time&.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
                     <% if @course.location.present? %>
                       <span class="text-gray-400 mx-2">·</span>
                       <%= @course.location %>
@@ -165,7 +165,7 @@
               <li class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-gray-50 transition">
                 <div>
                   <p class="font-bold text-gray-900">
-                    <%= session.start_time ? "#{session.start_time.strftime('%d.%m.%Y - %H:%M')} #{t('misc.time_suffix')}" : t("courses.show.trainer_area.date_pending") %>
+                    <%= session.start_time ? I18n.l(session.start_time, format: :date_time_short) : t("courses.show.trainer_area.date_pending") %>
                   </p>
                   <p class="text-sm text-gray-500"><%= @course.location.presence || t("courses.show.trainer_area.no_location") %></p>
                 </div>
