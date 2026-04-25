@@ -4,46 +4,46 @@
     <div>
       <h1 class="font-bold text-2xl sm:text-3xl text-gray-900"><%= @participant.first_name %> <%= @participant.last_name %></h1>
       <span class="inline-block mt-2 bg-purple-100 text-purple-800 text-xs font-semibold px-2.5 py-0.5 rounded uppercase tracking-wide">
-        Teilnehmer-Profil
+        <%= t("participants.show.badge") %>
       </span>
     </div>
     <div class="flex flex-wrap gap-2">
-      <%= link_to "Zurück zur Übersicht", participants_path, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition min-h-11 inline-flex items-center" %>
-      <%= link_to "Bearbeiten", edit_participant_path(@participant), class: "bg-orange-100 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-orange-700 hover:bg-orange-200 active:bg-orange-300 transition min-h-11 inline-flex items-center" %>
-      <%= button_to "Löschen", @participant, method: :delete, data: { turbo_confirm: "Wirklich löschen?" }, class: "cursor-pointer bg-red-600 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-red-700 active:bg-red-800 transition min-h-11" %>
+      <%= link_to t("participants.show.back"), participants_path, class: "bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition min-h-11 inline-flex items-center" %>
+      <%= link_to t("participants.show.edit"), edit_participant_path(@participant), class: "bg-orange-100 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-orange-700 hover:bg-orange-200 active:bg-orange-300 transition min-h-11 inline-flex items-center" %>
+      <%= button_to t("participants.show.delete"), @participant, method: :delete, data: { turbo_confirm: t("participants.show.delete_confirm") }, class: "cursor-pointer bg-red-600 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white hover:bg-red-700 active:bg-red-800 transition min-h-11" %>
     </div>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
 
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-      <h2 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4">Persönliche Daten</h2>
+      <h2 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4"><%= t("participants.show.personal_data") %></h2>
       <div class="space-y-3">
         <div>
-          <p class="text-sm font-medium text-gray-500">Geburtsdatum</p>
+          <p class="text-sm font-medium text-gray-500"><%= t("participants.show.date_of_birth") %></p>
           <p class="text-gray-900"><%= @participant.date_of_birth&.strftime("%d.%m.%Y") || "-" %></p>
         </div>
         <div>
-          <p class="text-sm font-medium text-gray-500">Geschlecht</p>
+          <p class="text-sm font-medium text-gray-500"><%= t("participants.show.gender") %></p>
           <p class="text-gray-900"><%= @participant.gender.presence || "-" %></p>
         </div>
         <div>
-          <p class="text-sm font-medium text-gray-500">AHV-Nummer</p>
+          <p class="text-sm font-medium text-gray-500"><%= t("participants.show.ahv_number") %></p>
           <p class="text-gray-900"><%= @participant.ahv_number.presence || "-" %></p>
         </div>
       </div>
     </div>
 
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-      <h2 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4">Kontakt (Elternteil)</h2>
+      <h2 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-3 mb-4"><%= t("participants.show.contact") %></h2>
       <div class="space-y-3">
         <div>
-          <p class="text-sm font-medium text-gray-500">Verknüpftes Konto (E-Mail)</p>
+          <p class="text-sm font-medium text-gray-500"><%= t("participants.show.linked_account") %></p>
           <p class="text-gray-900 font-medium"><%= @participant.user.email %></p>
         </div>
         <div>
-          <p class="text-sm font-medium text-gray-500">Telefonnummer</p>
-          <p class="text-gray-900"><%= @participant.phone_number.presence || "Nicht hinterlegt" %></p>
+          <p class="text-sm font-medium text-gray-500"><%= t("participants.show.phone_number") %></p>
+          <p class="text-gray-900"><%= @participant.phone_number.presence || t("participants.show.not_provided") %></p>
         </div>
       </div>
     </div>
@@ -51,7 +51,7 @@
   </div>
 
   <div class="mb-6 flex justify-between items-end">
-    <h2 class="text-2xl font-bold text-gray-900">Angemeldete Kurse (<%= @participant.course_registrations.count %>)</h2>
+    <h2 class="text-2xl font-bold text-gray-900"><%= t("participants.show.registrations_count", count: @participant.course_registrations.count) %></h2>
   </div>
 
   <%# ── Mobile: Karten ─────────────────────────────────────────────────── %>
@@ -66,7 +66,7 @@
           </div>
           <div class="flex items-center gap-4 text-xs text-gray-500">
             <span><%= registration.course.start_date&.strftime("%d.%m.%Y") %></span>
-            <span><%= registration.payment_cleared ? "Bezahlt" : "Ausstehend" %></span>
+            <span><%= registration.payment_cleared ? t("participants.show.payment_cleared") : t("participants.show.payment_pending") %></span>
           </div>
         <% end %>
       <% end %>
@@ -78,11 +78,11 @@
     <table class="min-w-full divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
-          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kurs</th>
-          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Startdatum</th>
-          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Bezahlt?</th>
-          <th scope="col" class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Link</th>
+          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("participants.show.table_course") %></th>
+          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("participants.show.table_start_date") %></th>
+          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("participants.show.table_status") %></th>
+          <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("participants.show.table_paid") %></th>
+          <th scope="col" class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("participants.show.table_link") %></th>
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-200 bg-white">
@@ -102,17 +102,17 @@
                 </span>
               </td>
               <td class="py-4 px-4 whitespace-nowrap text-sm text-gray-500">
-                <%= registration.payment_cleared ? "Bezahlt" : "Ausstehend" %>
+                <%= registration.payment_cleared ? t("participants.show.payment_cleared") : t("participants.show.payment_pending") %>
               </td>
               <td class="py-4 px-4 whitespace-nowrap text-right text-sm font-medium">
-                <%= link_to "Zum Kurs", course_path(registration.course), class: "text-primary-600 hover:text-primary-900" %>
+                <%= link_to t("participants.show.to_course"), course_path(registration.course), class: "text-primary-600 hover:text-primary-900" %>
               </td>
             </tr>
           <% end %>
         <% else %>
           <tr>
             <td colspan="5" class="py-8 text-center text-sm text-gray-500">
-              Dieser Teilnehmer ist noch für keinen Kurs angemeldet.
+              <%= t("participants.show.no_registrations") %>
             </td>
           </tr>
         <% end %>
@@ -122,7 +122,7 @@
 
   <% unless @participant.course_registrations.any? %>
     <div class="sm:hidden bg-white rounded-xl border border-gray-200 shadow-sm py-8 text-center">
-      <p class="text-sm text-gray-500">Dieser Teilnehmer ist noch für keinen Kurs angemeldet.</p>
+      <p class="text-sm text-gray-500"><%= t("participants.show.no_registrations") %></p>
     </div>
   <% end %>
 
