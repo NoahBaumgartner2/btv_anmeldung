@@ -25,6 +25,7 @@ module InfomaniakConfig
     # Liest Konfiguration aus DB (Vorrang) und fällt auf Credentials zurück.
     # Thread-sicher: @config wird atomar ersetzt.
     def load!
+      # raw        = Rails.application.credentials.infomaniak
       raw        = nil
       db_setting = load_from_db
 
