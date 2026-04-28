@@ -37,6 +37,7 @@
         "controllers/modal_controller":               "<%= asset_path 'controllers/modal_controller.js' %>",
         "controllers/mobile_menu_controller":         "<%= asset_path 'controllers/mobile_menu_controller.js' %>",
         "controllers/datepicker_controller":          "<%= asset_path 'controllers/datepicker_controller.js' %>",
+        "controllers/cookie_consent_controller":      "<%= asset_path 'controllers/cookie_consent_controller.js' %>",
         "controllers":                    "<%= asset_path 'controllers/index.js' %>"
       }
     }
@@ -257,6 +258,18 @@
         </div>
       </main>
     <% end %>
+
+    <footer class="border-t border-gray-200 mt-8 py-6 bg-white">
+      <div class="container mx-auto px-4 sm:px-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
+        <span>&copy; <%= Date.current.year %> <%= club_setting.club_name.presence || "BTV Anmeldung" %>. Alle Rechte vorbehalten.</span>
+        <div class="flex gap-4">
+          <%= link_to "Datenschutz", privacy_path, class: "hover:text-gray-600 transition" %>
+          <%= link_to "Impressum", impressum_path, class: "hover:text-gray-600 transition" %>
+        </div>
+      </div>
+    </footer>
+
+    <%= render "shared/cookie_consent" %>
 
   </body>
 </html>

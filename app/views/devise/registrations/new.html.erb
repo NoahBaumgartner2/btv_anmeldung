@@ -27,6 +27,19 @@
         <%= render "devise/shared/password_field", f: f, field: :password_confirmation,
               label: t("devise.registrations.new.password_confirm_label"), autocomplete: "new-password" %>
 
+        <%# Pflicht: Datenschutz-Zustimmung %>
+        <label class="flex items-start gap-3 cursor-pointer group">
+          <input type="checkbox"
+                 name="user[privacy_accepted]"
+                 value="1"
+                 required
+                 class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer shrink-0">
+          <span class="text-xs text-gray-700 leading-relaxed">
+            Ich habe die <%= link_to "Datenschutzerklärung", privacy_path, target: "_blank", class: "text-primary-600 underline hover:text-primary-800" %> gelesen und stimme der Verarbeitung meiner Daten gemäss den beschriebenen Zwecken zu. <span class="text-red-500">*</span>
+          </span>
+        </label>
+
+        <%# Optional: Newsletter %>
         <label class="flex items-start gap-3 cursor-pointer group">
           <input type="checkbox"
                  name="user[newsletter_opt_in]"
@@ -34,6 +47,7 @@
                  class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer shrink-0">
           <span class="text-xs text-gray-600 leading-relaxed">
             <%= t("devise.registrations.new.newsletter_label_html").html_safe %>
+            <span class="text-gray-400">(optional)</span>
           </span>
         </label>
 

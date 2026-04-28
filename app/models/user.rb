@@ -4,10 +4,13 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, :confirmable, :lockable
 
-  # Ein User (Elternteil) kann mehrere Teilnehmer (Kinder) verwalten:
   has_many :participants, dependent: :destroy
-
   has_one :trainer, dependent: :destroy
+
+  attr_accessor :privacy_accepted
+  validates :privacy_accepted, acceptance: { allow_nil: false }, on: :create
+
+  before_create :set_privacy_accepted_at
 
   def newsletter_subscriber
     NewsletterSubscriber.find_by(email: email.downcase.strip)
@@ -17,5 +20,9 @@ class User < ApplicationRecord
     newsletter_subscriber&.subscribed? || false
   end
 
+  private
 
+  def set_privacy_accepted_at
+    self.privacy_accepted_at = Time.current if privacy_accepted.in?([ "1", true ])
+  end
 end

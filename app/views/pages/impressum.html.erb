@@ -1,0 +1,51 @@
+<% content_for :title, "Impressum – BTV Anmeldung" %>
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Impressum</h1>
+
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-sm text-amber-800">
+    <%# TODO (Admin): Bitte alle Platzhalter mit korrekten Vereinsdaten ersetzen %>
+    <strong>Hinweis für den Administrator:</strong> Bitte die Platzhalter unten mit den offiziellen Vereinsdaten ersetzen.
+  </div>
+
+  <section class="mb-6">
+    <h2 class="text-base font-semibold text-gray-700 mb-2">Betreiber dieser Plattform</h2>
+    <div class="text-sm text-gray-700 space-y-1">
+      <p class="font-semibold">[Vereinsname, z.B. Berner Turnverband (BTV)]</p>
+      <p>[Rechtsform, z.B. Eingetragener Verein]</p>
+      <p>[Strasse und Hausnummer]</p>
+      <p>[PLZ Ort], Schweiz</p>
+    </div>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-base font-semibold text-gray-700 mb-2">Verantwortliche Person</h2>
+    <div class="text-sm text-gray-700 space-y-1">
+      <p>[Vorname Nachname]</p>
+      <p>[Funktion im Verein]</p>
+    </div>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-base font-semibold text-gray-700 mb-2">Kontakt</h2>
+    <div class="text-sm text-gray-700 space-y-1">
+      <p>E-Mail: <a href="mailto:[kontakt@beispiel.ch]" class="text-primary-600 underline">[kontakt@beispiel.ch]</a></p>
+      <p>Telefon: [+41 XX XXX XX XX] (optional)</p>
+    </div>
+  </section>
+
+  <section class="mb-6">
+    <h2 class="text-base font-semibold text-gray-700 mb-2">Haftungsausschluss</h2>
+    <p class="text-sm text-gray-600">
+      Trotz sorgfältiger Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt verlinkter Seiten sind ausschliesslich deren Betreiber verantwortlich.
+    </p>
+  </section>
+
+  <section>
+    <h2 class="text-base font-semibold text-gray-700 mb-2">Datenschutz</h2>
+    <p class="text-sm text-gray-600">
+      Informationen zur Verarbeitung personenbezogener Daten finden Sie in unserer
+      <%= link_to "Datenschutzerklärung", privacy_path, class: "text-primary-600 underline" %>.
+    </p>
+  </section>
+</div>

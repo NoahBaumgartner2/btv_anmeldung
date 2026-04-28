@@ -103,5 +103,8 @@ Rails.application.routes.draw do
     confirmations: "users/confirmations",
     registrations: "users/registrations"
   }
+  get "/datenschutz", to: "pages#privacy",   as: :privacy
+  get "/impressum",   to: "pages#impressum", as: :impressum
+
   root "pages#home"
 end
