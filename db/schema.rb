@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_28_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_28_000002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,9 +54,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_28_000001) do
 
   create_table "club_settings", force: :cascade do |t|
     t.string "club_name"
+    t.string "contact_city"
+    t.string "contact_email"
+    t.string "contact_phone"
+    t.string "contact_street"
+    t.string "contact_website"
+    t.string "contact_zip"
     t.datetime "created_at", null: false
+    t.string "hosting_country"
+    t.string "hosting_provider"
+    t.string "legal_form"
+    t.string "payment_provider", default: "SumUp"
     t.string "primary_color"
+    t.string "privacy_officer_email"
+    t.string "privacy_officer_name"
+    t.string "responsible_function"
+    t.string "responsible_name"
     t.string "secondary_color"
+    t.string "smtp_provider"
     t.datetime "updated_at", null: false
   end
 

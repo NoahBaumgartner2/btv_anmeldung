@@ -1,36 +1,56 @@
 <% content_for :title, "Impressum – BTV Anmeldung" %>
+<% cs = club_setting %>
 
 <div class="max-w-2xl mx-auto">
   <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-8">Impressum</h1>
 
-  <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-sm text-amber-800">
-    <%# TODO (Admin): Bitte alle Platzhalter mit korrekten Vereinsdaten ersetzen %>
-    <strong>Hinweis für den Administrator:</strong> Bitte die Platzhalter unten mit den offiziellen Vereinsdaten ersetzen.
-  </div>
+  <% if user_signed_in? && current_user.admin? && cs.contact_email.blank? %>
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-sm text-amber-800">
+      <strong>Admin-Hinweis:</strong> Impressum-Angaben noch unvollständig.
+      <%= link_to "Jetzt in den Vereinseinstellungen ausfüllen →", edit_admin_club_setting_path, class: "underline font-semibold" %>
+    </div>
+  <% end %>
 
   <section class="mb-6">
     <h2 class="text-base font-semibold text-gray-700 mb-2">Betreiber dieser Plattform</h2>
     <div class="text-sm text-gray-700 space-y-1">
-      <p class="font-semibold">[Vereinsname, z.B. Berner Turnverband (BTV)]</p>
-      <p>[Rechtsform, z.B. Eingetragener Verein]</p>
-      <p>[Strasse und Hausnummer]</p>
-      <p>[PLZ Ort], Schweiz</p>
+      <p class="font-semibold">
+        <%= cs.club_name.presence || "—" %>
+        <% if cs.legal_form.present? %><span class="font-normal text-gray-500">, <%= cs.legal_form %></span><% end %>
+      </p>
+      <% if cs.contact_street.present? %>
+        <p><%= cs.contact_street %></p>
+      <% end %>
+      <% if cs.contact_zip.present? || cs.contact_city.present? %>
+        <p><%= [cs.contact_zip, cs.contact_city].select(&:present?).join(" ") %>, Schweiz</p>
+      <% end %>
     </div>
   </section>
 
-  <section class="mb-6">
-    <h2 class="text-base font-semibold text-gray-700 mb-2">Verantwortliche Person</h2>
-    <div class="text-sm text-gray-700 space-y-1">
-      <p>[Vorname Nachname]</p>
-      <p>[Funktion im Verein]</p>
-    </div>
-  </section>
+  <% if cs.responsible_name.present? %>
+    <section class="mb-6">
+      <h2 class="text-base font-semibold text-gray-700 mb-2">Verantwortliche Person</h2>
+      <div class="text-sm text-gray-700 space-y-1">
+        <p><%= cs.responsible_name %></p>
+        <% if cs.responsible_function.present? %>
+          <p class="text-gray-500"><%= cs.responsible_function %></p>
+        <% end %>
+      </div>
+    </section>
+  <% end %>
 
   <section class="mb-6">
     <h2 class="text-base font-semibold text-gray-700 mb-2">Kontakt</h2>
     <div class="text-sm text-gray-700 space-y-1">
-      <p>E-Mail: <a href="mailto:[kontakt@beispiel.ch]" class="text-primary-600 underline">[kontakt@beispiel.ch]</a></p>
-      <p>Telefon: [+41 XX XXX XX XX] (optional)</p>
+      <% if cs.contact_email.present? %>
+        <p>E-Mail: <a href="mailto:<%= cs.contact_email %>" class="text-primary-600 underline"><%= cs.contact_email %></a></p>
+      <% end %>
+      <% if cs.contact_phone.present? %>
+        <p>Telefon: <%= cs.contact_phone %></p>
+      <% end %>
+      <% if cs.contact_website.present? %>
+        <p>Website: <span class="text-primary-600"><%= cs.contact_website %></span></p>
+      <% end %>
     </div>
   </section>
 

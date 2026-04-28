@@ -1,27 +1,53 @@
 <% content_for :title, "Datenschutzerklärung – BTV Anmeldung" %>
+<% cs = club_setting %>
 
 <div class="max-w-3xl mx-auto">
   <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Datenschutzerklärung</h1>
   <p class="text-sm text-gray-500 mb-8">Letzte Aktualisierung: 28. April 2026</p>
 
+  <%# Hinweis falls Angaben noch fehlen (nur für Admins sichtbar) %>
+  <% if user_signed_in? && current_user.admin? && cs.contact_email.blank? %>
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-sm text-amber-800">
+      <strong>Admin-Hinweis:</strong> Datenschutz-Kontaktangaben sind noch nicht vollständig.
+      <%= link_to "Jetzt in den Vereinseinstellungen ausfüllen →", edit_admin_club_setting_path, class: "underline font-semibold" %>
+    </div>
+  <% end %>
+
   <%# ── 1. Verantwortlicher ──────────────────────────────────────────────── %>
   <section class="mb-8">
     <h2 class="text-lg font-semibold text-gray-800 mb-3">1. Verantwortlicher</h2>
-    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 text-sm text-amber-800">
-      <%# TODO (Admin): Bitte vollständige Vereinsdaten eintragen %>
-      <strong>Hinweis für den Administrator:</strong> Bitte die untenstehenden Platzhalter mit den korrekten Vereinsdaten ersetzen.
-    </div>
     <div class="text-sm text-gray-700 space-y-1 bg-gray-50 rounded-lg p-4 border border-gray-200">
-      <p class="font-semibold">[Vereinsname, z.B. Berner Turnverband (BTV)]</p>
-      <p>[Strasse und Hausnummer]</p>
-      <p>[PLZ Ort]</p>
-      <p>Schweiz</p>
-      <p class="pt-2">E-Mail: <a href="mailto:[kontakt@beispiel.ch]" class="text-primary-600 underline">[kontakt@beispiel.ch]</a></p>
-      <p>Website: <a href="[https://www.beispiel.ch]" class="text-primary-600 underline">[https://www.beispiel.ch]</a></p>
+      <p class="font-semibold"><%= cs.club_name.presence || "—" %><% if cs.legal_form.present? %>, <%= cs.legal_form %><% end %></p>
+      <% if cs.contact_street.present? %>
+        <p><%= cs.contact_street %></p>
+      <% end %>
+      <% if cs.contact_zip.present? || cs.contact_city.present? %>
+        <p><%= [cs.contact_zip, cs.contact_city].select(&:present?).join(" ") %>, Schweiz</p>
+      <% end %>
+      <% if cs.contact_email.present? %>
+        <p class="pt-2">E-Mail: <a href="mailto:<%= cs.contact_email %>" class="text-primary-600 underline"><%= cs.contact_email %></a></p>
+      <% end %>
+      <% if cs.contact_phone.present? %>
+        <p>Telefon: <%= cs.contact_phone %></p>
+      <% end %>
+      <% if cs.contact_website.present? %>
+        <p>Website: <span class="text-primary-600"><%= cs.contact_website %></span></p>
+      <% end %>
     </div>
-    <p class="text-sm text-gray-600 mt-3">
-      Bei Fragen zum Datenschutz wenden Sie sich bitte direkt an die oben genannte Adresse. Ein benannter Datenschutzbeauftragter ist [vorhanden / nicht vorhanden; bitte anpassen].
-    </p>
+
+    <% if cs.privacy_officer_name.present? %>
+      <div class="mt-3 text-sm text-gray-700 bg-gray-50 rounded-lg p-4 border border-gray-200">
+        <p class="font-semibold mb-1">Datenschutzbeauftragte/r</p>
+        <p><%= cs.privacy_officer_name %></p>
+        <% if cs.privacy_officer_email.present? %>
+          <p><a href="mailto:<%= cs.privacy_officer_email %>" class="text-primary-600 underline"><%= cs.privacy_officer_email %></a></p>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500 mt-3">
+        Bei Fragen zum Datenschutz wenden Sie sich an die oben genannte Kontaktadresse. Es ist kein separater Datenschutzbeauftragter benannt.
+      </p>
+    <% end %>
   </section>
 
   <%# ── 2. Erhobene Daten und Zwecke ────────────────────────────────────── %>
@@ -30,79 +56,74 @@
     <p class="text-sm text-gray-600 mb-4">
       Wir erheben und verarbeiten personenbezogene Daten ausschliesslich für die Verwaltung von Kursen, Anmeldungen und Teilnehmenden unseres Sportvereins.
     </p>
-
-    <div class="space-y-4">
-      <div class="rounded-lg border border-gray-200 overflow-hidden">
-        <table class="w-full text-sm">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="text-left px-4 py-2.5 font-semibold text-gray-700 w-1/3">Datenkategorie</th>
-              <th class="text-left px-4 py-2.5 font-semibold text-gray-700 w-1/3">Zweck</th>
-              <th class="text-left px-4 py-2.5 font-semibold text-gray-700">Rechtsgrundlage</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr>
-              <td class="px-4 py-3 text-gray-700">E-Mail-Adresse, Passwort (verschlüsselt)</td>
-              <td class="px-4 py-3 text-gray-600">Benutzerkonto, Authentifizierung, Kontowiederherstellung</td>
-              <td class="px-4 py-3 text-gray-600">Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO)</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-gray-700">Vorname, Nachname, Geburtsdatum, Geschlecht</td>
-              <td class="px-4 py-3 text-gray-600">Verwaltung der Kursteilnehmenden, Identifikation</td>
-              <td class="px-4 py-3 text-gray-600">Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO)</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-gray-700 font-medium">AHV-Nummer</td>
-              <td class="px-4 py-3 text-gray-600">J+S-Meldepflicht (Jugend+Sport, Bundesamt für Sport BASPO) gemäss Sportförderungsverordnung</td>
-              <td class="px-4 py-3 text-gray-600">Rechtliche Verpflichtung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;c DSGVO / DSG Art.&nbsp;31)</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-gray-700">Adresse, PLZ, Ort, Land</td>
-              <td class="px-4 py-3 text-gray-600">Vereinsverwaltung, Korrespondenz</td>
-              <td class="px-4 py-3 text-gray-600">Berechtigtes Interesse (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO)</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-gray-700">Nationalität, Muttersprache</td>
-              <td class="px-4 py-3 text-gray-600">J+S-Meldepflicht, statistische Auswertung</td>
-              <td class="px-4 py-3 text-gray-600">Rechtliche Verpflichtung / berechtigtes Interesse</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-gray-700">Notfall-Telefonnummer</td>
-              <td class="px-4 py-3 text-gray-600">Sicherheit der Teilnehmenden bei Kursen</td>
-              <td class="px-4 py-3 text-gray-600">Berechtigtes Interesse (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO)</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-gray-700">Kursanmeldungen, QR-Ticket, Zahlungsstatus</td>
-              <td class="px-4 py-3 text-gray-600">Kursverwaltung, Zutrittskontrolle, Abrechnung</td>
-              <td class="px-4 py-3 text-gray-600">Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO)</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-gray-700">Anwesenheitserfassung</td>
-              <td class="px-4 py-3 text-gray-600">Nachweis der Kursteilnahme, J+S-Rapportierung</td>
-              <td class="px-4 py-3 text-gray-600">Rechtliche Verpflichtung / Vertragserfüllung</td>
-            </tr>
-            <tr>
-              <td class="px-4 py-3 text-gray-700">E-Mail-Adresse (Newsletter)</td>
-              <td class="px-4 py-3 text-gray-600">Versand von Vereinsnews, Kursinfos</td>
-              <td class="px-4 py-3 text-gray-600">Einwilligung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO) – jederzeit widerrufbar</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="rounded-lg border border-gray-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="text-left px-4 py-2.5 font-semibold text-gray-700 w-1/3">Datenkategorie</th>
+            <th class="text-left px-4 py-2.5 font-semibold text-gray-700 w-1/3">Zweck</th>
+            <th class="text-left px-4 py-2.5 font-semibold text-gray-700">Rechtsgrundlage</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr>
+            <td class="px-4 py-3 text-gray-700">E-Mail-Adresse, Passwort (verschlüsselt)</td>
+            <td class="px-4 py-3 text-gray-600">Benutzerkonto, Authentifizierung, Kontowiederherstellung</td>
+            <td class="px-4 py-3 text-gray-600">Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO)</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 text-gray-700">Vorname, Nachname, Geburtsdatum, Geschlecht</td>
+            <td class="px-4 py-3 text-gray-600">Verwaltung der Kursteilnehmenden, Identifikation</td>
+            <td class="px-4 py-3 text-gray-600">Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO)</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 text-gray-700 font-medium">AHV-Nummer</td>
+            <td class="px-4 py-3 text-gray-600">J+S-Meldepflicht (Jugend+Sport, BASPO) gemäss Sportförderungsverordnung</td>
+            <td class="px-4 py-3 text-gray-600">Rechtliche Verpflichtung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;c DSGVO / DSG Art.&nbsp;31)</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 text-gray-700">Adresse, PLZ, Ort, Land</td>
+            <td class="px-4 py-3 text-gray-600">Vereinsverwaltung, Korrespondenz</td>
+            <td class="px-4 py-3 text-gray-600">Berechtigtes Interesse (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO)</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 text-gray-700">Nationalität, Muttersprache</td>
+            <td class="px-4 py-3 text-gray-600">J+S-Meldepflicht, statistische Auswertung</td>
+            <td class="px-4 py-3 text-gray-600">Rechtliche Verpflichtung / berechtigtes Interesse</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 text-gray-700">Notfall-Telefonnummer</td>
+            <td class="px-4 py-3 text-gray-600">Sicherheit der Teilnehmenden bei Kursen</td>
+            <td class="px-4 py-3 text-gray-600">Berechtigtes Interesse (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;f DSGVO)</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 text-gray-700">Kursanmeldungen, QR-Ticket, Zahlungsstatus</td>
+            <td class="px-4 py-3 text-gray-600">Kursverwaltung, Zutrittskontrolle, Abrechnung</td>
+            <td class="px-4 py-3 text-gray-600">Vertragserfüllung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;b DSGVO)</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 text-gray-700">Anwesenheitserfassung</td>
+            <td class="px-4 py-3 text-gray-600">Nachweis der Kursteilnahme, J+S-Rapportierung</td>
+            <td class="px-4 py-3 text-gray-600">Rechtliche Verpflichtung / Vertragserfüllung</td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 text-gray-700">E-Mail-Adresse (Newsletter)</td>
+            <td class="px-4 py-3 text-gray-600">Versand von Vereinsnews, Kursinfos</td>
+            <td class="px-4 py-3 text-gray-600">Einwilligung (Art.&nbsp;6 Abs.&nbsp;1 lit.&nbsp;a DSGVO) – jederzeit widerrufbar</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </section>
 
   <%# ── 3. Besondere Kategorien ──────────────────────────────────────────── %>
   <section class="mb-8">
     <h2 class="text-lg font-semibold text-gray-800 mb-3">3. Besonders schützenswerte Daten</h2>
-
     <div class="space-y-4 text-sm text-gray-700">
       <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p class="font-semibold text-blue-800 mb-1">AHV-Nummer (AHVN13)</p>
         <p>Die AHV-Nummer gilt gemäss dem revidierten Schweizer Datenschutzgesetz (DSG Art.&nbsp;5 lit.&nbsp;c) als besonders schützenswertes Datum. Sie wird ausschliesslich für die gesetzlich vorgeschriebene J+S-Meldung an das BASPO verwendet, technisch verschlüsselt gespeichert und nicht an Dritte weitergegeben — ausser an die zuständige Bundesbehörde im Rahmen der Meldepflicht.</p>
       </div>
-
       <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
         <p class="font-semibold text-purple-800 mb-1">Daten von Minderjährigen</p>
         <p>Unsere Kurse richten sich vorwiegend an Kinder und Jugendliche. Gemäss Art.&nbsp;8 DSGVO und dem revidierten DSG werden Daten Minderjähriger unter 16 Jahren nur mit Einwilligung eines Erziehungsberechtigten verarbeitet. Das Konto wird vom Erziehungsberechtigten (Elternteil) angelegt. Wir erheben keine Daten, die über den Kursbetrieb hinaus notwendig sind.</p>
@@ -115,16 +136,28 @@
     <h2 class="text-lg font-semibold text-gray-800 mb-3">4. Drittanbieter und Datenübermittlung</h2>
     <div class="space-y-3 text-sm text-gray-700">
       <div class="border border-gray-200 rounded-lg p-4">
-        <p class="font-semibold mb-1">Stripe (Zahlungsabwicklung)</p>
-        <p>Für Kursbeiträge nutzen wir SumUp als Zahlungsdienstleister. [TODO Admin: Anpassen falls Stripe oder anderer Anbieter.] Zahlungsdaten (Kartennummern etc.) werden direkt an den Anbieter übermittelt und nicht auf unseren Servern gespeichert. Bei Übermittlung in die USA gelten die Standardvertragsklauseln (SCC) der EU-Kommission als Schutzinstrument gemäss Art.&nbsp;46 Abs.&nbsp;2 lit.&nbsp;c DSGVO.</p>
+        <p class="font-semibold mb-1">
+          <%= cs.payment_provider.presence || "Zahlungsdienstleister" %> (Zahlungsabwicklung)
+        </p>
+        <p>Für Kursbeiträge nutzen wir <%= cs.payment_provider.presence || "einen Zahlungsdienstleister" %> als Zahlungsabwickler. Zahlungsdaten (Kartennummern etc.) werden direkt an den Anbieter übermittelt und nicht auf unseren Servern gespeichert. Bei Übermittlung in die USA gelten die Standardvertragsklauseln (SCC) der EU-Kommission als Schutzinstrument gemäss Art.&nbsp;46 Abs.&nbsp;2 lit.&nbsp;c DSGVO.</p>
       </div>
       <div class="border border-gray-200 rounded-lg p-4">
-        <p class="font-semibold mb-1">E-Mail-Versand (SMTP-Provider)</p>
-        <p>Für den Versand von Bestätigungs- und Systemmails nutzen wir [TODO Admin: Anbieter eintragen, z.B. Infomaniak, Postmark, SendGrid]. Der Anbieter verarbeitet E-Mail-Adressen und Nachrichteninhalte ausschliesslich zum Zweck der Zustellung.</p>
+        <p class="font-semibold mb-1">
+          <%= cs.smtp_provider.presence || "E-Mail-Provider" %> (E-Mail-Versand)
+        </p>
+        <p>Für den Versand von Bestätigungs- und Systemmails nutzen wir <%= cs.smtp_provider.presence || "einen SMTP-Dienstleister" %>. Der Anbieter verarbeitet E-Mail-Adressen und Nachrichteninhalte ausschliesslich zum Zweck der Zustellung.</p>
       </div>
       <div class="border border-gray-200 rounded-lg p-4">
         <p class="font-semibold mb-1">Hosting / Server</p>
-        <p>Die Anwendung wird auf [TODO Admin: Hosting-Anbieter, z.B. Hetzner, Infomaniak] betrieben. Standort: [Schweiz / EU]. Es findet keine Übermittlung in Drittstaaten ohne angemessenes Schutzniveau statt.</p>
+        <p>
+          Die Anwendung wird auf
+          <% if cs.hosting_provider.present? %>
+            <%= cs.hosting_provider %><% if cs.hosting_country.present? %> (<%= cs.hosting_country %>)<% end %>
+          <% else %>
+            einem externen Hosting-Anbieter
+          <% end %>
+          betrieben. Es findet keine Übermittlung in Drittstaaten ohne angemessenes Schutzniveau statt.
+        </p>
       </div>
     </div>
   </section>
@@ -181,9 +214,7 @@
   <%# ── 7. Betroffenenrechte ────────────────────────────────────────────── %>
   <section class="mb-8">
     <h2 class="text-lg font-semibold text-gray-800 mb-3">7. Deine Rechte</h2>
-    <p class="text-sm text-gray-600 mb-3">
-      Du hast gemäss DSGVO und revidiertem DSG folgende Rechte:
-    </p>
+    <p class="text-sm text-gray-600 mb-3">Du hast gemäss DSGVO und revidiertem DSG folgende Rechte:</p>
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
       <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
         <p class="font-semibold text-gray-800">Auskunft (Art.&nbsp;15 DSGVO)</p>
@@ -195,19 +226,19 @@
       </div>
       <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
         <p class="font-semibold text-gray-800">Löschung (Art.&nbsp;17 DSGVO)</p>
-        <p class="text-gray-600 mt-1">Du kannst dein Konto und alle damit verbundenen Daten jederzeit selbst löschen: <%= link_to "Konto löschen", account_path, class: "text-primary-600 underline" %>.</p>
+        <p class="text-gray-600 mt-1">Du kannst dein Konto jederzeit selbst löschen: <%= link_to "Konto löschen", account_path, class: "text-primary-600 underline" %>.</p>
       </div>
       <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
         <p class="font-semibold text-gray-800">Datenportabilität (Art.&nbsp;20 DSGVO)</p>
-        <p class="text-gray-600 mt-1">Du kannst deine Daten als Export herunterladen: <%= link_to "Daten exportieren", export_account_path, class: "text-primary-600 underline" %>.</p>
+        <p class="text-gray-600 mt-1">Daten als Export herunterladen: <%= link_to "Daten exportieren", export_account_path, class: "text-primary-600 underline" %>.</p>
       </div>
       <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
         <p class="font-semibold text-gray-800">Widerspruch (Art.&nbsp;21 DSGVO)</p>
-        <p class="text-gray-600 mt-1">Du kannst der Verarbeitung auf Basis berechtigter Interessen widersprechen. Wende dich dafür an uns.</p>
+        <p class="text-gray-600 mt-1">Du kannst der Verarbeitung auf Basis berechtigter Interessen widersprechen. Kontaktiere uns dafür direkt.</p>
       </div>
       <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
         <p class="font-semibold text-gray-800">Widerruf der Einwilligung</p>
-        <p class="text-gray-600 mt-1">Newsletter-Einwilligungen kannst du jederzeit widerrufen: <%= link_to "Newsletter abmelden", unsubscribe_newsletter_subscriber_path, class: "text-primary-600 underline" %>.</p>
+        <p class="text-gray-600 mt-1">Newsletter-Einwilligungen jederzeit widerrufen: <%= link_to "Newsletter abmelden", unsubscribe_newsletter_subscriber_path, class: "text-primary-600 underline" %>.</p>
       </div>
     </div>
   </section>
@@ -215,17 +246,13 @@
   <%# ── 8. Beschwerderecht ───────────────────────────────────────────────── %>
   <section class="mb-8">
     <h2 class="text-lg font-semibold text-gray-800 mb-3">8. Beschwerderecht</h2>
-    <p class="text-sm text-gray-600">
-      Du hast das Recht, eine Beschwerde bei der zuständigen Aufsichtsbehörde einzureichen:
-    </p>
+    <p class="text-sm text-gray-600">Du hast das Recht, eine Beschwerde bei der zuständigen Aufsichtsbehörde einzureichen:</p>
     <div class="mt-3 bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700">
       <p class="font-semibold">Eidgenössischer Datenschutz- und Öffentlichkeitsbeauftragter (EDÖB)</p>
       <p>Feldeggweg 1, 3003 Bern</p>
-      <p>Website: <span class="text-primary-600">edoeb.admin.ch</span></p>
+      <p class="text-primary-600">edoeb.admin.ch</p>
     </div>
-    <p class="text-sm text-gray-500 mt-3">
-      Für Personen mit Wohnsitz in der EU steht zudem die jeweils zuständige nationale Datenschutzbehörde zur Verfügung.
-    </p>
+    <p class="text-sm text-gray-500 mt-3">Für Personen mit Wohnsitz in der EU steht zudem die jeweils zuständige nationale Datenschutzbehörde zur Verfügung.</p>
   </section>
 
   <%# ── 9. Änderungen ────────────────────────────────────────────────────── %>
