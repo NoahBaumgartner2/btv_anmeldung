@@ -47,25 +47,33 @@ module Admin
                            alert: "Kein SumUp Access Token konfiguriert."
       end
 
+      token = ::SumupConfig.valid_token
+      unless token.present?
+        return redirect_to admin_payment_setting_path,
+                           alert: "Token konnte nicht ermittelt werden. Client-ID und Client-Secret prüfen."
+      end
+
       uri = URI("https://api.sumup.com/v0.1/me")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       http.open_timeout = 5
       http.read_timeout = 10
 
-      request = Net::HTTP::Get.new(uri.path, {
-        "Authorization" => "Bearer #{::SumupConfig.access_token}"
-      })
-
+      request = Net::HTTP::Get.new(uri.path, { "Authorization" => "Bearer #{token}" })
       response = http.request(request)
 
       case response.code.to_i
       when 200
-        redirect_to admin_payment_setting_path,
-                    notice: "Verbindung erfolgreich! SumUp API antwortet korrekt."
+        redirect_to admin_payment_setting_path, notice: "Verbindung erfolgreich."
       when 401, 403
-        redirect_to admin_payment_setting_path,
-                    alert: "Authentifizierungsfehler: Der Access Token ist ungültig oder abgelaufen."
+        new_token = ::SumupConfig.fetch_token!
+        if new_token.present?
+          redirect_to admin_payment_setting_path,
+                      notice: "Token wurde automatisch erneuert. Bitte nochmals testen."
+        else
+          redirect_to admin_payment_setting_path,
+                      alert: "Token ungültig und konnte nicht erneuert werden. Client-ID/Secret prüfen."
+        end
       else
         redirect_to admin_payment_setting_path,
                     alert: "SumUp API antwortete mit Status #{response.code}."
