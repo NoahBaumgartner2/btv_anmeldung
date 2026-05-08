@@ -18,7 +18,8 @@ admin_user = User.create!(
   password: 'password',
   password_confirmation: 'password',
   admin: true,
-  confirmed_at: Time.current
+  confirmed_at: Time.current,
+  privacy_accepted: true
 )
 
 # Ein normaler Trainer Account
@@ -26,7 +27,8 @@ trainer_user = User.create!(
   email: 'trainer@btv.ch',
   password: 'password',
   password_confirmation: 'password',
-  confirmed_at: Time.current
+  confirmed_at: Time.current,
+  privacy_accepted: true
 )
 
 # Zwei Eltern-Accounts
@@ -34,13 +36,15 @@ parent1 = User.create!(
   email: 'familie.meier@example.com',
   password: 'password',
   password_confirmation: 'password',
-  confirmed_at: Time.current
+  confirmed_at: Time.current,
+  privacy_accepted: true
 )
 parent2 = User.create!(
   email: 'familie.weber@example.com',
   password: 'password',
   password_confirmation: 'password',
-  confirmed_at: Time.current
+  confirmed_at: Time.current,
+  privacy_accepted: true
 )
 
 puts "🏋️ Erstelle Trainer-Profil..."
