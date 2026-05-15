@@ -40,6 +40,7 @@ de:
       signed_up_but_inactive: "Du hast dich erfolgreich registriert. Du kannst dich jedoch noch nicht anmelden, da dein Konto noch nicht aktiviert ist."
       signed_up_but_locked: "Du hast dich erfolgreich registriert. Du kannst dich jedoch noch nicht anmelden, da dein Konto gesperrt ist."
       signed_up_but_unconfirmed: "Eine E-Mail mit einem Bestätigungslink wurde an deine Adresse gesendet. Bitte folge dem Link, um dein Konto zu aktivieren."
+      confirmation_email_failed: "Dein Konto wurde erstellt, aber die Bestätigungs-E-Mail konnte leider nicht versandt werden. Bitte wende dich an den Administrator."
       update_needs_confirmation: "Dein Konto wurde aktualisiert. Bitte bestätige deine neue E-Mail-Adresse über den Link, den wir dir gesendet haben."
       updated: "Dein Konto wurde erfolgreich aktualisiert."
       updated_but_not_signed_in: "Dein Konto wurde aktualisiert. Da du dein Passwort geändert hast, musst du dich erneut anmelden."

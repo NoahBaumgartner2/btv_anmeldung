@@ -6,13 +6,19 @@ class Users::RegistrationsController < Devise::RegistrationsController
       next unless user.persisted?
 
       if params.dig(:user, :newsletter_opt_in) == "1"
-        sub = NewsletterSubscriber.find_or_initialize_by(email: user.email.downcase.strip)
-        sub.status = "subscribed"
-        sub.source ||= "registration"
-        sub.save!
+        begin
+          sub = NewsletterSubscriber.find_or_initialize_by(email: user.email.downcase.strip)
+          sub.status = "subscribed"
+          sub.source ||= "registration"
+          sub.save!
+        rescue => e
+          Rails.logger.error "[Registration] Newsletter-Anmeldung fehlgeschlagen: #{e.message}"
+        end
       end
-    rescue => e
-      Rails.logger.error "[Registration] Newsletter-Anmeldung fehlgeschlagen: #{e.message}"
+    end
+
+    if resource.persisted? && resource.devise_notification_error
+      flash[:alert] = t("devise.registrations.confirmation_email_failed")
     end
   end
 
