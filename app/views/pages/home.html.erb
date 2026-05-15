@@ -32,6 +32,77 @@
 </section>
 
 <%# ══════════════════════════════════════════════════════════════════════════ %>
+<%# So funktioniert's                                                           %>
+<%# ══════════════════════════════════════════════════════════════════════════ %>
+<section class="bg-white py-16 sm:py-20 border-t border-gray-100">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6">
+
+    <div class="text-center mb-12">
+      <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2"><%= t("pages.home.how_it_works.title") %></h2>
+      <p class="text-gray-500"><%= t("pages.home.how_it_works.subtitle") %></p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-8">
+
+      <%# Schritt 1 %>
+      <div class="text-center">
+        <div class="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+          </svg>
+        </div>
+        <div class="text-xs font-bold text-primary-600 uppercase tracking-wider mb-1"><%= t("pages.home.how_it_works.step1.label") %></div>
+        <h3 class="font-bold text-gray-900 mb-2"><%= t("pages.home.how_it_works.step1.title") %></h3>
+        <p class="text-sm text-gray-500 leading-relaxed"><%= t("pages.home.how_it_works.step1.body") %></p>
+      </div>
+
+      <%# Schritt 2 – Kursteilnehmer erfassen %>
+      <div class="text-center">
+        <div class="w-14 h-14 bg-secondary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-secondary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/>
+          </svg>
+        </div>
+        <div class="text-xs font-bold text-secondary-600 uppercase tracking-wider mb-1"><%= t("pages.home.how_it_works.step2.label") %></div>
+        <h3 class="font-bold text-gray-900 mb-2"><%= t("pages.home.how_it_works.step2.title") %></h3>
+        <p class="text-sm text-gray-500 leading-relaxed"><%= t("pages.home.how_it_works.step2.body") %></p>
+      </div>
+
+      <%# Schritt 3 %>
+      <div class="text-center">
+        <div class="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+        </div>
+        <div class="text-xs font-bold text-primary-600 uppercase tracking-wider mb-1"><%= t("pages.home.how_it_works.step3.label") %></div>
+        <h3 class="font-bold text-gray-900 mb-2"><%= t("pages.home.how_it_works.step3.title") %></h3>
+        <p class="text-sm text-gray-500 leading-relaxed"><%= t("pages.home.how_it_works.step3.body") %></p>
+      </div>
+
+      <%# Schritt 4 %>
+      <div class="text-center">
+        <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <div class="text-xs font-bold text-green-600 uppercase tracking-wider mb-1"><%= t("pages.home.how_it_works.step4.label") %></div>
+        <h3 class="font-bold text-gray-900 mb-2"><%= t("pages.home.how_it_works.step4.title") %></h3>
+        <p class="text-sm text-gray-500 leading-relaxed"><%= t("pages.home.how_it_works.step4.body") %></p>
+      </div>
+
+    </div>
+
+    <div class="text-center mt-12">
+      <%= link_to t("pages.home.how_it_works.cta"), new_user_registration_path,
+            class: "inline-block bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold px-8 py-3.5 rounded-xl shadow-sm transition text-sm min-h-11" %>
+    </div>
+
+  </div>
+</section>
+
+<%# ══════════════════════════════════════════════════════════════════════════ %>
 <%# Kursübersicht                                                               %>
 <%# ══════════════════════════════════════════════════════════════════════════ %>
 <section class="bg-gray-50 py-16 sm:py-20">
@@ -133,65 +204,6 @@
         <p class="text-gray-500"><%= t("pages.home.courses.empty") %></p>
       </div>
     <% end %>
-
-  </div>
-</section>
-
-<%# ══════════════════════════════════════════════════════════════════════════ %>
-<%# So funktioniert's                                                           %>
-<%# ══════════════════════════════════════════════════════════════════════════ %>
-<section class="bg-white py-16 sm:py-20 border-t border-gray-100">
-  <div class="max-w-4xl mx-auto px-4 sm:px-6">
-
-    <div class="text-center mb-12">
-      <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-2"><%= t("pages.home.how_it_works.title") %></h2>
-      <p class="text-gray-500"><%= t("pages.home.how_it_works.subtitle") %></p>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-8">
-
-      <%# Schritt 1 %>
-      <div class="text-center">
-        <div class="w-14 h-14 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-          </svg>
-        </div>
-        <div class="text-xs font-bold text-primary-600 uppercase tracking-wider mb-1"><%= t("pages.home.how_it_works.step1.label") %></div>
-        <h3 class="font-bold text-gray-900 mb-2"><%= t("pages.home.how_it_works.step1.title") %></h3>
-        <p class="text-sm text-gray-500 leading-relaxed"><%= t("pages.home.how_it_works.step1.body") %></p>
-      </div>
-
-      <%# Schritt 2 %>
-      <div class="text-center">
-        <div class="w-14 h-14 bg-secondary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-secondary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-          </svg>
-        </div>
-        <div class="text-xs font-bold text-secondary-600 uppercase tracking-wider mb-1"><%= t("pages.home.how_it_works.step2.label") %></div>
-        <h3 class="font-bold text-gray-900 mb-2"><%= t("pages.home.how_it_works.step2.title") %></h3>
-        <p class="text-sm text-gray-500 leading-relaxed"><%= t("pages.home.how_it_works.step2.body") %></p>
-      </div>
-
-      <%# Schritt 3 %>
-      <div class="text-center">
-        <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-        </div>
-        <div class="text-xs font-bold text-green-600 uppercase tracking-wider mb-1"><%= t("pages.home.how_it_works.step3.label") %></div>
-        <h3 class="font-bold text-gray-900 mb-2"><%= t("pages.home.how_it_works.step3.title") %></h3>
-        <p class="text-sm text-gray-500 leading-relaxed"><%= t("pages.home.how_it_works.step3.body") %></p>
-      </div>
-
-    </div>
-
-    <div class="text-center mt-12">
-      <%= link_to t("pages.home.how_it_works.cta"), new_user_registration_path,
-            class: "inline-block bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold px-8 py-3.5 rounded-xl shadow-sm transition text-sm min-h-11" %>
-    </div>
 
   </div>
 </section>

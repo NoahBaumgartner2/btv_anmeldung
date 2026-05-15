@@ -612,17 +612,21 @@ de:
         empty: "Aktuell sind keine Kurse verfügbar. Schau bald wieder vorbei!"
       how_it_works:
         title: "So funktioniert's"
-        subtitle: "In drei einfachen Schritten zum Kurs."
+        subtitle: "In vier einfachen Schritten zum Kurs."
         step1:
           label: "Schritt 1"
           title: "Konto erstellen"
           body: "Registriere dich kostenlos mit deiner E-Mail-Adresse und erstelle dein persönliches Konto."
         step2:
           label: "Schritt 2"
-          title: "Teilnehmer anmelden"
-          body: "Erfasse eine oder mehrere Personen und wähle den gewünschten Kurs aus unserem aktuellen Angebot aus."
+          title: "Kursteilnehmer erfassen"
+          body: "Erfasse die Teilnehmer, die du für einen Kurs anmelden möchtest, in deinem Profil."
         step3:
           label: "Schritt 3"
+          title: "Teilnehmer anmelden"
+          body: "Erfasse eine oder mehrere Personen und wähle den gewünschten Kurs aus unserem aktuellen Angebot aus."
+        step4:
+          label: "Schritt 4"
           title: "Loslegen!"
           body: "Nach der Anmeldung erhältst du eine Bestätigung per E-Mail – und es kann direkt losgehen."
         cta: "Jetzt kostenlos registrieren"

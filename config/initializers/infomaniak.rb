@@ -56,14 +56,19 @@ module InfomaniakConfig
   end
 end
 
-begin
-  InfomaniakConfig.load!
-  Rails.logger.info "[InfomaniakConfig] Konfiguration geladen – " \
-                    "#{InfomaniakConfig.configured? ? 'vollständig' : 'unvollständig (Dev/Test)'}"
-rescue => e
-  if Rails.env.production?
-    raise e
-  else
-    Rails.logger.warn "[InfomaniakConfig] Initializer übersprungen: #{e.message}"
+Rails.application.config.after_initialize do
+  next unless defined?(InfomaniakSetting) &&
+              ActiveRecord::Base.connection.table_exists?("infomaniak_settings")
+
+  begin
+    InfomaniakConfig.load!
+    Rails.logger.info "[InfomaniakConfig] Konfiguration geladen – " \
+                      "#{InfomaniakConfig.configured? ? 'vollständig' : 'unvollständig (Dev/Test)'}"
+  rescue => e
+    if Rails.env.production?
+      raise e
+    else
+      Rails.logger.warn "[InfomaniakConfig] Initializer übersprungen: #{e.message}"
+    end
   end
 end

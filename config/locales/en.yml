@@ -573,17 +573,21 @@ en:
         empty: "No courses currently available. Check back soon!"
       how_it_works:
         title: "How it works"
-        subtitle: "Three simple steps to your course."
+        subtitle: "Four simple steps to your course."
         step1:
           label: "Step 1"
           title: "Create account"
           body: "Register for free with your email address and create your personal account."
         step2:
           label: "Step 2"
-          title: "Register participants"
-          body: "Add one or more participants and choose the desired course from our current offer."
+          title: "Add participants"
+          body: "Add the participants you want to register for a course to your profile."
         step3:
           label: "Step 3"
+          title: "Register participants"
+          body: "Add one or more participants and choose the desired course from our current offer."
+        step4:
+          label: "Step 4"
           title: "Let's go!"
           body: "After registration you'll receive a confirmation by email – and you're ready to go."
         cta: "Register for free now"
