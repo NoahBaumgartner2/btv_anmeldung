@@ -56,19 +56,25 @@ module InfomaniakConfig
   end
 end
 
-Rails.application.config.after_initialize do
-  next unless defined?(InfomaniakSetting) &&
-              ActiveRecord::Base.connection.table_exists?("infomaniak_settings")
+# Beim Asset-Precompile-Schritt im Docker-Build ist keine DB verfügbar.
+# In diesem Fall überspringen wir das Laden der DB-Konfiguration.
+if ENV["SECRET_KEY_BASE_DUMMY"].present?
+  Rails.logger.info "[InfomaniakConfig] Asset-Precompile-Modus – DB-Konfiguration wird übersprungen."
+else
+  Rails.application.config.after_initialize do
+    next unless defined?(InfomaniakSetting) &&
+                ActiveRecord::Base.connection.table_exists?("infomaniak_settings")
 
-  begin
-    InfomaniakConfig.load!
-    Rails.logger.info "[InfomaniakConfig] Konfiguration geladen – " \
-                      "#{InfomaniakConfig.configured? ? 'vollständig' : 'unvollständig (Dev/Test)'}"
-  rescue => e
-    if Rails.env.production?
-      raise e
-    else
-      Rails.logger.warn "[InfomaniakConfig] Initializer übersprungen: #{e.message}"
+    begin
+      InfomaniakConfig.load!
+      Rails.logger.info "[InfomaniakConfig] Konfiguration geladen – " \
+                        "#{InfomaniakConfig.configured? ? 'vollständig' : 'unvollständig (Dev/Test)'}"
+    rescue => e
+      if Rails.env.production?
+        raise e
+      else
+        Rails.logger.warn "[InfomaniakConfig] Initializer übersprungen: #{e.message}"
+      end
     end
   end
 end
