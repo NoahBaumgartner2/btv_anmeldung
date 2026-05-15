@@ -136,7 +136,9 @@
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Anmeldemodus &amp; Kapazität</p>
     </div>
-    <div class="p-6 space-y-5">
+    <div class="p-6 space-y-5"
+         data-controller="registration-mode"
+         data-action="change->registration-mode#toggle">
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <%= form.label :registration_mode, "Anmeldemodus", class: "block text-sm font-medium text-gray-700 mb-1" %>
@@ -157,31 +159,15 @@
         </div>
       </div>
 
-      <%# Abo-Grösse (nur bei Abo-Modus) %>
-      <div id="abo-size-field" class="<%= course.registration_mode == 'abo' ? '' : 'hidden' %>">
-        <div class="border-t border-gray-100 pt-5">
-          <%= form.label :abo_size, "Anzahl Eintritte pro Abo", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <p class="text-xs text-gray-400 mb-2">z.B. 10 für ein 10er-Abo. Jede Anmeldung erhält diese Anzahl Eintritte.</p>
-          <div class="flex items-center gap-2 max-w-xs">
-            <%= form.number_field :abo_size,
-                  min: 1, placeholder: "z.B. 10",
-                  class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
-            <span class="text-sm text-gray-400 shrink-0">Eintritte</span>
-          </div>
-        </div>
+      <%# Abo-Grösse – nur sichtbar wenn Anmeldemodus = abo %>
+      <div id="abo-size-field"
+           data-registration-mode-target="aboField"
+           class="<%= course.registration_mode == 'abo' ? '' : 'hidden' %> mt-4">
+        <%= form.label :abo_size, "Anzahl Eintritte pro Abo", class: "block text-sm font-medium text-gray-700 mb-1" %>
+        <p class="text-xs text-gray-400 mb-1.5">z.B. 10 für ein 10er-Abo, 5 für ein 5er-Abo.</p>
+        <%= form.number_field :abo_size, min: 1, placeholder: "10",
+              class: "block w-max rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
       </div>
-
-      <script nonce="<%= content_security_policy_nonce %>">
-        (function() {
-          var sel = document.getElementById('course_registration_mode');
-          var field = document.getElementById('abo-size-field');
-          if (sel && field) {
-            sel.addEventListener('change', function() {
-              field.classList.toggle('hidden', this.value !== 'abo');
-            });
-          }
-        })();
-      </script>
 
       <%# Altersbeschränkung %>
       <div class="border-t border-gray-100 pt-5">

@@ -9,6 +9,7 @@ import ModalController from "controllers/modal_controller"
 import MobileMenuController from "controllers/mobile_menu_controller"
 import DatepickerController from "controllers/datepicker_controller"
 import CookieConsentController from "controllers/cookie_consent_controller"
+import RegistrationModeController from "controllers/registration_mode_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -21,3 +22,4 @@ application.register("modal", ModalController)
 application.register("mobile-menu", MobileMenuController)
 application.register("datepicker", DatepickerController)
 application.register("cookie-consent", CookieConsentController)
+application.register("registration-mode", RegistrationModeController)
