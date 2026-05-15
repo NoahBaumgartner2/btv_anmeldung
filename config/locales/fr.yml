@@ -268,6 +268,10 @@ fr:
       col_paid: "Payé"
       col_actions: "Actions"
       no_registrations: "Aucune inscription pour ce cours."
+      abo_entries_label: "Entrées abonnement"
+      abo_exhausted: "Épuisé"
+      use_abo_entry: "Utiliser une entrée"
+      use_abo_entry_confirm: "Utiliser une entrée pour %{name} ?"
     generate_trainings:
       back: "← Retour à la salle des machines"
       title: "Générer les entraînements"
@@ -301,6 +305,8 @@ fr:
     free: "Gratuit"
     registration_modes:
       semester: "Par semestre"
+      quartal: "Par trimestre"
+      abo: "Abonnement (contingent)"
       single_session: "Par séance (Drop-In)"
     registration_types:
       semester: "Cours semestriel"

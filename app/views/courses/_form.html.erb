@@ -61,17 +61,18 @@
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
         </div>
         <div>
-          <%= form.label :location, "Ort / Halle", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <%= form.label :location, "Halle / Ort", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <p class="text-xs text-gray-400 mb-1.5">Kurzbezeichnung, z.B. Turnhalle BTV – wird auf der Kursseite angezeigt.</p>
           <%= form.text_field :location,
-                placeholder: "z.B. Turnhalle Mitte",
+                placeholder: "z.B. Turnhalle BTV",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
         </div>
         <div>
-          <%= form.label :location_address, t("courses.form.location_address_label"), class: "block text-sm font-bold text-gray-700 mb-1.5" %>
+          <%= form.label :location_address, "Adresse (Navigation)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <p class="text-xs text-gray-400 mb-1.5">Vollständige Adresse für Google Maps, z.B. Musterstrasse 12, 3000 Bern. Optional.</p>
           <%= form.text_field :location_address,
-                placeholder: t("courses.form.location_address_placeholder"),
+                placeholder: "z.B. Musterstrasse 12, 3000 Bern",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
-          <p class="text-xs text-gray-400 mt-1"><%= t("courses.form.location_address_hint") %></p>
         </div>
       </div>
     </div>
@@ -79,7 +80,7 @@
 
   <%# ── 3. Trainingszeit ──────────────────────────────────────────────────── %>
   <% hours   = (6..22).map { |h| [format("%02d", h), h] } %>
-  <% minutes = [["00", 0], ["15", 15], ["30", 30], ["45", 45]] %>
+  <% minutes = (0..55).step(5).map { |m| [format("%02d", m), m] } %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Trainingszeit</p>
@@ -107,7 +108,7 @@
           </div>
         </div>
         <div>
-          <p class="text-sm font-medium text-gray-700 mb-2">Ende <span class="font-normal text-gray-400">(optional)</span></p>
+          <p class="text-sm font-medium text-gray-700 mb-2">Ende</p>
           <div class="flex items-center gap-2">
             <select name="course[default_end_hour]"
                     class="flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white min-h-11">
@@ -140,9 +141,12 @@
         <div>
           <%= form.label :registration_mode, "Anmeldemodus", class: "block text-sm font-medium text-gray-700 mb-1" %>
           <%= form.select :registration_mode,
-                [["Für das gesamte Semester (einmalige Anmeldung)", "semester"],
-                 ["Für jedes Training einzeln (Drop-In / Krabbel Gym)", "single_session"]],
+                [["Semester (einmalige Anmeldung pro Semester)", "semester"],
+                 ["Quartal (einmalige Anmeldung pro Quartal)", "quartal"],
+                 ["Abo (Kontingent, z.B. 10er-Abo)", "abo"],
+                 ["Drop-In / Einzeltraining (pro Training)", "single_session"]],
                 { prompt: "Bitte wählen…" },
+                id: "course_registration_mode",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
         </div>
         <div>
@@ -152,6 +156,32 @@
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
         </div>
       </div>
+
+      <%# Abo-Grösse (nur bei Abo-Modus) %>
+      <div id="abo-size-field" class="<%= course.registration_mode == 'abo' ? '' : 'hidden' %>">
+        <div class="border-t border-gray-100 pt-5">
+          <%= form.label :abo_size, "Anzahl Eintritte pro Abo", class: "block text-sm font-medium text-gray-700 mb-1" %>
+          <p class="text-xs text-gray-400 mb-2">z.B. 10 für ein 10er-Abo. Jede Anmeldung erhält diese Anzahl Eintritte.</p>
+          <div class="flex items-center gap-2 max-w-xs">
+            <%= form.number_field :abo_size,
+                  min: 1, placeholder: "z.B. 10",
+                  class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+            <span class="text-sm text-gray-400 shrink-0">Eintritte</span>
+          </div>
+        </div>
+      </div>
+
+      <script nonce="<%= content_security_policy_nonce %>">
+        (function() {
+          var sel = document.getElementById('course_registration_mode');
+          var field = document.getElementById('abo-size-field');
+          if (sel && field) {
+            sel.addEventListener('change', function() {
+              field.classList.toggle('hidden', this.value !== 'abo');
+            });
+          }
+        })();
+      </script>
 
       <%# Altersbeschränkung %>
       <div class="border-t border-gray-100 pt-5">
@@ -198,11 +228,35 @@
           <% end %>
         </div>
       <% else %>
-        <p class="text-sm text-gray-500">
-          Noch keine Trainer angelegt.
-          <%= link_to "Jetzt Trainer erstellen →", new_trainer_path, class: "font-semibold text-primary-600 hover:text-primary-800" %>
-        </p>
+        <p class="text-sm text-gray-500">Noch keine Trainer angelegt.</p>
       <% end %>
+
+      <%# Neuen Trainer direkt anlegen %>
+      <div class="mt-4 border-t border-gray-100 pt-4">
+        <details class="group">
+          <summary class="text-sm font-semibold text-primary-600 hover:text-primary-800 cursor-pointer list-none flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-open:rotate-90 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+            Neuen Trainer direkt erfassen
+          </summary>
+          <div class="mt-4 bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
+            <p class="text-xs text-gray-500">Erstellt einen neuen Trainer-Account und weist ihn sofort diesem Kurs zu. Der Trainer erhält eine E-Mail zum Passwort setzen.</p>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">E-Mail-Adresse des Trainers</label>
+              <input type="email" name="new_trainer_email"
+                     placeholder="trainer@beispiel.ch"
+                     class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Telefon <span class="font-normal text-gray-400">(optional)</span></label>
+              <input type="tel" name="new_trainer_phone"
+                     placeholder="+41 79 123 45 67"
+                     class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11">
+            </div>
+          </div>
+        </details>
+      </div>
     </div>
   </div>
 
@@ -213,18 +267,25 @@
     </div>
     <div class="p-6 space-y-5">
 
-      <%# Kostenpflichtig %>
+      <%# Kursgebühr %>
       <div>
-        <label class="flex items-center gap-3 cursor-pointer">
-          <%= form.check_box :has_payment,
-                id: "course_has_payment",
-                class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
-          <div>
-            <span class="text-sm font-medium text-gray-800">Dieser Kurs ist kostenpflichtig</span>
-          </div>
-        </label>
+        <p class="text-sm font-medium text-gray-700 mb-2">Kursgebühr</p>
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <%= form.radio_button :has_payment, false, id: "has_payment_false",
+                  class: "h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 cursor-pointer",
+                  checked: !course.has_payment? %>
+            <span class="text-sm font-medium text-gray-800">Kostenlos</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <%= form.radio_button :has_payment, true, id: "has_payment_true",
+                  class: "h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 cursor-pointer",
+                  checked: course.has_payment? %>
+            <span class="text-sm font-medium text-gray-800">Kostenpflichtig</span>
+          </label>
+        </div>
 
-        <div id="price-field" class="<%= course.has_payment? ? "" : "hidden" %> mt-4 ml-8 space-y-4">
+        <div id="price-field" class="<%= course.has_payment? ? "" : "hidden" %> mt-4 ml-2 space-y-4">
           <div>
             <p class="text-sm font-medium text-gray-700 mb-1">Preis</p>
             <div class="flex items-center gap-2 max-w-xs">
@@ -253,8 +314,10 @@
         </div>
 
         <script nonce="<%= content_security_policy_nonce %>">
-          document.getElementById('course_has_payment').addEventListener('change', function() {
-            document.getElementById('price-field').classList.toggle('hidden', !this.checked);
+          document.querySelectorAll('input[name="course[has_payment]"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+              document.getElementById('price-field').classList.toggle('hidden', this.value !== 'true');
+            });
           });
         </script>
       </div>

@@ -28,6 +28,7 @@ class CoursesController < ApplicationController
 
     respond_to do |format|
       if @course.save
+        provision_new_trainer(@course)
         format.html { redirect_to @course, notice: "Kurs wurde erfolgreich erstellt." }
         format.json { render :show, status: :created, location: @course }
       else
@@ -43,6 +44,7 @@ class CoursesController < ApplicationController
       p = course_params
       p[:registration_type] = derive_registration_type(p[:registration_mode])
       if @course.update(p)
+        provision_new_trainer(@course)
         format.html { redirect_to @course, notice: "Kurs wurde erfolgreich aktualisiert.", status: :see_other }
         format.json { render :show, status: :ok, location: @course }
       else
@@ -159,10 +161,30 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [], payment_methods: [])
     end
 
     def derive_registration_type(registration_mode)
       registration_mode == "single_session" ? "pro_training" : "semester"
+    end
+
+    def provision_new_trainer(course)
+      return if params[:new_trainer_email].blank?
+
+      email = params[:new_trainer_email].strip.downcase
+      user = User.find_or_initialize_by(email: email)
+      if user.new_record?
+        user.password = Devise.friendly_token[0, 20]
+        user.privacy_accepted = true
+        user.skip_confirmation!
+        user.save!
+        user.send_reset_password_instructions
+      end
+      trainer = Trainer.find_or_create_by(user: user) do |t|
+        t.phone = params[:new_trainer_phone].presence
+      end
+      course.trainers << trainer unless course.trainers.include?(trainer)
+    rescue => e
+      Rails.logger.error "[CoursesController] Trainer-Erstellung fehlgeschlagen: #{e.message}"
     end
 end

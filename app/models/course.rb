@@ -102,6 +102,10 @@ class Course < ApplicationRecord
     I18n.t("courses.registration_types.#{registration_type}", default: registration_type.humanize)
   end
 
+  def abo?
+    registration_mode == "abo"
+  end
+
   private
 
   def clean_payment_methods

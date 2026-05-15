@@ -16,6 +16,16 @@ class CourseRegistration < ApplicationRecord
     I18n.t("course_registrations.statuses.#{status}", default: status.to_s.humanize)
   end
 
+  def abo_entries_remaining
+    return nil unless abo_entries_total.present?
+    abo_entries_total - abo_entries_used.to_i
+  end
+
+  def abo_exhausted?
+    return false unless abo_entries_total.present?
+    abo_entries_used.to_i >= abo_entries_total
+  end
+
   private
 
   def set_payment_expiry

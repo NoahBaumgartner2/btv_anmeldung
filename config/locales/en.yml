@@ -268,6 +268,10 @@ en:
       col_paid: "Paid"
       col_actions: "Actions"
       no_registrations: "No registrations for this course yet."
+      abo_entries_label: "Block entries"
+      abo_exhausted: "Exhausted"
+      use_abo_entry: "Redeem entry"
+      use_abo_entry_confirm: "Redeem entry for %{name}?"
     generate_trainings:
       back: "← Back to Management"
       title: "Generate Training Sessions"
@@ -301,6 +305,8 @@ en:
     free: "Free"
     registration_modes:
       semester: "Per semester"
+      quartal: "Per quarter"
+      abo: "Subscription (block booking)"
       single_session: "Per session (Drop-In)"
     registration_types:
       semester: "Semester course"

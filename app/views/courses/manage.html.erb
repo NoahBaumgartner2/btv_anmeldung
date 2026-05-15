@@ -288,6 +288,24 @@
               </div>
             <% end %>
 
+            <%# Abo-Eintritte (mobile) %>
+            <% if @course.abo? && reg.status == "bestätigt" %>
+              <div class="mb-3 flex items-center justify-between gap-2 flex-wrap">
+                <span class="text-xs text-gray-500">
+                  <%= t("courses.manage.abo_entries_label") %>:
+                  <span class="font-semibold text-gray-900"><%= reg.abo_entries_used.to_i %> / <%= reg.abo_entries_total.to_i %></span>
+                  <% if reg.abo_exhausted? %>
+                    <span class="ml-1 inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.abo_exhausted") %></span>
+                  <% end %>
+                </span>
+                <%= button_to t("courses.manage.use_abo_entry"), use_abo_entry_course_registration_path(reg),
+                      method: :post,
+                      disabled: reg.abo_exhausted?,
+                      class: "text-xs bg-primary-50 active:bg-primary-100 text-primary-700 font-semibold border border-primary-200 px-2.5 py-1.5 rounded-lg transition cursor-pointer min-h-[36px] flex items-center disabled:opacity-50 disabled:cursor-not-allowed",
+                      data: { turbo_confirm: t("courses.manage.use_abo_entry_confirm", name: p.first_name) } %>
+              </div>
+            <% end %>
+
             <%# Actions %>
             <div class="flex gap-2">
               <%# Details-Button + Modal %>
@@ -350,6 +368,17 @@
                         <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.payment_label") %></dt>
                         <dd class="font-semibold text-gray-900 text-right"><%= reg.payment_cleared ? t("courses.manage.payment_cleared") : t("courses.manage.payment_outstanding") %></dd>
                       </div>
+                      <% if @course.abo? %>
+                        <div class="flex justify-between gap-4">
+                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.abo_entries_label") %></dt>
+                          <dd class="font-semibold text-gray-900 text-right">
+                            <%= reg.abo_entries_used.to_i %> / <%= reg.abo_entries_total.to_i %>
+                            <% if reg.abo_exhausted? %>
+                              <span class="ml-1 inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-1.5 py-0.5 rounded-full"><%= t("courses.manage.abo_exhausted") %></span>
+                            <% end %>
+                          </dd>
+                        </div>
+                      <% end %>
                     </dl>
 
                     <button type="button"
@@ -562,6 +591,17 @@
                             <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.payment_label") %></dt>
                             <dd class="font-semibold text-gray-900 text-right"><%= reg.payment_cleared ? t("courses.manage.payment_cleared") : t("courses.manage.payment_outstanding") %></dd>
                           </div>
+                          <% if @course.abo? %>
+                            <div class="flex justify-between gap-4">
+                              <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.abo_entries_label") %></dt>
+                              <dd class="font-semibold text-gray-900 text-right">
+                                <%= reg.abo_entries_used.to_i %> / <%= reg.abo_entries_total.to_i %>
+                                <% if reg.abo_exhausted? %>
+                                  <span class="ml-1 inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-1.5 py-0.5 rounded-full"><%= t("courses.manage.abo_exhausted") %></span>
+                                <% end %>
+                              </dd>
+                            </div>
+                          <% end %>
                         </dl>
 
                         <button type="button"
@@ -572,6 +612,14 @@
                       </div>
                     </div>
                   </div>
+
+                  <% if @course.abo? && reg.status == "bestätigt" %>
+                    <%= button_to t("courses.manage.use_abo_entry"), use_abo_entry_course_registration_path(reg),
+                          method: :post,
+                          disabled: reg.abo_exhausted?,
+                          class: "text-xs text-primary-700 font-bold hover:text-primary-900 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
+                          data: { turbo_confirm: t("courses.manage.use_abo_entry_confirm", name: p.first_name) } %>
+                  <% end %>
 
                   <% if current_user.admin? %>
                     <%= link_to t("courses.manage.edit_link"), edit_course_registration_path(reg),

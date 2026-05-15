@@ -307,6 +307,10 @@ de:
       col_paid: "Bezahlt"
       col_actions: "Aktionen"
       no_registrations: "Noch keine Anmeldungen für diesen Kurs."
+      abo_entries_label: "Abo-Eintritte"
+      abo_exhausted: "Erschöpft"
+      use_abo_entry: "Eintritt einlösen"
+      use_abo_entry_confirm: "Eintritt für %{name} einlösen?"
     generate_trainings:
       back: "← Zurück zum Maschinenraum"
       title: "Trainings generieren"
@@ -340,6 +344,8 @@ de:
     free: "Kostenlos"
     registration_modes:
       semester: "Pro Semester"
+      quartal: "Pro Quartal"
+      abo: "Abo (Kontingent)"
       single_session: "Pro Training (Drop-In)"
     registration_types:
       semester: "Semesterkurs"

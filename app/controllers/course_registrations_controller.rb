@@ -1,7 +1,7 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry ]
   before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
 
   def show
@@ -41,6 +41,11 @@ class CourseRegistrationsController < ApplicationController
 
     # 1. Welchen Kurs möchte das Kind buchen?
     course = @course_registration.course
+
+    if course&.abo? && course.abo_size.present?
+      @course_registration.abo_entries_total = course.abo_size
+      @course_registration.abo_entries_used  = 0
+    end
     participant = @course_registration.participant
 
     # 2. Pflichtfelder-Check
@@ -268,6 +273,28 @@ class CourseRegistrationsController < ApplicationController
     end
   end
 
+  def use_abo_entry
+    authorize_trainer!
+    return if performed?
+
+    course = @course_registration.course
+
+    unless course.abo?
+      redirect_to manage_course_path(course), alert: "Dieser Kurs ist kein Abo-Kurs."
+      return
+    end
+
+    if @course_registration.abo_exhausted?
+      redirect_to manage_course_path(course), alert: "#{@course_registration.participant.first_name} hat keine Eintritte mehr übrig."
+      return
+    end
+
+    @course_registration.increment!(:abo_entries_used)
+    remaining = @course_registration.abo_entries_remaining
+    notice = "Eintritt für #{@course_registration.participant.first_name} eingelöst. Noch #{remaining} #{"Eintritt".pluralize(remaining)} übrig."
+    redirect_to manage_course_path(course), notice: notice
+  end
+
   def mark_as_paid
     authorize_admin!
     return if performed?
@@ -314,6 +341,6 @@ class CourseRegistrationsController < ApplicationController
 
   # Der Türsteher: Erlaubt jetzt auch Status und Bezahlung!
   def course_registration_params
-    params.require(:course_registration).permit(:course_id, :participant_id, :training_session_id, :status, :payment_cleared, :holiday_deduction_claimed)
+    params.require(:course_registration).permit(:course_id, :participant_id, :training_session_id, :status, :payment_cleared, :holiday_deduction_claimed, :abo_entries_total, :abo_entries_used)
   end
 end
