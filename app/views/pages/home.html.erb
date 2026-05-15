@@ -132,11 +132,14 @@
             <div class="p-5 flex-1 flex flex-col">
               <div class="flex items-start justify-between gap-2 mb-3">
                 <h3 class="font-bold text-gray-900 text-sm leading-snug"><%= course.title %></h3>
-                <% if is_single %>
-                  <span class="shrink-0 text-xs font-bold bg-secondary-100 text-secondary-700 px-2 py-0.5 rounded-full"><%= t("courses.index.status.drop_in") %></span>
-                <% elsif is_full %>
-                  <span class="shrink-0 text-xs font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full"><%= t("courses.index.status.full") %></span>
-                <% end %>
+                <div class="flex flex-col items-end gap-1 shrink-0">
+                  <% if is_full %>
+                    <span class="text-xs font-bold bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full"><%= t("courses.index.status.full") %></span>
+                  <% end %>
+                  <% if course.age_restricted? %>
+                    <span class="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full"><%= course.age_range_label %></span>
+                  <% end %>
+                </div>
               </div>
 
               <ul class="space-y-1.5 text-xs text-gray-500 mb-4 flex-1">
