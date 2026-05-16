@@ -79,6 +79,20 @@ class CourseRegistrationsController < ApplicationController
       return render :new, status: :unprocessable_entity
     end
 
+    # 2c. Duplikat-Check für Semesterkurse
+    if course && participant && course.registration_mode != "single_session"
+      duplicate = CourseRegistration.where(
+        participant_id: participant.id,
+        course_id: course.id
+      ).where.not(status: "storniert").exists?
+
+      if duplicate
+        @course_registration.errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
+        setup_new_form(course)
+        return render :new, status: :unprocessable_entity
+      end
+    end
+
     # 3. Status bestimmen
     if course.has_payment? && course.price_cents.to_i > 0
       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt

@@ -734,6 +734,7 @@ fr:
       already_cancelled: "Cette inscription est déjà annulée."
     errors:
       duplicate_session: "Cet enfant est déjà inscrit à cette séance."
+      duplicate_registration: "Cette personne est déjà inscrite à ce cours."
       session_cancelled: "Cette séance a malheureusement été annulée."
       session_in_past: "Cette séance est dans le passé et ne peut plus être réservée."
       missing_field: "%{field} manque pour %{name}. Veuillez d'abord compléter le profil."

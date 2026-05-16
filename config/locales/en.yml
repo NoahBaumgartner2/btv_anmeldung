@@ -738,6 +738,7 @@ en:
       already_cancelled: "This registration is already cancelled."
     errors:
       duplicate_session: "This child is already registered for this session."
+      duplicate_registration: "This person is already registered for this course."
       session_cancelled: "This session has unfortunately been cancelled."
       session_in_past: "This session is in the past and can no longer be booked."
       missing_field: "%{field} is missing for %{name}. Please update the profile first."

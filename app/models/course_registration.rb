@@ -8,6 +8,7 @@ class CourseRegistration < ApplicationRecord
 
   validate :participant_has_required_fields, on: :create
   validate :no_duplicate_single_session_registration, on: :create
+  validate :no_duplicate_semester_registration, on: :create
   validate :training_session_bookable, on: :create
 
   before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") && payment_expires_at.nil? }
@@ -42,6 +43,20 @@ class CourseRegistration < ApplicationRecord
     ).where.not(status: "storniert").exists?
 
     errors.add(:base, I18n.t("course_registrations.errors.duplicate_session")) if already_registered
+  end
+
+  def no_duplicate_semester_registration
+    return if course.blank? || participant_id.blank?
+    return if course.registration_mode == "single_session"
+
+    already_registered = CourseRegistration.where(
+      participant_id: participant_id,
+      course_id: course_id
+    ).where.not(status: "storniert").exists?
+
+    if already_registered
+      errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
+    end
   end
 
   def training_session_bookable

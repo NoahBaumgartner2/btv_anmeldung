@@ -777,6 +777,7 @@ de:
       already_cancelled: "Diese Anmeldung ist bereits storniert."
     errors:
       duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
+      duplicate_registration: "Diese Person ist bereits für diesen Kurs angemeldet."
       session_cancelled: "Dieser Termin wurde leider abgesagt."
       session_in_past: "Dieser Termin liegt in der Vergangenheit und kann nicht mehr gebucht werden."
       missing_field: "%{field} fehlt für %{name}. Bitte zuerst im Profil ergänzen."
