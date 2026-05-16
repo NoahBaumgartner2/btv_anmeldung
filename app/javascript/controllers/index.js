@@ -12,6 +12,7 @@ import CookieConsentController from "controllers/cookie_consent_controller"
 import RegistrationModeController from "controllers/registration_mode_controller"
 import PasswordToggleController from "controllers/password_toggle_controller"
 import ScrollToErrorController from "controllers/scroll_to_error_controller"
+import PaymentToggleController from "controllers/payment_toggle_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -27,3 +28,4 @@ application.register("cookie-consent", CookieConsentController)
 application.register("registration-mode", RegistrationModeController)
 application.register("password-toggle", PasswordToggleController)
 application.register("scroll-to-error", ScrollToErrorController)
+application.register("payment-toggle", PaymentToggleController)

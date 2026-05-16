@@ -254,7 +254,8 @@
     <div class="p-6 space-y-5">
 
       <%# Kursgebühr %>
-      <div>
+      <div data-controller="payment-toggle"
+           data-action="change->payment-toggle#toggle">
         <p class="text-sm font-medium text-gray-700 mb-2">Kursgebühr</p>
         <div class="flex gap-4">
           <label class="flex items-center gap-2 cursor-pointer">
@@ -271,7 +272,8 @@
           </label>
         </div>
 
-        <div id="price-field" class="<%= course.has_payment? ? "" : "hidden" %> mt-4 ml-2 space-y-4">
+        <div id="price-field" data-payment-toggle-target="priceField"
+             class="<%= course.has_payment? ? "" : "hidden" %> mt-4 ml-2 space-y-4">
           <div>
             <p class="text-sm font-medium text-gray-700 mb-1">Preis</p>
             <div class="flex items-center gap-2 max-w-xs">
@@ -299,13 +301,6 @@
           </div>
         </div>
 
-        <script nonce="<%= content_security_policy_nonce %>">
-          document.querySelectorAll('input[name="course[has_payment]"]').forEach(function(radio) {
-            radio.addEventListener('change', function() {
-              document.getElementById('price-field').classList.toggle('hidden', this.value !== 'true');
-            });
-          });
-        </script>
       </div>
 
       <div class="border-t border-gray-100 pt-5 space-y-4">
