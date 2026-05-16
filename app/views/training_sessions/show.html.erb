@@ -173,7 +173,11 @@
               </span>
             <% elsif @training_session.is_canceled? %>
               <span class="shrink-0 inline-flex items-center text-xs font-bold px-3 py-2 rounded-full bg-gray-100 text-gray-400 min-h-[36px]">
-                <%= t("training_sessions.show.status_absent") %>
+                <%= t("training_sessions.show.attendance_cancelled") %>
+              </span>
+            <% elsif @training_session.start_time > Time.current %>
+              <span class="shrink-0 text-xs text-gray-400 font-medium px-3 py-2">
+                <%= t("training_sessions.show.attendance_not_yet") %>
               </span>
             <% else %>
               <%= button_to toggle_attendance_training_session_path(@training_session, course_registration_id: reg.id),

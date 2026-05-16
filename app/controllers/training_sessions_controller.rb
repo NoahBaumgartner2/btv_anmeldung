@@ -98,6 +98,11 @@ class TrainingSessionsController < ApplicationController
   def toggle_attendance
     return redirect_to @training_session, alert: "Training ist abgesagt – Anwesenheit kann nicht erfasst werden." if @training_session.is_canceled?
 
+    if @training_session.start_time > Time.current
+      return redirect_to @training_session,
+                         alert: t("training_sessions.show.attendance_not_yet_possible")
+    end
+
     # Wir fangen jetzt die ID der Kursanmeldung auf
     course_registration_id = params[:course_registration_id]
 
