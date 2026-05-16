@@ -119,7 +119,18 @@
                               <li class="flex items-center justify-between gap-2 text-sm">
                                 <span class="text-gray-700 font-medium"><%= session.start_time.strftime("%-d. %b, %H:%M") %> <%= t("misc.time_suffix") %></span>
                                 <% if is_unsubscribed %>
+                                <% can_resubscribe = session.start_time > Time.current %>
+                                <% if can_resubscribe %>
+                                  <%= form_with url: resubscribe_to_session_course_registration_path(reg), method: :post do %>
+                                    <%= hidden_field_tag :training_session_id, session.id %>
+                                    <button type="submit"
+                                            class="text-xs font-bold px-2.5 py-1.5 min-h-11 min-w-[44px] flex items-center justify-center rounded-md bg-green-50 text-green-700 hover:bg-green-100 active:bg-green-200 transition cursor-pointer">
+                                      <%= t("participants.index.resubscribe_btn") %>
+                                    </button>
+                                  <% end %>
+                                <% else %>
                                   <span class="text-xs font-bold px-2 py-1 rounded-md bg-red-100 text-red-600"><%= t("participants.index.unsubscribed") %></span>
+                                <% end %>
                                 <% elsif can_unsubscribe %>
                                   <div data-controller="confirm-unsubscribe" class="contents">
                                     <%= form_with url: unsubscribe_from_session_course_registration_path(reg),

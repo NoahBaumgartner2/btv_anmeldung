@@ -232,6 +232,31 @@ class CourseRegistrationsController < ApplicationController
                 notice: "#{participant_name} wurde vom Training am #{session_date} abgemeldet."
   end
 
+  def resubscribe_to_session
+    @course_registration = CourseRegistration.find(params[:id])
+    authorize_parent_owns_registration!(@course_registration)
+    return if performed?
+
+    @training_session = @course_registration.course.training_sessions.find(params[:training_session_id])
+
+    unless @training_session.start_time > Time.current
+      redirect_to participants_path, alert: t("participants.index.resubscribe_too_late")
+      return
+    end
+
+    attendance = @training_session.attendances.find_by(
+      course_registration_id: @course_registration.id,
+      status: "abgemeldet"
+    )
+    attendance&.destroy!
+
+    participant_name = @course_registration.participant.first_name
+    session_date = I18n.l(@training_session.start_time.to_date)
+    redirect_to participants_path,
+                notice: t("participants.index.resubscribe_success",
+                          name: participant_name, date: session_date)
+  end
+
   def scan
     authorize_trainer!
 
