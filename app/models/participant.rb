@@ -33,11 +33,14 @@ class Participant < ApplicationRecord
             },
             allow_blank: true
 
-  # Telefonnummer: mindestens 7 Zeichen, nur +, Ziffern, Leerzeichen, Bindestriche
-  validates :phone_number,
+  validate :phone_number_format, if: -> { phone_number.present? }
+  validate :date_of_birth_plausible, if: -> { date_of_birth.present? }
+
+  # Hausnummer: Zahl mit optionalem Buchstaben (z.B. 12 oder 12a)
+  validates :house_number,
             format: {
-              with: /\A[+\d][\d\s\-\/]{6,}\z/,
-              message: "muss mindestens 7 Zeichen haben (erlaubt: +, Ziffern, Leerzeichen, -)"
+              with: /\A\d+[a-zA-Z]?\z/,
+              message: "muss mit einer Zahl beginnen (z.B. 12 oder 12a)"
             },
             allow_blank: true
 
@@ -75,5 +78,22 @@ class Participant < ApplicationRecord
   # Human-readable Label für ein Pflichtfeld
   def self.field_label(field)
     Course::CONFIGURABLE_REQUIRED_FIELDS[field] || field.to_s.humanize
+  end
+
+  private
+
+  def phone_number_format
+    stripped = phone_number.gsub(/[\s\-\/]/, "")
+    unless stripped.match?(/\A[+\d]\d{6,}\z/)
+      errors.add(:phone_number, "muss mindestens 7 Ziffern haben (erlaubt: +, Ziffern, Leerzeichen, -)")
+    end
+  end
+
+  def date_of_birth_plausible
+    if date_of_birth >= Date.today
+      errors.add(:date_of_birth, "muss in der Vergangenheit liegen")
+    elsif date_of_birth < 120.years.ago.to_date
+      errors.add(:date_of_birth, "ist nicht plausibel (mehr als 120 Jahre zurück)")
+    end
   end
 end

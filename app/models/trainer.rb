@@ -6,10 +6,8 @@ class Trainer < ApplicationRecord
 
   GENDERS = %w[männlich weiblich].freeze
 
-  validates :phone,
-            format: { with: /\A[\+\d][\d\s\-]{6,}\z/,
-                      message: "ist ungültig (mind. 7 Zeichen, erlaubt: +, Ziffern, Leerzeichen, -)" },
-            allow_blank: true
+  validate :phone_format, if: -> { phone.present? }
+  validate :date_of_birth_plausible, if: -> { date_of_birth.present? }
 
   validates :ahv_number,
             format: { with: /\A756\.\d{4}\.\d{4}\.\d{2}\z/,
@@ -31,5 +29,22 @@ class Trainer < ApplicationRecord
 
   def full_name
     [first_name, last_name].compact.join(" ").presence || user.email
+  end
+
+  private
+
+  def phone_format
+    stripped = phone.gsub(/[\s\-\/]/, "")
+    unless stripped.match?(/\A[+\d]\d{6,}\z/)
+      errors.add(:phone, "muss mindestens 7 Ziffern haben (erlaubt: +, Ziffern, Leerzeichen, -)")
+    end
+  end
+
+  def date_of_birth_plausible
+    if date_of_birth >= Date.today
+      errors.add(:date_of_birth, "muss in der Vergangenheit liegen")
+    elsif date_of_birth < 120.years.ago.to_date
+      errors.add(:date_of_birth, "ist nicht plausibel (mehr als 120 Jahre zurück)")
+    end
   end
 end
