@@ -39,6 +39,7 @@
         "controllers/datepicker_controller":          "<%= asset_path 'controllers/datepicker_controller.js' %>",
         "controllers/cookie_consent_controller":      "<%= asset_path 'controllers/cookie_consent_controller.js' %>",
         "controllers/registration_mode_controller":   "<%= asset_path 'controllers/registration_mode_controller.js' %>",
+        "controllers/password_toggle_controller":     "<%= asset_path 'controllers/password_toggle_controller.js' %>",
         "controllers":                    "<%= asset_path 'controllers/index.js' %>"
       }
     }
@@ -75,7 +76,7 @@
 
               <% if user_signed_in? %>
                 <div class="h-6 w-px bg-gray-300 mx-2"></div>
-                <%= link_to t("nav.my_profile"), participants_path, class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
+                <%= link_to t("nav.my_profile"), (current_user.admin? || Trainer.exists?(user: current_user) ? my_profile_path : participants_path), class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
                 <% if current_user.admin? %>
                   <%= link_to t("nav.admin_dashboard"), dashboards_admin_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
                   <%= link_to t("nav.nds"), admin_nds_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
@@ -134,7 +135,7 @@
                 class: "block px-3 py-2.5 rounded-lg text-base font-medium text-gray-700 hover:text-primary-700 hover:bg-primary-50 transition" %>
 
           <% if user_signed_in? %>
-            <%= link_to t("nav.my_profile"), participants_path,
+            <%= link_to t("nav.my_profile"), (current_user.admin? || Trainer.exists?(user: current_user) ? my_profile_path : participants_path),
                   data: { action: "click->mobile-menu#close" },
                   class: "block px-3 py-2.5 rounded-lg text-base font-bold text-primary-600 hover:text-primary-800 hover:bg-primary-50 transition" %>
 

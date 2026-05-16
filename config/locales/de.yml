@@ -906,6 +906,13 @@ de:
       cancel: "Abbrechen"
 
   trainers:
+    my_profile:
+      title: "Mein Profil"
+      iban_label: "IBAN"
+      iban_hint: "Für die Lohnauszahlung."
+      js_label: "J+S-Anerkennung"
+      js_hint: "Ich besitze eine gültige J+S-Anerkennung (BASPO)"
+      save: "Änderungen speichern"
     index:
       title: "Trainer"
       new_trainer: "Neuer Trainer"

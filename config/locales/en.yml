@@ -867,6 +867,13 @@ en:
       cancel: "Cancel"
 
   trainers:
+    my_profile:
+      title: "My Profile"
+      iban_label: "IBAN"
+      iban_hint: "For payroll purposes."
+      js_label: "J+S accreditation"
+      js_hint: "I hold a valid J+S accreditation (BASPO)"
+      save: "Save changes"
     index:
       title: "Trainers"
       new_trainer: "New trainer"

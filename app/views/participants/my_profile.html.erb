@@ -1,0 +1,176 @@
+<% content_for :title, "Mein Profil" %>
+
+<div class="max-w-2xl mx-auto w-full px-4 mt-8 mb-16">
+  <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900 mb-2">Mein Profil</h1>
+  <p class="text-gray-500 text-sm mb-8">Pflege hier deine persönlichen Angaben. Diese Daten werden für Lohnabrechnungen und J+S-Meldungen verwendet.</p>
+
+  <% if @trainer %>
+    <%= form_with model: @trainer, url: update_profile_trainer_path(@trainer), method: :patch, class: "space-y-6" do |f| %>
+      <% if @trainer.errors.any? %>
+        <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          <p class="font-semibold mb-1"><%= @trainer.errors.count == 1 ? "Es gibt einen Fehler:" : "Es gibt #{@trainer.errors.count} Fehler:" %></p>
+          <ul class="list-disc ml-5 text-sm space-y-0.5">
+            <% @trainer.errors.each do |error| %>
+              <li><%= error.full_message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%# Konto-Info %>
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Konto</p>
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-gray-700">E-Mail-Adresse</p>
+            <p class="text-sm text-gray-900 mt-0.5"><%= current_user.email %></p>
+          </div>
+          <%= link_to "Kontoeinstellungen", edit_user_registration_path,
+                class: "text-sm font-semibold text-primary-600 hover:text-primary-800 transition" %>
+        </div>
+      </div>
+
+      <%# Persönliche Daten %>
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Persönliche Daten</p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <%= f.label :first_name, "Vorname", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.text_field :first_name, placeholder: "Laura",
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          </div>
+          <div>
+            <%= f.label :last_name, "Nachname", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.text_field :last_name, placeholder: "Müller",
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <%= f.label :date_of_birth, "Geburtsdatum", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.date_field :date_of_birth,
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          </div>
+          <div>
+            <%= f.label :gender, "Geschlecht", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.select :gender,
+                  [["Bitte wählen…", ""], ["männlich", "männlich"], ["weiblich", "weiblich"]],
+                  {},
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          </div>
+        </div>
+
+        <div>
+          <%= f.label :phone, "Telefonnummer", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+          <%= f.telephone_field :phone, placeholder: "+41 79 123 45 67", autocomplete: "tel",
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+      </div>
+
+      <%# Adresse %>
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Adresse</p>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div class="col-span-2">
+            <%= f.label :street, "Strasse", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.text_field :street, placeholder: "Musterstrasse",
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          </div>
+          <div>
+            <%= f.label :house_number, "Nr.", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.text_field :house_number, placeholder: "12",
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <%= f.label :zip_code, "PLZ", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.text_field :zip_code, placeholder: "3000",
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          </div>
+          <div class="col-span-2">
+            <%= f.label :city, "Ort", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.text_field :city, placeholder: "Bern",
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <%= f.label :nationality, "Nationalität", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.select :nationality, [["CH", "CH"], ["FL", "FL"], ["Andere", "Andere"]], {},
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          </div>
+          <div>
+            <%= f.label :mother_tongue, "Muttersprache", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.select :mother_tongue, [["DE", "DE"], ["FR", "FR"], ["IT", "IT"], ["Andere", "Andere"]], {},
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          </div>
+        </div>
+      </div>
+
+      <%# J+S & AHV %>
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">J+S & AHV</p>
+
+        <div>
+          <%= f.label :ahv_number, class: "block text-sm font-semibold text-gray-700 mb-1" do %>AHV-Nummer <span class="font-normal text-gray-400">(optional)</span><% end %>
+          <p class="text-xs text-gray-400 mb-1.5">Format: 756.XXXX.XXXX.XX</p>
+          <%= f.text_field :ahv_number, placeholder: "756.1234.5678.90",
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+        </div>
+
+        <div>
+          <p class="text-sm font-semibold text-gray-700 mb-2">J+S-Anerkennung</p>
+          <label class="flex items-start gap-3 cursor-pointer">
+            <%= f.check_box :js_anerkennung,
+                  class: "mt-0.5 h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer shrink-0" %>
+            <span class="text-sm text-gray-700">Ich besitze eine gültige J+S-Anerkennung (Jugend+Sport, BASPO)</span>
+          </label>
+        </div>
+      </div>
+
+      <%# Lohnangaben %>
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
+        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Lohnangaben</p>
+
+        <div>
+          <%= f.label :iban, "IBAN", class: "block text-sm font-semibold text-gray-700 mb-1" %>
+          <p class="text-xs text-gray-400 mb-1.5">Für die Lohnauszahlung. Format: CH56 0483 5012 3456 7800 9</p>
+          <%= f.text_field :iban, placeholder: "CH56 0483 5012 3456 7800 9",
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+          <% if @trainer.errors[:iban].any? %>
+            <p class="mt-1 text-xs text-red-600"><%= @trainer.errors[:iban].first %></p>
+          <% end %>
+        </div>
+      </div>
+
+      <div>
+        <%= f.submit "Profil speichern",
+              class: "w-full sm:w-auto rounded-lg px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
+      </div>
+    <% end %>
+
+  <% elsif current_user.admin? %>
+    <%# Konto-Info für Admin ohne Trainer-Profil %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+      <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Konto</p>
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-sm font-semibold text-gray-700">E-Mail-Adresse</p>
+          <p class="text-sm text-gray-900 mt-0.5"><%= current_user.email %></p>
+        </div>
+        <%= link_to "Kontoeinstellungen", edit_user_registration_path,
+              class: "text-sm font-semibold text-primary-600 hover:text-primary-800 transition" %>
+      </div>
+    </div>
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-5 text-sm text-blue-800">
+      <p class="font-semibold mb-1">Admin-Konto</p>
+      <p>Als Administrator hast du kein Trainer-Profil. Deine Kontoeinstellungen findest du <%= link_to "hier", edit_user_registration_path, class: "underline font-semibold" %>.</p>
+    </div>
+  <% end %>
+</div>

@@ -11,7 +11,12 @@
     <div class="flex flex-wrap gap-3 w-full md:w-auto">
       <%= link_to t("courses.show.back"), courses_path, class: "flex-1 md:flex-none text-center bg-white py-3 px-6 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
 
-      <% if @course.registration_mode == 'single_session' %>
+      <% if user_signed_in? && (current_user.admin? || Trainer.exists?(user: current_user)) %>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 max-w-xs">
+          <p class="font-semibold mb-1">Anmeldung nicht möglich</p>
+          <p>Als Trainer oder Admin kannst du keine Kinder über dieses Formular anmelden. Bitte erstelle ein separates Eltern-Konto mit einer anderen E-Mail-Adresse.</p>
+        </div>
+      <% elsif @course.registration_mode == 'single_session' %>
         <a href="#termine" class="flex-1 md:flex-none text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition">
           <%= t("courses.show.select_date") %>
         </a>
@@ -120,7 +125,9 @@
                 </div>
 
                 <div>
-                  <% if is_full %>
+                  <% if user_signed_in? && (current_user.admin? || Trainer.exists?(user: current_user)) %>
+                    <%# Kein Button — Hinweis ist oben auf der Seite sichtbar %>
+                  <% elsif is_full %>
                     <%= link_to t("courses.show.waitlist_btn"), new_course_registration_path(course_id: @course.id, training_session_id: session.id),
                           class: "block w-full sm:w-auto bg-orange-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-orange-600 transition text-sm text-center shadow-sm whitespace-nowrap" %>
                   <% else %>

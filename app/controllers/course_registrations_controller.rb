@@ -17,6 +17,11 @@ class CourseRegistrationsController < ApplicationController
   end
 
   def new
+    if current_user.admin? || Trainer.exists?(user: current_user)
+      redirect_to(params[:course_id] ? course_path(params[:course_id]) : root_path,
+        alert: "Trainer und Admins können keine Kinder über dieses Formular anmelden. Bitte erstelle ein separates Eltern-Konto mit einer anderen E-Mail-Adresse.")
+      return
+    end
     @course_registration = CourseRegistration.new
     @my_participants = current_user.participants
 
@@ -36,6 +41,10 @@ class CourseRegistrationsController < ApplicationController
   end
 
   def create
+    if current_user.admin? || Trainer.exists?(user: current_user)
+      redirect_to root_path, alert: "Trainer und Admins können keine Kinder über dieses Formular anmelden."
+      return
+    end
     @course_registration = CourseRegistration.new(course_registration_params)
     @course_registration.payment_cleared = false
 

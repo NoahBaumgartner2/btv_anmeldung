@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_15_210357) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_16_063823) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -259,10 +259,25 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_15_210357) do
   end
 
   create_table "trainers", force: :cascade do |t|
+    t.string "ahv_number"
+    t.string "city"
+    t.string "country", default: "CH"
     t.datetime "created_at", null: false
+    t.date "date_of_birth"
+    t.string "first_name"
+    t.string "gender"
+    t.string "house_number"
+    t.string "iban"
+    t.boolean "js_anerkennung", default: false, null: false
+    t.string "js_person_number"
+    t.string "last_name"
+    t.string "mother_tongue", default: "DE"
+    t.string "nationality", default: "CH"
     t.string "phone"
+    t.string "street"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "zip_code"
     t.index ["user_id"], name: "index_trainers_on_user_id"
   end
 

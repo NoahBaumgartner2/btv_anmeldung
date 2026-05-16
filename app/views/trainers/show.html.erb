@@ -9,6 +9,40 @@
     <p class="text-gray-500 mt-1"><%= @trainer.phone.presence || t('trainers.show.no_phone') %></p>
   </div>
 
+  <%# ── Persönliche Daten ───────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Persönliche Daten</p>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+      <div><dt class="text-gray-500">Name</dt><dd class="font-semibold text-gray-900"><%= @trainer.full_name %></dd></div>
+      <div><dt class="text-gray-500">E-Mail</dt><dd class="font-semibold text-gray-900"><%= @trainer.user.email %></dd></div>
+      <div><dt class="text-gray-500">Geburtsdatum</dt><dd class="font-semibold text-gray-900"><%= @trainer.date_of_birth&.strftime("%d.%m.%Y") || "–" %></dd></div>
+      <div><dt class="text-gray-500">Geschlecht</dt><dd class="font-semibold text-gray-900"><%= @trainer.gender || "–" %></dd></div>
+      <div><dt class="text-gray-500">Telefon</dt><dd class="font-semibold text-gray-900"><%= @trainer.phone || "–" %></dd></div>
+      <div><dt class="text-gray-500">AHV-Nummer</dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.ahv_number || "–" %></dd></div>
+    </dl>
+  </div>
+
+  <%# ── Adresse ─────────────────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Adresse</p>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+      <div><dt class="text-gray-500">Strasse</dt><dd class="font-semibold text-gray-900"><%= [@trainer.street, @trainer.house_number].compact.join(" ").presence || "–" %></dd></div>
+      <div><dt class="text-gray-500">PLZ / Ort</dt><dd class="font-semibold text-gray-900"><%= [@trainer.zip_code, @trainer.city].compact.join(" ").presence || "–" %></dd></div>
+      <div><dt class="text-gray-500">Nationalität</dt><dd class="font-semibold text-gray-900"><%= @trainer.nationality || "–" %></dd></div>
+      <div><dt class="text-gray-500">Muttersprache</dt><dd class="font-semibold text-gray-900"><%= @trainer.mother_tongue || "–" %></dd></div>
+    </dl>
+  </div>
+
+  <%# ── J+S & Lohnangaben ───────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">J+S & Lohnangaben</p>
+    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+      <div><dt class="text-gray-500">J+S Personennummer</dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.js_person_number || "–" %></dd></div>
+      <div><dt class="text-gray-500">J+S-Anerkennung</dt><dd class="font-semibold text-gray-900"><%= @trainer.js_anerkennung? ? "✓ Ja" : "Nein" %></dd></div>
+      <div class="sm:col-span-2"><dt class="text-gray-500">IBAN</dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.iban || "–" %></dd></div>
+    </dl>
+  </div>
+
   <%# ── Zugewiesene Kurse (Übersicht) ──────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-6">
     <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">

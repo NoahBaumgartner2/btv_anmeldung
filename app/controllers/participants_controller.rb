@@ -3,6 +3,10 @@ class ParticipantsController < ApplicationController
   before_action :set_participant, only: %i[show edit update destroy]
 
   def index
+    if current_user.admin? || Trainer.exists?(user: current_user)
+      redirect_to my_profile_path and return
+    end
+
     @participants = current_user.participants
       .includes(course_registrations: [ :course, :training_session ])
 
@@ -35,10 +39,20 @@ class ParticipantsController < ApplicationController
       .to_set
   end
 
+  def my_profile
+    unless current_user.admin? || Trainer.exists?(user: current_user)
+      redirect_to participants_path and return
+    end
+    @trainer = Trainer.find_or_create_by(user: current_user)
+  end
+
   def show
   end
 
   def new
+    if Trainer.exists?(user: current_user)
+      redirect_to my_profile_path, alert: "Trainer können keine Teilnehmer erfassen." and return
+    end
     @participant = Participant.new
     @participant.user_id = current_user.id unless current_user.admin?
   end
@@ -47,6 +61,9 @@ class ParticipantsController < ApplicationController
   end
 
   def create
+    if Trainer.exists?(user: current_user)
+      redirect_to my_profile_path, alert: "Trainer können keine Teilnehmer erfassen." and return
+    end
     @participant = Participant.new(participant_params)
     @participant.user_id = current_user.id unless current_user.admin?
 

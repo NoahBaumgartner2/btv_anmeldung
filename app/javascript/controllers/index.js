@@ -10,6 +10,7 @@ import MobileMenuController from "controllers/mobile_menu_controller"
 import DatepickerController from "controllers/datepicker_controller"
 import CookieConsentController from "controllers/cookie_consent_controller"
 import RegistrationModeController from "controllers/registration_mode_controller"
+import PasswordToggleController from "controllers/password_toggle_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -23,3 +24,4 @@ application.register("mobile-menu", MobileMenuController)
 application.register("datepicker", DatepickerController)
 application.register("cookie-consent", CookieConsentController)
 application.register("registration-mode", RegistrationModeController)
+application.register("password-toggle", PasswordToggleController)

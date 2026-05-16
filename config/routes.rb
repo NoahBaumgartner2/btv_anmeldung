@@ -35,8 +35,15 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :trainers
+  resources :trainers do
+    member do
+      patch :update_profile
+    end
+  end
   resources :holidays
+
+  get 'my_profile', to: 'participants#my_profile', as: :my_profile
+
   resources :participants
 
   resources :courses do
