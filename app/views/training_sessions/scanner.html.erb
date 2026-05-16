@@ -33,7 +33,7 @@
       Wir benötigen Zugriff auf die Kamera, um QR-Tickets der Teilnehmenden zu scannen.
     </p>
     <p class="text-xs text-gray-500 mt-2 max-w-sm">
-      Dein Browser fragt gleich nach der Berechtigung.
+      Beim Starten wirst du nach der Kamera-Berechtigung gefragt.
     </p>
 
     <button type="button"
@@ -187,217 +187,233 @@
 
 <script nonce="<%= request.content_security_policy_nonce %>">
 (function() {
-  // ── DOM-Refs ─────────────────────────────────────────────────────────
-  const gate           = document.getElementById("permission-gate");
-  const errorView      = document.getElementById("permission-error");
-  const errorText      = document.getElementById("permission-error-text");
-  const startBtn       = document.getElementById("start-camera-btn");
-  const retryBtn       = document.getElementById("retry-camera-btn");
-  const topOverlay     = document.getElementById("top-overlay");
-  const bottomOverlay  = document.getElementById("bottom-overlay");
-  const scanOverlay    = document.getElementById("scan-overlay");
-  const successSplash  = document.getElementById("success-splash");
-  const successName    = document.getElementById("success-name");
-  const successDetail  = document.getElementById("success-detail");
-  const errorSplash    = document.getElementById("error-splash");
-  const errorSplashTxt = document.getElementById("error-text");
-  const counter        = document.getElementById("attendance-count");
-
-  const SESSION_ID = <%= @training_session.id.to_json %>;
-  const CSRF       = document.querySelector('meta[name="csrf-token"]')?.content || "";
-
+  // Ausserhalb von init() damit pagehide-Handler auch nach Navigation darauf zugreifen kann
   let html5Qrcode  = null;
   let isScanning   = false;
   let lastDecoded  = "";
   let lastDecodedAt = 0;
 
-  // ── Helpers ──────────────────────────────────────────────────────────
-  function show(el) { el.classList.remove("hidden"); }
-  function hide(el) { el.classList.add("hidden"); }
-  function vibrate(pattern) {
-    if (navigator.vibrate) {
-      try { navigator.vibrate(pattern); } catch (e) {}
+  function init() {
+    // ── DOM-Refs ───────────────────────────────────────────────────────
+    const gate           = document.getElementById("permission-gate");
+    const errorView      = document.getElementById("permission-error");
+    const errorText      = document.getElementById("permission-error-text");
+    const startBtn       = document.getElementById("start-camera-btn");
+    const retryBtn       = document.getElementById("retry-camera-btn");
+    const topOverlay     = document.getElementById("top-overlay");
+    const bottomOverlay  = document.getElementById("bottom-overlay");
+    const scanOverlay    = document.getElementById("scan-overlay");
+    const successSplash  = document.getElementById("success-splash");
+    const successName    = document.getElementById("success-name");
+    const successDetail  = document.getElementById("success-detail");
+    const errorSplash    = document.getElementById("error-splash");
+    const errorSplashTxt = document.getElementById("error-text");
+    const counter        = document.getElementById("attendance-count");
+
+    const SESSION_ID = <%= @training_session.id.to_json %>;
+    const CSRF       = document.querySelector('meta[name="csrf-token"]')?.content || "";
+
+    // ── Helpers ────────────────────────────────────────────────────────
+    function show(el) { el.classList.remove("hidden"); }
+    function hide(el) { el.classList.add("hidden"); }
+    function vibrate(pattern) {
+      if (navigator.vibrate) {
+        try { navigator.vibrate(pattern); } catch (e) {}
+      }
     }
-  }
-  function isSecure() {
-    if (window.isSecureContext) return true;
-    return ["localhost", "127.0.0.1"].includes(window.location.hostname);
-  }
-
-  function showScannerUI() {
-    hide(gate);
-    hide(errorView);
-    show(topOverlay);
-    show(bottomOverlay);
-    show(scanOverlay);
-  }
-
-  function showError(message) {
-    hide(gate);
-    hide(topOverlay);
-    hide(bottomOverlay);
-    hide(scanOverlay);
-    errorText.textContent = message;
-    show(errorView);
-  }
-
-  // ── Kamera starten ───────────────────────────────────────────────────
-  async function startCamera() {
-    if (!isSecure()) {
-      showError("Der Kamera-Zugriff funktioniert nur über HTTPS. Bitte rufe diese Seite über eine sichere Verbindung auf oder nutze die manuelle Checkliste.");
-      return;
-    }
-    if (typeof Html5Qrcode === "undefined") {
-      showError("Scanner-Bibliothek konnte nicht geladen werden. Bitte Internet-Verbindung prüfen und erneut versuchen.");
-      return;
+    function isSecure() {
+      if (window.isSecureContext) return true;
+      return ["localhost", "127.0.0.1"].includes(window.location.hostname);
     }
 
-    try {
-      html5Qrcode = new Html5Qrcode("reader", { verbose: false });
+    function showScannerUI() {
+      hide(gate);
+      hide(errorView);
+      show(topOverlay);
+      show(bottomOverlay);
+      show(scanOverlay);
+    }
 
-      const config = {
-        fps: 10,
-        qrbox: function(viewfinderWidth, viewfinderHeight) {
-          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-          const size = Math.floor(minEdge * 0.7);
-          return { width: size, height: size };
-        },
-        disableFlip: false
-      };
+    function showError(message) {
+      hide(gate);
+      hide(topOverlay);
+      hide(bottomOverlay);
+      hide(scanOverlay);
+      errorText.textContent = message;
+      show(errorView);
+    }
 
-      // Bevorzugt Rückkamera (environment), Fallback Frontkamera (user).
+    // ── Kamera starten ─────────────────────────────────────────────────
+    async function startCamera() {
+      if (!isSecure()) {
+        showError("Der Kamera-Zugriff funktioniert nur über HTTPS. Bitte rufe diese Seite über eine sichere Verbindung auf oder nutze die manuelle Checkliste.");
+        return;
+      }
+      if (typeof Html5Qrcode === "undefined") {
+        showError("Scanner-Bibliothek konnte nicht geladen werden. Bitte Internet-Verbindung prüfen und erneut versuchen.");
+        return;
+      }
+
       try {
-        await html5Qrcode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailureSilent);
-      } catch (envErr) {
-        await html5Qrcode.start({ facingMode: "user" }, config, onScanSuccess, onScanFailureSilent);
-      }
+        html5Qrcode = new Html5Qrcode("reader", { verbose: false });
 
-      isScanning = true;
+        const config = {
+          fps: 10,
+          qrbox: function(viewfinderWidth, viewfinderHeight) {
+            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+            const size = Math.floor(minEdge * 0.7);
+            return { width: size, height: size };
+          },
+          disableFlip: false
+        };
 
-      // iOS-Safari: playsinline + object-fit cover für true fullscreen
-      const video = document.querySelector("#reader video");
-      if (video) {
-        video.setAttribute("playsinline", "true");
-        video.setAttribute("muted", "true");
-        video.style.objectFit = "cover";
-        video.style.width  = "100%";
-        video.style.height = "100%";
-        video.style.position = "absolute";
-        video.style.top  = "0";
-        video.style.left = "0";
-      }
-
-      showScannerUI();
-    } catch (e) {
-      const raw = (e && e.message) ? String(e.message) : (e ? String(e) : "Unbekannter Fehler");
-      const msg = raw.toLowerCase();
-
-      if (msg.includes("permission") || msg.includes("denied") || msg.includes("notallowed")) {
-        showError("Kamera-Zugriff wurde verweigert. Bitte erlaube den Kamera-Zugriff in den Browser-Einstellungen oder nutze die manuelle Checkliste.");
-      } else if (msg.includes("notfound") || msg.includes("nodevice") || msg.includes("not found")) {
-        showError("Es wurde keine Kamera gefunden. Bitte nutze die manuelle Checkliste.");
-      } else if (msg.includes("notreadable") || msg.includes("trackstart") || msg.includes("in use")) {
-        showError("Die Kamera wird gerade von einer anderen App verwendet. Bitte schliesse andere Apps und versuche es erneut.");
-      } else if (msg.includes("overconstrained")) {
-        showError("Die gewünschte Kamera-Konfiguration wird von diesem Gerät nicht unterstützt.");
-      } else {
-        showError("Kamera konnte nicht gestartet werden: " + raw);
-      }
-    }
-  }
-
-  // Per-Frame Decode-Failure: nichts tun (sonst spammt es das UI)
-  function onScanFailureSilent() {}
-
-  // ── Scan-Erfolg → Backend prüfen → UI-Feedback ───────────────────────
-  function onScanSuccess(decodedText) {
-    const now = Date.now();
-    // Same-code Throttling: 3 Sekunden Schutz vor Doppelscans
-    if (decodedText === lastDecoded && (now - lastDecodedAt) < 3000) return;
-    lastDecoded   = decodedText;
-    lastDecodedAt = now;
-
-    // ── Sicherheits-Validierung des gescannten QR-Codes ───────────────
-    // Niemals decodedText direkt für fetch verwenden — ein bösartiger
-    // QR-Code könnte sonst Daten an eine fremde Domain senden oder eine
-    // beliebige Route auf der eigenen Domain ansteuern. Wir prüfen:
-    //   1) Origin == window.location.origin (keine fremde Domain)
-    //   2) Pfad == /course_registrations/:id/scan (kein anderer Endpoint)
-    // Anschliessend bauen wir die fetch-URL selbst aus der validierten ID.
-    let registrationId = null;
-    try {
-      const u = new URL(decodedText, window.location.origin);
-      if (u.origin !== window.location.origin) {
-        throw new Error("foreign-origin");
-      }
-      const m = u.pathname.match(/^\/course_registrations\/(\d+)\/scan\/?$/);
-      if (!m) {
-        throw new Error("invalid-path");
-      }
-      registrationId = m[1];
-    } catch (e) {
-      vibrate([80, 60, 80]);
-      errorSplashTxt.textContent = "Ungültiger QR-Code";
-      show(errorSplash);
-      setTimeout(() => hide(errorSplash), 1600);
-      return;
-    }
-
-    const fetchUrl = "/course_registrations/" + encodeURIComponent(registrationId) +
-                     "/scan?session_id=" + encodeURIComponent(SESSION_ID);
-
-    fetch(fetchUrl, {
-      method: "POST",
-      headers: {
-        "Accept":       "application/json",
-        "X-CSRF-Token": CSRF
-      },
-      credentials: "same-origin"
-    })
-    .then(async (resp) => {
-      if (!resp.ok || resp.redirected || (resp.headers.get("content-type") || "").includes("text/html")) {
-        throw new Error("not-authorized");
-      }
-      return resp.json();
-    })
-    .then((data) => {
-      if (data && data.success) {
-        vibrate(150);
-        successName.textContent   = data.participant_name || "Erfolgreich";
-        successDetail.textContent = data.message || "Anwesenheit erfasst";
-        show(successSplash);
-        if (counter) {
-          const next = parseInt(counter.textContent, 10) + 1;
-          counter.textContent = String(isNaN(next) ? 0 : next);
+        // Bevorzugt Rückkamera (environment), Fallback Frontkamera (user).
+        try {
+          await html5Qrcode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailureSilent);
+        } catch (envErr) {
+          await html5Qrcode.start({ facingMode: "user" }, config, onScanSuccess, onScanFailureSilent);
         }
-        setTimeout(() => hide(successSplash), 1300);
-      } else {
+
+        isScanning = true;
+
+        // iOS-Safari: playsinline + object-fit cover für true fullscreen
+        const video = document.querySelector("#reader video");
+        if (video) {
+          video.setAttribute("playsinline", "true");
+          video.setAttribute("muted", "true");
+          video.style.objectFit = "cover";
+          video.style.width  = "100%";
+          video.style.height = "100%";
+          video.style.position = "absolute";
+          video.style.top  = "0";
+          video.style.left = "0";
+        }
+
+        showScannerUI();
+      } catch (e) {
+        const raw = (e && e.message) ? String(e.message) : (e ? String(e) : "Unbekannter Fehler");
+        const msg = raw.toLowerCase();
+
+        if (msg.includes("permission") || msg.includes("denied") || msg.includes("notallowed")) {
+          showError("Kamera-Zugriff wurde verweigert. Bitte erlaube den Kamera-Zugriff in den Browser-Einstellungen oder nutze die manuelle Checkliste.");
+        } else if (msg.includes("notfound") || msg.includes("nodevice") || msg.includes("not found")) {
+          showError("Es wurde keine Kamera gefunden. Bitte nutze die manuelle Checkliste.");
+        } else if (msg.includes("notreadable") || msg.includes("trackstart") || msg.includes("in use")) {
+          showError("Die Kamera wird gerade von einer anderen App verwendet. Bitte schliesse andere Apps und versuche es erneut.");
+        } else if (msg.includes("overconstrained")) {
+          showError("Die gewünschte Kamera-Konfiguration wird von diesem Gerät nicht unterstützt.");
+        } else {
+          showError("Kamera konnte nicht gestartet werden: " + raw);
+        }
+      }
+    }
+
+    // Per-Frame Decode-Failure: nichts tun (sonst spammt es das UI)
+    function onScanFailureSilent() {}
+
+    // ── Scan-Erfolg → Backend prüfen → UI-Feedback ────────────────────
+    function onScanSuccess(decodedText) {
+      const now = Date.now();
+      // Same-code Throttling: 3 Sekunden Schutz vor Doppelscans
+      if (decodedText === lastDecoded && (now - lastDecodedAt) < 3000) return;
+      lastDecoded   = decodedText;
+      lastDecodedAt = now;
+
+      // ── Sicherheits-Validierung des gescannten QR-Codes ─────────────
+      // Niemals decodedText direkt für fetch verwenden — ein bösartiger
+      // QR-Code könnte sonst Daten an eine fremde Domain senden oder eine
+      // beliebige Route auf der eigenen Domain ansteuern. Wir prüfen:
+      //   1) Origin == window.location.origin (keine fremde Domain)
+      //   2) Pfad == /course_registrations/:id/scan (kein anderer Endpoint)
+      // Anschliessend bauen wir die fetch-URL selbst aus der validierten ID.
+      let registrationId = null;
+      try {
+        const u = new URL(decodedText, window.location.origin);
+        if (u.origin !== window.location.origin) {
+          throw new Error("foreign-origin");
+        }
+        const m = u.pathname.match(/^\/course_registrations\/(\d+)\/scan\/?$/);
+        if (!m) {
+          throw new Error("invalid-path");
+        }
+        registrationId = m[1];
+      } catch (e) {
         vibrate([80, 60, 80]);
-        errorSplashTxt.textContent = (data && data.message) || "Ungültiges Ticket";
+        errorSplashTxt.textContent = "Ungültiger QR-Code";
         show(errorSplash);
         setTimeout(() => hide(errorSplash), 1600);
+        return;
       }
-    })
-    .catch(() => {
-      vibrate([80, 60, 80]);
-      errorSplashTxt.textContent = "Scan fehlgeschlagen — Netzwerk prüfen";
-      show(errorSplash);
-      setTimeout(() => hide(errorSplash), 1800);
+
+      const fetchUrl = "/course_registrations/" + encodeURIComponent(registrationId) +
+                       "/scan?session_id=" + encodeURIComponent(SESSION_ID);
+
+      fetch(fetchUrl, {
+        method: "POST",
+        headers: {
+          "Accept":       "application/json",
+          "X-CSRF-Token": CSRF
+        },
+        credentials: "same-origin"
+      })
+      .then(async (resp) => {
+        if (!resp.ok || resp.redirected || (resp.headers.get("content-type") || "").includes("text/html")) {
+          throw new Error("not-authorized");
+        }
+        return resp.json();
+      })
+      .then((data) => {
+        if (data && data.success) {
+          vibrate(150);
+          successName.textContent   = data.participant_name || "Erfolgreich";
+          successDetail.textContent = data.message || "Anwesenheit erfasst";
+          show(successSplash);
+          if (counter) {
+            const next = parseInt(counter.textContent, 10) + 1;
+            counter.textContent = String(isNaN(next) ? 0 : next);
+          }
+          setTimeout(() => hide(successSplash), 1300);
+        } else {
+          vibrate([80, 60, 80]);
+          errorSplashTxt.textContent = (data && data.message) || "Ungültiges Ticket";
+          show(errorSplash);
+          setTimeout(() => hide(errorSplash), 1600);
+        }
+      })
+      .catch(() => {
+        vibrate([80, 60, 80]);
+        errorSplashTxt.textContent = "Scan fehlgeschlagen — Netzwerk prüfen";
+        show(errorSplash);
+        setTimeout(() => hide(errorSplash), 1800);
+      });
+    }
+
+    // ── Bindings ───────────────────────────────────────────────────────
+    startBtn?.addEventListener("click", startCamera);
+    retryBtn?.addEventListener("click", function() {
+      hide(errorView);
+      show(gate);
     });
+
+    // Cleanup beim Verlassen der Seite (Kamera-Stream stoppen)
+    window.addEventListener("pagehide", function() {
+      if (html5Qrcode && isScanning) {
+        try { html5Qrcode.stop(); } catch (e) {}
+        isScanning = false;
+      }
+    });
+  } // end init()
+
+  // Turbo-kompatibel: feuert bei initialem Load und bei Turbo-Navigation
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
   }
-
-  // ── Bindings ─────────────────────────────────────────────────────────
-  startBtn?.addEventListener("click", startCamera);
-  retryBtn?.addEventListener("click", function() {
-    hide(errorView);
-    show(gate);
-  });
-
-  // Cleanup beim Verlassen der Seite (Kamera-Stream stoppen)
-  window.addEventListener("pagehide", function() {
-    if (html5Qrcode && isScanning) {
-      try { html5Qrcode.stop(); } catch (e) {}
-      isScanning = false;
+  document.addEventListener("turbo:load", function onTurboLoad() {
+    if (document.getElementById("start-camera-btn")) {
+      document.removeEventListener("turbo:load", onTurboLoad);
+      init();
     }
   });
 })();
