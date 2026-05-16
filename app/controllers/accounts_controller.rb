@@ -30,7 +30,17 @@ class AccountsController < ApplicationController
 
   def destroy
     unless current_user.valid_password?(params[:password])
-      redirect_to account_path, alert: "Falsches Passwort. Dein Konto wurde nicht gelöscht."
+      redirect_to account_path, alert: t("accounts.show.wrong_password")
+      return
+    end
+
+    today = Date.today
+    active_registrations = current_user.participants
+      .flat_map(&:course_registrations)
+      .select { |r| r.status == "bestätigt" && (r.course.end_date.nil? || r.course.end_date >= today) }
+
+    if active_registrations.any?
+      redirect_to account_path, alert: t("accounts.show.delete_blocked_active_registrations")
       return
     end
 
@@ -38,7 +48,7 @@ class AccountsController < ApplicationController
     sign_out(user)
     user.destroy!
 
-    redirect_to root_path, notice: "Dein Konto und alle Daten wurden gelöscht."
+    redirect_to root_path, notice: t("accounts.show.deleted_notice")
   end
 
   def export
