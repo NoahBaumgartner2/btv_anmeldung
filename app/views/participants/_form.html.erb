@@ -1,4 +1,4 @@
-<%= form_with(model: participant, class: "contents", data: { controller: "scroll-to-error" }) do |form| %>
+<%= form_with(model: participant, url: local_assigns[:form_url], class: "contents", data: { controller: "scroll-to-error" }) do |form| %>
   <% if participant.errors.any? %>
     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6" data-error-scroll-target>
       <p class="font-semibold mb-1"><%= t("participants.form.error_count", count: participant.errors.count) %></p>

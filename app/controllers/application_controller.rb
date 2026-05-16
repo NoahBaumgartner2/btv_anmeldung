@@ -3,12 +3,23 @@ class ApplicationController < ActionController::Base
   allow_browser versions: :modern
 
   before_action :set_locale
+  before_action :redirect_to_onboarding_if_needed
 
   def default_url_options
     { locale: nil }
   end
 
   private
+
+  def redirect_to_onboarding_if_needed
+    return unless user_signed_in?
+    return if current_user.admin? || Trainer.exists?(user: current_user)
+    return if controller_name == "onboarding"
+    return if devise_controller?
+    return if controller_path.start_with?("rails/")
+    return unless current_user.needs_onboarding?
+    redirect_to onboarding_path
+  end
 
   def set_locale
     I18n.locale = session[:locale] || I18n.default_locale

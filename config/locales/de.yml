@@ -1317,6 +1317,7 @@ de:
         confirm_password_label: "Passwort bestätigen"
         submit: "Passwort speichern"
     confirmations:
+      confirmed_onboarding: "E-Mail bestätigt! Bitte erfasse jetzt dein erstes Kind."
       new:
         title: "E-Mail erneut bestätigen"
         subtitle: "Wir schicken dir die Bestätigungs-E-Mail nochmals zu."

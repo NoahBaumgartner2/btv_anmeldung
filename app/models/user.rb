@@ -12,6 +12,11 @@ class User < ApplicationRecord
 
   before_create :set_privacy_accepted_at
 
+  def needs_onboarding?
+    return false if admin? || Trainer.exists?(user: self)
+    participants.empty?
+  end
+
   def newsletter_subscriber
     NewsletterSubscriber.find_by(email: email.downcase.strip)
   end
