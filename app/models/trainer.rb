@@ -6,6 +6,11 @@ class Trainer < ApplicationRecord
 
   GENDERS = %w[männlich weiblich].freeze
 
+  validates :phone,
+            format: { with: /\A[\+\d][\d\s\-]{6,}\z/,
+                      message: "ist ungültig (mind. 7 Zeichen, erlaubt: +, Ziffern, Leerzeichen, -)" },
+            allow_blank: true
+
   validates :ahv_number,
             format: { with: /\A756\.\d{4}\.\d{4}\.\d{2}\z/,
                       message: "muss im Format 756.XXXX.XXXX.XX angegeben werden" },

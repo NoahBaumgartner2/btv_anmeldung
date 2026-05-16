@@ -38,6 +38,10 @@ Rails.application.routes.draw do
   resources :trainers do
     member do
       patch :update_profile
+      post  :update_courses
+    end
+    collection do
+      post :invite
     end
   end
   resources :holidays

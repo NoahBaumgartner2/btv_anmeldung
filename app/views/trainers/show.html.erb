@@ -67,15 +67,15 @@
   </div>
 
   <%# ── Kurs-Zuweisung ──────────────────────────────────────────────────── %>
-  <%= form_with model: @trainer, method: :patch do |f| %>
+  <%= form_with model: @trainer, url: update_courses_trainer_path(@trainer), method: :post do |f| %>
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
       <div class="px-5 py-4 border-b border-gray-100">
         <h2 class="text-sm font-bold text-gray-700"><%= t('trainers.show.assignment_title') %></h2>
         <p class="text-xs text-gray-400 mt-0.5"><%= t('trainers.show.assignment_hint') %></p>
       </div>
 
-      <%# Leeres hidden field damit Rails course_ids=[] sendet wenn nichts angekreuzt ist %>
-      <%= f.hidden_field :course_ids, value: "" %>
+      <%# Sendet leeres Array wenn keine Checkboxen angekreuzt sind %>
+      <input type="hidden" name="trainer[course_ids][]" value="">
 
       <div class="divide-y divide-gray-100">
         <% @courses_by_category.each do |category, courses| %>

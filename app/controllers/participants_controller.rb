@@ -43,7 +43,7 @@ class ParticipantsController < ApplicationController
     unless current_user.admin? || Trainer.exists?(user: current_user)
       redirect_to participants_path and return
     end
-    @trainer = Trainer.find_or_create_by(user: current_user)
+    @trainer = Trainer.find_or_initialize_by(user: current_user)
   end
 
   def show

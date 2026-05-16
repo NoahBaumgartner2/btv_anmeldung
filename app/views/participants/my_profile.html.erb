@@ -5,7 +5,10 @@
   <p class="text-gray-500 text-sm mb-8">Pflege hier deine persönlichen Angaben. Diese Daten werden für Lohnabrechnungen und J+S-Meldungen verwendet.</p>
 
   <% if @trainer %>
-    <%= form_with model: @trainer, url: update_profile_trainer_path(@trainer), method: :patch, class: "space-y-6" do |f| %>
+    <%= form_with model: @trainer,
+                  url: @trainer.new_record? ? trainers_path : update_profile_trainer_path(@trainer),
+                  method: @trainer.new_record? ? :post : :patch,
+                  class: "space-y-6" do |f| %>
       <% if @trainer.errors.any? %>
         <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
           <p class="font-semibold mb-1"><%= @trainer.errors.count == 1 ? "Es gibt einen Fehler:" : "Es gibt #{@trainer.errors.count} Fehler:" %></p>

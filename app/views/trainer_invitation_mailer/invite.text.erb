@@ -1,0 +1,11 @@
+Hallo <%= @trainer.first_name.presence || @trainer.user.email.split("@").first %>,
+
+du wurdest als Trainer im Anmeldungssystem erfasst. Bitte setze jetzt dein Passwort, um dich einzuloggen.
+
+Passwort setzen:
+<%= @reset_url %>
+
+Dieser Link ist 6 Stunden gültig. Falls du diese E-Mail nicht erwartet hast, kannst du sie ignorieren.
+
+---
+Diese E-Mail wurde automatisch vom Anmeldungssystem versendet.
