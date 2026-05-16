@@ -3,16 +3,13 @@ class OnboardingController < ApplicationController
 
   def show
     redirect_to participants_path and return unless current_user.needs_onboarding?
-    @participant = Participant.new(user_id: current_user.id)
+    @user = current_user
   end
 
   def create
-    @participant = Participant.new(participant_params)
-    @participant.user_id = current_user.id
-
-    if @participant.save
-      redirect_to participants_path,
-        notice: "Super! #{@participant.first_name} wurde erfasst. Du kannst jetzt Kurse buchen."
+    @user = current_user
+    if @user.update(family_params.merge(family_data_completed: true))
+      redirect_to participants_path, notice: t("onboarding.success_notice")
     else
       render :show, status: :unprocessable_entity
     end
@@ -20,10 +17,10 @@ class OnboardingController < ApplicationController
 
   private
 
-  def participant_params
-    params.expect(participant: [
-      :first_name, :last_name, :date_of_birth, :gender, :phone_number,
-      :street, :house_number, :zip_code, :city, :country, :nationality, :mother_tongue
-    ])
+  def family_params
+    params.require(:user).permit(
+      :phone_number, :street, :house_number, :zip_code,
+      :city, :country, :nationality, :mother_tongue
+    )
   end
 end

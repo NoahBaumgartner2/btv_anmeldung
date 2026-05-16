@@ -10,11 +10,28 @@ class User < ApplicationRecord
   attr_accessor :privacy_accepted, :devise_notification_error
   validates :privacy_accepted, acceptance: { allow_nil: false }, on: :create
 
+  validates :phone_number, :street, :zip_code, :city,
+            presence: true,
+            if: :family_data_completed?
+
   before_create :set_privacy_accepted_at
 
   def needs_onboarding?
     return false if admin? || Trainer.exists?(user: self)
-    participants.empty?
+    !family_data_completed?
+  end
+
+  def family_defaults
+    {
+      phone_number: phone_number,
+      street: street,
+      house_number: house_number,
+      zip_code: zip_code,
+      city: city,
+      country: country.presence || "CH",
+      nationality: nationality.presence || "CH",
+      mother_tongue: mother_tongue.presence || "DE"
+    }
   end
 
   def newsletter_subscriber

@@ -426,6 +426,7 @@ fr:
       submit_new: "Ajouter la personne"
       submit_edit: "Enregistrer les modifications"
       cancel: "Annuler"
+      address_prefilled_hint: "L'adresse et la nationalité ont été reprises de vos données familiales."
 
   dashboards:
     admin:
@@ -1295,9 +1296,21 @@ fr:
       impressum: "Mentions légales"
 
   onboarding:
-    title: "Bienvenue ! Commencez par saisir une personne"
-    subtitle: "Avant de pouvoir réserver des cours, veuillez saisir le premier enfant (ou la personne) que vous souhaitez inscrire."
-    submit: "Enregistrer la personne"
+    title: "Bienvenue ! Renseignez d'abord les données familiales"
+    subtitle: "Ces informations (adresse, téléphone, etc.) seront automatiquement reprises pour tous les participants que vous enregistrez – vous ne devez les saisir qu'une seule fois."
+    section_contact: "Coordonnées de la famille"
+    section_address: "Adresse"
+    phone_label: "Téléphone d'urgence"
+    street_label: "Rue"
+    house_number_label: "N°"
+    zip_label: "NPA"
+    city_label: "Localité"
+    country_label: "Pays"
+    nationality_label: "Nationalité"
+    mother_tongue_label: "Langue maternelle"
+    submit: "Continuer – enregistrer une personne"
+    cancel: "Annuler"
+    success_notice: "Super ! Données familiales enregistrées. Ajoutez maintenant la première personne."
 
   misc:
     time_suffix: ""

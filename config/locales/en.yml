@@ -426,6 +426,7 @@ en:
       submit_new: "Add person"
       submit_edit: "Save changes"
       cancel: "Cancel"
+      address_prefilled_hint: "Address & nationality were pre-filled from your family details."
 
   dashboards:
     admin:
@@ -1306,9 +1307,21 @@ en:
       impressum: "Legal Notice"
 
   onboarding:
-    title: "Welcome! Add a person first"
-    subtitle: "Before you can book courses, please add the first child (or person) you want to register."
-    submit: "Save person"
+    title: "Welcome! First, enter family details"
+    subtitle: "These details (address, phone number, etc.) will be automatically applied to all participants you register – you only need to enter them once."
+    section_contact: "Family contact details"
+    section_address: "Address"
+    phone_label: "Emergency phone"
+    street_label: "Street"
+    house_number_label: "No."
+    zip_label: "Postcode"
+    city_label: "City"
+    country_label: "Country"
+    nationality_label: "Nationality"
+    mother_tongue_label: "Mother tongue"
+    submit: "Continue – add a person"
+    cancel: "Cancel"
+    success_notice: "Great! Family details saved. Now add the first person."
 
   misc:
     time_suffix: ""

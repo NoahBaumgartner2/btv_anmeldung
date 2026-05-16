@@ -14,7 +14,7 @@ class ApplicationController < ActionController::Base
   def redirect_to_onboarding_if_needed
     return unless user_signed_in?
     return if current_user.admin? || Trainer.exists?(user: current_user)
-    return if controller_name == "onboarding"
+    return if controller_name.in?(%w[onboarding sessions registrations passwords confirmations])
     return if devise_controller?
     return if controller_path.start_with?("rails/")
     return unless current_user.needs_onboarding?

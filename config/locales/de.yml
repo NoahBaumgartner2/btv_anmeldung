@@ -465,6 +465,7 @@ de:
       submit_new: "Person erfassen"
       submit_edit: "Änderungen speichern"
       cancel: "Abbrechen"
+      address_prefilled_hint: "Adresse & Nationalität wurden aus deinen Familiendaten übernommen."
 
   dashboards:
     admin:
@@ -1345,9 +1346,21 @@ de:
       impressum: "Impressum"
 
   onboarding:
-    title: "Willkommen! Zuerst eine Person erfassen"
-    subtitle: "Bevor du Kurse buchen kannst, erfasse bitte das erste Kind (oder die Person) die du anmelden möchtest."
-    submit: "Person erfassen"
+    title: "Willkommen! Zuerst Familiendaten erfassen"
+    subtitle: "Diese Angaben (Adresse, Telefon etc.) werden automatisch für alle Teilnehmer übernommen, die du erfasst – du musst sie nur einmal eingeben."
+    section_contact: "Kontaktdaten der Familie"
+    section_address: "Adresse"
+    phone_label: "Notfall-Telefon"
+    street_label: "Strasse"
+    house_number_label: "Nr."
+    zip_label: "PLZ"
+    city_label: "Ort"
+    country_label: "Land"
+    nationality_label: "Nationalität"
+    mother_tongue_label: "Muttersprache"
+    submit: "Weiter – Person erfassen"
+    cancel: "Abbrechen"
+    success_notice: "Super! Familiendaten gespeichert. Jetzt die erste Person erfassen."
 
   misc:
     time_suffix: "Uhr"

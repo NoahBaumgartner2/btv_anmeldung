@@ -53,7 +53,8 @@ class ParticipantsController < ApplicationController
     if Trainer.exists?(user: current_user)
       redirect_to my_profile_path, alert: "Trainer können keine Teilnehmer erfassen." and return
     end
-    @participant = Participant.new
+    defaults = current_user.admin? ? {} : current_user.family_defaults
+    @participant = Participant.new(defaults)
     @participant.user_id = current_user.id unless current_user.admin?
   end
 
