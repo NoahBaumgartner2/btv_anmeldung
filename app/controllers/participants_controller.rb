@@ -37,6 +37,18 @@ class ParticipantsController < ApplicationController
       .where(course_registration_id: semester_reg_ids, status: "abgemeldet")
       .pluck(:course_registration_id, :training_session_id)
       .to_set
+
+    # Kurse pro Kategorie für "weitere Kurse"-Links
+    active_course_ids = all_regs
+      .reject { |r| r.status == "storniert" }
+      .map(&:course_id)
+      .uniq
+
+    @more_courses_by_category = Course
+      .where("end_date >= ? OR end_date IS NULL", today)
+      .where.not(id: active_course_ids)
+      .where.not(category: [ nil, "" ])
+      .group_by(&:category)
   end
 
   def my_profile

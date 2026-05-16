@@ -384,6 +384,7 @@ de:
         other: "%{count} Termine"
       no_active_dates: "Keine aktiven Termine"
       unsubscribe_course_btn: "Vom Kurs abmelden"
+      more_courses_in_category: "Weitere %{category}-Kurse ansehen"
       unsubscribe_course_confirm: "%{name} vollständig vom Kurs abmelden?"
       irreversible: "Du wirst aus dem Kurs ausgetragen und verlierst deinen Platz. Falls du eine Kursgebühr bezahlt hast, melde dich bitte beim Verein für eine allfällige Rückerstattung."
       past: "Vergangen"

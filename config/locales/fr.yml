@@ -345,6 +345,7 @@ fr:
         other: "%{count} séances"
       no_active_dates: "Aucune séance active"
       unsubscribe_course_btn: "Se désinscrire du cours"
+      more_courses_in_category: "Voir d'autres cours %{category}"
       unsubscribe_course_confirm: "Désinscrire %{name} définitivement du cours ?"
       irreversible: "Vous serez désinscrit(e) du cours et perdrez votre place. Si vous avez payé des frais de cours, veuillez contacter l'association pour un éventuel remboursement."
       past: "Passé"

@@ -345,6 +345,7 @@ en:
         other: "%{count} sessions"
       no_active_dates: "No active sessions"
       unsubscribe_course_btn: "Unsubscribe from course"
+      more_courses_in_category: "View more %{category} courses"
       unsubscribe_course_confirm: "Fully unsubscribe %{name} from the course?"
       irreversible: "You will be removed from the course and lose your spot. If you have paid a course fee, please contact the club regarding a possible refund."
       past: "Past"
