@@ -111,12 +111,15 @@
     <div class="flex flex-col sm:flex-row items-center gap-3">
       <%= f.submit t('trainers.show.save_assignment'),
             class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
-      <%= link_to t('trainers.show.edit_trainer'), edit_trainer_path(@trainer),
-            class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
-      <%= button_to t('trainers.show.delete_trainer'), @trainer, method: :delete,
-            data: { turbo_confirm: t('trainers.show.delete_confirm', email: @trainer.user.email) },
-            class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium cursor-pointer transition" %>
     </div>
   <% end %>
+
+  <div class="flex flex-col sm:flex-row items-center gap-3 mt-3">
+    <%= link_to t('trainers.show.edit_trainer'), edit_trainer_path(@trainer),
+          class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
+    <%= button_to t('trainers.show.delete_trainer'), @trainer, method: :delete,
+          data: { turbo_confirm: t('trainers.show.delete_confirm', email: @trainer.user.email) },
+          class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium cursor-pointer transition" %>
+  </div>
 
 </div>
