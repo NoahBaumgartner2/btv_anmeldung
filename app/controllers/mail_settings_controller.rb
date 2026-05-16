@@ -1,3 +1,5 @@
+require "net/smtp"
+
 class MailSettingsController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_admin!
@@ -36,9 +38,13 @@ class MailSettingsController < ApplicationController
 
     TestMailer.test_email(to).deliver_now
     redirect_to mail_setting_path, notice: "Test-E-Mail wurde an #{to} gesendet."
+  rescue Net::SMTPAuthenticationError => e
+    Rails.logger.error "[MailSettingsController] test_email SMTP Auth: #{e.class}: #{e.message}"
+    redirect_to mail_setting_path, alert: t("mail_settings.flash.test_auth_error")
   rescue => e
     Rails.logger.error "[MailSettingsController] test_email Fehler: #{e.class}: #{e.message}"
-    redirect_to mail_setting_path, alert: "Die Test-E-Mail konnte nicht gesendet werden. Bitte prüfe die SMTP-Einstellungen."
+    detail = "#{e.class} – #{e.message}".truncate(200)
+    redirect_to mail_setting_path, alert: t("mail_settings.flash.test_error", detail: detail)
   end
 
   private

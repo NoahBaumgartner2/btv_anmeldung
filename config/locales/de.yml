@@ -1092,6 +1092,9 @@ de:
         subtitle: "Workflow für den BASPO Jugend+Sport Datenaustausch – Personenimport und Anwesenheitskontrolle (AWK)."
 
   mail_settings:
+    flash:
+      test_auth_error: "Falscher Benutzername oder Passwort – bitte SMTP-Zugangsdaten prüfen."
+      test_error: "Test-E-Mail konnte nicht gesendet werden: %{detail}"
     show:
       title: "E-Mail-Einstellungen"
       subtitle: "SMTP-Konfiguration für ausgehende E-Mails."

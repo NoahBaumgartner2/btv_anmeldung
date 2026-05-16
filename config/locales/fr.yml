@@ -1042,6 +1042,9 @@ fr:
         subtitle: "Workflow pour l'échange de données BASPO Jeunesse+Sport – Import de personnes et contrôle de présence (AWK)."
 
   mail_settings:
+    flash:
+      test_auth_error: "Nom d'utilisateur ou mot de passe incorrect – vérifiez les identifiants SMTP."
+      test_error: "L'e-mail de test n'a pas pu être envoyé : %{detail}"
     show:
       title: "Paramètres e-mail"
       subtitle: "Configuration SMTP pour les e-mails sortants."

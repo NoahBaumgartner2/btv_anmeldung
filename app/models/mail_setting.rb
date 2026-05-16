@@ -28,6 +28,29 @@ class MailSetting < ApplicationRecord
     first_or_initialize
   end
 
+  # Opens a raw SMTP connection (TCP + optional STARTTLS + auth) without sending
+  # a message — useful as a pre-flight connectivity check from the admin UI.
+  def self.test_connection
+    setting = first
+    return { success: false, error: "Keine SMTP-Einstellungen konfiguriert." } unless setting&.smtp_host.present?
+
+    require "net/smtp"
+    smtp     = Net::SMTP.new(setting.smtp_host, (setting.smtp_port.presence || 587).to_i)
+    smtp.enable_starttls_auto if setting.smtp_enable_starttls
+
+    user     = setting.smtp_username.presence
+    password = setting.smtp_password_decrypted
+    authtype = setting.smtp_authentication.presence&.to_sym
+
+    smtp.start("localhost", user, password, authtype) { }
+
+    { success: true }
+  rescue Net::SMTPAuthenticationError => e
+    { success: false, error: "Authentifizierungsfehler: #{e.message.to_s.truncate(200)}" }
+  rescue => e
+    { success: false, error: "#{e.class}: #{e.message.to_s.truncate(200)}" }
+  end
+
   # ── Apply SMTP settings to ActionMailer ────────────────────────────────────
   def self.apply!
     setting = first

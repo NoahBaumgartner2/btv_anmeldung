@@ -1053,6 +1053,9 @@ en:
         subtitle: "Workflow for the BASPO Jugend+Sport data exchange."
 
   mail_settings:
+    flash:
+      test_auth_error: "Invalid username or password – please check your SMTP credentials."
+      test_error: "Test email could not be sent: %{detail}"
     show:
       title: "Email settings"
       subtitle: "SMTP configuration for outgoing emails."
