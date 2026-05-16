@@ -65,7 +65,12 @@
               single_session_all = all_regs
                 .select  { |r| r.course.registration_mode == "single_session" }
                 .group_by(&:course_id)
-                .transform_values { |regs| regs.sort_by { |r| r.training_session&.start_time || Time.at(0) } }
+                .transform_values { |regs|
+                  regs
+                    .group_by(&:training_session_id)
+                    .map { |_tsid, group| group.sort_by { |r| [r.status == "bestätigt" ? 0 : 1, -(r.id)] }.first }
+                    .sort_by { |r| r.training_session&.start_time || Time.at(0) }
+                }
 
               active_single  = single_session_all.select { |_, regs|
                 c = regs.first.course
