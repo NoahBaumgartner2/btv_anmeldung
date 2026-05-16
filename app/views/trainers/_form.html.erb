@@ -1,6 +1,6 @@
-<%= form_with(model: trainer, class: "contents") do |form| %>
+<%= form_with(model: trainer, class: "contents", data: { controller: "scroll-to-error" }) do |form| %>
   <% if trainer.errors.any? %>
-    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6" data-error-scroll-target>
       <p class="font-semibold mb-1"><%= trainer.errors.count == 1 ? "Es gibt einen Fehler:" : "Es gibt #{trainer.errors.count} Fehler:" %></p>
       <ul class="list-disc ml-5 text-sm space-y-0.5">
         <% trainer.errors.each do |error| %>

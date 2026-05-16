@@ -10,10 +10,11 @@
 
   <%= form_with model: @payment_setting,
         url: admin_payment_setting_path,
-        method: :patch do |f| %>
+        method: :patch,
+        data: { controller: "scroll-to-error" } do |f| %>
 
     <% if @payment_setting.errors.any? %>
-      <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-4 mb-6">
+      <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-4 mb-6" data-error-scroll-target>
         <p class="text-sm font-bold text-red-800 mb-2"><%= @payment_setting.errors.count %> Fehler:</p>
         <ul class="list-disc list-inside text-sm text-red-700 space-y-0.5">
           <% @payment_setting.errors.full_messages.each do |msg| %>

@@ -1,6 +1,6 @@
-<%= form_with(model: course, class: "contents") do |form| %>
+<%= form_with(model: course, class: "contents", data: { controller: "scroll-to-error" }) do |form| %>
   <% if course.errors.any? %>
-    <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-4 mb-6">
+    <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-4 mb-6" data-error-scroll-target>
       <p class="text-sm font-bold text-red-800 mb-2"><%= course.errors.count %> Fehler:</p>
       <ul class="list-disc list-inside text-sm text-red-700 space-y-0.5">
         <% course.errors.each do |error| %>

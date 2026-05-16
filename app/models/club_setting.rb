@@ -20,7 +20,16 @@ class ClubSetting < ApplicationRecord
     safe_hex_color(secondary_color) || "#1d4ed8"
   end
 
+  before_save :normalize_contact_website
+
   private
+
+  def normalize_contact_website
+    return if contact_website.blank?
+    unless contact_website.match?(/\Ahttps?:\/\//i)
+      self.contact_website = "https://#{contact_website}"
+    end
+  end
 
   # Gibt den Wert nur zurück wenn er exakt dem Format #RRGGBB entspricht.
   # Verhindert CSS-Injection auch bei direkt manipulierten DB-Werten.

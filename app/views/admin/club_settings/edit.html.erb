@@ -11,10 +11,11 @@
   <%= form_with model: @club_setting,
         url: admin_club_setting_path,
         method: :patch,
-        multipart: true do |f| %>
+        multipart: true,
+        data: { controller: "scroll-to-error" } do |f| %>
 
     <% if @club_setting.errors.any? %>
-      <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-4 mb-6">
+      <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-4 mb-6" data-error-scroll-target>
         <p class="text-sm font-bold text-red-800 mb-2"><%= @club_setting.errors.count %> Fehler:</p>
         <ul class="list-disc list-inside text-sm text-red-700 space-y-0.5">
           <% @club_setting.errors.full_messages.each do |msg| %>
@@ -149,7 +150,7 @@
             </div>
             <div class="sm:col-span-2">
               <%= f.label :contact_website, "Website (optional)", class: "block text-xs font-medium text-gray-600 mb-1" %>
-              <%= f.url_field :contact_website, placeholder: "https://www.verein.ch", class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              <%= f.text_field :contact_website, placeholder: "https://www.verein.ch", class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
             </div>
           </div>
         </div>

@@ -33,6 +33,12 @@ Rails.application.routes.draw do
       post :export_awk
       get  :check_attendance
     end
+    resource :reports, only: [ :show ], controller: "reports" do
+      post :btv_teilnehmerzahl
+      post :sportfonds_breitensport
+      post :sportfonds_spitzensport
+      post :krabbel_gym_statistik
+    end
   end
 
   resources :trainers do

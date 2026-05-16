@@ -1,0 +1,112 @@
+<% content_for :title, "Berichte & Exporte" %>
+
+<div class="max-w-3xl mx-auto mt-10 mb-16 px-4">
+
+  <%# ── Header ─────────────────────────────────────────────────────────────── %>
+  <div class="mb-8">
+    <%= link_to "← Zurück zum Dashboard", dashboards_admin_path,
+          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">Berichte & Exporte</h1>
+    <p class="text-gray-500 mt-1 text-sm">CSV-Exporte für BTV Bern, Sportfonds und Sportamt Stadt Bern.</p>
+  </div>
+
+  <%# ── 1: BTV Teilnehmerzahl ──────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">1</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Teilnehmerzahl BTV Bern</p>
+        <p class="text-xs text-gray-500 mt-0.5">Kursübersicht mit Anzahl bestätigter Anmeldungen, Warteliste und Total – alle Kurse.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5">
+      <%= form_with url: btv_teilnehmerzahl_admin_reports_path, method: :post, data: { turbo: false } do |f| %>
+        <%= f.submit "CSV herunterladen",
+              class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── 2: Sportfonds Breitensport ─────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">2</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Teilnehmerliste Sportfonds Breitensport</p>
+        <p class="text-xs text-gray-500 mt-0.5">Bestätigte Teilnehmende (ohne Krabbel Gym): Personalien ohne AHV-Nummer.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5">
+      <%= form_with url: sportfonds_breitensport_admin_reports_path, method: :post, data: { turbo: false } do |f| %>
+        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+          <div class="flex-1">
+            <%= f.label :course_id, "Kurs", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.select :course_id,
+                  options_for_select([["Alle Kurse", ""]].concat(@courses.map { |c| [c.title, c.id] })),
+                  {},
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <%= f.submit "CSV herunterladen",
+                class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── 3: Sportfonds Spitzensport ─────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">3</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Teilnehmerliste Sportfonds Spitzensport</p>
+        <p class="text-xs text-gray-500 mt-0.5">Bestätigte Teilnehmende aller Kurse: Personalien inkl. AHV-Nummer und Telefon.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5">
+      <%= form_with url: sportfonds_spitzensport_admin_reports_path, method: :post, data: { turbo: false } do |f| %>
+        <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+          <div class="flex-1">
+            <%= f.label :course_id, "Kurs", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+            <%= f.select :course_id,
+                  options_for_select([["Alle Kurse", ""]].concat(@courses.map { |c| [c.title, c.id] })),
+                  {},
+                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+          </div>
+          <%= f.submit "CSV herunterladen",
+                class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── 4: Krabbel Gym Statistik Sportamt ──────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
+      <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">4</span>
+      <div>
+        <p class="text-sm font-bold text-gray-800">Statistik Krabbel Gym – Sportamt Stadt Bern</p>
+        <p class="text-xs text-gray-500 mt-0.5">Pro Training: Datum, Uhrzeit, Anzahl anwesend/abwesend/abgemeldet.</p>
+      </div>
+    </div>
+    <div class="px-6 py-5">
+      <% if @krabbel_courses.any? %>
+        <%= form_with url: krabbel_gym_statistik_admin_reports_path, method: :post, data: { turbo: false } do |f| %>
+          <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+            <div class="flex-1">
+              <%= f.label :course_id, "Krabbel-Gym-Kurs", class: "block text-xs font-semibold text-gray-600 mb-1" %>
+              <%= f.select :course_id,
+                    options_for_select([["Alle Krabbel-Gym-Kurse", ""]].concat(@krabbel_courses.map { |c| [c.title, c.id] })),
+                    {},
+                    class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+            </div>
+            <%= f.submit "CSV herunterladen",
+                  class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+          </div>
+        <% end %>
+      <% else %>
+        <p class="text-sm text-gray-400">Keine Kurse der Kategorie „Krabbel Gym" vorhanden.</p>
+      <% end %>
+    </div>
+  </div>
+
+</div>

@@ -40,7 +40,7 @@
             </div>
             <p class="text-sm text-gray-600 mb-3">
               <%= holiday.start_date&.strftime("%-d. %b %Y") %> &ndash; <%= holiday.end_date&.strftime("%-d. %b %Y") %>
-              <% if days %>
+              <% if days && days > 0 %>
                 <span class="text-xs text-gray-400">(<%= t('holidays.index.days', count: days) %>)</span>
               <% end %>
             </p>
@@ -90,7 +90,7 @@
                 <span class="font-medium">
                   <%= holiday.start_date&.strftime("%-d. %b %Y") %> &ndash; <%= holiday.end_date&.strftime("%-d. %b %Y") %>
                 </span>
-                <% if days %>
+                <% if days && days > 0 %>
                   <span class="ml-2 text-xs text-gray-400">(<%= t('holidays.index.days', count: days) %>)</span>
                 <% end %>
               </td>
