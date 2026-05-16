@@ -18,7 +18,7 @@
   <% if @courses.any? %>
     <% @courses.group_by { |c| c.category.presence || c.title.split("(").first.strip }.sort.each do |category, courses_in_category| %>
 
-      <details class="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">
+      <details id="<%= category.parameterize %>" class="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">
 
         <%# ── Kategorie-Header (Touch-Target ≥ 44px) ────────────────────── %>
         <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 sm:px-5 py-4 min-h-[56px] hover:bg-gray-50 transition select-none">
@@ -165,3 +165,16 @@
   <% end %>
 
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      const el = document.getElementById(hash);
+      if (el && el.tagName === "DETAILS") {
+        el.open = true;
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  });
+</script>
