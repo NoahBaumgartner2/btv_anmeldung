@@ -1267,6 +1267,7 @@ fr:
         confirm_password_label: "Confirmer le mot de passe"
         submit: "Enregistrer le mot de passe"
     confirmations:
+      confirmed_onboarding: "E-mail confirmé ! Veuillez maintenant saisir votre premier enfant."
       new:
         title: "Renvoyer la confirmation"
         subtitle: "Nous vous renverrons l'e-mail de confirmation."
@@ -1292,6 +1293,11 @@ fr:
       copyright: "Tous droits réservés."
       privacy: "Confidentialité"
       impressum: "Mentions légales"
+
+  onboarding:
+    title: "Bienvenue ! Commencez par saisir une personne"
+    subtitle: "Avant de pouvoir réserver des cours, veuillez saisir le premier enfant (ou la personne) que vous souhaitez inscrire."
+    submit: "Enregistrer la personne"
 
   misc:
     time_suffix: ""

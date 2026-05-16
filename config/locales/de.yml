@@ -1344,5 +1344,10 @@ de:
       privacy: "Datenschutz"
       impressum: "Impressum"
 
+  onboarding:
+    title: "Willkommen! Zuerst eine Person erfassen"
+    subtitle: "Bevor du Kurse buchen kannst, erfasse bitte das erste Kind (oder die Person) die du anmelden möchtest."
+    submit: "Person erfassen"
+
   misc:
     time_suffix: "Uhr"

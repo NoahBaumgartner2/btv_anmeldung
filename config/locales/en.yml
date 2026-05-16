@@ -1278,6 +1278,7 @@ en:
         confirm_password_label: "Confirm password"
         submit: "Save password"
     confirmations:
+      confirmed_onboarding: "Email confirmed! Please add your first child now."
       new:
         title: "Resend confirmation"
         subtitle: "We'll resend your confirmation email."
@@ -1303,6 +1304,11 @@ en:
       copyright: "All rights reserved."
       privacy: "Privacy"
       impressum: "Legal Notice"
+
+  onboarding:
+    title: "Welcome! Add a person first"
+    subtitle: "Before you can book courses, please add the first child (or person) you want to register."
+    submit: "Save person"
 
   misc:
     time_suffix: ""
