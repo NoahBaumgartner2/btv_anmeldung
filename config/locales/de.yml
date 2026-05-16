@@ -241,7 +241,7 @@ de:
       cancel: "Abbrechen"
       confirm: "Endgültig löschen"
     manage:
-      header_label: "Maschinenraum"
+      header_label: "Kursverwaltung"
       edit_course: "Kurs bearbeiten"
       auto_generate: "Automatisch generieren"
       add_manual: "+ Manuell hinzufügen"
@@ -312,7 +312,7 @@ de:
       use_abo_entry: "Eintritt einlösen"
       use_abo_entry_confirm: "Eintritt für %{name} einlösen?"
     generate_trainings:
-      back: "← Zurück zum Maschinenraum"
+      back: "← Zurück zur Kursverwaltung"
       title: "Trainings generieren"
       subtitle: "Erstelle automatisch alle Einzel-Sessions für diesen Kurs."
       no_dates_title: "Kein Kurszeitraum gesetzt"
@@ -539,7 +539,7 @@ de:
         next_session: "Nächste Session"
         no_more_sessions: "Keine weiteren Sessions geplant"
         no_sessions_yet: "Noch keine Sessions generiert"
-        manage: "Maschinenraum"
+        manage: "Kursverwaltung"
       no_courses:
         title: "Noch keine Kurse zugewiesen"
         hint: "Bitte wende dich an einen Admin, um Kursen zugewiesen zu werden."
@@ -872,7 +872,7 @@ de:
       title: "Training manuell hinzufügen"
       subtitle: "Erstelle eine einzelne Training-Session für diesen Kurs."
       section_course: "Kurs"
-      back: "← Zurück zum Maschinenraum"
+      back: "← Zurück zur Kursverwaltung"
     edit:
       title: "Training bearbeiten"
       back: "← Zurück zur Übersicht"

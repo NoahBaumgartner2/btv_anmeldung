@@ -202,7 +202,7 @@ fr:
       cancel: "Annuler"
       confirm: "Supprimer définitivement"
     manage:
-      header_label: "Salle des machines"
+      header_label: "Gestion du cours"
       edit_course: "Modifier le cours"
       auto_generate: "Générer automatiquement"
       add_manual: "+ Ajouter manuellement"
@@ -273,7 +273,7 @@ fr:
       use_abo_entry: "Utiliser une entrée"
       use_abo_entry_confirm: "Utiliser une entrée pour %{name} ?"
     generate_trainings:
-      back: "← Retour à la salle des machines"
+      back: "← Retour à la gestion du cours"
       title: "Générer les entraînements"
       subtitle: "Créez automatiquement toutes les sessions individuelles pour ce cours."
       no_dates_title: "Aucune période de cours définie"
@@ -829,7 +829,7 @@ fr:
       title: "Ajouter un entraînement manuellement"
       subtitle: "Créez une session d'entraînement individuelle pour ce cours."
       section_course: "Cours"
-      back: "← Retour à la salle des machines"
+      back: "← Retour à la gestion du cours"
     edit:
       title: "Modifier l'entraînement"
       back: "← Retour à la liste"

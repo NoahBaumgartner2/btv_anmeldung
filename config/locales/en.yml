@@ -202,7 +202,7 @@ en:
       cancel: "Cancel"
       confirm: "Delete permanently"
     manage:
-      header_label: "Engine Room"
+      header_label: "Course Management"
       edit_course: "Edit course"
       auto_generate: "Auto-generate"
       add_manual: "+ Add manually"
