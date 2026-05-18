@@ -12,7 +12,8 @@ module ApplicationHelper
     mime = cs&.logo&.attached? ? cs.logo.blob.content_type : "image/png"
     href = "#{url}?v=#{v}"
 
-    tag.link(rel: "icon", href: href, type: mime) +
+    tag.link(rel: "shortcut icon", href: href, type: mime) +
+      tag.link(rel: "icon", href: href, type: mime) +
       tag.link(rel: "apple-touch-icon", href: href)
   end
 
