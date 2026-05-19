@@ -63,13 +63,7 @@
     </div>
     <dl class="divide-y divide-gray-100">
       <div class="px-6 py-3.5 flex items-center justify-between text-sm">
-        <dt class="font-medium text-gray-500 w-48 shrink-0">API Key</dt>
-        <dd class="font-mono text-xs text-gray-700 truncate max-w-xs">
-          <%= @payment_setting.sumup_api_key.presence || "—" %>
-        </dd>
-      </div>
-      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
-        <dt class="font-medium text-gray-500 w-48 shrink-0">Access Token</dt>
+        <dt class="font-medium text-gray-500 w-48 shrink-0">API Key / Access Token</dt>
         <dd class="font-mono text-xs text-gray-600">
           <%= @payment_setting.sumup_access_token_present? ? "••••••••••••••••••••••••" : "—" %>
         </dd>
