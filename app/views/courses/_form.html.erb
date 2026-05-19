@@ -284,21 +284,6 @@
             </div>
             <p class="text-xs text-gray-400 mt-1">Preis in Schweizer Franken (z.B. 120.00)</p>
           </div>
-          <div>
-            <p class="text-sm font-medium text-gray-700 mb-2">Akzeptierte Zahlungsmethoden</p>
-            <input type="hidden" name="course[payment_methods][]" value="">
-            <div class="flex flex-col gap-2">
-              <% Course::PAYMENT_METHODS.each do |value, label| %>
-                <label class="flex items-center gap-2.5 cursor-pointer">
-                  <%= check_box_tag "course[payment_methods][]", value,
-                        course.payment_methods.include?(value),
-                        id: "course_payment_methods_#{value}",
-                        class: "h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" %>
-                  <span class="text-sm text-gray-700"><%= label %></span>
-                </label>
-              <% end %>
-            </div>
-          </div>
         </div>
 
       </div>

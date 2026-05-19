@@ -7,8 +7,7 @@ class Course < ApplicationRecord
 
   # Verfügbare Zahlungsmethoden (→ Anzeigenamen)
   PAYMENT_METHODS = {
-    "card"  => "Kreditkarte / Debitkarte",
-    "twint" => "TWINT"
+    "card" => "Kreditkarte / Debitkarte"
   }.freeze
 
   before_save :clean_payment_methods
