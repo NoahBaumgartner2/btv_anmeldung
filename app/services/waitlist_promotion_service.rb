@@ -14,12 +14,7 @@ class WaitlistPromotionService
       return if course.max_participants.blank?
 
       paid_course = course.has_payment? && course.price_cents.to_i > 0
-
-      # Bei kostenpflichtigen Kursen belegen "ausstehend"-Anmeldungen den Platz bereits –
-      # sie werden erst durch mark_paid! auf "bestätigt" gesetzt. Ohne diese Statuses
-      # würde der Service mehrere Wartelisten-Personen hochstufen, obwohl der Platz
-      # durch noch nicht bezahlte Anmeldungen schon vergeben ist.
-      occupied_statuses = paid_course ? %w[bestätigt ausstehend] : %w[bestätigt]
+      occupied_statuses = %w[bestätigt]
 
       confirmed_scope = course.course_registrations.where(status: occupied_statuses)
       waitlist_scope  = course.course_registrations.where(status: "warteliste")

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_19_073055) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_19_081437) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -258,6 +258,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_073055) do
     t.string "sumup_client_id"
     t.text "sumup_client_secret_encrypted"
     t.string "sumup_merchant_code"
+    t.datetime "sumup_token_expires_at"
     t.datetime "updated_at", null: false
   end
 

@@ -70,6 +70,8 @@ module SumupConfig
 
     s = setting || PaymentSetting.new
     s.sumup_access_token = token
+    expires_in = body["expires_in"].to_i
+    s.sumup_token_expires_at = expires_in > 0 ? expires_in.seconds.from_now : 1.hour.from_now
     s.save!
     Rails.logger.info "[SumupConfig] Neuer Access Token via OAuth2 gespeichert."
     token
@@ -79,8 +81,18 @@ module SumupConfig
   end
 
   def self.valid_token
+    s = setting
     tok = access_token
-    return tok if tok.present?
-    fetch_token! if client_id.present? && client_secret.present?
+
+    if tok.present?
+      return tok if s.nil? || !s.respond_to?(:sumup_token_expired?) || !s.sumup_token_expired?
+    end
+
+    if client_id.present? && client_secret.present?
+      Rails.logger.info "[SumupConfig] Token abgelaufen oder fehlt – hole neuen Token via OAuth2."
+      fetch_token!
+    else
+      tok
+    end
   end
 end

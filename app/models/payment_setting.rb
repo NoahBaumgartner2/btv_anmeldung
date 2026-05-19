@@ -47,6 +47,11 @@ class PaymentSetting < ApplicationRecord
     sumup_client_secret_encrypted.present?
   end
 
+  def sumup_token_expired?
+    return true if sumup_token_expires_at.nil?
+    Time.current >= sumup_token_expires_at - 5.minutes
+  end
+
   # ── Convenience ────────────────────────────────────────────────────────────
   def fully_configured?
     sumup_api_key.present? &&
