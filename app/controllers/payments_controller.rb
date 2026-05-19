@@ -75,6 +75,14 @@ class PaymentsController < ApplicationController
 
     response = http.request(request)
 
+    if response.code.to_i == 401 && SumupConfig.client_id.present?
+      new_token = SumupConfig.fetch_token!
+      if new_token.present?
+        request["Authorization"] = "Bearer #{new_token}"
+        response = http.request(request)
+      end
+    end
+
     unless response.is_a?(Net::HTTPSuccess)
       Rails.logger.error "[SumUp] Checkout error #{response.code}: #{response.body}"
       return redirect_to course_registration_path(@registration),

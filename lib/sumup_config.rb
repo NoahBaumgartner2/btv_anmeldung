@@ -15,11 +15,11 @@ module SumupConfig
   end
 
   def self.client_id
-    ENV["SUMUP_CLIENT_ID"]
+    setting&.sumup_client_id.presence || ENV["SUMUP_CLIENT_ID"]
   end
 
   def self.client_secret
-    ENV["SUMUP_CLIENT_SECRET"]
+    setting&.sumup_client_secret.presence || ENV["SUMUP_CLIENT_SECRET"]
   end
 
   def self.merchant_code

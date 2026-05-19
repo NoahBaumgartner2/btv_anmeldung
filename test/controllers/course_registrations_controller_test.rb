@@ -11,7 +11,6 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     @past_session = training_sessions(:one)
 
     @trial_parent = users(:parent_only)
-    @trial_parent.update_column(:family_data_completed, true)
     @trial_participant = participants(:parent_only_child)
     @trial_course = Course.new(
       title: "Schnupper-Kurs",

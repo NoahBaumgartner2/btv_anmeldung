@@ -89,6 +89,7 @@ module Admin
     def payment_setting_params
       params.require(:payment_setting).permit(
         :sumup_api_key, :sumup_access_token, :sumup_merchant_code,
+        :sumup_client_id, :sumup_client_secret,
         :currency, :active
       )
     end

@@ -80,6 +80,18 @@
           <%= @payment_setting.sumup_merchant_code.presence || "—" %>
         </dd>
       </div>
+      <% if @payment_setting.sumup_client_id.present? %>
+        <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+          <dt class="font-medium text-gray-500 w-48 shrink-0">Client-ID</dt>
+          <dd class="font-mono text-xs text-gray-700 truncate max-w-xs"><%= @payment_setting.sumup_client_id %></dd>
+        </div>
+        <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+          <dt class="font-medium text-gray-500 w-48 shrink-0">Client-Secret</dt>
+          <dd class="text-xs text-gray-500">
+            <%= @payment_setting.sumup_client_secret_present? ? "· Gesetzt" : "Nicht gesetzt" %>
+          </dd>
+        </div>
+      <% end %>
     </dl>
   </div>
 
