@@ -54,8 +54,12 @@ class PaymentSetting < ApplicationRecord
 
   # ── Convenience ────────────────────────────────────────────────────────────
   def fully_configured?
-    sumup_api_key.present? &&
+    merchant_code_present? &&
       (sumup_access_token_present? || (sumup_client_id.present? && sumup_client_secret_present?))
+  end
+
+  def merchant_code_present?
+    sumup_merchant_code.present?
   end
 
   def effective_currency
