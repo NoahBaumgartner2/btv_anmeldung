@@ -716,6 +716,7 @@ en:
       warteliste: "Waitlist"
       storniert: "Cancelled"
       ausstehend: "Pending"
+      schnuppern: "Trial"
     form:
       course_label: "Course"
       course_prompt: "Choose course..."

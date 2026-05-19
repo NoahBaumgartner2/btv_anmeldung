@@ -9,6 +9,7 @@ class CourseRegistrationMailer < ApplicationMailer
     subject = case course_registration.status
     when "bestätigt"  then "Anmeldung bestätigt: #{@course.title}"
     when "warteliste" then "Auf der Warteliste: #{@course.title}"
+    when "schnuppern" then "Schnupperplatz gesichert: #{@course.title}"
     else "Anmeldung erhalten: #{@course.title}"
     end
 

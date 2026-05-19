@@ -29,6 +29,19 @@
     <% end %>
   </div>
 
+  <%# ── Schnupper-Banner ─────────────────────────────────────────────────── %>
+  <% if @course_registration.trial? %>
+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+      <p class="text-sm font-bold text-amber-800">Schnupper-Anmeldung aktiv</p>
+      <p class="text-sm text-amber-700 mt-1">
+        Dein Schnupperplatz ist bis <%= I18n.l((@course_registration.created_at + 7.days).to_date) %> gesichert.
+        Danach musst du dich regulär anmelden, um weiterhin an den Trainings teilzunehmen.
+      </p>
+      <%= link_to "Jetzt regulär anmelden", new_course_registration_path(course_id: @course_registration.course_id),
+            class: "mt-2 inline-block bg-primary-600 text-white font-bold py-2 px-4 rounded-xl text-sm hover:bg-primary-700 transition" %>
+    </div>
+  <% end %>
+
   <%# ── Termin-Banner für Drop-In ─────────────────────────────────────────── %>
   <% if is_single %>
     <div class="mb-5 bg-purple-50 border border-purple-200 rounded-2xl p-5 flex items-start gap-4">

@@ -9,6 +9,21 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     @registration = course_registrations(:one)
     @future_session = training_sessions(:future)
     @past_session = training_sessions(:one)
+
+    @trial_parent = users(:parent_only)
+    @trial_parent.update_column(:family_data_completed, true)
+    @trial_participant = participants(:parent_only_child)
+    @trial_course = Course.new(
+      title: "Schnupper-Kurs",
+      registration_type: "semester",
+      registration_mode: "semester",
+      has_payment: false,
+      has_ticketing: false,
+      allows_holiday_deduction: false,
+      allows_trial: true,
+      requires_ahv_number: true
+    )
+    @trial_course.save!(validate: false)
   end
 
   # ── unsubscribe_from_session ─────────────────────────────────────────────
@@ -93,5 +108,84 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     body = JSON.parse(response.body)
     assert_equal false, body["success"]
     assert_includes body["message"], "nicht gefunden"
+  end
+
+  # ── Schnuppern ────────────────────────────────────────────────────────────
+
+  test "creates schnupper registration when trial param is true and course allows trial" do
+    sign_in @trial_parent
+
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id
+        },
+        trial: "true"
+      }
+    end
+
+    reg = CourseRegistration.last
+    assert_equal "schnuppern", reg.status
+    assert_redirected_to course_registration_path(reg)
+    assert_match "Schnupperplatz", flash[:notice]
+  end
+
+  test "rejects trial when course does not allow trial" do
+    @trial_course.update_column(:allows_trial, false)
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id
+        },
+        trial: "true"
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "rejects trial when participant already trialed in same category" do
+    existing = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    existing.save!(validate: false)
+
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id
+        },
+        trial: "true"
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "does not redirect to payment when trial even if course has payment" do
+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+    sign_in @trial_parent
+
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id
+        },
+        trial: "true"
+      }
+    end
+
+    reg = CourseRegistration.last
+    assert_equal "schnuppern", reg.status
+    assert_redirected_to course_registration_path(reg)
   end
 end

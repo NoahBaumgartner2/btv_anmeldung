@@ -1,4 +1,6 @@
 class CourseRegistration < ApplicationRecord
+  TRIAL_STATUS = "schnuppern"
+
   belongs_to :course
   belongs_to :participant
   belongs_to :training_session, optional: true
@@ -12,6 +14,14 @@ class CourseRegistration < ApplicationRecord
   validate :training_session_bookable, on: :create
 
   before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") && payment_expires_at.nil? }
+
+  def trial?
+    status == TRIAL_STATUS
+  end
+
+  def trial_expired?
+    trial? && created_at < 7.days.ago
+  end
 
   def status_label
     I18n.t("course_registrations.statuses.#{status}", default: status.to_s.humanize)
@@ -40,7 +50,7 @@ class CourseRegistration < ApplicationRecord
       participant_id: participant_id,
       course_id: course_id,
       training_session_id: training_session_id
-    ).where.not(status: "storniert").exists?
+    ).where.not(status: [ "storniert" ]).exists?
 
     errors.add(:base, I18n.t("course_registrations.errors.duplicate_session")) if already_registered
   end

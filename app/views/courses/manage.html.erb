@@ -14,6 +14,7 @@
   confirmed_count = @course.course_registrations.where(status: 'bestätigt').count
   waitlist_count  = @course.course_registrations.where(status: 'warteliste').count
   pending_count   = @course.course_registrations.where(status: 'ausstehend').count
+  trial_count     = @course.course_registrations.where(status: 'schnuppern').count
 %>
 
 <div class="max-w-6xl mx-auto w-full px-4 mt-6 sm:mt-8 mb-16">
@@ -107,6 +108,12 @@
       <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.payment_open") %></p>
     </div>
     <% end %>
+    <% if trial_count > 0 %>
+    <div class="bg-white rounded-xl border border-amber-200 shadow-sm p-3 sm:p-4 text-center">
+      <p class="text-xl sm:text-2xl font-extrabold text-amber-500"><%= trial_count %></p>
+      <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide">Schnuppern</p>
+    </div>
+    <% end %>
   </div>
 
   <%# ── Teilnehmende ────────────────────────────────────────────────────── %>
@@ -116,7 +123,7 @@
         <%= t("courses.manage.participants_title") %>
       </h2>
       <p class="text-sm font-medium text-gray-400 mt-0.5">
-        <%= confirmed_count %> <%= t("courses.manage.confirmed_label") %><% if waitlist_count > 0 %>, <%= waitlist_count %> <%= t("courses.manage.waitlist") %><% end %><% if pending_count > 0 %>, <%= pending_count %> <%= t("courses.manage.payment_open") %><% end %>
+        <%= confirmed_count %> <%= t("courses.manage.confirmed_label") %><% if trial_count > 0 %>, <%= trial_count %> Schnuppern<% end %><% if waitlist_count > 0 %>, <%= waitlist_count %> <%= t("courses.manage.waitlist") %><% end %><% if pending_count > 0 %>, <%= pending_count %> <%= t("courses.manage.payment_open") %><% end %>
       </p>
     </div>
 
@@ -144,6 +151,8 @@
                 <span class="shrink-0 bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
               <% when 'ausstehend' %>
                 <span class="shrink-0 bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_open") %></span>
+              <% when 'schnuppern' %>
+                <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
               <% else %>
                 <span class="shrink-0 bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
               <% end %>
@@ -244,6 +253,8 @@
                             <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
                           <% when 'ausstehend' %>
                             <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
+                          <% when 'schnuppern' %>
+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
                           <% else %>
                             <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
                           <% end %>
@@ -388,6 +399,8 @@
                   <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
                 <% when 'ausstehend' %>
                   <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
+                <% when 'schnuppern' %>
+                  <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
                 <% else %>
                   <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
                 <% end %>
@@ -467,6 +480,8 @@
                                 <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
                               <% when 'ausstehend' %>
                                 <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
+                              <% when 'schnuppern' %>
+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
                               <% else %>
                                 <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
                               <% end %>

@@ -755,6 +755,7 @@ de:
       warteliste: "Warteliste"
       storniert: "Storniert"
       ausstehend: "Ausstehend"
+      schnuppern: "Schnuppern"
     form:
       course_label: "Kurs"
       course_prompt: "Kurs wählen..."

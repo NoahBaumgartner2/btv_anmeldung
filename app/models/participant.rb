@@ -21,7 +21,7 @@ class Participant < ApplicationRecord
   validates :first_name, :last_name, :date_of_birth, :gender, :phone_number, presence: true
   validates :gender, inclusion: { in: GENDERS }
   validates :first_name, uniqueness: {
-    scope: [:last_name, :date_of_birth, :user_id],
+    scope: [ :last_name, :date_of_birth, :user_id ],
     message: "– diese Person ist in deinem Profil bereits erfasst"
   }
 
@@ -59,6 +59,23 @@ class Participant < ApplicationRecord
               message: "muss genau 9 Ziffern enthalten"
             },
             allow_blank: true
+
+  def has_trialed_in_category?(registration_type)
+    course_registrations
+      .joins(:course)
+      .where(status: "schnuppern")
+      .where(courses: { registration_type: registration_type })
+      .where("course_registrations.created_at > ?", 7.days.ago)
+      .exists?
+  end
+
+  def ever_trialed_in_category?(registration_type)
+    course_registrations
+      .joins(:course)
+      .where(status: "schnuppern")
+      .where(courses: { registration_type: registration_type })
+      .exists?
+  end
 
   # Gibt fehlende Pflichtfelder für einen bestimmten Kurs zurück (als Symbole)
   def missing_fields_for(course)

@@ -79,7 +79,24 @@ class CourseRegistrationsController < ApplicationController
       return render :new, status: :unprocessable_entity
     end
 
-    # 2c. Duplikat-Check für Semesterkurse
+    # 2c. Schnupper-Check
+    is_trial = params[:trial].present? && params[:trial] == "true"
+
+    if is_trial
+      unless course.allows_trial?
+        @course_registration.errors.add(:base, "Schnuppern ist für diesen Kurs nicht möglich.")
+        setup_new_form(course)
+        return render :new, status: :unprocessable_entity
+      end
+
+      if participant.ever_trialed_in_category?(course.registration_type)
+        @course_registration.errors.add(:base, "#{participant.first_name} hat in dieser Trainingskategorie bereits geschnuppert.")
+        setup_new_form(course)
+        return render :new, status: :unprocessable_entity
+      end
+    end
+
+    # 2d. Duplikat-Check für Semesterkurse
     if course && participant && course.registration_mode != "single_session"
       duplicate = CourseRegistration.where(
         participant_id: participant.id,
@@ -94,17 +111,20 @@ class CourseRegistrationsController < ApplicationController
     end
 
     # 3. Status bestimmen
-    if course.has_payment? && course.price_cents.to_i > 0
+    if is_trial
+      @course_registration.status = "schnuppern"
+      erfolgs_nachricht = "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+    elsif course.has_payment? && course.price_cents.to_i > 0
       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt
       @course_registration.status = "ausstehend"
     else
       # Kostenlos → sofort bestätigt oder Warteliste, Kapazität je nach Modus prüfen
       bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
         course.course_registrations
-              .where(status: "bestätigt", training_session_id: @course_registration.training_session_id)
+              .where(status: [ "bestätigt", "schnuppern" ], training_session_id: @course_registration.training_session_id)
               .count
       else
-        course.course_registrations.where(status: "bestätigt").count
+        course.course_registrations.where(status: [ "bestätigt", "schnuppern" ]).count
       end
 
       if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
@@ -118,7 +138,7 @@ class CourseRegistrationsController < ApplicationController
 
     if @course_registration.save
       CourseRegistrationMailer.confirmation(@course_registration).deliver_later
-      if course.has_payment? && course.price_cents.to_i > 0 && ::SumupConfig.configured? && !@course_registration.payment_cleared?
+      if !is_trial && course.has_payment? && course.price_cents.to_i > 0 && ::SumupConfig.configured? && !@course_registration.payment_cleared?
         redirect_to checkout_preview_registration_path(@course_registration)
       else
         redirect_to course_registration_path(@course_registration), notice: erfolgs_nachricht

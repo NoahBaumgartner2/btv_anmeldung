@@ -17,3 +17,12 @@ two:
   ahv_number: MyString
   date_of_birth: 2026-03-29
   gender: MyString
+
+parent_only_child:
+  user: parent_only
+  first_name: Eva
+  last_name: Mustermann
+  phone_number: "0791234567"
+  ahv_number: "756.1234.5678.90"
+  date_of_birth: 2015-01-01
+  gender: weiblich
