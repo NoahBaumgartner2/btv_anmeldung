@@ -1,0 +1,21 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+die Zahlung für die Kursanmeldung wurde erfolgreich verarbeitet.
+
+ZAHLUNGSQUITTUNG
+================
+
+Teilnehmer:    <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:          <%= @course.title %>
+Kategorie:     <%= @course.registration_type_label %>
+<% if @course.start_date.present? %>
+Kurszeitraum:  <%= I18n.l(@course.start_date, format: :long) %><% if @course.end_date.present? %> – <%= I18n.l(@course.end_date, format: :long) %><% end %>
+<% end %>
+Betrag:        <%= @course.price_display %>
+Zahlungsdatum: <%= I18n.l(@paid_at, format: :long) %>
+<% if @transaction_id.present? %>
+Transaktions-ID: <%= @transaction_id %>
+<% end %>
+
+Diese E-Mail dient als Zahlungsbestätigung und kann für Krankenkassen
+oder andere Stellen verwendet werden.

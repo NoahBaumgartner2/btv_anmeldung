@@ -73,6 +73,23 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
+  def payment_receipt(course_registration)
+    @course_registration = course_registration
+    @course = course_registration.course
+    @participant = course_registration.participant
+    @recipient = @participant.user
+    return if @recipient.nil?
+
+    @paid_at = course_registration.updated_at
+    @transaction_id = course_registration.sumup_transaction_id
+    @checkout_id = course_registration.sumup_checkout_id
+
+    mail(
+      to: @recipient.email,
+      subject: "Zahlungsquittung: #{@course.title}"
+    )
+  end
+
   def status_changed(course_registration)
     @course_registration = course_registration
     @course = course_registration.course

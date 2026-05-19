@@ -30,6 +30,9 @@ class PaymentSyncService
         sumup_checkout_id:    checkout_id || registration.sumup_checkout_id,
         status:               new_status
       )
+
+      CourseRegistrationMailer.payment_receipt(registration).deliver_later
+      Rails.logger.info "[PaymentSyncService] Quittung-Mail verschickt für Registration #{registration.id}"
     end
   end
 
