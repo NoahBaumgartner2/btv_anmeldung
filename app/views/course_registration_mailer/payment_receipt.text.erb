@@ -22,6 +22,9 @@ Zahlungsdatum: <%= I18n.l(@paid_at, format: :long) %>
 <% if @transaction_id.present? %>
 Transaktions-ID: <%= @transaction_id %>
 <% end %>
+<% if @qr_code_base64.present? %>
+Eintrittskarte: Dein QR-Code-Ticket findest du in der HTML-Version dieser E-Mail.
+<% end %>
 Quittungsnummer: QU-<%= @course_registration.id %>-<%= @paid_at.strftime("%Y%m%d") %>
 
 AUSSTELLER

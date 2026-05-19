@@ -1,3 +1,5 @@
+require "base64"
+
 class CourseRegistrationMailer < ApplicationMailer
   def confirmation(course_registration)
     @course_registration = course_registration
@@ -83,6 +85,23 @@ class CourseRegistrationMailer < ApplicationMailer
     @paid_at = course_registration.updated_at
     @transaction_id = course_registration.sumup_transaction_id
     @checkout_id = course_registration.sumup_checkout_id
+
+    if @course.has_ticketing?
+      qr = RQRCode::QRCode.new(scan_course_registration_url(@course_registration))
+      png = qr.as_png(
+        bit_depth: 1,
+        border_modules: 4,
+        color_mode: ChunkyPNG::COLOR_GRAYSCALE,
+        color: "black",
+        file: nil,
+        fill: "white",
+        module_px_size: 6,
+        resize_exactly_to: nil,
+        resize_gte_to: nil,
+        size: 240
+      )
+      @qr_code_base64 = Base64.strict_encode64(png.to_s)
+    end
 
     mail(
       to: @recipient.email,
