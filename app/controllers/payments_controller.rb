@@ -55,10 +55,11 @@ class PaymentsController < ApplicationController
     body = {
       amount:             amount,
       currency:           ::SumupConfig.currency.upcase,
-      checkout_reference: "#{@registration.id}-#{Time.current.to_i}",
+      checkout_reference: "reg-#{@registration.id}-#{Time.current.to_i}",
       merchant_code:      ::SumupConfig.merchant_code,
-      description:        "#{course.title} – #{course.registration_type}",
-      return_url:         payments_success_url(checkout_id: "{checkout_id}")
+      description:        "#{course.title} – #{@registration.participant.first_name} #{@registration.participant.last_name}",
+      redirect_url:       payments_success_url,
+      hosted_checkout:    { enabled: true }
     }
 
     uri = URI("https://api.sumup.com/v0.1/checkouts")
@@ -89,7 +90,7 @@ class PaymentsController < ApplicationController
     checkout = JSON.parse(response.body)
     @registration.update!(sumup_checkout_id: checkout["id"])
 
-    checkout_url = checkout["hosted_checkout_url"] || checkout["url"]
+    checkout_url = checkout.dig("hosted_checkout", "url") || checkout["hosted_checkout_url"]
     unless checkout_url.present?
       Rails.logger.error "[SumUp] Checkout response enthält keine URL: #{checkout.inspect}"
       return redirect_to course_registration_path(@registration),
