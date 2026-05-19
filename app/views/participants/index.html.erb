@@ -51,7 +51,9 @@
               all_regs = participant.course_registrations
 
               # ── Semester-Kurse aufteilen ─────────────────────────────────
-              semester_regs  = all_regs.reject { |r| r.course.registration_mode == "single_session" }
+              semester_regs = all_regs.reject { |r|
+                r.course.registration_mode == "single_session" || r.status == "ausstehend"
+              }
               active_semester = semester_regs.select { |r|
                 r.status != "storniert" &&
                 (r.course.end_date.nil? || r.course.end_date >= today)
@@ -63,7 +65,7 @@
 
               # ── Drop-In Kurse aufteilen ──────────────────────────────────
               single_session_all = all_regs
-                .select  { |r| r.course.registration_mode == "single_session" }
+                .select  { |r| r.course.registration_mode == "single_session" && r.status != "ausstehend" }
                 .group_by(&:course_id)
                 .transform_values { |regs|
                   regs
