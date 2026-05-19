@@ -42,48 +42,27 @@ module Admin
     end
 
     def test_connection
-      unless ::SumupConfig.configured?
-        return redirect_to admin_payment_setting_path,
-                           alert: "Kein SumUp Access Token konfiguriert."
+      # Fall 1: Client-ID + Secret vorhanden → Token-Fetch als Verbindungstest
+      if ::SumupConfig.client_id.present? && ::SumupConfig.client_secret.present?
+        new_token = ::SumupConfig.fetch_token!
+        if new_token.present?
+          redirect_to admin_payment_setting_path,
+                      notice: "Verbindung erfolgreich. Neuer Access Token wurde von SumUp ausgestellt und gespeichert."
+        else
+          redirect_to admin_payment_setting_path,
+                      alert: "Verbindung fehlgeschlagen. Client-ID oder Client-Secret ungültig – kein Token erhalten."
+        end
+        return
       end
 
-      token = ::SumupConfig.valid_token
-      unless token.present?
-        return redirect_to admin_payment_setting_path,
-                           alert: "Token konnte nicht ermittelt werden. Client-ID und Client-Secret prüfen."
-      end
-
-      uri = URI("https://api.sumup.com/v0.1/me/merchant-profile")
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-      http.open_timeout = 5
-      http.read_timeout = 10
-
-      request = Net::HTTP::Get.new(uri.request_uri, {
-        "Authorization" => "Bearer #{token}",
-        "Accept"        => "application/json"
-      })
-      response = http.request(request)
-
-      Rails.logger.info "[SumupConfig] test_connection response: #{response.code} #{response.body.truncate(200)}"
-
-      case response.code.to_i
-      when 200, 201
-        redirect_to admin_payment_setting_path, notice: "Verbindung erfolgreich. SumUp API antwortet korrekt."
-      when 401
+      # Fall 2: Nur manueller Access Token (kein Client-Secret) → nur prüfen ob vorhanden
+      if ::SumupConfig.access_token.present?
         redirect_to admin_payment_setting_path,
-                    alert: "Token ungültig (401). Bitte Access Token neu setzen oder Client-ID/Secret prüfen."
-      when 403
-        redirect_to admin_payment_setting_path,
-                    alert: "Zugriff verweigert (403). Token-Scope unzureichend – bitte neuen Token via Client-Credentials holen."
+                    notice: "Access Token ist gesetzt. Ohne Client-ID/Secret kann die Verbindung nicht automatisch getestet werden."
       else
         redirect_to admin_payment_setting_path,
-                    alert: "SumUp API antwortete mit Status #{response.code}: #{response.body.truncate(100)}"
+                    alert: "Kein SumUp Access Token und keine Client-Credentials konfiguriert."
       end
-    rescue => e
-      Rails.logger.error "[Admin::PaymentSettings] test_connection Fehler: #{e.class}: #{e.message}"
-      redirect_to admin_payment_setting_path,
-                  alert: "Verbindungsfehler: #{e.message}"
     end
 
     private
