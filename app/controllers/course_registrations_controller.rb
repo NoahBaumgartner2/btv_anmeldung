@@ -137,7 +137,9 @@ class CourseRegistrationsController < ApplicationController
     end
 
     if @course_registration.save
-      CourseRegistrationMailer.confirmation(@course_registration).deliver_later
+      unless @course_registration.status == "ausstehend"
+        CourseRegistrationMailer.confirmation(@course_registration).deliver_later
+      end
       if !is_trial && course.has_payment? && course.price_cents.to_i > 0 && ::SumupConfig.configured? && !@course_registration.payment_cleared?
         redirect_to checkout_preview_registration_path(@course_registration)
       else

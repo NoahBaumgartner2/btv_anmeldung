@@ -1,4 +1,10 @@
 <% primary = @_club&.effective_primary_color || "#dc2626" %>
+<%
+  club = @_club || ClubSetting.current
+  club_name    = club&.club_name.presence || "BTV Anmeldung"
+  club_address = [ club&.contact_street, [ club&.contact_zip, club&.contact_city ].compact.join(" ") ].select(&:present?).join(", ")
+  club_email   = club&.contact_email
+%>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:24px;">
   <tr>
@@ -55,7 +61,27 @@
   </tr>
 </table>
 
+<p style="margin:0 0 4px 0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Quittungsnummer</p>
+<p style="margin:0 0 20px 0;font-size:13px;color:#374151;font-family:monospace;">QU-<%= @course_registration.id %>-<%= @paid_at.strftime("%Y%m%d") %></p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 4px 0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Aussteller</p>
+      <p style="margin:0 0 2px 0;font-size:15px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= club_name %></p>
+      <% if club_address.present? %>
+        <p style="margin:0 0 2px 0;font-size:14px;color:#374151;font-family:Arial,Helvetica,sans-serif;"><%= club_address %></p>
+      <% end %>
+      <% if club_email.present? %>
+        <p style="margin:0;font-size:14px;color:#374151;font-family:Arial,Helvetica,sans-serif;"><%= club_email %></p>
+      <% end %>
+      <p style="margin:8px 0 0 0;font-size:12px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">Kein MwSt-pflichtiges Unternehmen (Verein)</p>
+    </td>
+  </tr>
+</table>
+
 <p style="margin:0 0 32px 0;font-size:13px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;">
-  Diese E-Mail dient als Zahlungsbestätigung und kann für Krankenkassen oder andere Stellen verwendet werden.
-  Bei Fragen wende dich bitte direkt an uns.
+  Diese E-Mail dient als offizielle Zahlungsbestätigung und kann bei Bedarf
+  für Krankenkassen, Steuerunterlagen oder andere Stellen verwendet werden.
+  Bei Fragen wende dich an <%= club_email.present? ? club_email : club_name %>.
 </p>

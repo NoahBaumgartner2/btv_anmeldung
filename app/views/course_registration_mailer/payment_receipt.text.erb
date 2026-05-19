@@ -1,3 +1,9 @@
+<%
+  club = @_club || ClubSetting.current
+  club_name    = club&.club_name.presence || "BTV Anmeldung"
+  club_address = [ club&.contact_street, [ club&.contact_zip, club&.contact_city ].compact.join(" ") ].select(&:present?).join(", ")
+  club_email   = club&.contact_email
+%>
 Hallo <%= @recipient.email.split("@").first %>,
 
 die Zahlung für die Kursanmeldung wurde erfolgreich verarbeitet.
@@ -16,6 +22,14 @@ Zahlungsdatum: <%= I18n.l(@paid_at, format: :long) %>
 <% if @transaction_id.present? %>
 Transaktions-ID: <%= @transaction_id %>
 <% end %>
+Quittungsnummer: QU-<%= @course_registration.id %>-<%= @paid_at.strftime("%Y%m%d") %>
 
-Diese E-Mail dient als Zahlungsbestätigung und kann für Krankenkassen
-oder andere Stellen verwendet werden.
+AUSSTELLER
+----------
+<%= club_name %>
+<% if club_address.present? %><%= club_address %>
+<% end %><% if club_email.present? %><%= club_email %>
+<% end %>Kein MwSt-pflichtiges Unternehmen (Verein)
+
+Diese E-Mail dient als offizielle Zahlungsbestätigung und kann bei Bedarf
+für Krankenkassen, Steuerunterlagen oder andere Stellen verwendet werden.
