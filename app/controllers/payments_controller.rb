@@ -58,7 +58,7 @@ class PaymentsController < ApplicationController
       checkout_reference: "reg-#{@registration.id}-#{Time.current.to_i}",
       merchant_code:      ::SumupConfig.merchant_code,
       description:        "#{course.title} – #{@registration.participant.first_name} #{@registration.participant.last_name}",
-      redirect_url:       payments_success_url,
+      redirect_url:       payments_success_url(registration_id: @registration.id),
       hosted_checkout:    { enabled: true }
     }
 
@@ -106,41 +106,44 @@ class PaymentsController < ApplicationController
 
   def success
     checkout_id = params[:checkout_id]
+    registration_id = params[:registration_id]
 
-    unless checkout_id.present?
-      return redirect_to root_path, alert: "Zahlung nicht gefunden."
+    @registration = if checkout_id.present?
+      CourseRegistration.find_by(sumup_checkout_id: checkout_id)
+    elsif registration_id.present?
+      CourseRegistration.find(registration_id) rescue nil
     end
-
-    @registration = CourseRegistration.find_by(sumup_checkout_id: checkout_id)
 
     unless @registration
       return redirect_to root_path, alert: "Zahlung nicht gefunden."
     end
 
     unless @registration.payment_cleared?
-      response = PaymentSyncService.fetch_checkout(checkout_id)
-
-      if response.is_a?(Net::HTTPSuccess)
-        checkout = JSON.parse(response.body)
-
-        if checkout["status"] == "PAID"
-          transaction_id = checkout.dig("transactions", 0, "id")
-          PaymentSyncService.mark_paid!(@registration, transaction_id: transaction_id, checkout_id: checkout_id)
+      if checkout_id.present?
+        response = PaymentSyncService.fetch_checkout(checkout_id)
+        if response.is_a?(Net::HTTPSuccess)
+          checkout = JSON.parse(response.body)
+          if checkout["status"] == "PAID"
+            transaction_id = checkout.dig("transactions", 0, "id")
+            PaymentSyncService.mark_paid!(@registration, transaction_id: transaction_id, checkout_id: checkout_id)
+          end
+        else
+          Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
         end
       else
-        Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
+        Rails.logger.warn "[SumUp] success ohne checkout_id aufgerufen für registration #{@registration.id}"
       end
     end
 
-    redirect_to course_registration_path(@registration), notice: "Deine Zahlung wurde erfolgreich verarbeitet."
+    redirect_to course_registration_path(@registration),
+                notice: "Deine Zahlung wurde erfolgreich verarbeitet."
   rescue StandardError => e
     Rails.logger.error "[SumUp] success callback error: #{e.class}: #{e.message}"
     if @registration
       redirect_to course_registration_path(@registration),
-                  notice: "Deine Zahlung wird möglicherweise noch verarbeitet. Bitte lade die Seite in einigen Minuten neu."
+                  notice: "Deine Zahlung wird möglicherweise noch verarbeitet."
     else
-      redirect_to root_path,
-                  alert: "Ein Fehler ist aufgetreten. Bitte kontaktiere uns falls deine Zahlung nicht verarbeitet wurde."
+      redirect_to root_path, alert: "Ein Fehler ist aufgetreten."
     end
   end
 
