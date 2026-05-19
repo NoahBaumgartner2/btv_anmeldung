@@ -105,36 +105,47 @@ class PaymentsController < ApplicationController
   end
 
   def success
-    checkout_id = params[:checkout_id]
+    checkout_id     = params[:checkout_id]
     registration_id = params[:registration_id]
 
-    @registration = if checkout_id.present?
-      CourseRegistration.find_by(sumup_checkout_id: checkout_id)
-    elsif registration_id.present?
-      CourseRegistration.find(registration_id) rescue nil
-    end
+    @registration = CourseRegistration.find_by(sumup_checkout_id: checkout_id) if checkout_id.present?
+    @registration ||= CourseRegistration.find_by(id: registration_id) if registration_id.present?
 
     unless @registration
       return redirect_to root_path, alert: "Zahlung nicht gefunden."
     end
 
+    unless current_user.participants.include?(@registration.participant) || current_user.admin?
+      return redirect_to root_path, alert: "Zugriff verweigert."
+    end
+
     unless @registration.payment_cleared?
-      if checkout_id.present?
-        response = PaymentSyncService.fetch_checkout(checkout_id)
+      effective_checkout_id = checkout_id || @registration.sumup_checkout_id
+
+      if effective_checkout_id.present?
+        if @registration.sumup_checkout_id != effective_checkout_id
+          @registration.update_column(:sumup_checkout_id, effective_checkout_id)
+        end
+
+        response = PaymentSyncService.fetch_checkout(effective_checkout_id)
         if response.is_a?(Net::HTTPSuccess)
           checkout = JSON.parse(response.body)
+          Rails.logger.info "[SumUp] Checkout status: #{checkout['status']} für registration #{@registration.id}"
           if checkout["status"] == "PAID"
             transaction_id = checkout.dig("transactions", 0, "id")
-            PaymentSyncService.mark_paid!(@registration, transaction_id: transaction_id, checkout_id: checkout_id)
+            PaymentSyncService.mark_paid!(@registration,
+              transaction_id: transaction_id,
+              checkout_id: effective_checkout_id)
           end
         else
           Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
         end
       else
-        Rails.logger.warn "[SumUp] success ohne checkout_id aufgerufen für registration #{@registration.id}"
+        Rails.logger.warn "[SumUp] success ohne checkout_id für registration #{@registration.id}"
       end
     end
 
+    @registration.reload
     redirect_to course_registration_path(@registration),
                 notice: "Deine Zahlung wurde erfolgreich verarbeitet."
   rescue StandardError => e
