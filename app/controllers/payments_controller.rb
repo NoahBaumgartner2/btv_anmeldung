@@ -55,7 +55,7 @@ class PaymentsController < ApplicationController
     body = {
       amount:             amount,
       currency:           ::SumupConfig.currency.upcase,
-      checkout_reference: @registration.id.to_s,
+      checkout_reference: "#{@registration.id}-#{Time.current.to_i}",
       merchant_code:      ::SumupConfig.merchant_code,
       description:        "#{course.title} – #{course.registration_type}",
       return_url:         payments_success_url(checkout_id: "{checkout_id}")
@@ -69,24 +69,21 @@ class PaymentsController < ApplicationController
 
     request = Net::HTTP::Post.new(uri.path, {
       "Content-Type"  => "application/json",
-      "Authorization" => "Bearer #{::SumupConfig.access_token}"
+      "Authorization" => "Bearer #{::SumupConfig.valid_token}"
     })
     request.body = body.to_json
 
     response = http.request(request)
 
-    if response.code.to_i == 401 && SumupConfig.client_id.present?
-      new_token = SumupConfig.fetch_token!
-      if new_token.present?
-        request["Authorization"] = "Bearer #{new_token}"
-        response = http.request(request)
-      end
-    end
-
     unless response.is_a?(Net::HTTPSuccess)
       Rails.logger.error "[SumUp] Checkout error #{response.code}: #{response.body}"
+      error_msg = begin
+        JSON.parse(response.body)["message"]
+      rescue
+        nil
+      end
       return redirect_to course_registration_path(@registration),
-                         alert: "Zahlung konnte nicht gestartet werden. Bitte versuche es später erneut."
+                         alert: "Zahlung konnte nicht gestartet werden#{error_msg ? ": #{error_msg}" : ". Bitte versuche es später erneut."}"
     end
 
     checkout = JSON.parse(response.body)
