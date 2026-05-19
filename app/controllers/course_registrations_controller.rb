@@ -101,7 +101,7 @@ class CourseRegistrationsController < ApplicationController
       duplicate = CourseRegistration.where(
         participant_id: participant.id,
         course_id: course.id
-      ).where.not(status: "storniert").exists?
+      ).where.not(status: [ "storniert", "ausstehend" ]).exists?
 
       if duplicate
         @course_registration.errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))

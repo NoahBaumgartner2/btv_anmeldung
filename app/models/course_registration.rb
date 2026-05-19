@@ -50,7 +50,7 @@ class CourseRegistration < ApplicationRecord
       participant_id: participant_id,
       course_id: course_id,
       training_session_id: training_session_id
-    ).where.not(status: [ "storniert" ]).exists?
+    ).where.not(status: [ "storniert", "ausstehend" ]).exists?
 
     errors.add(:base, I18n.t("course_registrations.errors.duplicate_session")) if already_registered
   end
@@ -62,7 +62,7 @@ class CourseRegistration < ApplicationRecord
     already_registered = CourseRegistration.where(
       participant_id: participant_id,
       course_id: course_id
-    ).where.not(status: "storniert").exists?
+    ).where.not(status: [ "storniert", "ausstehend" ]).exists?
 
     if already_registered
       errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
