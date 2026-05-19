@@ -53,29 +53,37 @@ module Admin
                            alert: "Token konnte nicht ermittelt werden. Client-ID und Client-Secret prüfen."
       end
 
-      uri = URI("https://api.sumup.com/v0.1/checkouts?limit=1")
+      uri = URI("https://api.sumup.com/v0.1/me/merchant-profile")
       http = Net::HTTP.new(uri.host, uri.port)
       http.use_ssl = true
       http.open_timeout = 5
       http.read_timeout = 10
 
-      request = Net::HTTP::Get.new(uri.request_uri, { "Authorization" => "Bearer #{token}" })
+      request = Net::HTTP::Get.new(uri.request_uri, {
+        "Authorization" => "Bearer #{token}",
+        "Accept"        => "application/json"
+      })
       response = http.request(request)
+
+      Rails.logger.info "[SumupConfig] test_connection response: #{response.code} #{response.body.truncate(200)}"
 
       case response.code.to_i
       when 200, 201
         redirect_to admin_payment_setting_path, notice: "Verbindung erfolgreich. SumUp API antwortet korrekt."
-      when 401, 403
+      when 401
         redirect_to admin_payment_setting_path,
-                    alert: "Token ungültig (#{response.code}). Bitte Client-ID und Client-Secret prüfen und neu speichern."
+                    alert: "Token ungültig (401). Bitte Access Token neu setzen oder Client-ID/Secret prüfen."
+      when 403
+        redirect_to admin_payment_setting_path,
+                    alert: "Zugriff verweigert (403). Token-Scope unzureichend – bitte neuen Token via Client-Credentials holen."
       else
         redirect_to admin_payment_setting_path,
-                    alert: "SumUp API antwortete mit Status #{response.code}."
+                    alert: "SumUp API antwortete mit Status #{response.code}: #{response.body.truncate(100)}"
       end
     rescue => e
       Rails.logger.error "[Admin::PaymentSettings] test_connection Fehler: #{e.class}: #{e.message}"
       redirect_to admin_payment_setting_path,
-                  alert: "Es ist ein Verbindungsfehler aufgetreten: #{e.message}"
+                  alert: "Verbindungsfehler: #{e.message}"
     end
 
     private

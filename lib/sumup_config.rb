@@ -83,14 +83,18 @@ module SumupConfig
   def self.valid_token
     s = setting
     tok = access_token
+    return nil unless tok.present?
 
-    if tok.present?
-      return tok if s.nil? || !s.respond_to?(:sumup_token_expired?) || !s.sumup_token_expired?
-    end
+    # Kein expires_at gespeichert → Token wurde manuell gesetzt, direkt verwenden
+    return tok if s.nil? || s.sumup_token_expires_at.nil?
 
+    # Token noch gültig → direkt zurückgeben
+    return tok unless s.sumup_token_expired?
+
+    # Token abgelaufen → neu holen wenn Credentials vorhanden
     if client_id.present? && client_secret.present?
-      Rails.logger.info "[SumupConfig] Token abgelaufen oder fehlt – hole neuen Token via OAuth2."
-      fetch_token!
+      Rails.logger.info "[SumupConfig] Token abgelaufen – hole neuen Token via OAuth2."
+      fetch_token! || tok
     else
       tok
     end
