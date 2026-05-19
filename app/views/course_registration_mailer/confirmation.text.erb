@@ -15,6 +15,9 @@ Status:      <%= @course_registration.status_label %>
 Betrag:      <%= @course.price_display %>
 <% end %>
 
+<% if @qr_code_base64.present? %>
+Eintrittskarte: Dein QR-Code-Ticket findest du in der HTML-Version dieser E-Mail.
+<% end %>
 Bei Fragen wende dich bitte direkt an uns.
 
 ---

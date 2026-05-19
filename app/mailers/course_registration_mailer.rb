@@ -8,6 +8,23 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
+    if course_registration.status == "bestätigt" && @course.has_ticketing?
+      qr = RQRCode::QRCode.new(scan_course_registration_url(course_registration))
+      png = qr.as_png(
+        bit_depth: 1,
+        border_modules: 4,
+        color_mode: ChunkyPNG::COLOR_GRAYSCALE,
+        color: "black",
+        file: nil,
+        fill: "white",
+        module_px_size: 6,
+        resize_exactly_to: nil,
+        resize_gte_to: nil,
+        size: 240
+      )
+      @qr_code_base64 = Base64.strict_encode64(png.to_s)
+    end
+
     subject = case course_registration.status
     when "bestätigt"  then "Anmeldung bestätigt: #{@course.title}"
     when "warteliste" then "Auf der Warteliste: #{@course.title}"
