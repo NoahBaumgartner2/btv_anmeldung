@@ -70,7 +70,7 @@ class PaymentsController < ApplicationController
 
     request = Net::HTTP::Post.new(uri.path, {
       "Content-Type"  => "application/json",
-      "Authorization" => "Bearer #{::SumupConfig.valid_token}"
+      "Authorization" => "Bearer #{::SumupConfig.access_token}"
     })
     request.body = body.to_json
 

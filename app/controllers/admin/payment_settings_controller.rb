@@ -42,27 +42,13 @@ module Admin
     end
 
     def test_connection
-      # Fall 1: Client-ID + Secret vorhanden → Token-Fetch als Verbindungstest
-      if ::SumupConfig.client_id.present? && ::SumupConfig.client_secret.present?
-        new_token = ::SumupConfig.fetch_token!
-        if new_token.present?
-          redirect_to admin_payment_setting_path,
-                      notice: "Verbindung erfolgreich. Neuer Access Token wurde von SumUp ausgestellt und gespeichert."
-        else
-          redirect_to admin_payment_setting_path,
-                      alert: "Verbindung fehlgeschlagen. Client-ID oder Client-Secret ungültig – kein Token erhalten."
-        end
-        return
+      unless ::SumupConfig.configured?
+        return redirect_to admin_payment_setting_path,
+                           alert: "Kein API Key konfiguriert."
       end
 
-      # Fall 2: Nur manueller Access Token (kein Client-Secret) → nur prüfen ob vorhanden
-      if ::SumupConfig.access_token.present?
-        redirect_to admin_payment_setting_path,
-                    notice: "Access Token ist gesetzt. Ohne Client-ID/Secret kann die Verbindung nicht automatisch getestet werden."
-      else
-        redirect_to admin_payment_setting_path,
-                    alert: "Kein SumUp Access Token und keine Client-Credentials konfiguriert."
-      end
+      redirect_to admin_payment_setting_path,
+                  notice: "API Key ist gesetzt und bereit. Die Verbindung wird beim nächsten Checkout automatisch getestet."
     end
 
     private
@@ -70,7 +56,6 @@ module Admin
     def payment_setting_params
       params.require(:payment_setting).permit(
         :sumup_api_key, :sumup_access_token, :sumup_merchant_code,
-        :sumup_client_id, :sumup_client_secret,
         :currency, :active
       )
     end
