@@ -1320,12 +1320,13 @@ en:
       impressum: "Legal Notice"
 
   family_data:
-    title: "Edit family details"
-    subtitle: "Address, phone number and other details used for all participants."
-    edit_btn: "Edit family details"
+    title: "Personal details"
+    subtitle: "Address, phone number and other contact details for your account."
+    section_contact: "Contact details"
+    edit_btn: "Edit personal details"
     submit_btn: "Save changes"
     cancel_btn: "Cancel"
-    success_notice: "Family details have been updated successfully."
+    success_notice: "Personal details have been updated successfully."
 
   onboarding:
     title: "Welcome! First, enter family details"

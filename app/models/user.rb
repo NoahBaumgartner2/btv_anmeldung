@@ -13,6 +13,11 @@ class User < ApplicationRecord
   validates :phone_number, :street, :zip_code, :city,
             presence: true,
             if: :family_data_completed?
+  validates :house_number, presence: true, if: :family_data_completed?
+  validates :street, format: {
+    without: /\d/,
+    message: "darf keine Zahlen enthalten – bitte Hausnummer separat eintragen"
+  }, allow_blank: true, if: :family_data_completed?
 
   before_create :set_privacy_accepted_at
 

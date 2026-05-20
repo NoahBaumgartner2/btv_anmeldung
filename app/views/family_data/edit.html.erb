@@ -22,7 +22,7 @@
 
   <%# Kontaktdaten %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
-    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider"><%= t("onboarding.section_contact") %></p>
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider"><%= t("family_data.section_contact") %></p>
 
     <div>
       <%= f.label :phone_number, t("onboarding.phone_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
@@ -47,6 +47,8 @@
         <%= f.text_field :street,
               placeholder: "Musterstrasse",
               autocomplete: "street-address",
+              pattern: "[^0-9]*",
+              title: "Bitte nur den Strassennamen ohne Nummer eingeben",
               class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       @user.errors[:street].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if @user.errors[:street].any? %>
@@ -56,8 +58,12 @@
       <div>
         <%= f.label :house_number, t("onboarding.house_number_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= f.text_field :house_number,
-              placeholder: "12a",
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              required: true,
+              class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
+                      @user.errors[:house_number].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
+        <% if @user.errors[:house_number].any? %>
+          <p class="mt-1 text-xs text-red-600"><%= @user.errors[:house_number].first %></p>
+        <% end %>
       </div>
     </div>
 

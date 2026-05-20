@@ -1359,12 +1359,13 @@ de:
       impressum: "Impressum"
 
   family_data:
-    title: "Familiendaten bearbeiten"
-    subtitle: "Adresse, Telefonnummer und weitere Angaben, die für alle Teilnehmer verwendet werden."
-    edit_btn: "Familiendaten bearbeiten"
+    title: "Persönliche Angaben"
+    subtitle: "Adresse, Telefonnummer und weitere Kontaktangaben deines Kontos."
+    section_contact: "Kontaktdaten"
+    edit_btn: "Persönliche Angaben bearbeiten"
     submit_btn: "Änderungen speichern"
     cancel_btn: "Abbrechen"
-    success_notice: "Familiendaten wurden erfolgreich aktualisiert."
+    success_notice: "Persönliche Angaben wurden erfolgreich aktualisiert."
 
   onboarding:
     title: "Willkommen! Zuerst Familiendaten erfassen"
