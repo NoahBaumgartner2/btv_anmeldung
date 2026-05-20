@@ -1,49 +1,10 @@
 <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 mt-6 sm:mt-10 mb-16">
 
   <div class="mb-6 sm:mb-8">
-    <div>
-      <h1 class="font-extrabold text-2xl sm:text-4xl text-gray-900"><%= @course.title %></h1>
-      <span class="inline-block mt-3 bg-primary-100 text-primary-800 text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-wide">
-        <%= @course.registration_type.presence || t("courses.show.type_default") %>
-      </span>
-    </div>
-
-    <div class="mt-4 flex flex-wrap gap-3">
-      <%= link_to t("courses.show.back"), courses_path, class: "flex-1 md:flex-none text-center bg-white py-3 px-6 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
-
-      <% if user_signed_in? && (current_user.admin? || Trainer.exists?(user: current_user)) %>
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 max-w-xs">
-          <p class="font-semibold mb-1">Anmeldung nicht möglich</p>
-          <p>Als Trainer oder Admin kannst du keine Kinder über dieses Formular anmelden. Bitte erstelle ein separates Eltern-Konto mit einer anderen E-Mail-Adresse.</p>
-        </div>
-      <% elsif @course.registration_mode == 'single_session' %>
-        <a href="#termine" class="flex-1 md:flex-none text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition">
-          <%= t("courses.show.select_date") %>
-        </a>
-      <% else %>
-        <% bestaetigte_plaetze = @course.course_registrations.where(status: [ 'bestätigt', 'schnuppern' ]).count %>
-        <% is_full = @course.max_participants.present? && bestaetigte_plaetze >= @course.max_participants %>
-        <%
-          show_semester_trial_button = false
-          if user_signed_in? && !current_user.admin? && @course.allows_trial? && @course.requires_ahv_number? && current_user.participants.any?
-            show_semester_trial_button = current_user.participants.any? { |p| !p.ever_trialed_in_category?(@course.registration_type) }
-          end
-        %>
-
-        <% if is_full %>
-          <%= link_to t("courses.show.join_waitlist"), new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-orange-500 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-orange-600 transition" %>
-        <% else %>
-          <%= link_to t("courses.show.register_now"), new_course_registration_path(course_id: @course.id), class: "text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition" %>
-          <% if show_semester_trial_button %>
-            <%= link_to new_course_registration_path(course_id: @course.id, trial: "true"),
-                  class: "text-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition" do %>
-              Jetzt schnuppern
-              <span class="block text-xs font-normal opacity-80">Kostenlos · 7 Tage gesichert</span>
-            <% end %>
-          <% end %>
-        <% end %>
-      <% end %>
-    </div>
+    <h1 class="font-extrabold text-2xl sm:text-4xl text-gray-900"><%= @course.title %></h1>
+    <span class="inline-block mt-3 bg-primary-100 text-primary-800 text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-wide">
+      <%= @course.registration_type.presence || t("courses.show.type_default") %>
+    </span>
   </div>
 
   <div class="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-3xl shadow-sm border border-gray-200">
@@ -94,6 +55,43 @@
         </ul>
       </div>
     </div>
+  </div>
+
+  <div class="flex flex-wrap justify-end gap-3 mt-6">
+    <%= link_to t("courses.show.back"), courses_path, class: "flex-1 md:flex-none text-center bg-white py-3 px-6 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
+
+    <% if user_signed_in? && (current_user.admin? || Trainer.exists?(user: current_user)) %>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 max-w-xs">
+        <p class="font-semibold mb-1">Anmeldung nicht möglich</p>
+        <p>Als Trainer oder Admin kannst du keine Kinder über dieses Formular anmelden. Bitte erstelle ein separates Eltern-Konto mit einer anderen E-Mail-Adresse.</p>
+      </div>
+    <% elsif @course.registration_mode == 'single_session' %>
+      <a href="#termine" class="flex-1 md:flex-none text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition">
+        <%= t("courses.show.select_date") %>
+      </a>
+    <% else %>
+      <% bestaetigte_plaetze = @course.course_registrations.where(status: [ 'bestätigt', 'schnuppern' ]).count %>
+      <% is_full = @course.max_participants.present? && bestaetigte_plaetze >= @course.max_participants %>
+      <%
+        show_semester_trial_button = false
+        if user_signed_in? && !current_user.admin? && @course.allows_trial? && @course.requires_ahv_number? && current_user.participants.any?
+          show_semester_trial_button = current_user.participants.any? { |p| !p.ever_trialed_in_category?(@course.registration_type) }
+        end
+      %>
+
+      <% if is_full %>
+        <%= link_to t("courses.show.join_waitlist"), new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-orange-500 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-orange-600 transition" %>
+      <% else %>
+        <%= link_to t("courses.show.register_now"), new_course_registration_path(course_id: @course.id), class: "text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition" %>
+        <% if show_semester_trial_button %>
+          <%= link_to new_course_registration_path(course_id: @course.id, trial: "true"),
+                class: "text-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition" do %>
+            Jetzt schnuppern
+            <span class="block text-xs font-normal opacity-80">Kostenlos · 7 Tage gesichert</span>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
   </div>
 
   <% if @course.registration_mode == 'single_session' %>
