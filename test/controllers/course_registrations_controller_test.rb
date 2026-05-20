@@ -190,58 +190,52 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   # ── trial_eligible ────────────────────────────────────────────────────────
 
-  test "trial_eligible returns eligible: true when participant has never trialed in category" do
+  test "trial_eligible returns eligible true for participant who never trialed" do
     sign_in @trial_parent
-
-    get trial_eligible_course_registrations_path, params: {
-      course_id: @trial_course.id,
-      participant_id: @trial_participant.id
-    }, as: :json
-
+    get trial_eligible_course_registrations_path,
+        params: { course_id: @trial_course.id, participant_id: @trial_participant.id },
+        headers: { "Accept" => "application/json" }
     assert_response :ok
-    assert_equal true, response.parsed_body["eligible"]
+    assert_equal true, JSON.parse(response.body)["eligible"]
   end
 
-  test "trial_eligible returns eligible: false when participant already trialed in same category" do
-    existing = CourseRegistration.new(
-      course: @trial_course, participant: @trial_participant,
-      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
-    )
-    existing.save!(validate: false)
-
+  test "trial_eligible returns eligible false when participant already trialed in category" do
+    reg = CourseRegistration.new(course: @trial_course, participant: @trial_participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
     sign_in @trial_parent
-
-    get trial_eligible_course_registrations_path, params: {
-      course_id: @trial_course.id,
-      participant_id: @trial_participant.id
-    }, as: :json
-
-    assert_response :ok
-    assert_equal false, response.parsed_body["eligible"]
+    get trial_eligible_course_registrations_path,
+        params: { course_id: @trial_course.id, participant_id: @trial_participant.id },
+        headers: { "Accept" => "application/json" }
+    assert_equal false, JSON.parse(response.body)["eligible"]
   end
 
-  test "trial_eligible returns eligible: false when course does not allow trial" do
+  test "trial_eligible returns eligible false when participant already confirmed in same category" do
+    reg = CourseRegistration.new(course: @trial_course, participant: @trial_participant,
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+    sign_in @trial_parent
+    get trial_eligible_course_registrations_path,
+        params: { course_id: @trial_course.id, participant_id: @trial_participant.id },
+        headers: { "Accept" => "application/json" }
+    assert_equal false, JSON.parse(response.body)["eligible"]
+  end
+
+  test "trial_eligible returns eligible false when course does not allow trial" do
     @trial_course.update_column(:allows_trial, false)
     sign_in @trial_parent
-
-    get trial_eligible_course_registrations_path, params: {
-      course_id: @trial_course.id,
-      participant_id: @trial_participant.id
-    }, as: :json
-
-    assert_response :ok
-    assert_equal false, response.parsed_body["eligible"]
+    get trial_eligible_course_registrations_path,
+        params: { course_id: @trial_course.id, participant_id: @trial_participant.id },
+        headers: { "Accept" => "application/json" }
+    assert_equal false, JSON.parse(response.body)["eligible"]
   end
 
-  test "trial_eligible returns eligible: false for unknown participant" do
+  test "trial_eligible returns eligible false for participant belonging to another user" do
+    other_participant = participants(:one)
     sign_in @trial_parent
-
-    get trial_eligible_course_registrations_path, params: {
-      course_id: @trial_course.id,
-      participant_id: 0
-    }, as: :json
-
-    assert_response :ok
-    assert_equal false, response.parsed_body["eligible"]
+    get trial_eligible_course_registrations_path,
+        params: { course_id: @trial_course.id, participant_id: other_participant.id },
+        headers: { "Accept" => "application/json" }
+    assert_equal false, JSON.parse(response.body)["eligible"]
   end
 end
