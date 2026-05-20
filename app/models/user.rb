@@ -6,6 +6,8 @@ class User < ApplicationRecord
 
   has_many :participants, dependent: :destroy
   has_one :trainer, dependent: :destroy
+  has_many :course_access_grants, dependent: :destroy
+  has_many :accessible_courses, through: :course_access_grants, source: :course
 
   attr_accessor :privacy_accepted, :devise_notification_error
   validates :privacy_accepted, acceptance: { allow_nil: false }, on: :create

@@ -27,6 +27,10 @@ class CourseRegistrationsController < ApplicationController
 
     if params[:course_id]
       @course = Course.find_by(id: params[:course_id])
+      if @course&.restricted? && !@course.accessible_by?(current_user)
+        redirect_to courses_path, alert: "Dieser Kurs ist nur für eingeladene Teilnehmende zugänglich."
+        return
+      end
       @course_registration.course_id = @course&.id
       # Nur Kurse der gleichen Kategorie anzeigen
       @selectable_courses = @course ? Course.where(registration_type: @course.registration_type).order(:title) : Course.order(:title)
@@ -50,6 +54,11 @@ class CourseRegistrationsController < ApplicationController
 
     # 1. Welchen Kurs möchte das Kind buchen?
     course = @course_registration.course
+
+    if course&.restricted? && !course.accessible_by?(current_user)
+      redirect_to courses_path, alert: "Dieser Kurs ist nur für eingeladene Teilnehmende zugänglich."
+      return
+    end
 
     if course&.abo? && course.abo_size.present?
       @course_registration.abo_entries_total = course.abo_size

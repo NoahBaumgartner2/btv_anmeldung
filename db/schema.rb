@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_20_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -73,6 +73,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_000001) do
     t.string "secondary_color"
     t.string "smtp_provider"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "course_access_grants", force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["course_id", "user_id"], name: "index_course_access_grants_on_course_id_and_user_id", unique: true
+    t.index ["course_id"], name: "index_course_access_grants_on_course_id"
+    t.index ["user_id"], name: "index_course_access_grants_on_user_id"
   end
 
   create_table "course_registrations", force: :cascade do |t|
@@ -144,6 +154,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_000001) do
     t.boolean "requires_nationality", default: false, null: false
     t.boolean "requires_street", default: false, null: false
     t.boolean "requires_zip_code", default: false, null: false
+    t.boolean "restricted", default: false, null: false
     t.datetime "start_date"
     t.string "title"
     t.datetime "updated_at", null: false
@@ -334,6 +345,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_000001) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "attendances", "course_registrations"
   add_foreign_key "attendances", "training_sessions"
+  add_foreign_key "course_access_grants", "courses"
+  add_foreign_key "course_access_grants", "users"
   add_foreign_key "course_registrations", "courses"
   add_foreign_key "course_registrations", "participants"
   add_foreign_key "course_registrations", "trainers", column: "cancelled_by_trainer_id"

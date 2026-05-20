@@ -62,6 +62,8 @@ Rails.application.routes.draw do
       post :create_generated_trainings
       get  :manage
       post :confirm_destroy
+      post :grant_access
+      delete :revoke_access
     end
   end
 

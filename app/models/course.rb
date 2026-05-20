@@ -4,6 +4,8 @@ class Course < ApplicationRecord
   has_many :course_trainers, dependent: :destroy
   has_many :trainers, through: :course_trainers
   has_many :training_sessions, dependent: :destroy
+  has_many :course_access_grants, dependent: :destroy
+  has_many :permitted_users, through: :course_access_grants, source: :user
 
   # Verfügbare Zahlungsmethoden (→ Anzeigenamen)
   PAYMENT_METHODS = {
@@ -104,6 +106,10 @@ class Course < ApplicationRecord
 
   def abo?
     registration_mode == "abo"
+  end
+
+  def accessible_by?(user)
+    !restricted? || user&.admin? || permitted_users.include?(user)
   end
 
   private

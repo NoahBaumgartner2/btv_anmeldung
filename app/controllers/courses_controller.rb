@@ -3,9 +3,17 @@ class CoursesController < ApplicationController
   before_action :authorize_admin!, except: [ :index, :show, :manage ]
   # GET /courses or /courses.json
   before_action :authorize_trainer!, only: [ :manage ]
-  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage ]
+  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access ]
   def index
-    @courses = Course.includes(:course_registrations).order(:title)
+    all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users)
+    @restricted_courses = if current_user&.admin?
+      all_restricted
+    elsif current_user
+      all_restricted.select { |c| c.accessible_by?(current_user) }
+    else
+      []
+    end
+    @public_courses = Course.where(restricted: false).includes(:course_registrations).order(:title)
   end
 
   # GET /courses/1 or /courses/1.json
@@ -153,6 +161,41 @@ class CoursesController < ApplicationController
     # Lädt einfach die Verwaltungs-Seite für diesen Kurs
   end
 
+  def grant_access
+    email = params[:email].to_s.strip.downcase
+    user = User.find_by(email: email)
+
+    unless user
+      return redirect_to manage_course_path(@course),
+        alert: "Kein Benutzer mit der E-Mail-Adresse '#{email}' gefunden.",
+        status: :see_other
+    end
+
+    grant = CourseAccessGrant.find_or_initialize_by(course: @course, user: user)
+    if grant.new_record?
+      grant.save!
+      redirect_to manage_course_path(@course),
+        notice: "#{user.email} hat jetzt Zugriff auf diesen Kurs.",
+        status: :see_other
+    else
+      redirect_to manage_course_path(@course),
+        notice: "#{user.email} hat bereits Zugriff auf diesen Kurs.",
+        status: :see_other
+    end
+  rescue => e
+    redirect_to manage_course_path(@course), alert: "Fehler: #{e.message}", status: :see_other
+  end
+
+  def revoke_access
+    user = User.find(params[:user_id])
+    CourseAccessGrant.find_by(course: @course, user: user)&.destroy
+    redirect_to manage_course_path(@course),
+      notice: "Zugriff für #{user.email} wurde entfernt.",
+      status: :see_other
+  rescue ActiveRecord::RecordNotFound
+    redirect_to manage_course_path(@course), alert: "Benutzer nicht gefunden.", status: :see_other
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_course
@@ -161,7 +204,7 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, trainer_ids: [], payment_methods: [])
     end
 
     def derive_registration_type(registration_mode)
