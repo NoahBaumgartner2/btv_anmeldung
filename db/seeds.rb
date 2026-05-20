@@ -14,7 +14,7 @@ puts "👤 Erstelle Benutzer (Admin, Trainer & Eltern)..."
 
 # 👑 Der Admin-Account (Reto)
 admin_user = User.create!(
-  email: 'admin@btv.ch',
+  email: 'admin@btv.com',
   password: 'password',
   password_confirmation: 'password',
   admin: true,
@@ -24,7 +24,7 @@ admin_user = User.create!(
 
 # Ein normaler Trainer Account
 trainer_user = User.create!(
-  email: 'trainer@btv.ch',
+  email: 'trainer@btv.com',
   password: 'password',
   password_confirmation: 'password',
   confirmed_at: Time.current,

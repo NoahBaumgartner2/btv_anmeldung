@@ -61,8 +61,10 @@ class Participant < ApplicationRecord
             allow_blank: true
 
   def has_trialed_in_category?(registration_type)
-    course_registrations
+    sibling_ids = trial_sibling_ids
+    CourseRegistration
       .joins(:course)
+      .where(participant_id: sibling_ids)
       .where(status: "schnuppern")
       .where(courses: { registration_type: registration_type })
       .where("course_registrations.created_at > ?", 7.days.ago)
@@ -70,8 +72,10 @@ class Participant < ApplicationRecord
   end
 
   def ever_trialed_in_category?(registration_type)
-    course_registrations
+    sibling_ids = trial_sibling_ids
+    CourseRegistration
       .joins(:course)
+      .where(participant_id: sibling_ids)
       .where(status: "schnuppern")
       .where(courses: { registration_type: registration_type })
       .exists?
@@ -80,8 +84,10 @@ class Participant < ApplicationRecord
   def schnupper_eligible_for_category?(registration_type)
     return false if ever_trialed_in_category?(registration_type)
 
-    course_registrations
+    sibling_ids = trial_sibling_ids
+    CourseRegistration
       .joins(:course)
+      .where(participant_id: sibling_ids)
       .where(courses: { registration_type: registration_type })
       .where.not(status: %w[storniert ausstehend])
       .none?
@@ -121,6 +127,20 @@ class Participant < ApplicationRecord
       errors.add(:date_of_birth, "muss in der Vergangenheit liegen")
     elsif date_of_birth < 120.years.ago.to_date
       errors.add(:date_of_birth, "ist nicht plausibel (mehr als 120 Jahre zurück)")
+    end
+  end
+
+  def trial_sibling_ids
+    if ahv_number.present?
+      normalized = ahv_number.gsub(/[\s.]/, "")
+      Participant
+        .where("REPLACE(REPLACE(ahv_number, '.', ''), ' ', '') = ?", normalized)
+        .pluck(:id)
+    else
+      Participant
+        .where("LOWER(TRIM(first_name)) = ? AND LOWER(TRIM(last_name)) = ? AND date_of_birth = ?",
+               first_name.to_s.strip.downcase, last_name.to_s.strip.downcase, date_of_birth)
+        .pluck(:id)
     end
   end
 end
