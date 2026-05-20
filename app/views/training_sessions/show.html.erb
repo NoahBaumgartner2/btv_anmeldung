@@ -1,8 +1,12 @@
 <%
   course     = @training_session.course
-  attended   = @training_session.is_canceled? ? 0 : @attendances_by_reg_id.values.count { |a| !a.abgemeldet? }
+  attended   = @training_session.is_canceled? ? 0 :
+    @registrations.count { |reg|
+      att = @attendances_by_reg_id[reg.id]
+      att.present? && !att.abgemeldet?
+    }
   total      = @registrations.size
-  pct        = total > 0 ? (attended.to_f / total * 100).round : 0
+  pct        = total > 0 ? [(attended.to_f / total * 100).round, 100].min : 0
 %>
 
 <div class="max-w-2xl mx-auto w-full mt-6 sm:mt-8 mb-16">
