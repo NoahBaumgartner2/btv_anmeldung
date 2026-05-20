@@ -1307,6 +1307,14 @@ fr:
       privacy: "Confidentialité"
       impressum: "Mentions légales"
 
+  family_data:
+    title: "Modifier les données familiales"
+    subtitle: "Adresse, numéro de téléphone et autres informations utilisées pour tous les participants."
+    edit_btn: "Modifier les données familiales"
+    submit_btn: "Enregistrer les modifications"
+    cancel_btn: "Annuler"
+    success_notice: "Les données familiales ont été mises à jour avec succès."
+
   onboarding:
     title: "Bienvenue ! Renseignez d'abord les données familiales"
     subtitle: "Ces informations (adresse, téléphone, etc.) seront automatiquement reprises pour tous les participants que vous enregistrez – vous ne devez les saisir qu'une seule fois."

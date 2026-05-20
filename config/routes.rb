@@ -119,6 +119,7 @@ Rails.application.routes.draw do
 
   get  "/onboarding", to: "onboarding#show",   as: :onboarding
   post "/onboarding", to: "onboarding#create"
+  resource :family_data, only: [:edit, :update], controller: "family_data"
 
   devise_for :users, controllers: {
     confirmations: "users/confirmations",

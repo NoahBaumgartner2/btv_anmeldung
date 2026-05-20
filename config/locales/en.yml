@@ -1319,6 +1319,14 @@ en:
       privacy: "Privacy"
       impressum: "Legal Notice"
 
+  family_data:
+    title: "Edit family details"
+    subtitle: "Address, phone number and other details used for all participants."
+    edit_btn: "Edit family details"
+    submit_btn: "Save changes"
+    cancel_btn: "Cancel"
+    success_notice: "Family details have been updated successfully."
+
   onboarding:
     title: "Welcome! First, enter family details"
     subtitle: "These details (address, phone number, etc.) will be automatically applied to all participants you register – you only need to enter them once."

@@ -1358,6 +1358,14 @@ de:
       privacy: "Datenschutz"
       impressum: "Impressum"
 
+  family_data:
+    title: "Familiendaten bearbeiten"
+    subtitle: "Adresse, Telefonnummer und weitere Angaben, die für alle Teilnehmer verwendet werden."
+    edit_btn: "Familiendaten bearbeiten"
+    submit_btn: "Änderungen speichern"
+    cancel_btn: "Abbrechen"
+    success_notice: "Familiendaten wurden erfolgreich aktualisiert."
+
   onboarding:
     title: "Willkommen! Zuerst Familiendaten erfassen"
     subtitle: "Diese Angaben (Adresse, Telefon etc.) werden automatisch für alle Teilnehmer übernommen, die du erfasst – du musst sie nur einmal eingeben."
