@@ -18,8 +18,8 @@
   <% if @restricted_courses.any? %>
     <div class="mb-6">
       <div class="flex items-center gap-3 mb-4">
-        <span class="inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Leistungssport</span>
-        <span class="text-sm text-gray-400">Nur auf Einladung zugänglich</span>
+        <span class="inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider"><%= t("courses.index.restricted_badge") %></span>
+        <span class="text-sm text-gray-400"><%= t("courses.index.restricted_subtitle") %></span>
       </div>
       <% @restricted_courses.group_by { |c| c.category.presence || c.title.split("(").first.strip }.sort.each do |category, courses_in_category| %>
         <details id="restricted-<%= category.parameterize %>" class="group bg-white rounded-2xl shadow-sm border border-red-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">

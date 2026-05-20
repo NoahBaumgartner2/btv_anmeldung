@@ -156,6 +156,8 @@ fr:
       empty:
         title: "Aucun cours disponible"
         subtitle: "Les cours apparaîtront ici dès leur création."
+      restricted_badge: "Sur invitation"
+      restricted_subtitle: "Accessible sur invitation uniquement"
     show:
       back: "Retour"
       type_default: "Cours"
@@ -299,6 +301,7 @@ fr:
       submit: "Générer les entraînements maintenant"
       cancel: "Annuler"
     form:
+      restricted_label: "Accès restreint (Sur invitation uniquement)"
       location_address_label: "Adresse"
       location_address_placeholder: "Rue Principale 12, 3000 Berne"
       location_address_hint: "Adresse complète pour la navigation (optionnel)"

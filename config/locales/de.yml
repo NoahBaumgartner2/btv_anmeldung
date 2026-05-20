@@ -195,6 +195,8 @@ de:
       empty:
         title: "Noch keine Kurse vorhanden"
         subtitle: "Sobald Kurse erstellt werden, erscheinen sie hier."
+      restricted_badge: "Auf Einladung"
+      restricted_subtitle: "Nur auf Einladung zugänglich"
     show:
       back: "Zurück"
       type_default: "Kurs"
@@ -338,6 +340,7 @@ de:
       submit: "Trainings jetzt generieren"
       cancel: "Abbrechen"
     form:
+      restricted_label: "Eingeschränkter Zugang (Nur auf Einladung)"
       location_address_label: "Adresse / Halle"
       location_address_placeholder: "Musterstrasse 12, 3000 Bern"
       location_address_hint: "Vollständige Adresse für die Navigation (optional)"

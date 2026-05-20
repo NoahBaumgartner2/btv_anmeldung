@@ -156,6 +156,8 @@ en:
       empty:
         title: "No courses yet"
         subtitle: "Once courses are created, they will appear here."
+      restricted_badge: "By Invitation"
+      restricted_subtitle: "Accessible by invitation only"
     show:
       back: "Back"
       type_default: "Course"
@@ -299,6 +301,7 @@ en:
       submit: "Generate training sessions now"
       cancel: "Cancel"
     form:
+      restricted_label: "Restricted access (By invitation only)"
       location_address_label: "Address"
       location_address_placeholder: "Main Street 12, 3000 Bern"
       location_address_hint: "Full address for navigation (optional)"

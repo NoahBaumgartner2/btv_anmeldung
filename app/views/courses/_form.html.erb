@@ -320,7 +320,7 @@
           <label class="flex items-center gap-3 cursor-pointer">
             <%= form.check_box :restricted,
                   class: "h-5 w-5 text-red-600 rounded border-gray-300 focus:ring-red-500 cursor-pointer shrink-0" %>
-            <span class="text-sm font-medium text-gray-800">Eingeschränkter Zugang <span class="font-normal text-gray-400">(Leistungssport)</span></span>
+            <span class="text-sm font-medium text-gray-800"><%= t("courses.form.restricted_label") %></span>
           </label>
           <p class="text-xs text-gray-400 mt-1 ml-8">Kurs ist nur für eingeladene Benutzer sichtbar und buchbar. Zugänge werden in der Kursverwaltung vergeben.</p>
         </div>
