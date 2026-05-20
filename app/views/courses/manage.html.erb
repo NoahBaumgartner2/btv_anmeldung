@@ -25,6 +25,13 @@
   waitlist_count  = @course.course_registrations.where(status: 'warteliste').count
   pending_count   = @course.course_registrations.where(status: 'ausstehend').count
   trial_count     = @course.course_registrations.where(status: 'schnuppern').count
+
+  status_order = { 'bestätigt' => 0, 'schnuppern' => 1, 'warteliste' => 2, 'ausstehend' => 3 }.freeze
+  sorted_registrations = @course.course_registrations
+    .includes(:participant)
+    .to_a
+    .uniq(&:participant_id)
+    .sort_by { |r| [status_order.fetch(r.status, 99), r.participant&.last_name.to_s] }
 %>
 
 <div class="max-w-6xl mx-auto w-full px-4 mt-6 sm:mt-8 mb-16" data-course-id="<%= @course.id %>">
@@ -94,16 +101,10 @@
     </div>
   <% end %>
 
-  <%# ── Stats ───────────────────────────────────────────────────────────── %>
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 sm:mb-8">
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-4 text-center">
-      <p class="text-xl sm:text-2xl font-extrabold text-gray-900"><%= total_count %></p>
-      <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.sessions_label") %></p>
-    </div>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-4 text-center">
-      <p class="text-xl sm:text-2xl font-extrabold text-primary-600"><%= upcoming_count %></p>
-      <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.upcoming") %></p>
-    </div>
+  <%# ── Stats ─────────────────────────────────────────────────────────────── %>
+
+  <%# Teilnehmer-Statistik (immer sichtbar) %>
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-4 text-center">
       <p class="text-xl sm:text-2xl font-extrabold text-green-600"><%= confirmed_count %></p>
       <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.confirmed") %></p>
@@ -124,6 +125,18 @@
       <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide">Schnuppern</p>
     </div>
     <% end %>
+  </div>
+
+  <%# Session-Statistik %>
+  <div class="grid grid-cols-2 gap-3 mb-6 sm:mb-8">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-4 text-center">
+      <p class="text-xl sm:text-2xl font-extrabold text-gray-900"><%= total_count %></p>
+      <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.sessions_label") %></p>
+    </div>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-4 text-center">
+      <p class="text-xl sm:text-2xl font-extrabold text-primary-600"><%= upcoming_count %></p>
+      <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.upcoming") %></p>
+    </div>
   </div>
 
   <%# ── Manuelle Anmeldung (nur Trainer/Admin mit Berechtigung) ───────────── %>
@@ -201,13 +214,7 @@
 
       <%# ── Mobile: Card-Layout ────────────────────────────────────────── %>
       <div class="sm:hidden divide-y divide-gray-100">
-        <% @course.course_registrations
-             .includes(:participant)
-             .order(id: :desc)
-             .to_a
-             .uniq(&:participant_id)
-             .sort_by { |r| [r.status == "storniert" ? 1 : 0, r.participant&.last_name.to_s] }
-             .each do |reg| %>
+        <% sorted_registrations.each do |reg| %>
           <% p = reg.participant %>
           <div class="p-4">
             <%# Name + Status %>
@@ -445,13 +452,7 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 bg-white">
-          <% @course.course_registrations
-               .includes(:participant)
-               .order(id: :desc)
-               .to_a
-               .uniq(&:participant_id)
-               .sort_by { |r| [r.status == "storniert" ? 1 : 0, r.participant&.last_name.to_s] }
-               .each do |reg| %>
+          <% sorted_registrations.each do |reg| %>
             <% p = reg.participant %>
             <tr class="hover:bg-gray-50 transition">
               <td class="py-4 px-6 text-sm">
