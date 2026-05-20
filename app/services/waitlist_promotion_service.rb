@@ -11,6 +11,7 @@ class WaitlistPromotionService
   # Anmeldung doppelt hochstufen, weil beide das gleiche confirmed_count lesen.
   def self.promote_next_from_waitlist(course, training_session_id: nil)
     course.with_lock do
+      return unless course.enable_waitlist?
       return if course.max_participants.blank?
 
       paid_course = course.has_payment? && course.price_cents.to_i > 0

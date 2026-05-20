@@ -161,7 +161,7 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, trainer_ids: [], payment_methods: [])
     end
 
     def derive_registration_type(registration_mode)

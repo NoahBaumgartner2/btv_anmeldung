@@ -127,7 +127,7 @@ class CourseRegistrationsController < ApplicationController
         course.course_registrations.where(status: [ "bestätigt", "schnuppern" ]).count
       end
 
-      if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
+      if course.enable_waitlist? && course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
         @course_registration.status = "warteliste"
         erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
       else

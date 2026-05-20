@@ -159,6 +159,15 @@
         </div>
       </div>
 
+      <div class="mt-4 flex items-start gap-3">
+        <%= form.check_box :enable_waitlist,
+              class: "h-5 w-5 mt-0.5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+        <div>
+          <%= form.label :enable_waitlist, "Warteliste aktivieren", class: "text-sm font-medium text-gray-800 cursor-pointer block" %>
+          <p class="text-xs text-gray-400 mt-0.5">Wenn der Kurs voll ist, landen neue Anmeldungen automatisch auf der Warteliste.</p>
+        </div>
+      </div>
+
       <%# Abo-Grösse – nur sichtbar wenn Anmeldemodus = abo %>
       <div id="abo-size-field"
            data-registration-mode-target="aboField"

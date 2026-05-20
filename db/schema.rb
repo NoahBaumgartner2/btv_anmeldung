@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_20_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -122,6 +122,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_000000) do
     t.integer "default_start_hour"
     t.integer "default_start_minute"
     t.text "description"
+    t.boolean "enable_waitlist", default: true, null: false
     t.datetime "end_date"
     t.boolean "has_payment"
     t.boolean "has_ticketing"

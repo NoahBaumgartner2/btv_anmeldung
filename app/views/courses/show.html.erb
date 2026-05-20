@@ -80,7 +80,11 @@
       %>
 
       <% if is_full %>
-        <%= link_to t("courses.show.join_waitlist"), new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-orange-500 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-orange-600 transition" %>
+        <% if @course.enable_waitlist? %>
+          <%= link_to t("courses.show.join_waitlist"), new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-orange-500 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-orange-600 transition" %>
+        <% else %>
+          <span class="flex-1 md:flex-none text-center bg-gray-200 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-gray-500 cursor-not-allowed"><%= t("courses.show.fully_booked") %></span>
+        <% end %>
       <% else %>
         <%= link_to t("courses.show.register_now"), new_course_registration_path(course_id: @course.id), class: "text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition" %>
         <% if show_semester_trial_button %>
@@ -145,8 +149,12 @@
                   <% if user_signed_in? && (current_user.admin? || Trainer.exists?(user: current_user)) %>
                     <%# Kein Button — Hinweis ist oben auf der Seite sichtbar %>
                   <% elsif is_full %>
-                    <%= link_to t("courses.show.waitlist_btn"), new_course_registration_path(course_id: @course.id, training_session_id: session.id),
-                          class: "block w-full sm:w-auto bg-orange-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-orange-600 transition text-sm text-center shadow-sm whitespace-nowrap" %>
+                    <% if @course.enable_waitlist? %>
+                      <%= link_to t("courses.show.waitlist_btn"), new_course_registration_path(course_id: @course.id, training_session_id: session.id),
+                            class: "block w-full sm:w-auto bg-orange-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-orange-600 transition text-sm text-center shadow-sm whitespace-nowrap" %>
+                    <% else %>
+                      <span class="block w-full sm:w-auto bg-gray-200 text-gray-500 font-bold py-2.5 px-5 rounded-xl text-sm text-center shadow-sm whitespace-nowrap cursor-not-allowed"><%= t("courses.show.fully_booked") %></span>
+                    <% end %>
                   <% else %>
                     <div class="flex flex-col gap-1">
                       <%= link_to new_course_registration_path(course_id: @course.id, training_session_id: session.id),
