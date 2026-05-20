@@ -64,6 +64,8 @@ Rails.application.routes.draw do
       post :confirm_destroy
       post :grant_access
       delete :revoke_access
+      post :manual_enroll
+      get  :participant_search
     end
   end
 

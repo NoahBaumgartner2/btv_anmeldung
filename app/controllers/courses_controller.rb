@@ -1,9 +1,9 @@
 class CoursesController < ApplicationController
   # Für neue Kurse oder Bearbeitung MUSS man Admin sein
-  before_action :authorize_admin!, except: [ :index, :show, :manage ]
+  before_action :authorize_admin!, except: [ :index, :show, :manage, :participant_search, :manual_enroll ]
   # GET /courses or /courses.json
   before_action :authorize_trainer!, only: [ :manage ]
-  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access ]
+  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll ]
   def index
     all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users)
     @restricted_courses = if current_user&.admin?
@@ -193,6 +193,83 @@ class CoursesController < ApplicationController
     # Lädt einfach die Verwaltungs-Seite für diesen Kurs
   end
 
+  # GET /courses/:id/participant_search?q=...
+  def participant_search
+    authorize_trainer_or_admin!
+    return if performed?
+
+    q = params[:q].to_s.strip
+    if q.length >= 2
+      @results = Participant.joins(:user)
+        .where(
+          "LOWER(participants.first_name) LIKE :q OR
+           LOWER(participants.last_name) LIKE :q OR
+           LOWER(users.email) LIKE :q OR
+           LOWER(CONCAT(participants.first_name, ' ', participants.last_name)) LIKE :q",
+          q: "%#{q.downcase}%"
+        )
+        .includes(:user, :course_registrations)
+        .limit(10)
+
+      already_registered_ids = @course.course_registrations
+        .where.not(status: "storniert")
+        .pluck(:participant_id)
+
+      render json: @results.map { |p|
+        {
+          id: p.id,
+          name: "#{p.first_name} #{p.last_name}",
+          date_of_birth: p.date_of_birth ? I18n.l(p.date_of_birth) : nil,
+          email: p.user&.email,
+          already_registered: already_registered_ids.include?(p.id)
+        }
+      }
+    else
+      render json: []
+    end
+  end
+
+  # POST /courses/:id/manual_enroll
+  def manual_enroll
+    authorize_trainer_or_admin!
+    return if performed?
+
+    if params[:participant_id].present?
+      participant = Participant.find(params[:participant_id])
+      enroll_participant(participant)
+
+    elsif params[:new_family_email].present?
+      email = params[:new_family_email].strip.downcase
+      user = User.find_or_initialize_by(email: email)
+
+      if user.new_record?
+        user.password = Devise.friendly_token[0, 20]
+        user.privacy_accepted = true
+        user.skip_confirmation!
+        user.save!
+        user.send_reset_password_instructions
+      end
+
+      participant = Participant.new(
+        user: user,
+        first_name: params[:first_name].to_s.strip,
+        last_name:  params[:last_name].to_s.strip,
+        date_of_birth: params[:date_of_birth],
+        gender: params[:gender],
+        phone_number: params[:phone_number].presence || "000 000 00 00"
+      )
+
+      unless participant.save
+        return redirect_to manage_course_path(@course),
+          alert: "Teilnehmer konnte nicht erstellt werden: #{participant.errors.full_messages.join(', ')}"
+      end
+
+      enroll_participant(participant)
+    else
+      redirect_to manage_course_path(@course), alert: "Bitte Teilnehmer auswählen oder neue Familie erfassen."
+    end
+  end
+
   def grant_access
     email = params[:email].to_s.strip.downcase
     user = User.find_by(email: email)
@@ -241,6 +318,45 @@ class CoursesController < ApplicationController
 
     def derive_registration_type(registration_mode)
       registration_mode == "single_session" ? "pro_training" : "semester"
+    end
+
+    def authorize_trainer_or_admin!
+      unless current_user&.admin? || @course.trainers.exists?(user_id: current_user&.id)
+        redirect_to root_path, alert: "Zugriff verweigert."
+      end
+    end
+
+    def enroll_participant(participant)
+      if @course.course_registrations.where(participant: participant).where.not(status: "storniert").exists?
+        return redirect_to manage_course_path(@course),
+          alert: "#{participant.first_name} ist bereits für diesen Kurs angemeldet."
+      end
+
+      bestaetigte = @course.course_registrations.where(status: "bestätigt").count
+      status = if @course.max_participants.present? && bestaetigte >= @course.max_participants
+        "warteliste"
+      else
+        "bestätigt"
+      end
+
+      reg = CourseRegistration.new(
+        course: @course,
+        participant: participant,
+        status: status,
+        payment_cleared: false,
+        holiday_deduction_claimed: false
+      )
+
+      if reg.save(validate: false)
+        CourseRegistrationMailer.confirmation(reg).deliver_later
+        msg = status == "warteliste" ?
+          "#{participant.first_name} wurde auf die Warteliste gesetzt." :
+          "#{participant.first_name} wurde erfolgreich angemeldet."
+        redirect_to manage_course_path(@course), notice: msg
+      else
+        redirect_to manage_course_path(@course),
+          alert: "Anmeldung fehlgeschlagen: #{reg.errors.full_messages.join(', ')}"
+      end
     end
 
     def provision_new_trainer(course)
