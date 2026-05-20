@@ -89,10 +89,9 @@
                     <% end %>
                   </div>
 
-                  <%# ── Titel (klickbar → Details, kein truncate) ──── %>
+                  <%# ── Titel ─────────────────────────────────────── %>
                   <h3 class="text-lg sm:text-xl font-extrabold text-gray-900 leading-snug mb-3 break-words">
-                    <%= link_to course.title, course_path(course),
-                          class: "hover:text-primary-700 transition focus:outline-none focus:ring-2 focus:ring-primary-400 rounded" %>
+                    <%= course.title %>
                   </h3>
 
                   <%# ── Metadaten ─────────────────────────────────── %>
@@ -140,10 +139,10 @@
                       <%= link_to t("courses.index.actions.view_dates"), course_path(course),
                             class: "block w-full text-center text-sm font-bold bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
                     <% elsif is_full %>
-                      <%= link_to t("courses.index.actions.join_waitlist"), new_course_registration_path(course_id: course.id),
+                      <%= link_to t("courses.index.actions.join_waitlist"), course_path(course),
                             class: "block w-full text-center text-sm font-bold bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
                     <% else %>
-                      <%= link_to t("courses.index.actions.register"), new_course_registration_path(course_id: course.id),
+                      <%= link_to t("courses.index.actions.register"), course_path(course),
                             class: "block w-full text-center text-sm font-bold bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
                     <% end %>
                   </div>
