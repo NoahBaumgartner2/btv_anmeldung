@@ -44,11 +44,13 @@ export default class extends Controller {
   #showTrial() {
     this.trialBannerTarget.classList.remove("hidden")
     this.trialBtnTarget.classList.remove("hidden")
+    this.trialBtnTarget.classList.add("inline-flex")
   }
 
   #hideTrial() {
     this.trialBannerTarget.classList.add("hidden")
     this.trialBtnTarget.classList.add("hidden")
+    this.trialBtnTarget.classList.remove("inline-flex")
     this.trialFieldTarget.value = "false"
   }
 }
