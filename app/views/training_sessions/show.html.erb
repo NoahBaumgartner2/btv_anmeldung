@@ -186,6 +186,7 @@
             <% else %>
               <%= button_to toggle_attendance_training_session_path(@training_session, course_registration_id: reg.id),
                     method: :post,
+                    form: { data: { turbo_scroll: "preserve" } },
                     "aria-label": (is_present ? t("training_sessions.show.mark_absent_aria", name: participant.first_name) : t("training_sessions.show.mark_present_aria", name: participant.first_name)),
                     class: "shrink-0 cursor-pointer inline-flex items-center justify-center gap-1.5 text-sm font-bold px-4 py-2.5 rounded-full transition min-h-[44px] min-w-[110px]
                             #{is_present ? 'bg-green-600 text-white hover:bg-green-700 active:bg-green-800 shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200 active:bg-gray-300 border border-gray-300'}" do %>
