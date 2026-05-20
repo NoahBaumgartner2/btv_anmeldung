@@ -68,6 +68,9 @@ Rails.application.routes.draw do
   end
 
   resources :course_registrations do
+    collection do
+      get :trial_eligible
+    end
     member do
       post :scan
       post :unsubscribe_from_session

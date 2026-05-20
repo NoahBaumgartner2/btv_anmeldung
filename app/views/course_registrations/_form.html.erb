@@ -40,7 +40,8 @@
         <%= form.collection_select :participant_id, my_participants, :id,
               ->(p) { "#{p.first_name} #{p.last_name}" },
               { prompt: t("course_registrations.form.participant_prompt") },
-              class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]" %>
+              class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]",
+              data: { "trial-check-target": "participantSelect", action: "change->trial-check#participantChanged" } %>
 
         <%# Vorab-Prüfung: fehlende Pflichtfelder pro Teilnehmer %>
         <% if course&.required_participant_fields.present? %>
@@ -104,6 +105,13 @@
       <% end %>
     </div>
 
+    <%# Schnupper-Banner + Hidden-Field (Stimulus-gesteuert) %>
+    <div data-trial-check-target="trialBanner" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4">
+      <p class="text-sm font-bold text-amber-800">Kostenlos schnuppern möglich</p>
+      <p class="text-sm text-amber-700 mt-1">Dieses Kind hat in dieser Kategorie noch nie geschnuppert. Du kannst das erste Training kostenlos und unverbindlich besuchen.</p>
+    </div>
+    <input type="hidden" name="trial" value="false" data-trial-check-target="trialField">
+
     <%= form.hidden_field :holiday_deduction_claimed, value: false %>
 
     <% if course_registration.new_record? %>
@@ -132,7 +140,17 @@
   <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
     <%= link_to t("course_registrations.form.cancel"), :back,
           class: "block w-full sm:w-auto text-center bg-white py-3 sm:py-2 px-5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition min-h-[44px] inline-flex items-center justify-center" %>
-    <%= form.submit course_registration.new_record? ? t("course_registrations.form.submit_new") : t("course_registrations.form.submit_edit"),
-          class: "cursor-pointer w-full sm:w-auto inline-flex justify-center items-center py-3 sm:py-2 px-5 border border-transparent shadow-sm text-base sm:text-sm font-bold rounded-lg text-white bg-secondary-600 hover:bg-secondary-700 transition min-h-[44px]" %>
+    <button type="button"
+            data-trial-check-target="trialBtn"
+            data-action="click->trial-check#submitTrial"
+            class="hidden w-full sm:w-auto inline-flex flex-col justify-center items-center py-3 sm:py-2 px-5 shadow-sm text-base sm:text-sm font-bold rounded-lg text-white bg-amber-500 hover:bg-amber-600 transition min-h-[44px]">
+      Erstes Training schnuppern
+      <span class="text-xs font-normal opacity-80">Kostenlos · unverbindlich</span>
+    </button>
+    <button type="submit"
+            data-trial-check-target="submitBtn"
+            class="cursor-pointer w-full sm:w-auto inline-flex justify-center items-center py-3 sm:py-2 px-5 border border-transparent shadow-sm text-base sm:text-sm font-bold rounded-lg text-white bg-secondary-600 hover:bg-secondary-700 transition min-h-[44px]">
+      <%= course_registration.new_record? ? t("course_registrations.form.submit_new") : t("course_registrations.form.submit_edit") %>
+    </button>
   </div>
 <% end %>

@@ -34,15 +34,10 @@
     </div>
   <% end %>
 
-  <% if params[:trial] == "true" %>
-    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
-      <p class="text-sm font-bold text-amber-800">Schnupper-Anmeldung</p>
-      <p class="text-sm text-amber-700 mt-1">Du bekommst einen gesicherten Platz für 7 Tage (bis zum zweiten Training). Danach ist eine reguläre Anmeldung nötig.</p>
-    </div>
-    <%= hidden_field_tag :trial, "true" %>
-  <% end %>
-
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6"
+       data-controller="trial-check"
+       data-trial-check-course-id-value="<%= @course&.id.to_i %>"
+       data-trial-check-allows-trial-value="<%= @course&.allows_trial? %>">
     <%= render "form",
           course_registration: @course_registration,
           selectable_courses: @selectable_courses,

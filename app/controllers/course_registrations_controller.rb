@@ -302,6 +302,17 @@ class CourseRegistrationsController < ApplicationController
                           name: participant_name, date: session_date)
   end
 
+  def trial_eligible
+    course      = Course.find_by(id: params[:course_id])
+    participant = current_user.participants.find_by(id: params[:participant_id])
+
+    if course.nil? || participant.nil? || !course.allows_trial?
+      return render json: { eligible: false }
+    end
+
+    render json: { eligible: !participant.ever_trialed_in_category?(course.registration_type) }
+  end
+
   def scan
     authorize_trainer!
 
