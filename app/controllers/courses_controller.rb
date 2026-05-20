@@ -53,7 +53,7 @@ class CoursesController < ApplicationController
       p[:registration_type] = derive_registration_type(p[:registration_mode])
       if @course.update(p)
         provision_new_trainer(@course)
-        format.html { redirect_to @course, notice: "Kurs wurde erfolgreich aktualisiert.", status: :see_other }
+        format.html { redirect_to manage_course_path(@course), notice: "Kurs wurde erfolgreich aktualisiert.", status: :see_other }
         format.json { render :show, status: :ok, location: @course }
       else
         format.html { render :edit, status: :unprocessable_entity }

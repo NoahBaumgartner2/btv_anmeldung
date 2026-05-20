@@ -1,3 +1,7 @@
+<% content_for :head do %>
+  <%= tag.meta name: "turbo-cache-control", content: "no-cache" %>
+<% end %>
+
 <%
   now = Time.current
   all_sessions = @course.training_sessions.order(:start_time).to_a

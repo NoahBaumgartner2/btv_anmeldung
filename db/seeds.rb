@@ -13,14 +13,7 @@ PaymentSetting.destroy_all
 puts "👤 Erstelle Benutzer (Admin, Trainer & Eltern)..."
 
 # 👑 Der Admin-Account (Reto)
-admin_user = User.create!(
-  email: 'admin@btv.com',
-  password: 'password',
-  password_confirmation: 'password',
-  admin: true,
-  confirmed_at: Time.current,
-  privacy_accepted: true
-)
+Anmel
 
 # Ein normaler Trainer Account
 trainer_user = User.create!(
