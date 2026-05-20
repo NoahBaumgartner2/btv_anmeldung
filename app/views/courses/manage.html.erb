@@ -169,47 +169,13 @@
 
         <%# Neue Familie erstellen Panel %>
         <div data-manual-enroll-target="createPanel" class="hidden">
-          <%= form_with url: manual_enroll_course_path(@course), method: :post do |f| %>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">E-Mail der Eltern *</label>
-                <%= f.email_field :new_family_email, required: true,
-                      placeholder: "familie@beispiel.ch",
-                      class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500" %>
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Telefon</label>
-                <%= f.text_field :phone_number, placeholder: "+41 79 123 45 67",
-                      class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500" %>
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Vorname Kind *</label>
-                <%= f.text_field :first_name, required: true, placeholder: "z.B. Lena",
-                      class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500" %>
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Nachname Kind *</label>
-                <%= f.text_field :last_name, required: true, placeholder: "z.B. Müller",
-                      class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500" %>
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Geburtsdatum *</label>
-                <%= f.date_field :date_of_birth, required: true,
-                      class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500" %>
-              </div>
-              <div>
-                <label class="block text-xs font-bold text-gray-600 mb-1">Geschlecht *</label>
-                <%= f.select :gender, [["Männlich", "männlich"], ["Weiblich", "weiblich"]],
-                      { prompt: "Auswählen..." },
-                      class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-primary-500" %>
-              </div>
-            </div>
-            <p class="text-xs text-gray-400 mb-4">
-              Falls noch kein Account existiert, wird automatisch einer erstellt und die Familie erhält eine E-Mail zum Passwort setzen.
-            </p>
-            <%= f.submit "Kind anmelden & Account erstellen",
-                  class: "w-full sm:w-auto bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-6 rounded-xl text-sm transition cursor-pointer" %>
-          <% end %>
+          <%= render "participants/form",
+                participant: @manual_participant,
+                form_url: manual_enroll_course_path(@course),
+                submit_label: "Kind anmelden & Account erstellen",
+                hide_cancel: true,
+                hide_admin_section: true,
+                manual_enroll_mode: true %>
         </div>
       </div>
     </div>

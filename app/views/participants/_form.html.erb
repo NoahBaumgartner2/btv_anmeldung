@@ -10,6 +10,21 @@
     </div>
   <% end %>
 
+  <%# ── E-Mail der Eltern (nur im manuellen Anmelde-Kontext) ─────────────── %>
+  <% if local_assigns[:manual_enroll_mode] %>
+    <div class="mb-5 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+      <label class="block text-sm font-bold text-blue-800 mb-1">E-Mail-Adresse der Eltern *</label>
+      <p class="text-xs text-blue-600 mb-2">
+        Falls noch kein Account existiert, wird automatisch einer erstellt und
+        die Familie erhält eine E-Mail zum Passwort setzen.
+      </p>
+      <%= email_field_tag :new_family_email, nil,
+            required: true,
+            placeholder: "familie@beispiel.ch",
+            class: "block w-full rounded-lg border border-blue-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" %>
+    </div>
+  <% end %>
+
   <%# ── Pflichtfelder ───────────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-4">
     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5"><%= t("participants.form.section_personal") %></p>
@@ -213,7 +228,7 @@
   </div>
 
   <%# ── Admin: Kontoverknüpfung ─────────────────────────────────────────── %>
-  <% if current_user.admin? %>
+  <% if current_user.admin? && !local_assigns[:hide_admin_section] %>
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-4">
       <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5"><%= t("participants.form.section_admin") %></p>
       <%= form.label :user_id, t("participants.form.account_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>

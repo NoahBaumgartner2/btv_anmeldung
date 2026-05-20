@@ -190,7 +190,7 @@ class CoursesController < ApplicationController
   end
 
   def manage
-    # Lädt einfach die Verwaltungs-Seite für diesen Kurs
+    @manual_participant = Participant.new(country: "CH", nationality: "CH", mother_tongue: "DE")
   end
 
   # GET /courses/:id/participant_search?q=...
@@ -250,18 +250,20 @@ class CoursesController < ApplicationController
         user.send_reset_password_instructions
       end
 
-      participant = Participant.new(
-        user: user,
-        first_name: params[:first_name].to_s.strip,
-        last_name:  params[:last_name].to_s.strip,
-        date_of_birth: params[:date_of_birth],
-        gender: params[:gender],
-        phone_number: params[:phone_number].presence || "000 000 00 00"
+      p_params = params.require(:participant).permit(
+        :first_name, :last_name, :date_of_birth, :gender, :phone_number,
+        :ahv_number, :street, :house_number, :zip_code, :city, :country,
+        :nationality, :mother_tongue, :js_person_number
       )
 
+      participant = Participant.new(p_params)
+      participant.user = user
+      participant.phone_number = "000 000 00 00" if participant.phone_number.blank?
+
       unless participant.save
-        return redirect_to manage_course_path(@course),
-          alert: "Teilnehmer konnte nicht erstellt werden: #{participant.errors.full_messages.join(', ')}"
+        @manual_participant = participant
+        flash.now[:alert] = "Teilnehmer konnte nicht erstellt werden: #{participant.errors.full_messages.join(', ')}"
+        return render :manage, status: :unprocessable_entity
       end
 
       enroll_participant(participant)
