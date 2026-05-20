@@ -99,10 +99,17 @@
                     <div class="bg-white border border-green-200 rounded-2xl p-4 sm:p-5 shadow-sm relative flex flex-col h-full hover:shadow-md transition">
 
                       <div class="absolute top-3 sm:top-4 right-3 sm:right-4">
-                        <% if reg.status == "bestätigt" %>
+                        <% case reg.status %>
+                        <% when "bestätigt" %>
                           <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-md"><%= t("participants.index.confirmed") %></span>
-                        <% else %>
+                        <% when "schnuppern" %>
+                          <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-md"><%= reg.status_label %></span>
+                        <% when "warteliste" %>
                           <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-1 rounded-md"><%= t("participants.index.waitlist") %></span>
+                        <% when "ausstehend" %>
+                          <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-1 rounded-md"><%= reg.status_label %></span>
+                        <% else %>
+                          <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded-md"><%= reg.status_label %></span>
                         <% end %>
                       </div>
 
