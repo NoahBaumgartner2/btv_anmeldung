@@ -182,10 +182,10 @@
                       <% end %>
 
                       <%# ── Ticket / QR-Code ──────────────────────────── %>
-                      <% show_bottom_block = course.has_ticketing || reg.status != "bestätigt" %>
+                      <% show_bottom_block = course.has_ticketing || !["bestätigt", "schnuppern"].include?(reg.status) %>
                       <% if show_bottom_block %>
                         <div class="mt-auto pt-4 sm:pt-5 border-t border-gray-100 flex flex-col items-center">
-                          <% if reg.status == "bestätigt" && course.has_ticketing %>
+                          <% if ["bestätigt", "schnuppern"].include?(reg.status) && course.has_ticketing %>
                             <div data-controller="modal" class="contents">
                               <div class="cursor-pointer hover:scale-105 active:scale-95 transition transform group w-full flex flex-col items-center"
                                    data-action="click->modal#open">
@@ -279,7 +279,7 @@
                 <% course = regs.first.course %>
                 <%
                   now           = Time.current
-                  upcoming_regs = regs.select { |r| r.status == "bestätigt" && r.training_session&.start_time.present? && r.training_session.start_time > now }
+                  upcoming_regs = regs.select { |r| ["bestätigt", "schnuppern"].include?(r.status) && r.training_session&.start_time.present? && r.training_session.start_time > now }
                   next_reg      = upcoming_regs.min_by { |r| r.training_session.start_time }
                   active_count  = upcoming_regs.size
                 %>
