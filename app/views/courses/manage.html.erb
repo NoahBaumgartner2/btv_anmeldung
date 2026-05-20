@@ -9,7 +9,10 @@
   total_count     = all_sessions.size
   past_count      = all_sessions.count { |s| s.end_time ? s.end_time < now : s.start_time && s.start_time < now }
   upcoming_count  = all_sessions.count { |s| s.start_time && s.start_time > now && !s.is_canceled }
-  live_session    = all_sessions.find { |s| s.start_time && s.end_time && s.start_time <= now && s.end_time >= now }
+  live_session    = all_sessions.find do |s|
+    next unless s.start_time && s.start_time <= now && !s.is_canceled
+    s.end_time ? s.end_time > now : s.start_time > 2.hours.ago
+  end
 
   confirmed_count = @course.course_registrations.where(status: 'bestätigt').count
   waitlist_count  = @course.course_registrations.where(status: 'warteliste').count
@@ -74,8 +77,8 @@
         <div>
           <p class="font-bold text-green-900"><%= t("courses.manage.live_now") %></p>
           <p class="text-sm text-green-700">
-            <%= live_session.start_time.strftime("%-d. %B %Y, %H:%M") %> &ndash;
-            <%= live_session.end_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
+            <%= live_session.start_time.strftime("%-d. %B %Y, %H:%M") %>
+            <% if live_session.end_time %>&ndash; <%= live_session.end_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %><% end %>
           </p>
         </div>
       </div>
@@ -671,7 +674,8 @@
 
         <% sessions.each do |session| %>
           <%
-            is_live      = session.start_time && session.end_time && session.start_time <= now && session.end_time >= now
+            is_live      = !session.is_canceled? && session.start_time && session.start_time <= now &&
+                           (session.end_time ? session.end_time > now : session.start_time > 2.hours.ago)
             is_past      = session.end_time ? session.end_time < now : (session.start_time && session.start_time < now)
             is_canceled  = session.is_canceled?
             attendance   = session.attendances.size

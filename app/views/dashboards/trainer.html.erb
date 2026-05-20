@@ -22,7 +22,8 @@
           <p class="text-xs font-bold uppercase tracking-widest text-primary-200 mb-1"><%= t("dashboards.trainer.today") %></p>
           <% @todays_sessions.each do |s| %>
             <div class="flex items-center gap-3 mt-1">
-              <% is_live = s.start_time <= now && s.end_time && s.end_time >= now %>
+              <% is_live = !s.is_canceled? && s.start_time <= now &&
+                           (s.end_time ? s.end_time > now : s.start_time > 2.hours.ago) %>
               <% if is_live %>
                 <span class="relative flex h-2.5 w-2.5 shrink-0">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
