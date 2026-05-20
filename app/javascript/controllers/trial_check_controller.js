@@ -38,7 +38,7 @@ export default class extends Controller {
 
   submitTrial() {
     this.trialFieldTarget.value = "true"
-    this.element.closest("form").requestSubmit()
+    this.trialFieldTarget.closest("form").requestSubmit()
   }
 
   #showTrial() {
