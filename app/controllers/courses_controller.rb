@@ -287,6 +287,7 @@ class CoursesController < ApplicationController
     grant = CourseAccessGrant.find_or_initialize_by(course: @course, user: user)
     if grant.new_record?
       grant.save!
+      CourseAccessMailer.invited(user, @course).deliver_later
       redirect_to manage_course_path(@course),
         notice: "#{user.email} hat jetzt Zugriff auf diesen Kurs.",
         status: :see_other
