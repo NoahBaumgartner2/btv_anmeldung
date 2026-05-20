@@ -70,17 +70,16 @@ class CoursesController < ApplicationController
                  .where("start_time >= ?", Time.current.beginning_of_day)
                  .where(is_canceled: false)
                  .find_each do |session|
-            new_start = session.start_time.change(
+            base = session.start_time.in_time_zone
+            new_start = base.change(
               hour: @course.default_start_hour.to_i,
               min:  @course.default_start_minute.to_i
             )
             new_end = if @course.default_end_hour.present?
-              session.start_time.change(
+              base.change(
                 hour: @course.default_end_hour.to_i,
                 min:  @course.default_end_minute.to_i
               )
-            else
-              nil
             end
             session.update_columns(start_time: new_start, end_time: new_end)
           end

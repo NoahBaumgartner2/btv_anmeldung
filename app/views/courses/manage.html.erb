@@ -12,7 +12,10 @@
 
   total_count     = all_sessions.size
   past_count      = all_sessions.count { |s| s.end_time ? s.end_time < now : s.start_time && s.start_time < now }
-  upcoming_count  = all_sessions.count { |s| s.start_time && s.start_time > now && !s.is_canceled }
+  upcoming_count  = all_sessions.count { |s|
+    s.start_time && !s.is_canceled &&
+    (s.end_time ? s.end_time > now : s.start_time > now)
+  }
   live_session    = all_sessions.find do |s|
     next unless s.start_time && s.start_time <= now && !s.is_canceled
     s.end_time ? s.end_time > now : s.start_time > 2.hours.ago
