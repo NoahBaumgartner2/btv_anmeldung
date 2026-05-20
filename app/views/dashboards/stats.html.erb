@@ -119,7 +119,7 @@
       past_sessions = sessions.select { |s| s.start_time < now }
       upcoming_sessions = sessions.select { |s| s.start_time >= now }
       canceled = sessions.count(&:is_canceled?)
-      all_course_attendances = sessions.flat_map(&:attendances)
+      all_course_attendances = sessions.reject(&:is_canceled?).flat_map(&:attendances)
       course_rate = attendance_rate(all_course_attendances)
       sessions_without_record = past_sessions.reject { |s| s.is_canceled? || s.attendances.reject { |a| a.status.nil? }.any? }
       registrations = course.course_registrations
@@ -240,16 +240,16 @@
                       <% end %>
                     </td>
                     <td class="py-3 px-4 text-center text-sm font-bold text-green-700">
-                      <%= s_present > 0 ? s_present : (session.is_canceled? || !is_past ? "—" : "0") %>
+                      <%= session.is_canceled? ? "—" : (s_present > 0 ? s_present : (!is_past ? "—" : "0")) %>
                     </td>
                     <td class="py-3 px-4 text-center text-sm font-bold text-red-600">
-                      <%= s_absent > 0 ? s_absent : (session.is_canceled? || !is_past ? "—" : "0") %>
+                      <%= session.is_canceled? ? "—" : (s_absent > 0 ? s_absent : (!is_past ? "—" : "0")) %>
                     </td>
                     <td class="py-3 px-4 text-center text-sm text-gray-500">
-                      <%= s_excused > 0 ? s_excused : "—" %>
+                      <%= session.is_canceled? ? "—" : (s_excused > 0 ? s_excused : "—") %>
                     </td>
                     <td class="py-3 px-4 text-center text-sm">
-                      <% if s_rate %>
+                      <% if s_rate && !session.is_canceled? %>
                         <span class="font-bold <%= s_rate >= 75 ? "text-green-600" : "text-yellow-600" %>"><%= s_rate %>%</span>
                       <% else %>
                         <span class="text-gray-300">—</span>
