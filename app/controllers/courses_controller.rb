@@ -37,6 +37,7 @@ class CoursesController < ApplicationController
     respond_to do |format|
       if @course.save
         provision_new_trainer(@course)
+        save_trainer_permissions(@course)
         format.html { redirect_to @course, notice: "Kurs wurde erfolgreich erstellt." }
         format.json { render :show, status: :created, location: @course }
       else
@@ -59,6 +60,7 @@ class CoursesController < ApplicationController
 
       if @course.update(p)
         provision_new_trainer(@course)
+        save_trainer_permissions(@course)
 
         time_changed = old_start_hour   != @course.default_start_hour   ||
                        old_start_minute != @course.default_start_minute ||
@@ -315,7 +317,7 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, trainer_ids: [], payment_methods: [], trainer_permissions: {})
     end
 
     def derive_registration_type(registration_mode)
@@ -323,8 +325,33 @@ class CoursesController < ApplicationController
     end
 
     def authorize_trainer_or_admin!
-      unless current_user&.admin? || @course.trainers.exists?(user_id: current_user&.id)
-        redirect_to root_path, alert: "Zugriff verweigert."
+      return if current_user&.admin?
+
+      trainer = Trainer.find_by(user: current_user)
+      course_trainer = @course.course_trainers.find_by(trainer: trainer)
+
+      unless course_trainer&.can_manually_enroll?
+        redirect_to manage_course_path(@course),
+          alert: "Du hast keine Berechtigung, Kinder manuell anzumelden."
+      end
+    end
+
+    def save_trainer_permissions(course)
+      permission_params = params.dig(:course, :trainer_permissions)
+      return unless permission_params.is_a?(ActionController::Parameters)
+
+      permission_params.each do |trainer_id, perms|
+        ct = course.course_trainers.find_by(trainer_id: trainer_id.to_i)
+        next unless ct
+        ct.update_columns(can_manually_enroll: perms[:can_manually_enroll] == "1")
+      end
+
+      # Trainers assigned but not in trainer_permissions → reset to false
+      assigned_ids = Array(params.dig(:course, :trainer_ids)).map(&:to_i).reject(&:zero?)
+      course.course_trainers.where(trainer_id: assigned_ids).each do |ct|
+        unless permission_params.key?(ct.trainer_id.to_s)
+          ct.update_columns(can_manually_enroll: false)
+        end
       end
     end
 

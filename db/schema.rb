@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_134758) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_20_143156) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -113,6 +113,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_134758) do
   end
 
   create_table "course_trainers", force: :cascade do |t|
+    t.boolean "can_manually_enroll", default: false, null: false
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
     t.bigint "trainer_id", null: false

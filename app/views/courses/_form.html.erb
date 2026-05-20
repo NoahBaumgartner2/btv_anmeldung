@@ -213,13 +213,35 @@
     </div>
     <div class="p-6">
       <% if Trainer.any? %>
-        <p class="text-sm text-gray-500 mb-4">Wähle aus, welche Trainer diesen Kurs in ihrem Dashboard sehen und verwalten dürfen.</p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <%= form.collection_check_boxes(:trainer_ids, Trainer.includes(:user).all, :id, ->(t) { t.user.email }) do |b| %>
-            <label class="flex items-center gap-3 bg-gray-50 hover:bg-primary-50 border border-gray-200 hover:border-primary-300 px-4 py-3 rounded-lg transition cursor-pointer min-h-11">
-              <%= b.check_box class: "h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 shrink-0 cursor-pointer" %>
-              <span class="text-sm font-medium text-gray-700 truncate"><%= b.text %></span>
-            </label>
+        <p class="text-sm text-gray-500 mb-4">Wähle aus, welche Trainer diesen Kurs verwalten dürfen, und ob sie Kinder manuell anmelden dürfen.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" data-controller="trainer-permission">
+          <% Trainer.includes(:user).order("users.email").each do |trainer| %>
+            <%
+              course_trainer = course.course_trainers.find { |ct| ct.trainer_id == trainer.id }
+              is_assigned    = course_trainer.present?
+              can_enroll     = course_trainer&.can_manually_enroll? || false
+            %>
+            <div class="border border-gray-200 rounded-xl p-4 bg-gray-50">
+              <label class="flex items-center gap-3 cursor-pointer mb-3">
+                <%= check_box_tag "course[trainer_ids][]",
+                      trainer.id,
+                      is_assigned,
+                      id: "trainer_#{trainer.id}",
+                      class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0",
+                      data: { action: "change->trainer-permission#togglePermission",
+                              "trainer-id": trainer.id } %>
+                <span class="text-sm font-semibold text-gray-800 truncate"><%= trainer.user.email %></span>
+              </label>
+              <div id="trainer-perms-<%= trainer.id %>" class="<%= is_assigned ? '' : 'hidden' %> ml-8">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <%= check_box_tag "course[trainer_permissions][#{trainer.id}][can_manually_enroll]",
+                        "1",
+                        can_enroll,
+                        class: "h-4 w-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer" %>
+                  <span class="text-xs font-medium text-gray-600">Darf Kinder manuell zum Kurs hinzufügen</span>
+                </label>
+              </div>
+            </div>
           <% end %>
         </div>
       <% else %>
