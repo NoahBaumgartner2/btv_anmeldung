@@ -131,7 +131,13 @@
 
       <%# ── Mobile: Card-Layout ────────────────────────────────────────── %>
       <div class="sm:hidden divide-y divide-gray-100">
-        <% @course.course_registrations.includes(:participant).order(status: :asc).each do |reg| %>
+        <% @course.course_registrations
+             .includes(:participant)
+             .order(id: :desc)
+             .to_a
+             .uniq(&:participant_id)
+             .sort_by { |r| [r.status == "storniert" ? 1 : 0, r.participant&.last_name.to_s] }
+             .each do |reg| %>
           <% p = reg.participant %>
           <div class="p-4">
             <%# Name + Status %>
@@ -377,7 +383,13 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 bg-white">
-          <% @course.course_registrations.includes(:participant).order(status: :asc).each do |reg| %>
+          <% @course.course_registrations
+               .includes(:participant)
+               .order(id: :desc)
+               .to_a
+               .uniq(&:participant_id)
+               .sort_by { |r| [r.status == "storniert" ? 1 : 0, r.participant&.last_name.to_s] }
+               .each do |reg| %>
             <% p = reg.participant %>
             <tr class="hover:bg-gray-50 transition">
               <td class="py-4 px-6 text-sm">
