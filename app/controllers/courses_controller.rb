@@ -51,8 +51,39 @@ class CoursesController < ApplicationController
     respond_to do |format|
       p = course_params
       p[:registration_type] = derive_registration_type(p[:registration_mode])
+
+      old_start_hour   = @course.default_start_hour
+      old_start_minute = @course.default_start_minute
+      old_end_hour     = @course.default_end_hour
+      old_end_minute   = @course.default_end_minute
+
       if @course.update(p)
         provision_new_trainer(@course)
+
+        time_changed = old_start_hour   != @course.default_start_hour   ||
+                       old_start_minute != @course.default_start_minute ||
+                       old_end_hour     != @course.default_end_hour     ||
+                       old_end_minute   != @course.default_end_minute
+
+        if time_changed && @course.default_start_hour.present?
+          @course.training_sessions
+                 .where("start_time > ?", Time.current)
+                 .where(is_canceled: false)
+                 .find_each do |session|
+            new_start = session.start_time.change(
+              hour: @course.default_start_hour,
+              min:  @course.default_start_minute.to_i
+            )
+            new_end = if @course.default_end_hour.present?
+              session.end_time&.change(
+                hour: @course.default_end_hour,
+                min:  @course.default_end_minute.to_i
+              )
+            end
+            session.update_columns(start_time: new_start, end_time: new_end)
+          end
+        end
+
         format.html { redirect_to manage_course_path(@course), notice: "Kurs wurde erfolgreich aktualisiert.", status: :see_other }
         format.json { render :show, status: :ok, location: @course }
       else
