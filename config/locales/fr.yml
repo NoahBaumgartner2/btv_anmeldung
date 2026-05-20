@@ -161,7 +161,7 @@ fr:
       type_default: "Cours"
       select_date: "Choisir une date"
       join_waitlist: "Rejoindre la liste d'attente"
-      register_now: "S'inscrire maintenant"
+      register_now: "Réserver ma place"
       details_title: "Détails du cours"
       description: "Description"
       no_description: "Aucune description disponible pour ce cours."

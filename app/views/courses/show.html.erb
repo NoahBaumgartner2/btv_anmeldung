@@ -86,8 +86,8 @@
         <% if show_semester_trial_button %>
           <%= link_to new_course_registration_path(course_id: @course.id, trial: "true"),
                 class: "text-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition" do %>
-            Jetzt schnuppern
-            <span class="block text-xs font-normal opacity-80">Kostenlos · 7 Tage gesichert</span>
+            Erstes Training schnuppern
+            <span class="block text-xs font-normal opacity-80">Kostenlos · unverbindlich</span>
           <% end %>
         <% end %>
       <% end %>
@@ -156,8 +156,8 @@
                       <% if show_trial_button %>
                         <%= link_to new_course_registration_path(course_id: @course.id, training_session_id: session.id, trial: "true"),
                               class: "block w-full sm:w-auto bg-amber-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-amber-600 transition text-sm text-center shadow-sm whitespace-nowrap" do %>
-                          Jetzt schnuppern
-                          <span class="block text-xs font-normal opacity-80">Kostenlos · 7 Tage</span>
+                          Erstes Training schnuppern
+                          <span class="block text-xs font-normal opacity-80">Kostenlos · unverbindlich</span>
                         <% end %>
                       <% end %>
                     </div>

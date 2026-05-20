@@ -161,7 +161,7 @@ en:
       type_default: "Course"
       select_date: "Select a date"
       join_waitlist: "Join waitlist"
-      register_now: "Register now"
+      register_now: "Secure spot now"
       details_title: "Course details"
       description: "Description"
       no_description: "No description available for this course."

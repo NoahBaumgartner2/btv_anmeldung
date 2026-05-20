@@ -200,7 +200,7 @@ de:
       type_default: "Kurs"
       select_date: "Termin auswählen"
       join_waitlist: "Auf die Warteliste"
-      register_now: "Jetzt anmelden"
+      register_now: "Jetzt Platz sichern"
       details_title: "Details zum Kurs"
       description: "Beschreibung"
       no_description: "Für diesen Kurs ist keine weitere Beschreibung verfügbar."
