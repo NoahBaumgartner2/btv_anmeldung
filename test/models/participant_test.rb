@@ -83,4 +83,31 @@ class ParticipantTest < ActiveSupport::TestCase
 
     assert_not @participant.ever_trialed_in_category?("pro_training")
   end
+
+  # ── schnupper_eligible_for_category? ──────────────────────────────────────
+
+  test "schnupper_eligible_for_category? returns true when no registrations exist" do
+    assert @participant.schnupper_eligible_for_category?("semester")
+  end
+
+  test "schnupper_eligible_for_category? returns false when already trialed" do
+    reg = CourseRegistration.new(course: @course, participant: @participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+    assert_not @participant.schnupper_eligible_for_category?("semester")
+  end
+
+  test "schnupper_eligible_for_category? returns false when already confirmed in same category" do
+    reg = CourseRegistration.new(course: @course, participant: @participant,
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+    assert_not @participant.schnupper_eligible_for_category?("semester")
+  end
+
+  test "schnupper_eligible_for_category? returns true when only cancelled registration exists" do
+    reg = CourseRegistration.new(course: @course, participant: @participant,
+      status: "storniert", payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+    assert @participant.schnupper_eligible_for_category?("semester")
+  end
 end

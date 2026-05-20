@@ -310,17 +310,7 @@ class CourseRegistrationsController < ApplicationController
       return render json: { eligible: false }
     end
 
-    return render json: { eligible: false } if participant.ever_trialed_in_category?(course.registration_type)
-
-    already_registered = CourseRegistration
-      .joins(:course)
-      .where(participant_id: participant.id)
-      .where(courses: { registration_type: course.registration_type })
-      .where.not(status: %w[storniert ausstehend])
-      .exists?
-    return render json: { eligible: false } if already_registered
-
-    render json: { eligible: true }
+    render json: { eligible: participant.schnupper_eligible_for_category?(course.registration_type) }
   end
 
   def scan

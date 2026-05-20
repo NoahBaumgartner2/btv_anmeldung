@@ -77,6 +77,16 @@ class Participant < ApplicationRecord
       .exists?
   end
 
+  def schnupper_eligible_for_category?(registration_type)
+    return false if ever_trialed_in_category?(registration_type)
+
+    course_registrations
+      .joins(:course)
+      .where(courses: { registration_type: registration_type })
+      .where.not(status: %w[storniert ausstehend])
+      .none?
+  end
+
   # Gibt fehlende Pflichtfelder für einen bestimmten Kurs zurück (als Symbole)
   def missing_fields_for(course)
     course.required_participant_fields.select { |field| self[field].blank? }
