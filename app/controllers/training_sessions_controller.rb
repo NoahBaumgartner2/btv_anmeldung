@@ -30,7 +30,10 @@ class TrainingSessionsController < ApplicationController
   def show
     @registrations = @training_session.course.course_registrations
       .includes(:participant)
-      .where(status: "bestätigt")
+      .where(status: %w[bestätigt schnuppern])
+      .order(id: :desc)
+      .to_a
+      .uniq(&:participant_id)
     @attendances_by_reg_id = @training_session.attendances.index_by(&:course_registration_id)
   end
 
