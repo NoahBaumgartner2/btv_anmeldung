@@ -5,8 +5,9 @@ class ParticipantTest < ActiveSupport::TestCase
     @participant = participants(:one)
     @course = Course.new(
       title: "Schnupper-Kurs",
-      registration_type: "semester",
-      registration_mode: "semester",
+      category: "Kids Gym",
+      registration_type: "Kids Gym",
+      registration_mode: "Kids Gym",
       has_payment: false,
       has_ticketing: false,
       allows_holiday_deduction: false
@@ -15,7 +16,7 @@ class ParticipantTest < ActiveSupport::TestCase
   end
 
   test "has_trialed_in_category? returns false when no trial registration exists" do
-    assert_not @participant.has_trialed_in_category?("semester")
+    assert_not @participant.has_trialed_in_category?("Kids Gym")
   end
 
   test "has_trialed_in_category? returns true when active trial exists within 7 days" do
@@ -25,7 +26,7 @@ class ParticipantTest < ActiveSupport::TestCase
     )
     reg.save!(validate: false)
 
-    assert @participant.has_trialed_in_category?("semester")
+    assert @participant.has_trialed_in_category?("Kids Gym")
   end
 
   test "has_trialed_in_category? returns false for different registration_type" do
@@ -35,7 +36,7 @@ class ParticipantTest < ActiveSupport::TestCase
     )
     reg.save!(validate: false)
 
-    assert_not @participant.has_trialed_in_category?("pro_training")
+    assert_not @participant.has_trialed_in_category?("Krabbel Gym")
   end
 
   test "has_trialed_in_category? returns false when trial is older than 7 days" do
@@ -46,11 +47,11 @@ class ParticipantTest < ActiveSupport::TestCase
     reg.save!(validate: false)
     reg.update_column(:created_at, 8.days.ago)
 
-    assert_not @participant.has_trialed_in_category?("semester")
+    assert_not @participant.has_trialed_in_category?("Kids Gym")
   end
 
   test "ever_trialed_in_category? returns false when no trial exists" do
-    assert_not @participant.ever_trialed_in_category?("semester")
+    assert_not @participant.ever_trialed_in_category?("Kids Gym")
   end
 
   test "ever_trialed_in_category? returns true for active trial" do
@@ -60,7 +61,7 @@ class ParticipantTest < ActiveSupport::TestCase
     )
     reg.save!(validate: false)
 
-    assert @participant.ever_trialed_in_category?("semester")
+    assert @participant.ever_trialed_in_category?("Kids Gym")
   end
 
   test "ever_trialed_in_category? returns true even for expired trial" do
@@ -71,7 +72,7 @@ class ParticipantTest < ActiveSupport::TestCase
     reg.save!(validate: false)
     reg.update_column(:created_at, 30.days.ago)
 
-    assert @participant.ever_trialed_in_category?("semester")
+    assert @participant.ever_trialed_in_category?("Kids Gym")
   end
 
   test "ever_trialed_in_category? returns false for different category" do
@@ -81,34 +82,34 @@ class ParticipantTest < ActiveSupport::TestCase
     )
     reg.save!(validate: false)
 
-    assert_not @participant.ever_trialed_in_category?("pro_training")
+    assert_not @participant.ever_trialed_in_category?("Krabbel Gym")
   end
 
   # ── schnupper_eligible_for_category? ──────────────────────────────────────
 
   test "schnupper_eligible_for_category? returns true when no registrations exist" do
-    assert @participant.schnupper_eligible_for_category?("semester")
+    assert @participant.schnupper_eligible_for_category?("Kids Gym")
   end
 
   test "schnupper_eligible_for_category? returns false when already trialed" do
     reg = CourseRegistration.new(course: @course, participant: @participant,
       status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false)
     reg.save!(validate: false)
-    assert_not @participant.schnupper_eligible_for_category?("semester")
+    assert_not @participant.schnupper_eligible_for_category?("Kids Gym")
   end
 
   test "schnupper_eligible_for_category? returns false when already confirmed in same category" do
     reg = CourseRegistration.new(course: @course, participant: @participant,
       status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false)
     reg.save!(validate: false)
-    assert_not @participant.schnupper_eligible_for_category?("semester")
+    assert_not @participant.schnupper_eligible_for_category?("Kids Gym")
   end
 
   test "schnupper_eligible_for_category? returns true when only cancelled registration exists" do
     reg = CourseRegistration.new(course: @course, participant: @participant,
       status: "storniert", payment_cleared: false, holiday_deduction_claimed: false)
     reg.save!(validate: false)
-    assert @participant.schnupper_eligible_for_category?("semester")
+    assert @participant.schnupper_eligible_for_category?("Kids Gym")
   end
 
   # ── Identitäts-basierte Duplikat-Erkennung ────────────────────────────────
@@ -130,7 +131,7 @@ class ParticipantTest < ActiveSupport::TestCase
       status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
     ).tap { |r| r.save!(validate: false) }
 
-    assert subject.ever_trialed_in_category?("semester")
+    assert subject.ever_trialed_in_category?("Kids Gym")
   end
 
   test "ever_trialed_in_category? returns true when sibling with same name and DOB has trialed" do
@@ -150,7 +151,7 @@ class ParticipantTest < ActiveSupport::TestCase
       status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
     ).tap { |r| r.save!(validate: false) }
 
-    assert subject.ever_trialed_in_category?("semester")
+    assert subject.ever_trialed_in_category?("Kids Gym")
   end
 
   test "ever_trialed_in_category? returns false when sibling has same name but different DOB" do
@@ -170,7 +171,7 @@ class ParticipantTest < ActiveSupport::TestCase
       status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
     ).tap { |r| r.save!(validate: false) }
 
-    assert_not subject.ever_trialed_in_category?("semester")
+    assert_not subject.ever_trialed_in_category?("Kids Gym")
   end
 
   test "ever_trialed_in_category? returns false when other participant has different AHV" do
@@ -190,6 +191,6 @@ class ParticipantTest < ActiveSupport::TestCase
       status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
     ).tap { |r| r.save!(validate: false) }
 
-    assert_not subject.ever_trialed_in_category?("semester")
+    assert_not subject.ever_trialed_in_category?("Kids Gym")
   end
 end

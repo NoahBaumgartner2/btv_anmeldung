@@ -104,7 +104,7 @@ class CourseRegistrationsController < ApplicationController
         return render :new, status: :unprocessable_entity
       end
 
-      if participant.ever_trialed_in_category?(course.registration_type)
+      if participant.ever_trialed_in_category?(course.category)
         @course_registration.errors.add(:base, "#{participant.first_name} hat in dieser Trainingskategorie bereits geschnuppert.")
         setup_new_form(course)
         return render :new, status: :unprocessable_entity
@@ -320,7 +320,7 @@ class CourseRegistrationsController < ApplicationController
       return render json: { eligible: false }
     end
 
-    render json: { eligible: participant.schnupper_eligible_for_category?(course.registration_type) }
+    render json: { eligible: participant.schnupper_eligible_for_category?(course.category) }
   end
 
   def scan

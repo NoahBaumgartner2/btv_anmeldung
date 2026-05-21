@@ -60,35 +60,35 @@ class Participant < ApplicationRecord
             },
             allow_blank: true
 
-  def has_trialed_in_category?(registration_type)
+  def has_trialed_in_category?(category)
     sibling_ids = trial_sibling_ids
     CourseRegistration
       .joins(:course)
       .where(participant_id: sibling_ids)
       .where(status: "schnuppern")
-      .where(courses: { registration_type: registration_type })
+      .where(courses: { category: category })
       .where("course_registrations.created_at > ?", 7.days.ago)
       .exists?
   end
 
-  def ever_trialed_in_category?(registration_type)
+  def ever_trialed_in_category?(category)
     sibling_ids = trial_sibling_ids
     CourseRegistration
       .joins(:course)
       .where(participant_id: sibling_ids)
       .where(status: "schnuppern")
-      .where(courses: { registration_type: registration_type })
+      .where(courses: { category: category })
       .exists?
   end
 
-  def schnupper_eligible_for_category?(registration_type)
-    return false if ever_trialed_in_category?(registration_type)
+  def schnupper_eligible_for_category?(category)
+    return false if ever_trialed_in_category?(category)
 
     sibling_ids = trial_sibling_ids
     CourseRegistration
       .joins(:course)
       .where(participant_id: sibling_ids)
-      .where(courses: { registration_type: registration_type })
+      .where(courses: { category: category })
       .where.not(status: %w[storniert ausstehend])
       .none?
   end
