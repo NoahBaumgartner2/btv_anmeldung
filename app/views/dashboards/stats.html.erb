@@ -220,12 +220,12 @@
                   %>
                   <tr class="<%= session.is_canceled? ? "bg-orange-50" : is_past && !recorded ? "bg-red-50" : "hover:bg-gray-50" %> transition">
                     <td class="py-3 px-4 text-sm font-semibold text-gray-800">
-                      <%= session.start_time.strftime("%a, %-d. %b %Y") %>
+                      <%= session.start_time.in_time_zone.strftime("%a, %-d. %b %Y") %>
                     </td>
                     <td class="py-3 px-4 text-sm text-gray-600">
-                      <%= session.start_time.strftime("%H:%M") %>
+                      <%= session.start_time.in_time_zone.strftime("%H:%M") %>
                       <% if session.end_time %>
-                        – <%= session.end_time.strftime("%H:%M") %>
+                        – <%= session.end_time.in_time_zone.strftime("%H:%M") %>
                       <% end %>
                     </td>
                     <td class="py-3 px-4 text-sm">

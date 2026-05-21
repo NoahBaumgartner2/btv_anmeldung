@@ -27,11 +27,11 @@
       </h1>
       <p class="text-gray-500 text-sm sm:text-base mt-1 break-words">
         <% if @training_session.start_time %>
-          <%= @training_session.start_time.strftime("%-d. %B %Y") %>
+          <%= @training_session.start_time.in_time_zone.strftime("%-d. %B %Y") %>
           <% if @training_session.end_time %>
-            · <%= @training_session.start_time.strftime("%H:%M") %> – <%= @training_session.end_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
+            · <%= @training_session.start_time.in_time_zone.strftime("%H:%M") %> – <%= @training_session.end_time.in_time_zone.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
           <% else %>
-            · <%= @training_session.start_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
+            · <%= @training_session.start_time.in_time_zone.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
           <% end %>
         <% end %>
         <% if course.location.present? %>

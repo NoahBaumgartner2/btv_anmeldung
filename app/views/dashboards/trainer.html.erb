@@ -33,7 +33,7 @@
               <p class="font-bold text-lg">
                 <%= s.course.title %>
                 <span class="font-normal text-primary-200 text-base">
-                  · <%= s.start_time.strftime("%H:%M") %><% if s.end_time %> – <%= s.end_time.strftime("%H:%M") %><% end %> Uhr
+                  · <%= s.start_time.in_time_zone.strftime("%H:%M") %><% if s.end_time %> – <%= s.end_time.in_time_zone.strftime("%H:%M") %><% end %> Uhr
                 </span>
               </p>
             </div>
@@ -58,7 +58,7 @@
         <p class="font-bold text-gray-900">
           <%= @next_session.course.title %>
           <span class="font-normal text-gray-500">
-            · <%= @next_session.start_time.strftime("%-d. %B, %H:%M") %><% if @next_session.end_time %> – <%= @next_session.end_time.strftime("%H:%M") %><% end %> Uhr
+            · <%= @next_session.start_time.in_time_zone.strftime("%-d. %B, %H:%M") %><% if @next_session.end_time %> – <%= @next_session.end_time.in_time_zone.strftime("%H:%M") %><% end %> Uhr
           </span>
         </p>
         <% if @next_session.course.location.present? %>
@@ -117,9 +117,9 @@
             <% if next_s %>
               <p class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-1"><%= t("dashboards.trainer.course.next_session") %></p>
               <p class="text-sm font-semibold text-gray-800">
-                <%= next_s.start_time.strftime("%-d. %B %Y") %>
+                <%= next_s.start_time.in_time_zone.strftime("%-d. %B %Y") %>
                 <span class="text-gray-400 font-normal">
-                  · <%= next_s.start_time.strftime("%H:%M") %><% if next_s.end_time %> – <%= next_s.end_time.strftime("%H:%M") %><% end %> Uhr
+                  · <%= next_s.start_time.in_time_zone.strftime("%H:%M") %><% if next_s.end_time %> – <%= next_s.end_time.in_time_zone.strftime("%H:%M") %><% end %> Uhr
                 </span>
               </p>
             <% elsif has_dates %>

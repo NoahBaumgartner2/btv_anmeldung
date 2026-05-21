@@ -126,7 +126,7 @@
                               <% is_unsubscribed = @unsubscribed_pairs.include?([reg.id, session.id]) %>
                               <% can_unsubscribe = !is_unsubscribed && session.start_time > 1.hour.from_now %>
                               <li class="flex items-center justify-between gap-2 text-sm">
-                                <span class="text-gray-700 font-medium"><%= session.start_time.strftime("%-d. %b, %H:%M") %> <%= t("misc.time_suffix") %></span>
+                                <span class="text-gray-700 font-medium"><%= session.start_time.in_time_zone.strftime("%-d. %b, %H:%M") %> <%= t("misc.time_suffix") %></span>
                                 <% if is_unsubscribed %>
                                 <% can_resubscribe = session.start_time > Time.current %>
                                 <% if can_resubscribe %>
@@ -315,7 +315,7 @@
                         <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
                           <div class="shrink-0 w-2 h-2 rounded-full <%= is_past || is_storniert ? 'bg-gray-300' : 'bg-blue-400' %>"></div>
                           <span class="text-sm font-medium text-gray-800 truncate <%= is_storniert ? 'line-through' : '' %>">
-                            <%= session.start_time.strftime("%-d. %b %Y, %H:%M") %> <%= t("misc.time_suffix") %>
+                            <%= session.start_time.in_time_zone.strftime("%-d. %b %Y, %H:%M") %> <%= t("misc.time_suffix") %>
                           </span>
                         </div>
                         <div class="shrink-0">
@@ -381,8 +381,8 @@
                             </div>
                           </div>
                           <div class="min-w-0">
-                            <p class="text-sm font-bold text-gray-800"><%= next_reg.training_session.start_time.strftime("%-d. %B %Y") %></p>
-                            <p class="text-xs text-gray-500"><%= next_reg.training_session.start_time.strftime("%H:%M") %> &ndash; <%= next_reg.training_session.end_time&.strftime("%H:%M") %> <%= t("misc.time_suffix") %></p>
+                            <p class="text-sm font-bold text-gray-800"><%= next_reg.training_session.start_time.in_time_zone.strftime("%-d. %B %Y") %></p>
+                            <p class="text-xs text-gray-500"><%= next_reg.training_session.start_time.in_time_zone.strftime("%H:%M") %> &ndash; <%= next_reg.training_session.end_time&.in_time_zone&.strftime("%H:%M") %> <%= t("misc.time_suffix") %></p>
                             <button class="mt-1.5 text-xs text-purple-600 font-bold hover:underline min-h-11 flex items-center"
                                     data-action="click->modal#open"><%= t("participants.index.enlarge") %></button>
                           </div>
@@ -395,7 +395,7 @@
                         <div class="bg-white p-6 sm:p-8 rounded-2xl sm:rounded-3xl shadow-2xl max-w-sm w-full flex flex-col items-center">
                           <h3 class="text-xl sm:text-2xl font-black text-gray-900 mb-1"><%= t("participants.index.ticket_modal_title", name: participant.first_name) %></h3>
                           <p class="text-gray-500 mb-1 text-center font-medium text-sm sm:text-base"><%= course.title %></p>
-                          <p class="text-sm text-gray-400 mb-6 sm:mb-8 text-center"><%= next_reg.training_session.start_time.strftime("%-d. %B %Y, %H:%M") %> <%= t("misc.time_suffix") %></p>
+                          <p class="text-sm text-gray-400 mb-6 sm:mb-8 text-center"><%= next_reg.training_session.start_time.in_time_zone.strftime("%-d. %B %Y, %H:%M") %> <%= t("misc.time_suffix") %></p>
                           <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-6 sm:mb-8 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
                             <%= generate_qr_code(scan_course_registration_url(next_reg)) %>
                           </div>
