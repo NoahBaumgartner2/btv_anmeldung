@@ -117,7 +117,7 @@
                       <p class="text-xs font-bold text-primary-600 mb-3 sm:mb-4 uppercase tracking-wide"><%= course.registration_type_label %></p>
 
                       <%# ── Nächste Trainings ─────────────────────────── %>
-                      <% upcoming_sessions = @upcoming_by_course[course.id] || [] %>
+                      <% upcoming_sessions = (@upcoming_by_course[course.id] || []).first(reg.trial? ? 1 : 3) %>
                       <% if %w[bestätigt schnuppern].include?(reg.status) && upcoming_sessions.any? %>
                         <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-100">
                           <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 sm:mb-3"><%= t("participants.index.upcoming_trainings") %></p>

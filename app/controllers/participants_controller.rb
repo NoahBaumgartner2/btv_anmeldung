@@ -24,18 +24,13 @@ class ParticipantsController < ApplicationController
     semester_course_ids = semester_active.map(&:course_id).uniq
     semester_reg_ids    = semester_active.map(&:id)
 
-    limit_by_course = semester_active.each_with_object({}) do |r, h|
-      h[r.course_id] = r.status == "bestätigt" ? 3 : (h[r.course_id] || 1)
-    end
-
     upcoming = TrainingSession
       .where(course_id: semester_course_ids, is_canceled: false)
       .where("start_time > ?", Time.current)
       .order(:start_time)
 
     @upcoming_by_course = upcoming.each_with_object(Hash.new { |h, k| h[k] = [] }) do |session, hash|
-      limit = limit_by_course[session.course_id] || 1
-      hash[session.course_id] << session if hash[session.course_id].size < limit
+      hash[session.course_id] << session if hash[session.course_id].size < 3
     end
 
     @unsubscribed_pairs = Attendance
