@@ -16,13 +16,17 @@ class ParticipantsController < ApplicationController
     # haben ihre Session direkt auf der CourseRegistration via training_session_id;
     # abgeschlossene/stornierte Kurse brauchen keine upcoming sessions)
     today = Date.today
-    semester_confirmed = all_regs.select { |r|
-      r.status == "bestätigt" &&
+    semester_active = all_regs.select { |r|
+      %w[bestätigt schnuppern].include?(r.status) &&
       r.course.registration_mode != "single_session" &&
       (r.course.end_date.nil? || r.course.end_date >= today)
     }
-    semester_course_ids = semester_confirmed.map(&:course_id).uniq
-    semester_reg_ids    = semester_confirmed.map(&:id)
+    semester_course_ids = semester_active.map(&:course_id).uniq
+    semester_reg_ids    = semester_active.map(&:id)
+
+    limit_by_course = semester_active.each_with_object({}) do |r, h|
+      h[r.course_id] = r.status == "bestätigt" ? 3 : (h[r.course_id] || 1)
+    end
 
     upcoming = TrainingSession
       .where(course_id: semester_course_ids, is_canceled: false)
@@ -30,7 +34,8 @@ class ParticipantsController < ApplicationController
       .order(:start_time)
 
     @upcoming_by_course = upcoming.each_with_object(Hash.new { |h, k| h[k] = [] }) do |session, hash|
-      hash[session.course_id] << session if hash[session.course_id].size < 3
+      limit = limit_by_course[session.course_id] || 1
+      hash[session.course_id] << session if hash[session.course_id].size < limit
     end
 
     @unsubscribed_pairs = Attendance
