@@ -33,7 +33,13 @@ class CourseRegistrationsController < ApplicationController
       end
       @course_registration.course_id = @course&.id
       # Nur Kurse der gleichen Kategorie anzeigen
-      @selectable_courses = @course ? Course.where(registration_type: @course.registration_type).order(:title) : Course.order(:title)
+      @selectable_courses = if @course&.category.present?
+        Course.where(category: @course.category).order(:title)
+      elsif @course
+        Course.where(registration_type: @course.registration_type).order(:title)
+      else
+        Course.order(:title)
+      end
     else
       @selectable_courses = Course.order(:title)
     end
@@ -163,7 +169,11 @@ class CourseRegistrationsController < ApplicationController
   # NEU: Das Formular zum Bearbeiten laden
   def edit
     course = @course_registration.course
-    @selectable_courses = Course.where(registration_type: course.registration_type).order(:title)
+    @selectable_courses = if course.category.present?
+      Course.where(category: course.category).order(:title)
+    else
+      Course.where(registration_type: course.registration_type).order(:title)
+    end
     @my_participants = current_user.participants
     @course = course
   end
@@ -407,7 +417,13 @@ class CourseRegistrationsController < ApplicationController
   def setup_new_form(course = nil)
     @my_participants = current_user.participants
     @course = course || @course_registration.course
-    @selectable_courses = @course ? Course.where(registration_type: @course.registration_type).order(:title) : Course.order(:title)
+    @selectable_courses = if @course&.category.present?
+      Course.where(category: @course.category).order(:title)
+    elsif @course
+      Course.where(registration_type: @course.registration_type).order(:title)
+    else
+      Course.order(:title)
+    end
     @training_session ||= TrainingSession.find_by(id: @course_registration.training_session_id)
   end
 

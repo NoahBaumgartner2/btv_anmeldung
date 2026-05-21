@@ -1,1655 +1,1742 @@
+diff --git a/app/controllers/course_registrations_controller.rb b/app/controllers/course_registrations_controller.rb
+index 11f3bfd..0425e04 100644
+--- a/app/controllers/course_registrations_controller.rb
++++ b/app/controllers/course_registrations_controller.rb
+@@ -33,7 +33,13 @@ class CourseRegistrationsController < ApplicationController
+       end
+       @course_registration.course_id = @course&.id
+       # Nur Kurse der gleichen Kategorie anzeigen
+-      @selectable_courses = @course ? Course.where(registration_type: @course.registration_type).order(:title) : Course.order(:title)
++      @selectable_courses = if @course&.category.present?
++        Course.where(category: @course.category).order(:title)
++      elsif @course
++        Course.where(registration_type: @course.registration_type).order(:title)
++      else
++        Course.order(:title)
++      end
+     else
+       @selectable_courses = Course.order(:title)
+     end
+@@ -163,7 +169,11 @@ class CourseRegistrationsController < ApplicationController
+   # NEU: Das Formular zum Bearbeiten laden
+   def edit
+     course = @course_registration.course
+-    @selectable_courses = Course.where(registration_type: course.registration_type).order(:title)
++    @selectable_courses = if course.category.present?
++      Course.where(category: course.category).order(:title)
++    else
++      Course.where(registration_type: course.registration_type).order(:title)
++    end
+     @my_participants = current_user.participants
+     @course = course
+   end
+@@ -407,7 +417,13 @@ class CourseRegistrationsController < ApplicationController
+   def setup_new_form(course = nil)
+     @my_participants = current_user.participants
+     @course = course || @course_registration.course
+-    @selectable_courses = @course ? Course.where(registration_type: @course.registration_type).order(:title) : Course.order(:title)
++    @selectable_courses = if @course&.category.present?
++      Course.where(category: @course.category).order(:title)
++    elsif @course
++      Course.where(registration_type: @course.registration_type).order(:title)
++    else
++      Course.order(:title)
++    end
+     @training_session ||= TrainingSession.find_by(id: @course_registration.training_session_id)
+   end
+ 
+diff --git a/app/views/courses/_form.html.erb b/app/views/courses/_form.html.erb
+index 4af35f5..6b3c034 100644
+--- a/app/views/courses/_form.html.erb
++++ b/app/views/courses/_form.html.erb
+@@ -396,7 +396,7 @@
+               class: "h-5 w-5 mt-0.5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+         <div>
+           <%= form.label :allows_trial, "Schnuppern erlauben", class: "text-sm font-medium text-gray-800 cursor-pointer block" %>
+-          <p class="text-xs text-gray-400 mt-0.5">Familien sehen einen zusätzlichen "Jetzt schnuppern"-Button, wenn sie noch nie in dieser Kategorie geschnuppert haben.</p>
++          <p class="text-xs text-gray-400 mt-0.5">Familien sehen einen "Jetzt schnuppern"-Button, wenn sie noch nie in dieser Kategorie geschnuppert haben. Identifikation via AHV-Nummer (falls vorhanden) oder Vorname, Nachname &amp; Geburtsdatum.</p>
+         </div>
+       </div>
+     </div>
 diff --git a/changes.diff b/changes.diff
-index 728099b..e69de29 100644
+index 6677d4e..e69de29 100644
 --- a/changes.diff
 +++ b/changes.diff
-@@ -1,1650 +0,0 @@
--diff --git a/app/controllers/payments_controller.rb b/app/controllers/payments_controller.rb
--index 8e24cbf..1f88fde 100644
----- a/app/controllers/payments_controller.rb
--+++ b/app/controllers/payments_controller.rb
--@@ -58,7 +58,7 @@ class PaymentsController < ApplicationController
--       checkout_reference: "reg-#{@registration.id}-#{Time.current.to_i}",
--       merchant_code:      ::SumupConfig.merchant_code,
--       description:        "#{course.title} – #{@registration.participant.first_name} #{@registration.participant.last_name}",
---      redirect_url:       payments_success_url,
--+      redirect_url:       payments_success_url(registration_id: @registration.id),
--       hosted_checkout:    { enabled: true }
--     }
-- 
--@@ -106,41 +106,44 @@ class PaymentsController < ApplicationController
-- 
--   def success
--     checkout_id = params[:checkout_id]
--+    registration_id = params[:registration_id]
-- 
---    unless checkout_id.present?
---      return redirect_to root_path, alert: "Zahlung nicht gefunden."
--+    @registration = if checkout_id.present?
--+      CourseRegistration.find_by(sumup_checkout_id: checkout_id)
--+    elsif registration_id.present?
--+      CourseRegistration.find(registration_id) rescue nil
--     end
-- 
---    @registration = CourseRegistration.find_by(sumup_checkout_id: checkout_id)
---
--     unless @registration
--       return redirect_to root_path, alert: "Zahlung nicht gefunden."
--     end
-- 
--     unless @registration.payment_cleared?
---      response = PaymentSyncService.fetch_checkout(checkout_id)
---
---      if response.is_a?(Net::HTTPSuccess)
---        checkout = JSON.parse(response.body)
---
---        if checkout["status"] == "PAID"
---          transaction_id = checkout.dig("transactions", 0, "id")
---          PaymentSyncService.mark_paid!(@registration, transaction_id: transaction_id, checkout_id: checkout_id)
--+      if checkout_id.present?
--+        response = PaymentSyncService.fetch_checkout(checkout_id)
--+        if response.is_a?(Net::HTTPSuccess)
--+          checkout = JSON.parse(response.body)
--+          if checkout["status"] == "PAID"
--+            transaction_id = checkout.dig("transactions", 0, "id")
--+            PaymentSyncService.mark_paid!(@registration, transaction_id: transaction_id, checkout_id: checkout_id)
--+          end
--+        else
--+          Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
--         end
--       else
---        Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
--+        Rails.logger.warn "[SumUp] success ohne checkout_id aufgerufen für registration #{@registration.id}"
--       end
--     end
-- 
---    redirect_to course_registration_path(@registration), notice: "Deine Zahlung wurde erfolgreich verarbeitet."
--+    redirect_to course_registration_path(@registration),
--+                notice: "Deine Zahlung wurde erfolgreich verarbeitet."
--   rescue StandardError => e
--     Rails.logger.error "[SumUp] success callback error: #{e.class}: #{e.message}"
--     if @registration
--       redirect_to course_registration_path(@registration),
---                  notice: "Deine Zahlung wird möglicherweise noch verarbeitet. Bitte lade die Seite in einigen Minuten neu."
--+                  notice: "Deine Zahlung wird möglicherweise noch verarbeitet."
--     else
---      redirect_to root_path,
---                  alert: "Ein Fehler ist aufgetreten. Bitte kontaktiere uns falls deine Zahlung nicht verarbeitet wurde."
--+      redirect_to root_path, alert: "Ein Fehler ist aufgetreten."
--     end
--   end
-- 
+@@ -1,1655 +0,0 @@
 -diff --git a/changes.diff b/changes.diff
--index 5fdb153..e69de29 100644
+-index 728099b..e69de29 100644
 ---- a/changes.diff
 -+++ b/changes.diff
--@@ -1,1570 +0,0 @@
---diff --git a/app/controllers/admin/payment_settings_controller.rb b/app/controllers/admin/payment_settings_controller.rb
---index 56e5968..10bae5e 100644
------ a/app/controllers/admin/payment_settings_controller.rb
---+++ b/app/controllers/admin/payment_settings_controller.rb
---@@ -42,27 +42,13 @@ module Admin
---     end
--- 
---     def test_connection
----      # Fall 1: Client-ID + Secret vorhanden → Token-Fetch als Verbindungstest
----      if ::SumupConfig.client_id.present? && ::SumupConfig.client_secret.present?
----        new_token = ::SumupConfig.fetch_token!
----        if new_token.present?
----          redirect_to admin_payment_setting_path,
----                      notice: "Verbindung erfolgreich. Neuer Access Token wurde von SumUp ausgestellt und gespeichert."
----        else
----          redirect_to admin_payment_setting_path,
----                      alert: "Verbindung fehlgeschlagen. Client-ID oder Client-Secret ungültig – kein Token erhalten."
----        end
----        return
---+      unless ::SumupConfig.configured?
---+        return redirect_to admin_payment_setting_path,
---+                           alert: "Kein API Key konfiguriert."
---       end
--- 
----      # Fall 2: Nur manueller Access Token (kein Client-Secret) → nur prüfen ob vorhanden
----      if ::SumupConfig.access_token.present?
----        redirect_to admin_payment_setting_path,
----                    notice: "Access Token ist gesetzt. Ohne Client-ID/Secret kann die Verbindung nicht automatisch getestet werden."
----      else
----        redirect_to admin_payment_setting_path,
----                    alert: "Kein SumUp Access Token und keine Client-Credentials konfiguriert."
----      end
---+      redirect_to admin_payment_setting_path,
---+                  notice: "API Key ist gesetzt und bereit. Die Verbindung wird beim nächsten Checkout automatisch getestet."
---     end
--- 
---     private
---@@ -70,7 +56,6 @@ module Admin
---     def payment_setting_params
---       params.require(:payment_setting).permit(
---         :sumup_api_key, :sumup_access_token, :sumup_merchant_code,
----        :sumup_client_id, :sumup_client_secret,
---         :currency, :active
---       )
---     end
+-@@ -1,1650 +0,0 @@
 --diff --git a/app/controllers/payments_controller.rb b/app/controllers/payments_controller.rb
---index 5913aed..8e24cbf 100644
+--index 8e24cbf..1f88fde 100644
 ----- a/app/controllers/payments_controller.rb
 --+++ b/app/controllers/payments_controller.rb
---@@ -70,7 +70,7 @@ class PaymentsController < ApplicationController
+--@@ -58,7 +58,7 @@ class PaymentsController < ApplicationController
+--       checkout_reference: "reg-#{@registration.id}-#{Time.current.to_i}",
+--       merchant_code:      ::SumupConfig.merchant_code,
+--       description:        "#{course.title} – #{@registration.participant.first_name} #{@registration.participant.last_name}",
+---      redirect_url:       payments_success_url,
+--+      redirect_url:       payments_success_url(registration_id: @registration.id),
+--       hosted_checkout:    { enabled: true }
+--     }
 -- 
---     request = Net::HTTP::Post.new(uri.path, {
---       "Content-Type"  => "application/json",
----      "Authorization" => "Bearer #{::SumupConfig.valid_token}"
---+      "Authorization" => "Bearer #{::SumupConfig.access_token}"
---     })
---     request.body = body.to_json
+--@@ -106,41 +106,44 @@ class PaymentsController < ApplicationController
 -- 
---diff --git a/app/models/payment_setting.rb b/app/models/payment_setting.rb
---index c591b07..d72523a 100644
------ a/app/models/payment_setting.rb
---+++ b/app/models/payment_setting.rb
---@@ -27,39 +27,9 @@ class PaymentSetting < ApplicationRecord
---     sumup_access_token_encrypted.present?
+--   def success
+--     checkout_id = params[:checkout_id]
+--+    registration_id = params[:registration_id]
+-- 
+---    unless checkout_id.present?
+---      return redirect_to root_path, alert: "Zahlung nicht gefunden."
+--+    @registration = if checkout_id.present?
+--+      CourseRegistration.find_by(sumup_checkout_id: checkout_id)
+--+    elsif registration_id.present?
+--+      CourseRegistration.find(registration_id) rescue nil
+--     end
+-- 
+---    @registration = CourseRegistration.find_by(sumup_checkout_id: checkout_id)
+---
+--     unless @registration
+--       return redirect_to root_path, alert: "Zahlung nicht gefunden."
+--     end
+-- 
+--     unless @registration.payment_cleared?
+---      response = PaymentSyncService.fetch_checkout(checkout_id)
+---
+---      if response.is_a?(Net::HTTPSuccess)
+---        checkout = JSON.parse(response.body)
+---
+---        if checkout["status"] == "PAID"
+---          transaction_id = checkout.dig("transactions", 0, "id")
+---          PaymentSyncService.mark_paid!(@registration, transaction_id: transaction_id, checkout_id: checkout_id)
+--+      if checkout_id.present?
+--+        response = PaymentSyncService.fetch_checkout(checkout_id)
+--+        if response.is_a?(Net::HTTPSuccess)
+--+          checkout = JSON.parse(response.body)
+--+          if checkout["status"] == "PAID"
+--+            transaction_id = checkout.dig("transactions", 0, "id")
+--+            PaymentSyncService.mark_paid!(@registration, transaction_id: transaction_id, checkout_id: checkout_id)
+--+          end
+--+        else
+--+          Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
+--         end
+--       else
+---        Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
+--+        Rails.logger.warn "[SumUp] success ohne checkout_id aufgerufen für registration #{@registration.id}"
+--       end
+--     end
+-- 
+---    redirect_to course_registration_path(@registration), notice: "Deine Zahlung wurde erfolgreich verarbeitet."
+--+    redirect_to course_registration_path(@registration),
+--+                notice: "Deine Zahlung wurde erfolgreich verarbeitet."
+--   rescue StandardError => e
+--     Rails.logger.error "[SumUp] success callback error: #{e.class}: #{e.message}"
+--     if @registration
+--       redirect_to course_registration_path(@registration),
+---                  notice: "Deine Zahlung wird möglicherweise noch verarbeitet. Bitte lade die Seite in einigen Minuten neu."
+--+                  notice: "Deine Zahlung wird möglicherweise noch verarbeitet."
+--     else
+---      redirect_to root_path,
+---                  alert: "Ein Fehler ist aufgetreten. Bitte kontaktiere uns falls deine Zahlung nicht verarbeitet wurde."
+--+      redirect_to root_path, alert: "Ein Fehler ist aufgetreten."
+--     end
 --   end
--- 
----  # ── sumup_client_secret (encrypted) ────────────────────────────────────────
----  def sumup_client_secret=(value)
----    @sumup_client_secret = value
----    self.sumup_client_secret_encrypted = encryptor.encrypt_and_sign(value) if value.present?
----  end
----
----  def sumup_client_secret
----    return @sumup_client_secret if @sumup_client_secret
----    return nil if sumup_client_secret_encrypted.blank?
----
----    encryptor.decrypt_and_verify(sumup_client_secret_encrypted)
----  rescue ActiveSupport::MessageEncryptor::InvalidMessage,
----         ActiveSupport::MessageVerifier::InvalidSignature
----    nil
----  end
----
----  def sumup_client_secret_present?
----    sumup_client_secret_encrypted.present?
----  end
----
----  def sumup_token_expired?
----    return true if sumup_token_expires_at.nil?
----    Time.current >= sumup_token_expires_at - 5.minutes
----  end
----
---   # ── Convenience ────────────────────────────────────────────────────────────
---   def fully_configured?
----    merchant_code_present? &&
----      (sumup_access_token_present? || (sumup_client_id.present? && sumup_client_secret_present?))
----  end
----
----  def merchant_code_present?
----    sumup_merchant_code.present?
---+    sumup_access_token_present? && sumup_merchant_code.present?
---   end
--- 
---   def effective_currency
---diff --git a/app/views/admin/payment_settings/edit.html.erb b/app/views/admin/payment_settings/edit.html.erb
---index 5afafbf..19e8d27 100644
------ a/app/views/admin/payment_settings/edit.html.erb
---+++ b/app/views/admin/payment_settings/edit.html.erb
---@@ -82,48 +82,6 @@
---         </div>
---       </div>
--- 
----      <%# Client-ID (Klartext) %>
----      <div>
----        <%= f.label :sumup_client_id, "Client-ID", class: "block text-sm font-medium text-gray-700 mb-1" %>
----        <p class="text-xs text-gray-400 mb-1.5">
----          OAuth2 Client-ID aus dem SumUp Developer Portal. Wird für automatische Token-Erneuerung benötigt.
----        </p>
----        <%= f.text_field :sumup_client_id,
----              placeholder: "cc_classic_XXXXXXXX",
----              autocomplete: "off",
----              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
----      </div>
----
----      <%# Client-Secret (verschlüsselt) %>
----      <div>
----        <%= f.label :sumup_client_secret, "Client-Secret", class: "block text-sm font-medium text-gray-700 mb-1" %>
----        <p class="text-xs text-gray-400 mb-1.5">
----          OAuth2 Client-Secret. Leer lassen um bestehendes beizubehalten.
----          <% if @payment_setting.sumup_client_secret_present? %>
----            <span class="text-green-600 font-semibold">· Aktuell gesetzt</span>
----          <% end %>
----        </p>
----        <div class="relative" data-controller="password-toggle">
----          <%= f.password_field :sumup_client_secret,
----                placeholder: "cc_sk_classic_...",
----                autocomplete: "new-password",
----                data: { "password-toggle-target": "field" },
----                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
----          <button type="button"
----                  data-action="click->password-toggle#toggle"
----                  class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
----                  tabindex="-1">
----            <svg data-password-toggle-target="eyeShow" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
----              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
----              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
----            </svg>
----            <svg data-password-toggle-target="eyeHide" class="h-4 w-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
----              <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
----            </svg>
----          </button>
----        </div>
----      </div>
----
---       <%# Merchant Code (sichtbar) %>
---       <div>
---         <%= f.label :sumup_merchant_code, "Merchant Code", class: "block text-sm font-medium text-gray-700 mb-1" %>
---diff --git a/app/views/admin/payment_settings/show.html.erb b/app/views/admin/payment_settings/show.html.erb
---index 3934d4e..3677b14 100644
------ a/app/views/admin/payment_settings/show.html.erb
---+++ b/app/views/admin/payment_settings/show.html.erb
---@@ -74,18 +74,6 @@
---           <%= @payment_setting.sumup_merchant_code.presence || "—" %>
---         </dd>
---       </div>
----      <% if @payment_setting.sumup_client_id.present? %>
----        <div class="px-6 py-3.5 flex items-center justify-between text-sm">
----          <dt class="font-medium text-gray-500 w-48 shrink-0">Client-ID</dt>
----          <dd class="font-mono text-xs text-gray-700 truncate max-w-xs"><%= @payment_setting.sumup_client_id %></dd>
----        </div>
----        <div class="px-6 py-3.5 flex items-center justify-between text-sm">
----          <dt class="font-medium text-gray-500 w-48 shrink-0">Client-Secret</dt>
----          <dd class="text-xs text-gray-500">
----            <%= @payment_setting.sumup_client_secret_present? ? "· Gesetzt" : "Nicht gesetzt" %>
----          </dd>
----        </div>
----      <% end %>
---     </dl>
---   </div>
 -- 
 --diff --git a/changes.diff b/changes.diff
---index 3a3c782..5fad730 100644
+--index 5fdb153..e69de29 100644
 ----- a/changes.diff
 --+++ b/changes.diff
---@@ -1,1299 +0,0 @@
+--@@ -1,1570 +0,0 @@
+---diff --git a/app/controllers/admin/payment_settings_controller.rb b/app/controllers/admin/payment_settings_controller.rb
+---index 56e5968..10bae5e 100644
+------ a/app/controllers/admin/payment_settings_controller.rb
+---+++ b/app/controllers/admin/payment_settings_controller.rb
+---@@ -42,27 +42,13 @@ module Admin
+---     end
+--- 
+---     def test_connection
+----      # Fall 1: Client-ID + Secret vorhanden → Token-Fetch als Verbindungstest
+----      if ::SumupConfig.client_id.present? && ::SumupConfig.client_secret.present?
+----        new_token = ::SumupConfig.fetch_token!
+----        if new_token.present?
+----          redirect_to admin_payment_setting_path,
+----                      notice: "Verbindung erfolgreich. Neuer Access Token wurde von SumUp ausgestellt und gespeichert."
+----        else
+----          redirect_to admin_payment_setting_path,
+----                      alert: "Verbindung fehlgeschlagen. Client-ID oder Client-Secret ungültig – kein Token erhalten."
+----        end
+----        return
+---+      unless ::SumupConfig.configured?
+---+        return redirect_to admin_payment_setting_path,
+---+                           alert: "Kein API Key konfiguriert."
+---       end
+--- 
+----      # Fall 2: Nur manueller Access Token (kein Client-Secret) → nur prüfen ob vorhanden
+----      if ::SumupConfig.access_token.present?
+----        redirect_to admin_payment_setting_path,
+----                    notice: "Access Token ist gesetzt. Ohne Client-ID/Secret kann die Verbindung nicht automatisch getestet werden."
+----      else
+----        redirect_to admin_payment_setting_path,
+----                    alert: "Kein SumUp Access Token und keine Client-Credentials konfiguriert."
+----      end
+---+      redirect_to admin_payment_setting_path,
+---+                  notice: "API Key ist gesetzt und bereit. Die Verbindung wird beim nächsten Checkout automatisch getestet."
+---     end
+--- 
+---     private
+---@@ -70,7 +56,6 @@ module Admin
+---     def payment_setting_params
+---       params.require(:payment_setting).permit(
+---         :sumup_api_key, :sumup_access_token, :sumup_merchant_code,
+----        :sumup_client_id, :sumup_client_secret,
+---         :currency, :active
+---       )
+---     end
+---diff --git a/app/controllers/payments_controller.rb b/app/controllers/payments_controller.rb
+---index 5913aed..8e24cbf 100644
+------ a/app/controllers/payments_controller.rb
+---+++ b/app/controllers/payments_controller.rb
+---@@ -70,7 +70,7 @@ class PaymentsController < ApplicationController
+--- 
+---     request = Net::HTTP::Post.new(uri.path, {
+---       "Content-Type"  => "application/json",
+----      "Authorization" => "Bearer #{::SumupConfig.valid_token}"
+---+      "Authorization" => "Bearer #{::SumupConfig.access_token}"
+---     })
+---     request.body = body.to_json
+--- 
+---diff --git a/app/models/payment_setting.rb b/app/models/payment_setting.rb
+---index c591b07..d72523a 100644
+------ a/app/models/payment_setting.rb
+---+++ b/app/models/payment_setting.rb
+---@@ -27,39 +27,9 @@ class PaymentSetting < ApplicationRecord
+---     sumup_access_token_encrypted.present?
+---   end
+--- 
+----  # ── sumup_client_secret (encrypted) ────────────────────────────────────────
+----  def sumup_client_secret=(value)
+----    @sumup_client_secret = value
+----    self.sumup_client_secret_encrypted = encryptor.encrypt_and_sign(value) if value.present?
+----  end
+----
+----  def sumup_client_secret
+----    return @sumup_client_secret if @sumup_client_secret
+----    return nil if sumup_client_secret_encrypted.blank?
+----
+----    encryptor.decrypt_and_verify(sumup_client_secret_encrypted)
+----  rescue ActiveSupport::MessageEncryptor::InvalidMessage,
+----         ActiveSupport::MessageVerifier::InvalidSignature
+----    nil
+----  end
+----
+----  def sumup_client_secret_present?
+----    sumup_client_secret_encrypted.present?
+----  end
+----
+----  def sumup_token_expired?
+----    return true if sumup_token_expires_at.nil?
+----    Time.current >= sumup_token_expires_at - 5.minutes
+----  end
+----
+---   # ── Convenience ────────────────────────────────────────────────────────────
+---   def fully_configured?
+----    merchant_code_present? &&
+----      (sumup_access_token_present? || (sumup_client_id.present? && sumup_client_secret_present?))
+----  end
+----
+----  def merchant_code_present?
+----    sumup_merchant_code.present?
+---+    sumup_access_token_present? && sumup_merchant_code.present?
+---   end
+--- 
+---   def effective_currency
 ---diff --git a/app/views/admin/payment_settings/edit.html.erb b/app/views/admin/payment_settings/edit.html.erb
----index 6df485e..5afafbf 100644
+---index 5afafbf..19e8d27 100644
 ------ a/app/views/admin/payment_settings/edit.html.erb
 ---+++ b/app/views/admin/payment_settings/edit.html.erb
----@@ -52,28 +52,18 @@
----         <%= t('admin.payment_settings.edit.section_credentials') %>
----       </p>
+---@@ -82,48 +82,6 @@
+---         </div>
+---       </div>
 --- 
-----      <%# API Key (öffentlich, sichtbar) %>
----+      <%# API Key / Access Token (verschlüsselt) %>
----       <div>
-----        <%= f.label :sumup_api_key, "API Key", class: "block text-sm font-medium text-gray-700 mb-1" %>
-----        <p class="text-xs text-gray-400 mb-1.5">Beginnt mit <code class="bg-gray-100 px-1 rounded">sup_sk_</code></p>
-----        <%= f.text_field :sumup_api_key,
-----              placeholder: "sup_sk_...",
+----      <%# Client-ID (Klartext) %>
+----      <div>
+----        <%= f.label :sumup_client_id, "Client-ID", class: "block text-sm font-medium text-gray-700 mb-1" %>
+----        <p class="text-xs text-gray-400 mb-1.5">
+----          OAuth2 Client-ID aus dem SumUp Developer Portal. Wird für automatische Token-Erneuerung benötigt.
+----        </p>
+----        <%= f.text_field :sumup_client_id,
+----              placeholder: "cc_classic_XXXXXXXX",
 ----              autocomplete: "off",
 ----              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
 ----      </div>
 ----
-----      <%# Access Token (verschlüsselt) %>
+----      <%# Client-Secret (verschlüsselt) %>
 ----      <div>
-----        <%= f.label :sumup_access_token, "Access Token", class: "block text-sm font-medium text-gray-700 mb-1" %>
----+        <%= f.label :sumup_access_token, "API Key / Access Token", class: "block text-sm font-medium text-gray-700 mb-1" %>
----         <p class="text-xs text-gray-400 mb-1.5">
-----          OAuth-Access-Token für API-Aufrufe. Leer lassen, um den gespeicherten Token beizubehalten.
----+          SumUp API Key (beginnt mit <code class="bg-gray-100 px-1 rounded">sup_sk_</code>) aus dem SumUp Dashboard unter Settings → For Developers → API Keys. Leer lassen um den gespeicherten Wert beizubehalten.
----           <% if @payment_setting.sumup_access_token_present? %>
----             <span class="text-green-600 font-semibold"><%= t('admin.payment_settings.edit.token_set') %></span>
----           <% end %>
----         </p>
----         <div class="relative" data-controller="password-toggle">
----           <%= f.password_field :sumup_access_token,
-----                placeholder: "••••••••••••••••••••••••",
----+                placeholder: "sup_sk_...",
----                 autocomplete: "new-password",
----                 data: { "password-toggle-target": "field" },
----                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+----        <%= f.label :sumup_client_secret, "Client-Secret", class: "block text-sm font-medium text-gray-700 mb-1" %>
+----        <p class="text-xs text-gray-400 mb-1.5">
+----          OAuth2 Client-Secret. Leer lassen um bestehendes beizubehalten.
+----          <% if @payment_setting.sumup_client_secret_present? %>
+----            <span class="text-green-600 font-semibold">· Aktuell gesetzt</span>
+----          <% end %>
+----        </p>
+----        <div class="relative" data-controller="password-toggle">
+----          <%= f.password_field :sumup_client_secret,
+----                placeholder: "cc_sk_classic_...",
+----                autocomplete: "new-password",
+----                data: { "password-toggle-target": "field" },
+----                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+----          <button type="button"
+----                  data-action="click->password-toggle#toggle"
+----                  class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
+----                  tabindex="-1">
+----            <svg data-password-toggle-target="eyeShow" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+----              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+----              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+----            </svg>
+----            <svg data-password-toggle-target="eyeHide" class="h-4 w-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+----              <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+----            </svg>
+----          </button>
+----        </div>
+----      </div>
+----
+---       <%# Merchant Code (sichtbar) %>
+---       <div>
+---         <%= f.label :sumup_merchant_code, "Merchant Code", class: "block text-sm font-medium text-gray-700 mb-1" %>
 ---diff --git a/app/views/admin/payment_settings/show.html.erb b/app/views/admin/payment_settings/show.html.erb
----index c5178e7..3934d4e 100644
+---index 3934d4e..3677b14 100644
 ------ a/app/views/admin/payment_settings/show.html.erb
 ---+++ b/app/views/admin/payment_settings/show.html.erb
----@@ -63,13 +63,7 @@
----     </div>
----     <dl class="divide-y divide-gray-100">
----       <div class="px-6 py-3.5 flex items-center justify-between text-sm">
-----        <dt class="font-medium text-gray-500 w-48 shrink-0">API Key</dt>
-----        <dd class="font-mono text-xs text-gray-700 truncate max-w-xs">
-----          <%= @payment_setting.sumup_api_key.presence || "—" %>
-----        </dd>
-----      </div>
-----      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
-----        <dt class="font-medium text-gray-500 w-48 shrink-0">Access Token</dt>
----+        <dt class="font-medium text-gray-500 w-48 shrink-0">API Key / Access Token</dt>
----         <dd class="font-mono text-xs text-gray-600">
----           <%= @payment_setting.sumup_access_token_present? ? "••••••••••••••••••••••••" : "—" %>
+---@@ -74,18 +74,6 @@
+---           <%= @payment_setting.sumup_merchant_code.presence || "—" %>
 ---         </dd>
+---       </div>
+----      <% if @payment_setting.sumup_client_id.present? %>
+----        <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+----          <dt class="font-medium text-gray-500 w-48 shrink-0">Client-ID</dt>
+----          <dd class="font-mono text-xs text-gray-700 truncate max-w-xs"><%= @payment_setting.sumup_client_id %></dd>
+----        </div>
+----        <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+----          <dt class="font-medium text-gray-500 w-48 shrink-0">Client-Secret</dt>
+----          <dd class="text-xs text-gray-500">
+----            <%= @payment_setting.sumup_client_secret_present? ? "· Gesetzt" : "Nicht gesetzt" %>
+----          </dd>
+----        </div>
+----      <% end %>
+---     </dl>
+---   </div>
+--- 
 ---diff --git a/changes.diff b/changes.diff
----index e54c86d..e69de29 100644
+---index 3a3c782..5fad730 100644
 ------ a/changes.diff
 ---+++ b/changes.diff
----@@ -1,1238 +0,0 @@
-----diff --git a/app/controllers/admin/payment_settings_controller.rb b/app/controllers/admin/payment_settings_controller.rb
-----index 62d86eb..56e5968 100644
-------- a/app/controllers/admin/payment_settings_controller.rb
-----+++ b/app/controllers/admin/payment_settings_controller.rb
-----@@ -42,48 +42,27 @@ module Admin
-----     end
+---@@ -1,1299 +0,0 @@
+----diff --git a/app/views/admin/payment_settings/edit.html.erb b/app/views/admin/payment_settings/edit.html.erb
+----index 6df485e..5afafbf 100644
+------- a/app/views/admin/payment_settings/edit.html.erb
+----+++ b/app/views/admin/payment_settings/edit.html.erb
+----@@ -52,28 +52,18 @@
+----         <%= t('admin.payment_settings.edit.section_credentials') %>
+----       </p>
 ---- 
-----     def test_connection
------      unless ::SumupConfig.configured?
------        return redirect_to admin_payment_setting_path,
------                           alert: "Kein SumUp Access Token konfiguriert."
------      end
+-----      <%# API Key (öffentlich, sichtbar) %>
+----+      <%# API Key / Access Token (verschlüsselt) %>
+----       <div>
+-----        <%= f.label :sumup_api_key, "API Key", class: "block text-sm font-medium text-gray-700 mb-1" %>
+-----        <p class="text-xs text-gray-400 mb-1.5">Beginnt mit <code class="bg-gray-100 px-1 rounded">sup_sk_</code></p>
+-----        <%= f.text_field :sumup_api_key,
+-----              placeholder: "sup_sk_...",
+-----              autocomplete: "off",
+-----              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+-----      </div>
 -----
------      token = ::SumupConfig.valid_token
------      unless token.present?
------        return redirect_to admin_payment_setting_path,
------                           alert: "Token konnte nicht ermittelt werden. Client-ID und Client-Secret prüfen."
-----+      # Fall 1: Client-ID + Secret vorhanden → Token-Fetch als Verbindungstest
-----+      if ::SumupConfig.client_id.present? && ::SumupConfig.client_secret.present?
-----+        new_token = ::SumupConfig.fetch_token!
-----+        if new_token.present?
-----+          redirect_to admin_payment_setting_path,
-----+                      notice: "Verbindung erfolgreich. Neuer Access Token wurde von SumUp ausgestellt und gespeichert."
-----+        else
-----+          redirect_to admin_payment_setting_path,
-----+                      alert: "Verbindung fehlgeschlagen. Client-ID oder Client-Secret ungültig – kein Token erhalten."
-----+        end
-----+        return
-----       end
----- 
------      uri = URI("https://api.sumup.com/v0.1/me/merchant-profile")
------      http = Net::HTTP.new(uri.host, uri.port)
------      http.use_ssl = true
------      http.open_timeout = 5
------      http.read_timeout = 10
------
------      request = Net::HTTP::Get.new(uri.request_uri, {
------        "Authorization" => "Bearer #{token}",
------        "Accept"        => "application/json"
------      })
------      response = http.request(request)
------
------      Rails.logger.info "[SumupConfig] test_connection response: #{response.code} #{response.body.truncate(200)}"
------
------      case response.code.to_i
------      when 200, 201
------        redirect_to admin_payment_setting_path, notice: "Verbindung erfolgreich. SumUp API antwortet korrekt."
------      when 401
-----+      # Fall 2: Nur manueller Access Token (kein Client-Secret) → nur prüfen ob vorhanden
-----+      if ::SumupConfig.access_token.present?
-----         redirect_to admin_payment_setting_path,
------                    alert: "Token ungültig (401). Bitte Access Token neu setzen oder Client-ID/Secret prüfen."
------      when 403
------        redirect_to admin_payment_setting_path,
------                    alert: "Zugriff verweigert (403). Token-Scope unzureichend – bitte neuen Token via Client-Credentials holen."
-----+                    notice: "Access Token ist gesetzt. Ohne Client-ID/Secret kann die Verbindung nicht automatisch getestet werden."
-----       else
-----         redirect_to admin_payment_setting_path,
------                    alert: "SumUp API antwortete mit Status #{response.code}: #{response.body.truncate(100)}"
-----+                    alert: "Kein SumUp Access Token und keine Client-Credentials konfiguriert."
-----       end
------    rescue => e
------      Rails.logger.error "[Admin::PaymentSettings] test_connection Fehler: #{e.class}: #{e.message}"
------      redirect_to admin_payment_setting_path,
------                  alert: "Verbindungsfehler: #{e.message}"
-----     end
----- 
-----     private
+-----      <%# Access Token (verschlüsselt) %>
+-----      <div>
+-----        <%= f.label :sumup_access_token, "Access Token", class: "block text-sm font-medium text-gray-700 mb-1" %>
+----+        <%= f.label :sumup_access_token, "API Key / Access Token", class: "block text-sm font-medium text-gray-700 mb-1" %>
+----         <p class="text-xs text-gray-400 mb-1.5">
+-----          OAuth-Access-Token für API-Aufrufe. Leer lassen, um den gespeicherten Token beizubehalten.
+----+          SumUp API Key (beginnt mit <code class="bg-gray-100 px-1 rounded">sup_sk_</code>) aus dem SumUp Dashboard unter Settings → For Developers → API Keys. Leer lassen um den gespeicherten Wert beizubehalten.
+----           <% if @payment_setting.sumup_access_token_present? %>
+----             <span class="text-green-600 font-semibold"><%= t('admin.payment_settings.edit.token_set') %></span>
+----           <% end %>
+----         </p>
+----         <div class="relative" data-controller="password-toggle">
+----           <%= f.password_field :sumup_access_token,
+-----                placeholder: "••••••••••••••••••••••••",
+----+                placeholder: "sup_sk_...",
+----                 autocomplete: "new-password",
+----                 data: { "password-toggle-target": "field" },
+----                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+----diff --git a/app/views/admin/payment_settings/show.html.erb b/app/views/admin/payment_settings/show.html.erb
+----index c5178e7..3934d4e 100644
+------- a/app/views/admin/payment_settings/show.html.erb
+----+++ b/app/views/admin/payment_settings/show.html.erb
+----@@ -63,13 +63,7 @@
+----     </div>
+----     <dl class="divide-y divide-gray-100">
+----       <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+-----        <dt class="font-medium text-gray-500 w-48 shrink-0">API Key</dt>
+-----        <dd class="font-mono text-xs text-gray-700 truncate max-w-xs">
+-----          <%= @payment_setting.sumup_api_key.presence || "—" %>
+-----        </dd>
+-----      </div>
+-----      <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+-----        <dt class="font-medium text-gray-500 w-48 shrink-0">Access Token</dt>
+----+        <dt class="font-medium text-gray-500 w-48 shrink-0">API Key / Access Token</dt>
+----         <dd class="font-mono text-xs text-gray-600">
+----           <%= @payment_setting.sumup_access_token_present? ? "••••••••••••••••••••••••" : "—" %>
+----         </dd>
 ----diff --git a/changes.diff b/changes.diff
-----index 22a63b0..e69de29 100644
+----index e54c86d..e69de29 100644
 ------- a/changes.diff
 ----+++ b/changes.diff
-----@@ -1,1165 +0,0 @@
------diff --git a/app/models/payment_setting.rb b/app/models/payment_setting.rb
------index bb8daa6..43f2e21 100644
--------- a/app/models/payment_setting.rb
------+++ b/app/models/payment_setting.rb
------@@ -47,6 +47,11 @@ class PaymentSetting < ApplicationRecord
------     sumup_client_secret_encrypted.present?
------   end
+----@@ -1,1238 +0,0 @@
+-----diff --git a/app/controllers/admin/payment_settings_controller.rb b/app/controllers/admin/payment_settings_controller.rb
+-----index 62d86eb..56e5968 100644
+-------- a/app/controllers/admin/payment_settings_controller.rb
+-----+++ b/app/controllers/admin/payment_settings_controller.rb
+-----@@ -42,48 +42,27 @@ module Admin
+-----     end
 ----- 
------+  def sumup_token_expired?
------+    return true if sumup_token_expires_at.nil?
------+    Time.current >= sumup_token_expires_at - 5.minutes
------+  end
------+
------   # ── Convenience ────────────────────────────────────────────────────────────
------   def fully_configured?
------     sumup_api_key.present? &&
------diff --git a/app/services/waitlist_promotion_service.rb b/app/services/waitlist_promotion_service.rb
------index 2912b1f..f754a95 100644
--------- a/app/services/waitlist_promotion_service.rb
------+++ b/app/services/waitlist_promotion_service.rb
------@@ -14,12 +14,7 @@ class WaitlistPromotionService
------       return if course.max_participants.blank?
------ 
------       paid_course = course.has_payment? && course.price_cents.to_i > 0
+-----     def test_connection
+------      unless ::SumupConfig.configured?
+------        return redirect_to admin_payment_setting_path,
+------                           alert: "Kein SumUp Access Token konfiguriert."
+------      end
 ------
-------      # Bei kostenpflichtigen Kursen belegen "ausstehend"-Anmeldungen den Platz bereits –
-------      # sie werden erst durch mark_paid! auf "bestätigt" gesetzt. Ohne diese Statuses
-------      # würde der Service mehrere Wartelisten-Personen hochstufen, obwohl der Platz
-------      # durch noch nicht bezahlte Anmeldungen schon vergeben ist.
-------      occupied_statuses = paid_course ? %w[bestätigt ausstehend] : %w[bestätigt]
------+      occupied_statuses = %w[bestätigt]
+------      token = ::SumupConfig.valid_token
+------      unless token.present?
+------        return redirect_to admin_payment_setting_path,
+------                           alert: "Token konnte nicht ermittelt werden. Client-ID und Client-Secret prüfen."
+-----+      # Fall 1: Client-ID + Secret vorhanden → Token-Fetch als Verbindungstest
+-----+      if ::SumupConfig.client_id.present? && ::SumupConfig.client_secret.present?
+-----+        new_token = ::SumupConfig.fetch_token!
+-----+        if new_token.present?
+-----+          redirect_to admin_payment_setting_path,
+-----+                      notice: "Verbindung erfolgreich. Neuer Access Token wurde von SumUp ausgestellt und gespeichert."
+-----+        else
+-----+          redirect_to admin_payment_setting_path,
+-----+                      alert: "Verbindung fehlgeschlagen. Client-ID oder Client-Secret ungültig – kein Token erhalten."
+-----+        end
+-----+        return
+-----       end
 ----- 
------       confirmed_scope = course.course_registrations.where(status: occupied_statuses)
------       waitlist_scope  = course.course_registrations.where(status: "warteliste")
+------      uri = URI("https://api.sumup.com/v0.1/me/merchant-profile")
+------      http = Net::HTTP.new(uri.host, uri.port)
+------      http.use_ssl = true
+------      http.open_timeout = 5
+------      http.read_timeout = 10
+------
+------      request = Net::HTTP::Get.new(uri.request_uri, {
+------        "Authorization" => "Bearer #{token}",
+------        "Accept"        => "application/json"
+------      })
+------      response = http.request(request)
+------
+------      Rails.logger.info "[SumupConfig] test_connection response: #{response.code} #{response.body.truncate(200)}"
+------
+------      case response.code.to_i
+------      when 200, 201
+------        redirect_to admin_payment_setting_path, notice: "Verbindung erfolgreich. SumUp API antwortet korrekt."
+------      when 401
+-----+      # Fall 2: Nur manueller Access Token (kein Client-Secret) → nur prüfen ob vorhanden
+-----+      if ::SumupConfig.access_token.present?
+-----         redirect_to admin_payment_setting_path,
+------                    alert: "Token ungültig (401). Bitte Access Token neu setzen oder Client-ID/Secret prüfen."
+------      when 403
+------        redirect_to admin_payment_setting_path,
+------                    alert: "Zugriff verweigert (403). Token-Scope unzureichend – bitte neuen Token via Client-Credentials holen."
+-----+                    notice: "Access Token ist gesetzt. Ohne Client-ID/Secret kann die Verbindung nicht automatisch getestet werden."
+-----       else
+-----         redirect_to admin_payment_setting_path,
+------                    alert: "SumUp API antwortete mit Status #{response.code}: #{response.body.truncate(100)}"
+-----+                    alert: "Kein SumUp Access Token und keine Client-Credentials konfiguriert."
+-----       end
+------    rescue => e
+------      Rails.logger.error "[Admin::PaymentSettings] test_connection Fehler: #{e.class}: #{e.message}"
+------      redirect_to admin_payment_setting_path,
+------                  alert: "Verbindungsfehler: #{e.message}"
+-----     end
+----- 
+-----     private
 -----diff --git a/changes.diff b/changes.diff
------index 73a78a6..e69de29 100644
+-----index 22a63b0..e69de29 100644
 -------- a/changes.diff
 -----+++ b/changes.diff
------@@ -1,1071 +0,0 @@
-------diff --git a/app/controllers/course_registrations_controller.rb b/app/controllers/course_registrations_controller.rb
-------index 9c89a80..298720f 100644
---------- a/app/controllers/course_registrations_controller.rb
-------+++ b/app/controllers/course_registrations_controller.rb
-------@@ -101,7 +101,7 @@ class CourseRegistrationsController < ApplicationController
-------       duplicate = CourseRegistration.where(
-------         participant_id: participant.id,
-------         course_id: course.id
--------      ).where.not(status: "storniert").exists?
-------+      ).where.not(status: [ "storniert", "ausstehend" ]).exists?
------- 
-------       if duplicate
-------         @course_registration.errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
-------diff --git a/app/models/course_registration.rb b/app/models/course_registration.rb
-------index 71213c1..5ce856b 100644
---------- a/app/models/course_registration.rb
-------+++ b/app/models/course_registration.rb
-------@@ -50,7 +50,7 @@ class CourseRegistration < ApplicationRecord
-------       participant_id: participant_id,
-------       course_id: course_id,
-------       training_session_id: training_session_id
--------    ).where.not(status: [ "storniert" ]).exists?
-------+    ).where.not(status: [ "storniert", "ausstehend" ]).exists?
------- 
-------     errors.add(:base, I18n.t("course_registrations.errors.duplicate_session")) if already_registered
+-----@@ -1,1165 +0,0 @@
+------diff --git a/app/models/payment_setting.rb b/app/models/payment_setting.rb
+------index bb8daa6..43f2e21 100644
+--------- a/app/models/payment_setting.rb
+------+++ b/app/models/payment_setting.rb
+------@@ -47,6 +47,11 @@ class PaymentSetting < ApplicationRecord
+------     sumup_client_secret_encrypted.present?
 ------   end
-------@@ -62,7 +62,7 @@ class CourseRegistration < ApplicationRecord
-------     already_registered = CourseRegistration.where(
-------       participant_id: participant_id,
-------       course_id: course_id
--------    ).where.not(status: "storniert").exists?
-------+    ).where.not(status: [ "storniert", "ausstehend" ]).exists?
 ------ 
-------     if already_registered
-------       errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
+------+  def sumup_token_expired?
+------+    return true if sumup_token_expires_at.nil?
+------+    Time.current >= sumup_token_expires_at - 5.minutes
+------+  end
+------+
+------   # ── Convenience ────────────────────────────────────────────────────────────
+------   def fully_configured?
+------     sumup_api_key.present? &&
+------diff --git a/app/services/waitlist_promotion_service.rb b/app/services/waitlist_promotion_service.rb
+------index 2912b1f..f754a95 100644
+--------- a/app/services/waitlist_promotion_service.rb
+------+++ b/app/services/waitlist_promotion_service.rb
+------@@ -14,12 +14,7 @@ class WaitlistPromotionService
+------       return if course.max_participants.blank?
+------ 
+------       paid_course = course.has_payment? && course.price_cents.to_i > 0
+-------
+-------      # Bei kostenpflichtigen Kursen belegen "ausstehend"-Anmeldungen den Platz bereits –
+-------      # sie werden erst durch mark_paid! auf "bestätigt" gesetzt. Ohne diese Statuses
+-------      # würde der Service mehrere Wartelisten-Personen hochstufen, obwohl der Platz
+-------      # durch noch nicht bezahlte Anmeldungen schon vergeben ist.
+-------      occupied_statuses = paid_course ? %w[bestätigt ausstehend] : %w[bestätigt]
+------+      occupied_statuses = %w[bestätigt]
+------ 
+------       confirmed_scope = course.course_registrations.where(status: occupied_statuses)
+------       waitlist_scope  = course.course_registrations.where(status: "warteliste")
 ------diff --git a/changes.diff b/changes.diff
-------index 926af23..e69de29 100644
+------index 73a78a6..e69de29 100644
 --------- a/changes.diff
 ------+++ b/changes.diff
-------@@ -1,988 +0,0 @@
--------diff --git a/app/controllers/admin/payment_settings_controller.rb b/app/controllers/admin/payment_settings_controller.rb
--------index 292bfc8..3f51c88 100644
----------- a/app/controllers/admin/payment_settings_controller.rb
--------+++ b/app/controllers/admin/payment_settings_controller.rb
--------@@ -89,6 +89,7 @@ module Admin
--------     def payment_setting_params
--------       params.require(:payment_setting).permit(
--------         :sumup_api_key, :sumup_access_token, :sumup_merchant_code,
--------+        :sumup_client_id, :sumup_client_secret,
--------         :currency, :active
--------       )
--------     end
--------diff --git a/app/controllers/payments_controller.rb b/app/controllers/payments_controller.rb
--------index e74f19f..b386980 100644
----------- a/app/controllers/payments_controller.rb
--------+++ b/app/controllers/payments_controller.rb
--------@@ -75,6 +75,14 @@ class PaymentsController < ApplicationController
+------@@ -1,1071 +0,0 @@
+-------diff --git a/app/controllers/course_registrations_controller.rb b/app/controllers/course_registrations_controller.rb
+-------index 9c89a80..298720f 100644
+---------- a/app/controllers/course_registrations_controller.rb
+-------+++ b/app/controllers/course_registrations_controller.rb
+-------@@ -101,7 +101,7 @@ class CourseRegistrationsController < ApplicationController
+-------       duplicate = CourseRegistration.where(
+-------         participant_id: participant.id,
+-------         course_id: course.id
+--------      ).where.not(status: "storniert").exists?
+-------+      ).where.not(status: [ "storniert", "ausstehend" ]).exists?
 ------- 
--------     response = http.request(request)
+-------       if duplicate
+-------         @course_registration.errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
+-------diff --git a/app/models/course_registration.rb b/app/models/course_registration.rb
+-------index 71213c1..5ce856b 100644
+---------- a/app/models/course_registration.rb
+-------+++ b/app/models/course_registration.rb
+-------@@ -50,7 +50,7 @@ class CourseRegistration < ApplicationRecord
+-------       participant_id: participant_id,
+-------       course_id: course_id,
+-------       training_session_id: training_session_id
+--------    ).where.not(status: [ "storniert" ]).exists?
+-------+    ).where.not(status: [ "storniert", "ausstehend" ]).exists?
 ------- 
--------+    if response.code.to_i == 401 && SumupConfig.client_id.present?
--------+      new_token = SumupConfig.fetch_token!
--------+      if new_token.present?
--------+        request["Authorization"] = "Bearer #{new_token}"
--------+        response = http.request(request)
--------+      end
--------+    end
--------+
--------     unless response.is_a?(Net::HTTPSuccess)
--------       Rails.logger.error "[SumUp] Checkout error #{response.code}: #{response.body}"
--------       return redirect_to course_registration_path(@registration),
--------diff --git a/app/models/payment_setting.rb b/app/models/payment_setting.rb
--------index e787452..bb8daa6 100644
----------- a/app/models/payment_setting.rb
--------+++ b/app/models/payment_setting.rb
--------@@ -27,9 +27,30 @@ class PaymentSetting < ApplicationRecord
--------     sumup_access_token_encrypted.present?
+-------     errors.add(:base, I18n.t("course_registrations.errors.duplicate_session")) if already_registered
 -------   end
+-------@@ -62,7 +62,7 @@ class CourseRegistration < ApplicationRecord
+-------     already_registered = CourseRegistration.where(
+-------       participant_id: participant_id,
+-------       course_id: course_id
+--------    ).where.not(status: "storniert").exists?
+-------+    ).where.not(status: [ "storniert", "ausstehend" ]).exists?
 ------- 
--------+  # ── sumup_client_secret (encrypted) ────────────────────────────────────────
--------+  def sumup_client_secret=(value)
--------+    @sumup_client_secret = value
--------+    self.sumup_client_secret_encrypted = encryptor.encrypt_and_sign(value) if value.present?
--------+  end
--------+
--------+  def sumup_client_secret
--------+    return @sumup_client_secret if @sumup_client_secret
--------+    return nil if sumup_client_secret_encrypted.blank?
--------+
--------+    encryptor.decrypt_and_verify(sumup_client_secret_encrypted)
--------+  rescue ActiveSupport::MessageEncryptor::InvalidMessage,
--------+         ActiveSupport::MessageVerifier::InvalidSignature
--------+    nil
--------+  end
--------+
--------+  def sumup_client_secret_present?
--------+    sumup_client_secret_encrypted.present?
--------+  end
--------+
--------   # ── Convenience ────────────────────────────────────────────────────────────
--------   def fully_configured?
---------    sumup_api_key.present? && sumup_access_token_present?
--------+    sumup_api_key.present? &&
--------+      (sumup_access_token_present? || (sumup_client_id.present? && sumup_client_secret_present?))
--------   end
-------- 
--------   def effective_currency
--------diff --git a/app/views/admin/payment_settings/edit.html.erb b/app/views/admin/payment_settings/edit.html.erb
--------index 20aa192..6df485e 100644
----------- a/app/views/admin/payment_settings/edit.html.erb
--------+++ b/app/views/admin/payment_settings/edit.html.erb
--------@@ -92,6 +92,48 @@
--------         </div>
--------       </div>
-------- 
--------+      <%# Client-ID (Klartext) %>
--------+      <div>
--------+        <%= f.label :sumup_client_id, "Client-ID", class: "block text-sm font-medium text-gray-700 mb-1" %>
--------+        <p class="text-xs text-gray-400 mb-1.5">
--------+          OAuth2 Client-ID aus dem SumUp Developer Portal. Wird für automatische Token-Erneuerung benötigt.
--------+        </p>
--------+        <%= f.text_field :sumup_client_id,
--------+              placeholder: "cc_classic_XXXXXXXX",
--------+              autocomplete: "off",
--------+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
--------+      </div>
--------+
--------+      <%# Client-Secret (verschlüsselt) %>
--------+      <div>
--------+        <%= f.label :sumup_client_secret, "Client-Secret", class: "block text-sm font-medium text-gray-700 mb-1" %>
--------+        <p class="text-xs text-gray-400 mb-1.5">
--------+          OAuth2 Client-Secret. Leer lassen um bestehendes beizubehalten.
--------+          <% if @payment_setting.sumup_client_secret_present? %>
--------+            <span class="text-green-600 font-semibold">· Aktuell gesetzt</span>
--------+          <% end %>
--------+        </p>
--------+        <div class="relative" data-controller="password-toggle">
--------+          <%= f.password_field :sumup_client_secret,
--------+                placeholder: "cc_sk_classic_...",
--------+                autocomplete: "new-password",
--------+                data: { "password-toggle-target": "field" },
--------+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
--------+          <button type="button"
--------+                  data-action="click->password-toggle#toggle"
--------+                  class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
--------+                  tabindex="-1">
--------+            <svg data-password-toggle-target="eyeShow" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
--------+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
--------+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
--------+            </svg>
--------+            <svg data-password-toggle-target="eyeHide" class="h-4 w-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
--------+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
--------+            </svg>
--------+          </button>
--------+        </div>
--------+      </div>
--------+
--------       <%# Merchant Code (sichtbar) %>
--------       <div>
--------         <%= f.label :sumup_merchant_code, "Merchant Code", class: "block text-sm font-medium text-gray-700 mb-1" %>
--------diff --git a/app/views/admin/payment_settings/show.html.erb b/app/views/admin/payment_settings/show.html.erb
--------index 84f2a0b..c5178e7 100644
----------- a/app/views/admin/payment_settings/show.html.erb
--------+++ b/app/views/admin/payment_settings/show.html.erb
--------@@ -80,6 +80,18 @@
--------           <%= @payment_setting.sumup_merchant_code.presence || "—" %>
--------         </dd>
--------       </div>
--------+      <% if @payment_setting.sumup_client_id.present? %>
--------+        <div class="px-6 py-3.5 flex items-center justify-between text-sm">
--------+          <dt class="font-medium text-gray-500 w-48 shrink-0">Client-ID</dt>
--------+          <dd class="font-mono text-xs text-gray-700 truncate max-w-xs"><%= @payment_setting.sumup_client_id %></dd>
--------+        </div>
--------+        <div class="px-6 py-3.5 flex items-center justify-between text-sm">
--------+          <dt class="font-medium text-gray-500 w-48 shrink-0">Client-Secret</dt>
--------+          <dd class="text-xs text-gray-500">
--------+            <%= @payment_setting.sumup_client_secret_present? ? "· Gesetzt" : "Nicht gesetzt" %>
--------+          </dd>
--------+        </div>
--------+      <% end %>
--------     </dl>
--------   </div>
-------- 
--------diff --git a/app/views/course_registrations/show.html.erb b/app/views/course_registrations/show.html.erb
--------index 3a77e2e..eb3d421 100644
----------- a/app/views/course_registrations/show.html.erb
--------+++ b/app/views/course_registrations/show.html.erb
--------@@ -119,7 +119,7 @@
--------           <% end %>
--------         </dd>
--------       </div>
---------      <% if course.has_payment? %>
--------+      <% if course.has_payment? && course.price_cents.to_i > 0 %>
--------         <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
--------           <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.price") %></dt>
--------           <dd class="font-semibold text-gray-900 break-words sm:text-right"><%= course.price_display %></dd>
+-------     if already_registered
+-------       errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
 -------diff --git a/changes.diff b/changes.diff
--------index 184a6c1..06701d7 100644
+-------index 926af23..e69de29 100644
 ---------- a/changes.diff
 -------+++ b/changes.diff
--------@@ -1,787 +0,0 @@
---------diff --git a/app/controllers/course_registrations_controller.rb b/app/controllers/course_registrations_controller.rb
---------index b3231fe..9c89a80 100644
------------ a/app/controllers/course_registrations_controller.rb
---------+++ b/app/controllers/course_registrations_controller.rb
---------@@ -79,7 +79,24 @@ class CourseRegistrationsController < ApplicationController
---------       return render :new, status: :unprocessable_entity
+-------@@ -1,988 +0,0 @@
+--------diff --git a/app/controllers/admin/payment_settings_controller.rb b/app/controllers/admin/payment_settings_controller.rb
+--------index 292bfc8..3f51c88 100644
+----------- a/app/controllers/admin/payment_settings_controller.rb
+--------+++ b/app/controllers/admin/payment_settings_controller.rb
+--------@@ -89,6 +89,7 @@ module Admin
+--------     def payment_setting_params
+--------       params.require(:payment_setting).permit(
+--------         :sumup_api_key, :sumup_access_token, :sumup_merchant_code,
+--------+        :sumup_client_id, :sumup_client_secret,
+--------         :currency, :active
+--------       )
 --------     end
+--------diff --git a/app/controllers/payments_controller.rb b/app/controllers/payments_controller.rb
+--------index e74f19f..b386980 100644
+----------- a/app/controllers/payments_controller.rb
+--------+++ b/app/controllers/payments_controller.rb
+--------@@ -75,6 +75,14 @@ class PaymentsController < ApplicationController
 -------- 
----------    # 2c. Duplikat-Check für Semesterkurse
---------+    # 2c. Schnupper-Check
---------+    is_trial = params[:trial].present? && params[:trial] == "true"
---------+
---------+    if is_trial
---------+      unless course.allows_trial?
---------+        @course_registration.errors.add(:base, "Schnuppern ist für diesen Kurs nicht möglich.")
---------+        setup_new_form(course)
---------+        return render :new, status: :unprocessable_entity
---------+      end
---------+
---------+      if participant.ever_trialed_in_category?(course.registration_type)
---------+        @course_registration.errors.add(:base, "#{participant.first_name} hat in dieser Trainingskategorie bereits geschnuppert.")
---------+        setup_new_form(course)
---------+        return render :new, status: :unprocessable_entity
+--------     response = http.request(request)
+-------- 
+--------+    if response.code.to_i == 401 && SumupConfig.client_id.present?
+--------+      new_token = SumupConfig.fetch_token!
+--------+      if new_token.present?
+--------+        request["Authorization"] = "Bearer #{new_token}"
+--------+        response = http.request(request)
 --------+      end
 --------+    end
 --------+
---------+    # 2d. Duplikat-Check für Semesterkurse
---------     if course && participant && course.registration_mode != "single_session"
---------       duplicate = CourseRegistration.where(
---------         participant_id: participant.id,
---------@@ -94,17 +111,20 @@ class CourseRegistrationsController < ApplicationController
---------     end
--------- 
---------     # 3. Status bestimmen
----------    if course.has_payment? && course.price_cents.to_i > 0
---------+    if is_trial
---------+      @course_registration.status = "schnuppern"
---------+      erfolgs_nachricht = "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
---------+    elsif course.has_payment? && course.price_cents.to_i > 0
---------       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt
---------       @course_registration.status = "ausstehend"
---------     else
---------       # Kostenlos → sofort bestätigt oder Warteliste, Kapazität je nach Modus prüfen
---------       bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
---------         course.course_registrations
----------              .where(status: "bestätigt", training_session_id: @course_registration.training_session_id)
---------+              .where(status: [ "bestätigt", "schnuppern" ], training_session_id: @course_registration.training_session_id)
---------               .count
---------       else
----------        course.course_registrations.where(status: "bestätigt").count
---------+        course.course_registrations.where(status: [ "bestätigt", "schnuppern" ]).count
---------       end
--------- 
---------       if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
---------@@ -118,7 +138,7 @@ class CourseRegistrationsController < ApplicationController
--------- 
---------     if @course_registration.save
---------       CourseRegistrationMailer.confirmation(@course_registration).deliver_later
----------      if course.has_payment? && course.price_cents.to_i > 0 && ::SumupConfig.configured? && !@course_registration.payment_cleared?
---------+      if !is_trial && course.has_payment? && course.price_cents.to_i > 0 && ::SumupConfig.configured? && !@course_registration.payment_cleared?
---------         redirect_to checkout_preview_registration_path(@course_registration)
---------       else
---------         redirect_to course_registration_path(@course_registration), notice: erfolgs_nachricht
---------diff --git a/app/controllers/courses_controller.rb b/app/controllers/courses_controller.rb
---------index a2628e1..544f964 100644
------------ a/app/controllers/courses_controller.rb
---------+++ b/app/controllers/courses_controller.rb
---------@@ -161,7 +161,7 @@ class CoursesController < ApplicationController
--------- 
---------     # Only allow a list of trusted parameters through.
---------     def course_params
----------      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [], payment_methods: [])
---------+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, trainer_ids: [], payment_methods: [])
---------     end
--------- 
---------     def derive_registration_type(registration_mode)
---------diff --git a/app/mailers/course_registration_mailer.rb b/app/mailers/course_registration_mailer.rb
---------index 7b3bae0..6bce3ff 100644
------------ a/app/mailers/course_registration_mailer.rb
---------+++ b/app/mailers/course_registration_mailer.rb
---------@@ -9,6 +9,7 @@ class CourseRegistrationMailer < ApplicationMailer
---------     subject = case course_registration.status
---------     when "bestätigt"  then "Anmeldung bestätigt: #{@course.title}"
---------     when "warteliste" then "Auf der Warteliste: #{@course.title}"
---------+    when "schnuppern" then "Schnupperplatz gesichert: #{@course.title}"
---------     else "Anmeldung erhalten: #{@course.title}"
---------     end
--------- 
---------diff --git a/app/models/course.rb b/app/models/course.rb
---------index 75c35df..4736887 100644
------------ a/app/models/course.rb
---------+++ b/app/models/course.rb
---------@@ -43,6 +43,7 @@ class Course < ApplicationRecord
---------   validates :min_age, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 120 }, allow_nil: true
---------   validates :max_age, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 120 }, allow_nil: true
---------   validate  :max_age_must_be_greater_than_or_equal_to_min_age
---------+  validate  :trial_requires_ahv_number
--------- 
---------   def age_restricted?
---------     min_age.present? || max_age.present?
---------@@ -117,4 +118,10 @@ class Course < ApplicationRecord
---------     return if min_age.blank? || max_age.blank?
---------     errors.add(:max_age, "muss grösser oder gleich dem Mindestalter sein") if max_age < min_age
+--------     unless response.is_a?(Net::HTTPSuccess)
+--------       Rails.logger.error "[SumUp] Checkout error #{response.code}: #{response.body}"
+--------       return redirect_to course_registration_path(@registration),
+--------diff --git a/app/models/payment_setting.rb b/app/models/payment_setting.rb
+--------index e787452..bb8daa6 100644
+----------- a/app/models/payment_setting.rb
+--------+++ b/app/models/payment_setting.rb
+--------@@ -27,9 +27,30 @@ class PaymentSetting < ApplicationRecord
+--------     sumup_access_token_encrypted.present?
 --------   end
---------+
---------+  def trial_requires_ahv_number
---------+    if allows_trial? && !requires_ahv_number?
---------+      errors.add(:allows_trial, "kann nur aktiviert werden wenn AHV-Nummer Pflicht ist")
---------+    end
---------+  end
--------- end
---------diff --git a/app/models/course_registration.rb b/app/models/course_registration.rb
---------index 35f1f47..71213c1 100644
------------ a/app/models/course_registration.rb
---------+++ b/app/models/course_registration.rb
---------@@ -1,4 +1,6 @@
--------- class CourseRegistration < ApplicationRecord
---------+  TRIAL_STATUS = "schnuppern"
---------+
---------   belongs_to :course
---------   belongs_to :participant
---------   belongs_to :training_session, optional: true
---------@@ -13,6 +15,14 @@ class CourseRegistration < ApplicationRecord
 -------- 
---------   before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") && payment_expires_at.nil? }
--------- 
---------+  def trial?
---------+    status == TRIAL_STATUS
+--------+  # ── sumup_client_secret (encrypted) ────────────────────────────────────────
+--------+  def sumup_client_secret=(value)
+--------+    @sumup_client_secret = value
+--------+    self.sumup_client_secret_encrypted = encryptor.encrypt_and_sign(value) if value.present?
 --------+  end
 --------+
---------+  def trial_expired?
---------+    trial? && created_at < 7.days.ago
+--------+  def sumup_client_secret
+--------+    return @sumup_client_secret if @sumup_client_secret
+--------+    return nil if sumup_client_secret_encrypted.blank?
+--------+
+--------+    encryptor.decrypt_and_verify(sumup_client_secret_encrypted)
+--------+  rescue ActiveSupport::MessageEncryptor::InvalidMessage,
+--------+         ActiveSupport::MessageVerifier::InvalidSignature
+--------+    nil
 --------+  end
 --------+
---------   def status_label
---------     I18n.t("course_registrations.statuses.#{status}", default: status.to_s.humanize)
+--------+  def sumup_client_secret_present?
+--------+    sumup_client_secret_encrypted.present?
+--------+  end
+--------+
+--------   # ── Convenience ────────────────────────────────────────────────────────────
+--------   def fully_configured?
+---------    sumup_api_key.present? && sumup_access_token_present?
+--------+    sumup_api_key.present? &&
+--------+      (sumup_access_token_present? || (sumup_client_id.present? && sumup_client_secret_present?))
 --------   end
---------@@ -40,7 +50,7 @@ class CourseRegistration < ApplicationRecord
---------       participant_id: participant_id,
---------       course_id: course_id,
---------       training_session_id: training_session_id
----------    ).where.not(status: "storniert").exists?
---------+    ).where.not(status: [ "storniert" ]).exists?
 -------- 
---------     errors.add(:base, I18n.t("course_registrations.errors.duplicate_session")) if already_registered
---------   end
---------diff --git a/app/models/participant.rb b/app/models/participant.rb
---------index c36071e..28a8444 100644
------------ a/app/models/participant.rb
---------+++ b/app/models/participant.rb
---------@@ -21,7 +21,7 @@ class Participant < ApplicationRecord
---------   validates :first_name, :last_name, :date_of_birth, :gender, :phone_number, presence: true
---------   validates :gender, inclusion: { in: GENDERS }
---------   validates :first_name, uniqueness: {
----------    scope: [:last_name, :date_of_birth, :user_id],
---------+    scope: [ :last_name, :date_of_birth, :user_id ],
---------     message: "– diese Person ist in deinem Profil bereits erfasst"
---------   }
+--------   def effective_currency
+--------diff --git a/app/views/admin/payment_settings/edit.html.erb b/app/views/admin/payment_settings/edit.html.erb
+--------index 20aa192..6df485e 100644
+----------- a/app/views/admin/payment_settings/edit.html.erb
+--------+++ b/app/views/admin/payment_settings/edit.html.erb
+--------@@ -92,6 +92,48 @@
+--------         </div>
+--------       </div>
 -------- 
---------@@ -60,6 +60,23 @@ class Participant < ApplicationRecord
---------             },
---------             allow_blank: true
--------- 
---------+  def has_trialed_in_category?(registration_type)
---------+    course_registrations
---------+      .joins(:course)
---------+      .where(status: "schnuppern")
---------+      .where(courses: { registration_type: registration_type })
---------+      .where("course_registrations.created_at > ?", 7.days.ago)
---------+      .exists?
---------+  end
+--------+      <%# Client-ID (Klartext) %>
+--------+      <div>
+--------+        <%= f.label :sumup_client_id, "Client-ID", class: "block text-sm font-medium text-gray-700 mb-1" %>
+--------+        <p class="text-xs text-gray-400 mb-1.5">
+--------+          OAuth2 Client-ID aus dem SumUp Developer Portal. Wird für automatische Token-Erneuerung benötigt.
+--------+        </p>
+--------+        <%= f.text_field :sumup_client_id,
+--------+              placeholder: "cc_classic_XXXXXXXX",
+--------+              autocomplete: "off",
+--------+              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+--------+      </div>
 --------+
---------+  def ever_trialed_in_category?(registration_type)
---------+    course_registrations
---------+      .joins(:course)
---------+      .where(status: "schnuppern")
---------+      .where(courses: { registration_type: registration_type })
---------+      .exists?
---------+  end
---------+
---------   # Gibt fehlende Pflichtfelder für einen bestimmten Kurs zurück (als Symbole)
---------   def missing_fields_for(course)
---------     course.required_participant_fields.select { |field| self[field].blank? }
---------diff --git a/app/views/course_registration_mailer/confirmation.html.erb b/app/views/course_registration_mailer/confirmation.html.erb
---------index 6d30689..5bda20c 100644
------------ a/app/views/course_registration_mailer/confirmation.html.erb
---------+++ b/app/views/course_registration_mailer/confirmation.html.erb
---------@@ -1,6 +1,14 @@
--------- <% primary = @_club&.effective_primary_color || "#dc2626" %>
--------- 
----------<% if @course_registration.status == "bestätigt" %>
---------+<% if @course_registration.status == "schnuppern" %>
---------+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:24px;">
---------+    <tr>
---------+      <td style="padding:16px 20px;">
---------+        <p style="margin:0;font-size:15px;font-weight:600;color:#92400e;font-family:Arial,Helvetica,sans-serif;">Schnupperplatz gesichert!</p>
---------+      </td>
---------+    </tr>
---------+  </table>
---------+<% elsif @course_registration.status == "bestätigt" %>
---------   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:24px;">
---------     <tr>
---------       <td style="padding:16px 20px;">
---------@@ -20,7 +28,9 @@
--------- 
--------- <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
---------   Hallo <%= @recipient.email.split("@").first %>,<br><br>
----------  <% if @course_registration.status == "bestätigt" %>
---------+  <% if @course_registration.status == "schnuppern" %>
---------+    <%= @participant.first_name %> hat einen Schnupperplatz für 7 Tage gesichert. Danach ist eine reguläre Anmeldung nötig.
---------+  <% elsif @course_registration.status == "bestätigt" %>
---------     die Anmeldung von <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> wurde erfolgreich bestätigt.
---------   <% else %>
---------     der Kurs ist aktuell ausgebucht. Wir haben <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> auf die Warteliste gesetzt und melden uns, sobald ein Platz frei wird.
---------diff --git a/app/views/course_registration_mailer/confirmation.text.erb b/app/views/course_registration_mailer/confirmation.text.erb
---------index 553a346..0fe8058 100644
------------ a/app/views/course_registration_mailer/confirmation.text.erb
---------+++ b/app/views/course_registration_mailer/confirmation.text.erb
---------@@ -1,6 +1,8 @@
--------- Hallo <%= @recipient.email.split("@").first %>,
--------- 
----------<% if @course_registration.status == "bestätigt" %>
---------+<% if @course_registration.status == "schnuppern" %>
---------+<%= @participant.first_name %> hat einen Schnupperplatz für 7 Tage gesichert. Danach ist eine reguläre Anmeldung nötig.
---------+<% elsif @course_registration.status == "bestätigt" %>
--------- die Anmeldung von <%= @participant.first_name %> <%= @participant.last_name %> wurde erfolgreich bestätigt.
--------- <% else %>
--------- der Kurs ist aktuell ausgebucht. Wir haben <%= @participant.first_name %> <%= @participant.last_name %> auf die Warteliste gesetzt und melden uns, sobald ein Platz frei wird.
---------diff --git a/app/views/course_registrations/new.html.erb b/app/views/course_registrations/new.html.erb
---------index 4d09ad6..4578d38 100644
------------ a/app/views/course_registrations/new.html.erb
---------+++ b/app/views/course_registrations/new.html.erb
---------@@ -34,6 +34,14 @@
---------     </div>
---------   <% end %>
--------- 
---------+  <% if params[:trial] == "true" %>
---------+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
---------+      <p class="text-sm font-bold text-amber-800">Schnupper-Anmeldung</p>
---------+      <p class="text-sm text-amber-700 mt-1">Du bekommst einen gesicherten Platz für 7 Tage (bis zum zweiten Training). Danach ist eine reguläre Anmeldung nötig.</p>
---------+    </div>
---------+    <%= hidden_field_tag :trial, "true" %>
---------+  <% end %>
---------+
---------   <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
---------     <%= render "form",
---------           course_registration: @course_registration,
---------diff --git a/app/views/course_registrations/show.html.erb b/app/views/course_registrations/show.html.erb
---------index af0ab5b..3a77e2e 100644
------------ a/app/views/course_registrations/show.html.erb
---------+++ b/app/views/course_registrations/show.html.erb
---------@@ -29,6 +29,19 @@
---------     <% end %>
---------   </div>
--------- 
---------+  <%# ── Schnupper-Banner ─────────────────────────────────────────────────── %>
---------+  <% if @course_registration.trial? %>
---------+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
---------+      <p class="text-sm font-bold text-amber-800">Schnupper-Anmeldung aktiv</p>
---------+      <p class="text-sm text-amber-700 mt-1">
---------+        Dein Schnupperplatz ist bis <%= I18n.l((@course_registration.created_at + 7.days).to_date) %> gesichert.
---------+        Danach musst du dich regulär anmelden, um weiterhin an den Trainings teilzunehmen.
---------+      </p>
---------+      <%= link_to "Jetzt regulär anmelden", new_course_registration_path(course_id: @course_registration.course_id),
---------+            class: "mt-2 inline-block bg-primary-600 text-white font-bold py-2 px-4 rounded-xl text-sm hover:bg-primary-700 transition" %>
---------+    </div>
---------+  <% end %>
---------+
---------   <%# ── Termin-Banner für Drop-In ─────────────────────────────────────────── %>
---------   <% if is_single %>
---------     <div class="mb-5 bg-purple-50 border border-purple-200 rounded-2xl p-5 flex items-start gap-4">
---------diff --git a/app/views/courses/_form.html.erb b/app/views/courses/_form.html.erb
---------index deef761..6edddcd 100644
------------ a/app/views/courses/_form.html.erb
---------+++ b/app/views/courses/_form.html.erb
---------@@ -358,6 +358,27 @@
---------     </div>
---------   </div>
--------- 
---------+  <%# ── Schnuppern ──────────────────────────────────────────────────────── %>
---------+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8">
---------+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
---------+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Schnuppern</p>
---------+    </div>
---------+    <div class="p-6">
---------+      <p class="text-sm text-gray-500 mb-4">Familien können einmalig pro Trainingskategorie kostenlos schnuppern. Nur verfügbar wenn AHV-Nummer als Pflichtfeld aktiviert ist (zur eindeutigen Identifikation).</p>
---------+      <div class="flex items-start gap-3">
---------+        <%= form.check_box :allows_trial,
---------+              class: "h-5 w-5 mt-0.5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
---------+        <div>
---------+          <%= form.label :allows_trial, "Schnuppern erlauben", class: "text-sm font-medium text-gray-800 cursor-pointer block" %>
---------+          <p class="text-xs text-gray-400 mt-0.5">Familien sehen einen zusätzlichen "Jetzt schnuppern"-Button, wenn sie noch nie in dieser Kategorie geschnuppert haben.</p>
+--------+      <%# Client-Secret (verschlüsselt) %>
+--------+      <div>
+--------+        <%= f.label :sumup_client_secret, "Client-Secret", class: "block text-sm font-medium text-gray-700 mb-1" %>
+--------+        <p class="text-xs text-gray-400 mb-1.5">
+--------+          OAuth2 Client-Secret. Leer lassen um bestehendes beizubehalten.
+--------+          <% if @payment_setting.sumup_client_secret_present? %>
+--------+            <span class="text-green-600 font-semibold">· Aktuell gesetzt</span>
+--------+          <% end %>
+--------+        </p>
+--------+        <div class="relative" data-controller="password-toggle">
+--------+          <%= f.password_field :sumup_client_secret,
+--------+                placeholder: "cc_sk_classic_...",
+--------+                autocomplete: "new-password",
+--------+                data: { "password-toggle-target": "field" },
+--------+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+--------+          <button type="button"
+--------+                  data-action="click->password-toggle#toggle"
+--------+                  class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
+--------+                  tabindex="-1">
+--------+            <svg data-password-toggle-target="eyeShow" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+--------+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+--------+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+--------+            </svg>
+--------+            <svg data-password-toggle-target="eyeHide" class="h-4 w-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+--------+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+--------+            </svg>
+--------+          </button>
 --------+        </div>
 --------+      </div>
---------+      <% if form.object.allows_trial? && !form.object.requires_ahv_number? %>
---------+        <p class="mt-3 text-xs text-red-600 font-medium">&#9888;&#65039; Bitte aktiviere zuerst die AHV-Nummer als Pflichtfeld.</p>
---------+      <% end %>
---------+    </div>
---------+  </div>
 --------+
---------   <%# ── Aktionen ───────────────────────────────────────────────────────────── %>
---------   <div class="flex flex-col sm:flex-row gap-3">
---------     <%= form.submit course.new_record? ? "Kurs erstellen" : "Änderungen speichern",
---------diff --git a/app/views/courses/manage.html.erb b/app/views/courses/manage.html.erb
---------index bc1f39f..a37e934 100644
------------ a/app/views/courses/manage.html.erb
---------+++ b/app/views/courses/manage.html.erb
---------@@ -14,6 +14,7 @@
---------   confirmed_count = @course.course_registrations.where(status: 'bestätigt').count
---------   waitlist_count  = @course.course_registrations.where(status: 'warteliste').count
---------   pending_count   = @course.course_registrations.where(status: 'ausstehend').count
---------+  trial_count     = @course.course_registrations.where(status: 'schnuppern').count
--------- %>
--------- 
--------- <div class="max-w-6xl mx-auto w-full px-4 mt-6 sm:mt-8 mb-16">
---------@@ -107,6 +108,12 @@
---------       <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.payment_open") %></p>
---------     </div>
---------     <% end %>
---------+    <% if trial_count > 0 %>
---------+    <div class="bg-white rounded-xl border border-amber-200 shadow-sm p-3 sm:p-4 text-center">
---------+      <p class="text-xl sm:text-2xl font-extrabold text-amber-500"><%= trial_count %></p>
---------+      <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide">Schnuppern</p>
---------+    </div>
---------+    <% end %>
+--------       <%# Merchant Code (sichtbar) %>
+--------       <div>
+--------         <%= f.label :sumup_merchant_code, "Merchant Code", class: "block text-sm font-medium text-gray-700 mb-1" %>
+--------diff --git a/app/views/admin/payment_settings/show.html.erb b/app/views/admin/payment_settings/show.html.erb
+--------index 84f2a0b..c5178e7 100644
+----------- a/app/views/admin/payment_settings/show.html.erb
+--------+++ b/app/views/admin/payment_settings/show.html.erb
+--------@@ -80,6 +80,18 @@
+--------           <%= @payment_setting.sumup_merchant_code.presence || "—" %>
+--------         </dd>
+--------       </div>
+--------+      <% if @payment_setting.sumup_client_id.present? %>
+--------+        <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+--------+          <dt class="font-medium text-gray-500 w-48 shrink-0">Client-ID</dt>
+--------+          <dd class="font-mono text-xs text-gray-700 truncate max-w-xs"><%= @payment_setting.sumup_client_id %></dd>
+--------+        </div>
+--------+        <div class="px-6 py-3.5 flex items-center justify-between text-sm">
+--------+          <dt class="font-medium text-gray-500 w-48 shrink-0">Client-Secret</dt>
+--------+          <dd class="text-xs text-gray-500">
+--------+            <%= @payment_setting.sumup_client_secret_present? ? "· Gesetzt" : "Nicht gesetzt" %>
+--------+          </dd>
+--------+        </div>
+--------+      <% end %>
+--------     </dl>
 --------   </div>
 -------- 
---------   <%# ── Teilnehmende ────────────────────────────────────────────────────── %>
---------@@ -116,7 +123,7 @@
---------         <%= t("courses.manage.participants_title") %>
---------       </h2>
---------       <p class="text-sm font-medium text-gray-400 mt-0.5">
----------        <%= confirmed_count %> <%= t("courses.manage.confirmed_label") %><% if waitlist_count > 0 %>, <%= waitlist_count %> <%= t("courses.manage.waitlist") %><% end %><% if pending_count > 0 %>, <%= pending_count %> <%= t("courses.manage.payment_open") %><% end %>
---------+        <%= confirmed_count %> <%= t("courses.manage.confirmed_label") %><% if trial_count > 0 %>, <%= trial_count %> Schnuppern<% end %><% if waitlist_count > 0 %>, <%= waitlist_count %> <%= t("courses.manage.waitlist") %><% end %><% if pending_count > 0 %>, <%= pending_count %> <%= t("courses.manage.payment_open") %><% end %>
---------       </p>
---------     </div>
--------- 
---------@@ -144,6 +151,8 @@
---------                 <span class="shrink-0 bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
---------               <% when 'ausstehend' %>
---------                 <span class="shrink-0 bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_open") %></span>
---------+              <% when 'schnuppern' %>
---------+                <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
---------               <% else %>
---------                 <span class="shrink-0 bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
---------               <% end %>
---------@@ -244,6 +253,8 @@
---------                             <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
---------                           <% when 'ausstehend' %>
---------                             <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
---------+                          <% when 'schnuppern' %>
---------+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
---------                           <% else %>
---------                             <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
---------                           <% end %>
---------@@ -388,6 +399,8 @@
---------                   <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
---------                 <% when 'ausstehend' %>
---------                   <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
---------+                <% when 'schnuppern' %>
---------+                  <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
---------                 <% else %>
---------                   <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
---------                 <% end %>
---------@@ -467,6 +480,8 @@
---------                                 <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
---------                               <% when 'ausstehend' %>
---------                                 <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
---------+                              <% when 'schnuppern' %>
---------+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
---------                               <% else %>
---------                                 <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
---------                               <% end %>
---------diff --git a/app/views/courses/show.html.erb b/app/views/courses/show.html.erb
---------index 7d190a0..a4f3e1a 100644
------------ a/app/views/courses/show.html.erb
---------+++ b/app/views/courses/show.html.erb
---------@@ -21,13 +21,28 @@
---------           <%= t("courses.show.select_date") %>
---------         </a>
---------       <% else %>
----------        <% bestaetigte_plaetze = @course.course_registrations.where(status: 'bestätigt').count %>
---------+        <% bestaetigte_plaetze = @course.course_registrations.where(status: [ 'bestätigt', 'schnuppern' ]).count %>
---------         <% is_full = @course.max_participants.present? && bestaetigte_plaetze >= @course.max_participants %>
---------+        <%
---------+          show_semester_trial_button = false
---------+          if user_signed_in? && !current_user.admin? && @course.allows_trial? && @course.requires_ahv_number? && current_user.participants.any?
---------+            show_semester_trial_button = current_user.participants.any? { |p| !p.ever_trialed_in_category?(@course.registration_type) }
---------+          end
---------+        %>
--------- 
---------         <% if is_full %>
---------           <%= link_to t("courses.show.join_waitlist"), new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-orange-500 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-orange-600 transition" %>
---------         <% else %>
----------          <%= link_to t("courses.show.register_now"), new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition" %>
---------+          <div class="flex flex-col gap-2 flex-1 md:flex-none">
---------+            <%= link_to t("courses.show.register_now"), new_course_registration_path(course_id: @course.id), class: "text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition" %>
---------+            <% if show_semester_trial_button %>
---------+              <%= link_to new_course_registration_path(course_id: @course.id, trial: "true"),
---------+                    class: "text-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition" do %>
---------+                Jetzt schnuppern
---------+                <span class="block text-xs font-normal opacity-80">Kostenlos · 7 Tage gesichert</span>
---------+              <% end %>
---------+            <% end %>
---------+          </div>
---------         <% end %>
---------       <% end %>
---------     </div>
---------@@ -95,13 +110,19 @@
---------           .where("start_time > ?", Time.current)
---------           .order(:start_time)
---------       %>
---------+      <%
---------+        show_trial_button = false
---------+        if user_signed_in? && !current_user.admin? && @course.allows_trial? && @course.requires_ahv_number? && current_user.participants.any?
---------+          show_trial_button = current_user.participants.any? { |p| !p.ever_trialed_in_category?(@course.registration_type) }
---------+        end
---------+      %>
---------       <% if bookable_sessions.any? %>
---------         <div class="bg-white rounded-2xl border border-secondary-100 overflow-hidden shadow-sm">
---------           <ul class="divide-y divide-gray-100">
---------             <% bookable_sessions.each do |session| %>
---------               <%
---------                 spots_taken = @course.course_registrations
----------                  .where(status: "bestätigt", training_session_id: session.id).count
---------+                  .where(status: [ "bestätigt", "schnuppern" ], training_session_id: session.id).count
---------                 is_full = @course.max_participants.present? && spots_taken >= @course.max_participants
---------               %>
---------               <li class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-secondary-50/50 transition">
---------@@ -131,8 +152,19 @@
---------                     <%= link_to t("courses.show.waitlist_btn"), new_course_registration_path(course_id: @course.id, training_session_id: session.id),
---------                           class: "block w-full sm:w-auto bg-orange-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-orange-600 transition text-sm text-center shadow-sm whitespace-nowrap" %>
---------                   <% else %>
----------                    <%= link_to t("courses.show.register_btn"), new_course_registration_path(course_id: @course.id, training_session_id: session.id),
----------                          class: "block w-full sm:w-auto bg-secondary-600 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-secondary-700 transition text-sm text-center shadow-sm whitespace-nowrap" %>
---------+                    <div class="flex flex-col gap-1">
---------+                      <%= link_to new_course_registration_path(course_id: @course.id, training_session_id: session.id),
---------+                            class: "block w-full sm:w-auto bg-secondary-600 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-secondary-700 transition text-sm text-center shadow-sm whitespace-nowrap" do %>
---------+                        <%= t("courses.show.register_btn") %>
---------+                      <% end %>
---------+                      <% if show_trial_button %>
---------+                        <%= link_to new_course_registration_path(course_id: @course.id, training_session_id: session.id, trial: "true"),
---------+                              class: "block w-full sm:w-auto bg-amber-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-amber-600 transition text-sm text-center shadow-sm whitespace-nowrap" do %>
---------+                          Jetzt schnuppern
---------+                          <span class="block text-xs font-normal opacity-80">Kostenlos · 7 Tage</span>
---------+                        <% end %>
---------+                      <% end %>
---------+                    </div>
---------                   <% end %>
---------                 </div>
---------               </li>
---------diff --git a/config/locales/de.yml b/config/locales/de.yml
---------index 54de7af..e53fdd8 100644
------------ a/config/locales/de.yml
---------+++ b/config/locales/de.yml
---------@@ -755,6 +755,7 @@ de:
---------       warteliste: "Warteliste"
---------       storniert: "Storniert"
---------       ausstehend: "Ausstehend"
---------+      schnuppern: "Schnuppern"
---------     form:
---------       course_label: "Kurs"
---------       course_prompt: "Kurs wählen..."
---------diff --git a/config/locales/en.yml b/config/locales/en.yml
---------index 1be8726..3e3c18b 100644
------------ a/config/locales/en.yml
---------+++ b/config/locales/en.yml
---------@@ -716,6 +716,7 @@ en:
---------       warteliste: "Waitlist"
---------       storniert: "Cancelled"
---------       ausstehend: "Pending"
---------+      schnuppern: "Trial"
---------     form:
---------       course_label: "Course"
---------       course_prompt: "Choose course..."
---------diff --git a/config/recurring.yml b/config/recurring.yml
---------index 279e5cd..0ec0591 100644
------------ a/config/recurring.yml
---------+++ b/config/recurring.yml
---------@@ -28,3 +28,8 @@ production:
---------     class: ExpirePendingPaymentsJob
---------     queue: default
---------     schedule: every 1 hour
---------+
---------+  expire_trial_registrations:
---------+    class: ExpireTrialRegistrationsJob
---------+    queue: default
---------+    schedule: at 3am every day
+--------diff --git a/app/views/course_registrations/show.html.erb b/app/views/course_registrations/show.html.erb
+--------index 3a77e2e..eb3d421 100644
+----------- a/app/views/course_registrations/show.html.erb
+--------+++ b/app/views/course_registrations/show.html.erb
+--------@@ -119,7 +119,7 @@
+--------           <% end %>
+--------         </dd>
+--------       </div>
+---------      <% if course.has_payment? %>
+--------+      <% if course.has_payment? && course.price_cents.to_i > 0 %>
+--------         <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
+--------           <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.price") %></dt>
+--------           <dd class="font-semibold text-gray-900 break-words sm:text-right"><%= course.price_display %></dd>
+--------diff --git a/changes.diff b/changes.diff
+--------index 184a6c1..06701d7 100644
+----------- a/changes.diff
+--------+++ b/changes.diff
+--------@@ -1,787 +0,0 @@
+---------diff --git a/app/controllers/course_registrations_controller.rb b/app/controllers/course_registrations_controller.rb
+---------index b3231fe..9c89a80 100644
+------------ a/app/controllers/course_registrations_controller.rb
+---------+++ b/app/controllers/course_registrations_controller.rb
+---------@@ -79,7 +79,24 @@ class CourseRegistrationsController < ApplicationController
+---------       return render :new, status: :unprocessable_entity
+---------     end
+--------- 
+----------    # 2c. Duplikat-Check für Semesterkurse
+---------+    # 2c. Schnupper-Check
+---------+    is_trial = params[:trial].present? && params[:trial] == "true"
+---------+
+---------+    if is_trial
+---------+      unless course.allows_trial?
+---------+        @course_registration.errors.add(:base, "Schnuppern ist für diesen Kurs nicht möglich.")
+---------+        setup_new_form(course)
+---------+        return render :new, status: :unprocessable_entity
+---------+      end
+---------+
+---------+      if participant.ever_trialed_in_category?(course.registration_type)
+---------+        @course_registration.errors.add(:base, "#{participant.first_name} hat in dieser Trainingskategorie bereits geschnuppert.")
+---------+        setup_new_form(course)
+---------+        return render :new, status: :unprocessable_entity
+---------+      end
+---------+    end
+---------+
+---------+    # 2d. Duplikat-Check für Semesterkurse
+---------     if course && participant && course.registration_mode != "single_session"
+---------       duplicate = CourseRegistration.where(
+---------         participant_id: participant.id,
+---------@@ -94,17 +111,20 @@ class CourseRegistrationsController < ApplicationController
+---------     end
+--------- 
+---------     # 3. Status bestimmen
+----------    if course.has_payment? && course.price_cents.to_i > 0
+---------+    if is_trial
+---------+      @course_registration.status = "schnuppern"
+---------+      erfolgs_nachricht = "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+---------+    elsif course.has_payment? && course.price_cents.to_i > 0
+---------       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt
+---------       @course_registration.status = "ausstehend"
+---------     else
+---------       # Kostenlos → sofort bestätigt oder Warteliste, Kapazität je nach Modus prüfen
+---------       bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
+---------         course.course_registrations
+----------              .where(status: "bestätigt", training_session_id: @course_registration.training_session_id)
+---------+              .where(status: [ "bestätigt", "schnuppern" ], training_session_id: @course_registration.training_session_id)
+---------               .count
+---------       else
+----------        course.course_registrations.where(status: "bestätigt").count
+---------+        course.course_registrations.where(status: [ "bestätigt", "schnuppern" ]).count
+---------       end
+--------- 
+---------       if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
+---------@@ -118,7 +138,7 @@ class CourseRegistrationsController < ApplicationController
+--------- 
+---------     if @course_registration.save
+---------       CourseRegistrationMailer.confirmation(@course_registration).deliver_later
+----------      if course.has_payment? && course.price_cents.to_i > 0 && ::SumupConfig.configured? && !@course_registration.payment_cleared?
+---------+      if !is_trial && course.has_payment? && course.price_cents.to_i > 0 && ::SumupConfig.configured? && !@course_registration.payment_cleared?
+---------         redirect_to checkout_preview_registration_path(@course_registration)
+---------       else
+---------         redirect_to course_registration_path(@course_registration), notice: erfolgs_nachricht
+---------diff --git a/app/controllers/courses_controller.rb b/app/controllers/courses_controller.rb
+---------index a2628e1..544f964 100644
+------------ a/app/controllers/courses_controller.rb
+---------+++ b/app/controllers/courses_controller.rb
+---------@@ -161,7 +161,7 @@ class CoursesController < ApplicationController
+--------- 
+---------     # Only allow a list of trusted parameters through.
+---------     def course_params
+----------      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, trainer_ids: [], payment_methods: [])
+---------+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, trainer_ids: [], payment_methods: [])
+---------     end
+--------- 
+---------     def derive_registration_type(registration_mode)
+---------diff --git a/app/mailers/course_registration_mailer.rb b/app/mailers/course_registration_mailer.rb
+---------index 7b3bae0..6bce3ff 100644
+------------ a/app/mailers/course_registration_mailer.rb
+---------+++ b/app/mailers/course_registration_mailer.rb
+---------@@ -9,6 +9,7 @@ class CourseRegistrationMailer < ApplicationMailer
+---------     subject = case course_registration.status
+---------     when "bestätigt"  then "Anmeldung bestätigt: #{@course.title}"
+---------     when "warteliste" then "Auf der Warteliste: #{@course.title}"
+---------+    when "schnuppern" then "Schnupperplatz gesichert: #{@course.title}"
+---------     else "Anmeldung erhalten: #{@course.title}"
+---------     end
+--------- 
+---------diff --git a/app/models/course.rb b/app/models/course.rb
+---------index 75c35df..4736887 100644
+------------ a/app/models/course.rb
+---------+++ b/app/models/course.rb
+---------@@ -43,6 +43,7 @@ class Course < ApplicationRecord
+---------   validates :min_age, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 120 }, allow_nil: true
+---------   validates :max_age, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 120 }, allow_nil: true
+---------   validate  :max_age_must_be_greater_than_or_equal_to_min_age
+---------+  validate  :trial_requires_ahv_number
+--------- 
+---------   def age_restricted?
+---------     min_age.present? || max_age.present?
+---------@@ -117,4 +118,10 @@ class Course < ApplicationRecord
+---------     return if min_age.blank? || max_age.blank?
+---------     errors.add(:max_age, "muss grösser oder gleich dem Mindestalter sein") if max_age < min_age
+---------   end
+---------+
+---------+  def trial_requires_ahv_number
+---------+    if allows_trial? && !requires_ahv_number?
+---------+      errors.add(:allows_trial, "kann nur aktiviert werden wenn AHV-Nummer Pflicht ist")
+---------+    end
+---------+  end
+--------- end
+---------diff --git a/app/models/course_registration.rb b/app/models/course_registration.rb
+---------index 35f1f47..71213c1 100644
+------------ a/app/models/course_registration.rb
+---------+++ b/app/models/course_registration.rb
+---------@@ -1,4 +1,6 @@
+--------- class CourseRegistration < ApplicationRecord
+---------+  TRIAL_STATUS = "schnuppern"
+---------+
+---------   belongs_to :course
+---------   belongs_to :participant
+---------   belongs_to :training_session, optional: true
+---------@@ -13,6 +15,14 @@ class CourseRegistration < ApplicationRecord
+--------- 
+---------   before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") && payment_expires_at.nil? }
+--------- 
+---------+  def trial?
+---------+    status == TRIAL_STATUS
+---------+  end
+---------+
+---------+  def trial_expired?
+---------+    trial? && created_at < 7.days.ago
+---------+  end
+---------+
+---------   def status_label
+---------     I18n.t("course_registrations.statuses.#{status}", default: status.to_s.humanize)
+---------   end
+---------@@ -40,7 +50,7 @@ class CourseRegistration < ApplicationRecord
+---------       participant_id: participant_id,
+---------       course_id: course_id,
+---------       training_session_id: training_session_id
+----------    ).where.not(status: "storniert").exists?
+---------+    ).where.not(status: [ "storniert" ]).exists?
+--------- 
+---------     errors.add(:base, I18n.t("course_registrations.errors.duplicate_session")) if already_registered
+---------   end
+---------diff --git a/app/models/participant.rb b/app/models/participant.rb
+---------index c36071e..28a8444 100644
+------------ a/app/models/participant.rb
+---------+++ b/app/models/participant.rb
+---------@@ -21,7 +21,7 @@ class Participant < ApplicationRecord
+---------   validates :first_name, :last_name, :date_of_birth, :gender, :phone_number, presence: true
+---------   validates :gender, inclusion: { in: GENDERS }
+---------   validates :first_name, uniqueness: {
+----------    scope: [:last_name, :date_of_birth, :user_id],
+---------+    scope: [ :last_name, :date_of_birth, :user_id ],
+---------     message: "– diese Person ist in deinem Profil bereits erfasst"
+---------   }
+--------- 
+---------@@ -60,6 +60,23 @@ class Participant < ApplicationRecord
+---------             },
+---------             allow_blank: true
+--------- 
+---------+  def has_trialed_in_category?(registration_type)
+---------+    course_registrations
+---------+      .joins(:course)
+---------+      .where(status: "schnuppern")
+---------+      .where(courses: { registration_type: registration_type })
+---------+      .where("course_registrations.created_at > ?", 7.days.ago)
+---------+      .exists?
+---------+  end
+---------+
+---------+  def ever_trialed_in_category?(registration_type)
+---------+    course_registrations
+---------+      .joins(:course)
+---------+      .where(status: "schnuppern")
+---------+      .where(courses: { registration_type: registration_type })
+---------+      .exists?
+---------+  end
+---------+
+---------   # Gibt fehlende Pflichtfelder für einen bestimmten Kurs zurück (als Symbole)
+---------   def missing_fields_for(course)
+---------     course.required_participant_fields.select { |field| self[field].blank? }
+---------diff --git a/app/views/course_registration_mailer/confirmation.html.erb b/app/views/course_registration_mailer/confirmation.html.erb
+---------index 6d30689..5bda20c 100644
+------------ a/app/views/course_registration_mailer/confirmation.html.erb
+---------+++ b/app/views/course_registration_mailer/confirmation.html.erb
+---------@@ -1,6 +1,14 @@
+--------- <% primary = @_club&.effective_primary_color || "#dc2626" %>
+--------- 
+----------<% if @course_registration.status == "bestätigt" %>
+---------+<% if @course_registration.status == "schnuppern" %>
+---------+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:24px;">
+---------+    <tr>
+---------+      <td style="padding:16px 20px;">
+---------+        <p style="margin:0;font-size:15px;font-weight:600;color:#92400e;font-family:Arial,Helvetica,sans-serif;">Schnupperplatz gesichert!</p>
+---------+      </td>
+---------+    </tr>
+---------+  </table>
+---------+<% elsif @course_registration.status == "bestätigt" %>
+---------   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:24px;">
+---------     <tr>
+---------       <td style="padding:16px 20px;">
+---------@@ -20,7 +28,9 @@
+--------- 
+--------- <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+---------   Hallo <%= @recipient.email.split("@").first %>,<br><br>
+----------  <% if @course_registration.status == "bestätigt" %>
+---------+  <% if @course_registration.status == "schnuppern" %>
+---------+    <%= @participant.first_name %> hat einen Schnupperplatz für 7 Tage gesichert. Danach ist eine reguläre Anmeldung nötig.
+---------+  <% elsif @course_registration.status == "bestätigt" %>
+---------     die Anmeldung von <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> wurde erfolgreich bestätigt.
+---------   <% else %>
+---------     der Kurs ist aktuell ausgebucht. Wir haben <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> auf die Warteliste gesetzt und melden uns, sobald ein Platz frei wird.
+---------diff --git a/app/views/course_registration_mailer/confirmation.text.erb b/app/views/course_registration_mailer/confirmation.text.erb
+---------index 553a346..0fe8058 100644
+------------ a/app/views/course_registration_mailer/confirmation.text.erb
+---------+++ b/app/views/course_registration_mailer/confirmation.text.erb
+---------@@ -1,6 +1,8 @@
+--------- Hallo <%= @recipient.email.split("@").first %>,
+--------- 
+----------<% if @course_registration.status == "bestätigt" %>
+---------+<% if @course_registration.status == "schnuppern" %>
+---------+<%= @participant.first_name %> hat einen Schnupperplatz für 7 Tage gesichert. Danach ist eine reguläre Anmeldung nötig.
+---------+<% elsif @course_registration.status == "bestätigt" %>
+--------- die Anmeldung von <%= @participant.first_name %> <%= @participant.last_name %> wurde erfolgreich bestätigt.
+--------- <% else %>
+--------- der Kurs ist aktuell ausgebucht. Wir haben <%= @participant.first_name %> <%= @participant.last_name %> auf die Warteliste gesetzt und melden uns, sobald ein Platz frei wird.
+---------diff --git a/app/views/course_registrations/new.html.erb b/app/views/course_registrations/new.html.erb
+---------index 4d09ad6..4578d38 100644
+------------ a/app/views/course_registrations/new.html.erb
+---------+++ b/app/views/course_registrations/new.html.erb
+---------@@ -34,6 +34,14 @@
+---------     </div>
+---------   <% end %>
+--------- 
+---------+  <% if params[:trial] == "true" %>
+---------+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+---------+      <p class="text-sm font-bold text-amber-800">Schnupper-Anmeldung</p>
+---------+      <p class="text-sm text-amber-700 mt-1">Du bekommst einen gesicherten Platz für 7 Tage (bis zum zweiten Training). Danach ist eine reguläre Anmeldung nötig.</p>
+---------+    </div>
+---------+    <%= hidden_field_tag :trial, "true" %>
+---------+  <% end %>
+---------+
+---------   <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
+---------     <%= render "form",
+---------           course_registration: @course_registration,
+---------diff --git a/app/views/course_registrations/show.html.erb b/app/views/course_registrations/show.html.erb
+---------index af0ab5b..3a77e2e 100644
+------------ a/app/views/course_registrations/show.html.erb
+---------+++ b/app/views/course_registrations/show.html.erb
+---------@@ -29,6 +29,19 @@
+---------     <% end %>
+---------   </div>
+--------- 
+---------+  <%# ── Schnupper-Banner ─────────────────────────────────────────────────── %>
+---------+  <% if @course_registration.trial? %>
+---------+    <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
+---------+      <p class="text-sm font-bold text-amber-800">Schnupper-Anmeldung aktiv</p>
+---------+      <p class="text-sm text-amber-700 mt-1">
+---------+        Dein Schnupperplatz ist bis <%= I18n.l((@course_registration.created_at + 7.days).to_date) %> gesichert.
+---------+        Danach musst du dich regulär anmelden, um weiterhin an den Trainings teilzunehmen.
+---------+      </p>
+---------+      <%= link_to "Jetzt regulär anmelden", new_course_registration_path(course_id: @course_registration.course_id),
+---------+            class: "mt-2 inline-block bg-primary-600 text-white font-bold py-2 px-4 rounded-xl text-sm hover:bg-primary-700 transition" %>
+---------+    </div>
+---------+  <% end %>
+---------+
+---------   <%# ── Termin-Banner für Drop-In ─────────────────────────────────────────── %>
+---------   <% if is_single %>
+---------     <div class="mb-5 bg-purple-50 border border-purple-200 rounded-2xl p-5 flex items-start gap-4">
+---------diff --git a/app/views/courses/_form.html.erb b/app/views/courses/_form.html.erb
+---------index deef761..6edddcd 100644
+------------ a/app/views/courses/_form.html.erb
+---------+++ b/app/views/courses/_form.html.erb
+---------@@ -358,6 +358,27 @@
+---------     </div>
+---------   </div>
+--------- 
+---------+  <%# ── Schnuppern ──────────────────────────────────────────────────────── %>
+---------+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-8">
+---------+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+---------+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Schnuppern</p>
+---------+    </div>
+---------+    <div class="p-6">
+---------+      <p class="text-sm text-gray-500 mb-4">Familien können einmalig pro Trainingskategorie kostenlos schnuppern. Nur verfügbar wenn AHV-Nummer als Pflichtfeld aktiviert ist (zur eindeutigen Identifikation).</p>
+---------+      <div class="flex items-start gap-3">
+---------+        <%= form.check_box :allows_trial,
+---------+              class: "h-5 w-5 mt-0.5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+---------+        <div>
+---------+          <%= form.label :allows_trial, "Schnuppern erlauben", class: "text-sm font-medium text-gray-800 cursor-pointer block" %>
+---------+          <p class="text-xs text-gray-400 mt-0.5">Familien sehen einen zusätzlichen "Jetzt schnuppern"-Button, wenn sie noch nie in dieser Kategorie geschnuppert haben.</p>
+---------+        </div>
+---------+      </div>
+---------+      <% if form.object.allows_trial? && !form.object.requires_ahv_number? %>
+---------+        <p class="mt-3 text-xs text-red-600 font-medium">&#9888;&#65039; Bitte aktiviere zuerst die AHV-Nummer als Pflichtfeld.</p>
+---------+      <% end %>
+---------+    </div>
+---------+  </div>
+---------+
+---------   <%# ── Aktionen ───────────────────────────────────────────────────────────── %>
+---------   <div class="flex flex-col sm:flex-row gap-3">
+---------     <%= form.submit course.new_record? ? "Kurs erstellen" : "Änderungen speichern",
+---------diff --git a/app/views/courses/manage.html.erb b/app/views/courses/manage.html.erb
+---------index bc1f39f..a37e934 100644
+------------ a/app/views/courses/manage.html.erb
+---------+++ b/app/views/courses/manage.html.erb
+---------@@ -14,6 +14,7 @@
+---------   confirmed_count = @course.course_registrations.where(status: 'bestätigt').count
+---------   waitlist_count  = @course.course_registrations.where(status: 'warteliste').count
+---------   pending_count   = @course.course_registrations.where(status: 'ausstehend').count
+---------+  trial_count     = @course.course_registrations.where(status: 'schnuppern').count
+--------- %>
+--------- 
+--------- <div class="max-w-6xl mx-auto w-full px-4 mt-6 sm:mt-8 mb-16">
+---------@@ -107,6 +108,12 @@
+---------       <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.payment_open") %></p>
+---------     </div>
+---------     <% end %>
+---------+    <% if trial_count > 0 %>
+---------+    <div class="bg-white rounded-xl border border-amber-200 shadow-sm p-3 sm:p-4 text-center">
+---------+      <p class="text-xl sm:text-2xl font-extrabold text-amber-500"><%= trial_count %></p>
+---------+      <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide">Schnuppern</p>
+---------+    </div>
+---------+    <% end %>
+---------   </div>
+--------- 
+---------   <%# ── Teilnehmende ────────────────────────────────────────────────────── %>
+---------@@ -116,7 +123,7 @@
+---------         <%= t("courses.manage.participants_title") %>
+---------       </h2>
+---------       <p class="text-sm font-medium text-gray-400 mt-0.5">
+----------        <%= confirmed_count %> <%= t("courses.manage.confirmed_label") %><% if waitlist_count > 0 %>, <%= waitlist_count %> <%= t("courses.manage.waitlist") %><% end %><% if pending_count > 0 %>, <%= pending_count %> <%= t("courses.manage.payment_open") %><% end %>
+---------+        <%= confirmed_count %> <%= t("courses.manage.confirmed_label") %><% if trial_count > 0 %>, <%= trial_count %> Schnuppern<% end %><% if waitlist_count > 0 %>, <%= waitlist_count %> <%= t("courses.manage.waitlist") %><% end %><% if pending_count > 0 %>, <%= pending_count %> <%= t("courses.manage.payment_open") %><% end %>
+---------       </p>
+---------     </div>
+--------- 
+---------@@ -144,6 +151,8 @@
+---------                 <span class="shrink-0 bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
+---------               <% when 'ausstehend' %>
+---------                 <span class="shrink-0 bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_open") %></span>
+---------+              <% when 'schnuppern' %>
+---------+                <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
+---------               <% else %>
+---------                 <span class="shrink-0 bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
+---------               <% end %>
+---------@@ -244,6 +253,8 @@
+---------                             <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
+---------                           <% when 'ausstehend' %>
+---------                             <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
+---------+                          <% when 'schnuppern' %>
+---------+                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
+---------                           <% else %>
+---------                             <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
+---------                           <% end %>
+---------@@ -388,6 +399,8 @@
+---------                   <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
+---------                 <% when 'ausstehend' %>
+---------                   <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
+---------+                <% when 'schnuppern' %>
+---------+                  <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
+---------                 <% else %>
+---------                   <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
+---------                 <% end %>
+---------@@ -467,6 +480,8 @@
+---------                                 <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
+---------                               <% when 'ausstehend' %>
+---------                                 <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
+---------+                              <% when 'schnuppern' %>
+---------+                                <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
+---------                               <% else %>
+---------                                 <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
+---------                               <% end %>
+---------diff --git a/app/views/courses/show.html.erb b/app/views/courses/show.html.erb
+---------index 7d190a0..a4f3e1a 100644
+------------ a/app/views/courses/show.html.erb
+---------+++ b/app/views/courses/show.html.erb
+---------@@ -21,13 +21,28 @@
+---------           <%= t("courses.show.select_date") %>
+---------         </a>
+---------       <% else %>
+----------        <% bestaetigte_plaetze = @course.course_registrations.where(status: 'bestätigt').count %>
+---------+        <% bestaetigte_plaetze = @course.course_registrations.where(status: [ 'bestätigt', 'schnuppern' ]).count %>
+---------         <% is_full = @course.max_participants.present? && bestaetigte_plaetze >= @course.max_participants %>
+---------+        <%
+---------+          show_semester_trial_button = false
+---------+          if user_signed_in? && !current_user.admin? && @course.allows_trial? && @course.requires_ahv_number? && current_user.participants.any?
+---------+            show_semester_trial_button = current_user.participants.any? { |p| !p.ever_trialed_in_category?(@course.registration_type) }
+---------+          end
+---------+        %>
+--------- 
+---------         <% if is_full %>
+---------           <%= link_to t("courses.show.join_waitlist"), new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-orange-500 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-orange-600 transition" %>
+---------         <% else %>
+----------          <%= link_to t("courses.show.register_now"), new_course_registration_path(course_id: @course.id), class: "flex-1 md:flex-none text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition" %>
+---------+          <div class="flex flex-col gap-2 flex-1 md:flex-none">
+---------+            <%= link_to t("courses.show.register_now"), new_course_registration_path(course_id: @course.id), class: "text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition" %>
+---------+            <% if show_semester_trial_button %>
+---------+              <%= link_to new_course_registration_path(course_id: @course.id, trial: "true"),
+---------+                    class: "text-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl text-sm transition" do %>
+---------+                Jetzt schnuppern
+---------+                <span class="block text-xs font-normal opacity-80">Kostenlos · 7 Tage gesichert</span>
+---------+              <% end %>
+---------+            <% end %>
+---------+          </div>
+---------         <% end %>
+---------       <% end %>
+---------     </div>
+---------@@ -95,13 +110,19 @@
+---------           .where("start_time > ?", Time.current)
+---------           .order(:start_time)
+---------       %>
+---------+      <%
+---------+        show_trial_button = false
+---------+        if user_signed_in? && !current_user.admin? && @course.allows_trial? && @course.requires_ahv_number? && current_user.participants.any?
+---------+          show_trial_button = current_user.participants.any? { |p| !p.ever_trialed_in_category?(@course.registration_type) }
+---------+        end
+---------+      %>
+---------       <% if bookable_sessions.any? %>
+---------         <div class="bg-white rounded-2xl border border-secondary-100 overflow-hidden shadow-sm">
+---------           <ul class="divide-y divide-gray-100">
+---------             <% bookable_sessions.each do |session| %>
+---------               <%
+---------                 spots_taken = @course.course_registrations
+----------                  .where(status: "bestätigt", training_session_id: session.id).count
+---------+                  .where(status: [ "bestätigt", "schnuppern" ], training_session_id: session.id).count
+---------                 is_full = @course.max_participants.present? && spots_taken >= @course.max_participants
+---------               %>
+---------               <li class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-secondary-50/50 transition">
+---------@@ -131,8 +152,19 @@
+---------                     <%= link_to t("courses.show.waitlist_btn"), new_course_registration_path(course_id: @course.id, training_session_id: session.id),
+---------                           class: "block w-full sm:w-auto bg-orange-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-orange-600 transition text-sm text-center shadow-sm whitespace-nowrap" %>
+---------                   <% else %>
+----------                    <%= link_to t("courses.show.register_btn"), new_course_registration_path(course_id: @course.id, training_session_id: session.id),
+----------                          class: "block w-full sm:w-auto bg-secondary-600 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-secondary-700 transition text-sm text-center shadow-sm whitespace-nowrap" %>
+---------+                    <div class="flex flex-col gap-1">
+---------+                      <%= link_to new_course_registration_path(course_id: @course.id, training_session_id: session.id),
+---------+                            class: "block w-full sm:w-auto bg-secondary-600 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-secondary-700 transition text-sm text-center shadow-sm whitespace-nowrap" do %>
+---------+                        <%= t("courses.show.register_btn") %>
+---------+                      <% end %>
+---------+                      <% if show_trial_button %>
+---------+                        <%= link_to new_course_registration_path(course_id: @course.id, training_session_id: session.id, trial: "true"),
+---------+                              class: "block w-full sm:w-auto bg-amber-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-amber-600 transition text-sm text-center shadow-sm whitespace-nowrap" do %>
+---------+                          Jetzt schnuppern
+---------+                          <span class="block text-xs font-normal opacity-80">Kostenlos · 7 Tage</span>
+---------+                        <% end %>
+---------+                      <% end %>
+---------+                    </div>
+---------                   <% end %>
+---------                 </div>
+---------               </li>
+---------diff --git a/config/locales/de.yml b/config/locales/de.yml
+---------index 54de7af..e53fdd8 100644
+------------ a/config/locales/de.yml
+---------+++ b/config/locales/de.yml
+---------@@ -755,6 +755,7 @@ de:
+---------       warteliste: "Warteliste"
+---------       storniert: "Storniert"
+---------       ausstehend: "Ausstehend"
+---------+      schnuppern: "Schnuppern"
+---------     form:
+---------       course_label: "Kurs"
+---------       course_prompt: "Kurs wählen..."
+---------diff --git a/config/locales/en.yml b/config/locales/en.yml
+---------index 1be8726..3e3c18b 100644
+------------ a/config/locales/en.yml
+---------+++ b/config/locales/en.yml
+---------@@ -716,6 +716,7 @@ en:
+---------       warteliste: "Waitlist"
+---------       storniert: "Cancelled"
+---------       ausstehend: "Pending"
+---------+      schnuppern: "Trial"
+---------     form:
+---------       course_label: "Course"
+---------       course_prompt: "Choose course..."
+---------diff --git a/config/recurring.yml b/config/recurring.yml
+---------index 279e5cd..0ec0591 100644
+------------ a/config/recurring.yml
+---------+++ b/config/recurring.yml
+---------@@ -28,3 +28,8 @@ production:
+---------     class: ExpirePendingPaymentsJob
+---------     queue: default
+---------     schedule: every 1 hour
+---------+
+---------+  expire_trial_registrations:
+---------+    class: ExpireTrialRegistrationsJob
+---------+    queue: default
+---------+    schedule: at 3am every day
+---------diff --git a/db/schema.rb b/db/schema.rb
+---------index cc68b60..1cf1569 100644
+------------ a/db/schema.rb
+---------+++ b/db/schema.rb
+---------@@ -10,7 +10,7 @@
+--------- #
+--------- # It's strongly recommended that you check this file into your version control system.
+--------- 
+----------ActiveRecord::Schema[8.1].define(version: 2026_05_16_175639) do
+---------+ActiveRecord::Schema[8.1].define(version: 2026_05_19_061441) do
+---------   # These are extensions that must be enabled in order to support this database
+---------   enable_extension "pg_catalog.plpgsql"
+--------- 
+---------@@ -114,6 +114,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_16_175639) do
+---------   create_table "courses", force: :cascade do |t|
+---------     t.integer "abo_size"
+---------     t.boolean "allows_holiday_deduction"
+---------+    t.boolean "allows_trial", default: false, null: false
+---------     t.string "category"
+---------     t.datetime "created_at", null: false
+---------     t.integer "default_end_hour"
+---------diff --git a/test/controllers/course_registrations_controller_test.rb b/test/controllers/course_registrations_controller_test.rb
+---------index dea308b..f4fc719 100644
+------------ a/test/controllers/course_registrations_controller_test.rb
+---------+++ b/test/controllers/course_registrations_controller_test.rb
+---------@@ -9,6 +9,21 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
+---------     @registration = course_registrations(:one)
+---------     @future_session = training_sessions(:future)
+---------     @past_session = training_sessions(:one)
+---------+
+---------+    @trial_parent = users(:parent_only)
+---------+    @trial_parent.update_column(:family_data_completed, true)
+---------+    @trial_participant = participants(:parent_only_child)
+---------+    @trial_course = Course.new(
+---------+      title: "Schnupper-Kurs",
+---------+      registration_type: "semester",
+---------+      registration_mode: "semester",
+---------+      has_payment: false,
+---------+      has_ticketing: false,
+---------+      allows_holiday_deduction: false,
+---------+      allows_trial: true,
+---------+      requires_ahv_number: true
+---------+    )
+---------+    @trial_course.save!(validate: false)
+---------   end
+--------- 
+---------   # ── unsubscribe_from_session ─────────────────────────────────────────────
+---------@@ -94,4 +109,83 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
+---------     assert_equal false, body["success"]
+---------     assert_includes body["message"], "nicht gefunden"
+---------   end
+---------+
+---------+  # ── Schnuppern ────────────────────────────────────────────────────────────
+---------+
+---------+  test "creates schnupper registration when trial param is true and course allows trial" do
+---------+    sign_in @trial_parent
+---------+
+---------+    assert_difference "CourseRegistration.count", 1 do
+---------+      post course_registrations_path, params: {
+---------+        course_registration: {
+---------+          course_id: @trial_course.id,
+---------+          participant_id: @trial_participant.id
+---------+        },
+---------+        trial: "true"
+---------+      }
+---------+    end
+---------+
+---------+    reg = CourseRegistration.last
+---------+    assert_equal "schnuppern", reg.status
+---------+    assert_redirected_to course_registration_path(reg)
+---------+    assert_match "Schnupperplatz", flash[:notice]
+---------+  end
+---------+
+---------+  test "rejects trial when course does not allow trial" do
+---------+    @trial_course.update_column(:allows_trial, false)
+---------+    sign_in @trial_parent
+---------+
+---------+    assert_no_difference "CourseRegistration.count" do
+---------+      post course_registrations_path, params: {
+---------+        course_registration: {
+---------+          course_id: @trial_course.id,
+---------+          participant_id: @trial_participant.id
+---------+        },
+---------+        trial: "true"
+---------+      }
+---------+    end
+---------+
+---------+    assert_response :unprocessable_entity
+---------+  end
+---------+
+---------+  test "rejects trial when participant already trialed in same category" do
+---------+    existing = CourseRegistration.new(
+---------+      course: @trial_course, participant: @trial_participant,
+---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+---------+    )
+---------+    existing.save!(validate: false)
+---------+
+---------+    sign_in @trial_parent
+---------+
+---------+    assert_no_difference "CourseRegistration.count" do
+---------+      post course_registrations_path, params: {
+---------+        course_registration: {
+---------+          course_id: @trial_course.id,
+---------+          participant_id: @trial_participant.id
+---------+        },
+---------+        trial: "true"
+---------+      }
+---------+    end
+---------+
+---------+    assert_response :unprocessable_entity
+---------+  end
+---------+
+---------+  test "does not redirect to payment when trial even if course has payment" do
+---------+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+---------+    sign_in @trial_parent
+---------+
+---------+    assert_difference "CourseRegistration.count", 1 do
+---------+      post course_registrations_path, params: {
+---------+        course_registration: {
+---------+          course_id: @trial_course.id,
+---------+          participant_id: @trial_participant.id
+---------+        },
+---------+        trial: "true"
+---------+      }
+---------+    end
+---------+
+---------+    reg = CourseRegistration.last
+---------+    assert_equal "schnuppern", reg.status
+---------+    assert_redirected_to course_registration_path(reg)
+---------+  end
+--------- end
+---------diff --git a/test/fixtures/participants.yml b/test/fixtures/participants.yml
+---------index 93f0769..5788989 100644
+------------ a/test/fixtures/participants.yml
+---------+++ b/test/fixtures/participants.yml
+---------@@ -17,3 +17,12 @@ two:
+---------   ahv_number: MyString
+---------   date_of_birth: 2026-03-29
+---------   gender: MyString
+---------+
+---------+parent_only_child:
+---------+  user: parent_only
+---------+  first_name: Eva
+---------+  last_name: Mustermann
+---------+  phone_number: "0791234567"
+---------+  ahv_number: "756.1234.5678.90"
+---------+  date_of_birth: 2015-01-01
+---------+  gender: weiblich
+---------diff --git a/test/fixtures/users.yml b/test/fixtures/users.yml
+---------index 3e2ae97..6711a21 100644
+------------ a/test/fixtures/users.yml
+---------+++ b/test/fixtures/users.yml
+---------@@ -15,3 +15,9 @@ admin:
+---------   encrypted_password: $2a$12$xwZ1pdh88HwMVOeW2CIWxeCTWhcpMZ6UyoTnTq1cSlScbmQPGYb/q
+---------   admin: true
+---------   confirmed_at: 2020-01-01 00:00:00
+---------+
+---------+parent_only:
+---------+  email: parent_only@example.com
+---------+  encrypted_password: $2a$12$xwZ1pdh88HwMVOeW2CIWxeCTWhcpMZ6UyoTnTq1cSlScbmQPGYb/q
+---------+  admin: false
+---------+  confirmed_at: 2020-01-01 00:00:00
+---------diff --git a/test/models/course_test.rb b/test/models/course_test.rb
+---------index 724dabe..0e1ec11 100644
+------------ a/test/models/course_test.rb
+---------+++ b/test/models/course_test.rb
+---------@@ -1,7 +1,35 @@
+--------- require "test_helper"
+--------- 
+--------- class CourseTest < ActiveSupport::TestCase
+----------  # test "the truth" do
+----------  #   assert true
+----------  # end
+---------+  def base_attrs
+---------+    {
+---------+      title: "Test Kurs",
+---------+      registration_type: "semester",
+---------+      registration_mode: "semester",
+---------+      has_payment: false,
+---------+      has_ticketing: false,
+---------+      allows_holiday_deduction: false
+---------+    }
+---------+  end
+---------+
+---------+  test "allows_trial is valid when requires_ahv_number is true" do
+---------+    course = Course.new(base_attrs.merge(allows_trial: true, requires_ahv_number: true))
+---------+    assert course.valid?, course.errors.full_messages.inspect
+---------+  end
+---------+
+---------+  test "allows_trial is invalid when requires_ahv_number is false" do
+---------+    course = Course.new(base_attrs.merge(allows_trial: true, requires_ahv_number: false))
+---------+    assert_not course.valid?
+---------+    assert_includes course.errors[:allows_trial], "kann nur aktiviert werden wenn AHV-Nummer Pflicht ist"
+---------+  end
+---------+
+---------+  test "allows_trial false is valid regardless of requires_ahv_number" do
+---------+    course = Course.new(base_attrs.merge(allows_trial: false, requires_ahv_number: false))
+---------+    assert course.valid?, course.errors.full_messages.inspect
+---------+  end
+---------+
+---------+  test "allows_trial defaults to false" do
+---------+    course = Course.new(base_attrs)
+---------+    assert_equal false, course.allows_trial
+---------+  end
+--------- end
+---------diff --git a/test/models/participant_test.rb b/test/models/participant_test.rb
+---------index 82da5d0..7250179 100644
+------------ a/test/models/participant_test.rb
+---------+++ b/test/models/participant_test.rb
+---------@@ -1,7 +1,86 @@
+--------- require "test_helper"
+--------- 
+--------- class ParticipantTest < ActiveSupport::TestCase
+----------  # test "the truth" do
+----------  #   assert true
+----------  # end
+---------+  setup do
+---------+    @participant = participants(:one)
+---------+    @course = Course.new(
+---------+      title: "Schnupper-Kurs",
+---------+      registration_type: "semester",
+---------+      registration_mode: "semester",
+---------+      has_payment: false,
+---------+      has_ticketing: false,
+---------+      allows_holiday_deduction: false
+---------+    )
+---------+    @course.save!(validate: false)
+---------+  end
+---------+
+---------+  test "has_trialed_in_category? returns false when no trial registration exists" do
+---------+    assert_not @participant.has_trialed_in_category?("semester")
+---------+  end
+---------+
+---------+  test "has_trialed_in_category? returns true when active trial exists within 7 days" do
+---------+    reg = CourseRegistration.new(
+---------+      course: @course, participant: @participant,
+---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+---------+    )
+---------+    reg.save!(validate: false)
+---------+
+---------+    assert @participant.has_trialed_in_category?("semester")
+---------+  end
+---------+
+---------+  test "has_trialed_in_category? returns false for different registration_type" do
+---------+    reg = CourseRegistration.new(
+---------+      course: @course, participant: @participant,
+---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+---------+    )
+---------+    reg.save!(validate: false)
+---------+
+---------+    assert_not @participant.has_trialed_in_category?("pro_training")
+---------+  end
+---------+
+---------+  test "has_trialed_in_category? returns false when trial is older than 7 days" do
+---------+    reg = CourseRegistration.new(
+---------+      course: @course, participant: @participant,
+---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+---------+    )
+---------+    reg.save!(validate: false)
+---------+    reg.update_column(:created_at, 8.days.ago)
+---------+
+---------+    assert_not @participant.has_trialed_in_category?("semester")
+---------+  end
+---------+
+---------+  test "ever_trialed_in_category? returns false when no trial exists" do
+---------+    assert_not @participant.ever_trialed_in_category?("semester")
+---------+  end
+---------+
+---------+  test "ever_trialed_in_category? returns true for active trial" do
+---------+    reg = CourseRegistration.new(
+---------+      course: @course, participant: @participant,
+---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+---------+    )
+---------+    reg.save!(validate: false)
+---------+
+---------+    assert @participant.ever_trialed_in_category?("semester")
+---------+  end
+---------+
+---------+  test "ever_trialed_in_category? returns true even for expired trial" do
+---------+    reg = CourseRegistration.new(
+---------+      course: @course, participant: @participant,
+---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+---------+    )
+---------+    reg.save!(validate: false)
+---------+    reg.update_column(:created_at, 30.days.ago)
+---------+
+---------+    assert @participant.ever_trialed_in_category?("semester")
+---------+  end
+---------+
+---------+  test "ever_trialed_in_category? returns false for different category" do
+---------+    reg = CourseRegistration.new(
+---------+      course: @course, participant: @participant,
+---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+---------+    )
+---------+    reg.save!(validate: false)
+---------+
+---------+    assert_not @participant.ever_trialed_in_category?("pro_training")
+---------+  end
+--------- end
 --------diff --git a/db/schema.rb b/db/schema.rb
---------index cc68b60..1cf1569 100644
+--------index 1cf1569..784fc80 100644
 ----------- a/db/schema.rb
 --------+++ b/db/schema.rb
 --------@@ -10,7 +10,7 @@
 -------- #
 -------- # It's strongly recommended that you check this file into your version control system.
 -------- 
----------ActiveRecord::Schema[8.1].define(version: 2026_05_16_175639) do
---------+ActiveRecord::Schema[8.1].define(version: 2026_05_19_061441) do
+---------ActiveRecord::Schema[8.1].define(version: 2026_05_19_061441) do
+--------+ActiveRecord::Schema[8.1].define(version: 2026_05_19_073055) do
 --------   # These are extensions that must be enabled in order to support this database
 --------   enable_extension "pg_catalog.plpgsql"
 -------- 
---------@@ -114,6 +114,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_16_175639) do
---------   create_table "courses", force: :cascade do |t|
---------     t.integer "abo_size"
---------     t.boolean "allows_holiday_deduction"
---------+    t.boolean "allows_trial", default: false, null: false
---------     t.string "category"
---------     t.datetime "created_at", null: false
---------     t.integer "default_end_hour"
---------diff --git a/test/controllers/course_registrations_controller_test.rb b/test/controllers/course_registrations_controller_test.rb
---------index dea308b..f4fc719 100644
------------ a/test/controllers/course_registrations_controller_test.rb
---------+++ b/test/controllers/course_registrations_controller_test.rb
---------@@ -9,6 +9,21 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
---------     @registration = course_registrations(:one)
---------     @future_session = training_sessions(:future)
---------     @past_session = training_sessions(:one)
---------+
---------+    @trial_parent = users(:parent_only)
---------+    @trial_parent.update_column(:family_data_completed, true)
---------+    @trial_participant = participants(:parent_only_child)
---------+    @trial_course = Course.new(
---------+      title: "Schnupper-Kurs",
---------+      registration_type: "semester",
---------+      registration_mode: "semester",
---------+      has_payment: false,
---------+      has_ticketing: false,
---------+      allows_holiday_deduction: false,
---------+      allows_trial: true,
---------+      requires_ahv_number: true
---------+    )
---------+    @trial_course.save!(validate: false)
+--------@@ -255,6 +255,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_061441) do
+--------     t.string "currency", default: "chf"
+--------     t.text "sumup_access_token_encrypted"
+--------     t.string "sumup_api_key"
+--------+    t.string "sumup_client_id"
+--------+    t.text "sumup_client_secret_encrypted"
+--------     t.string "sumup_merchant_code"
+--------     t.datetime "updated_at", null: false
+--------   end
+--------diff --git a/lib/sumup_config.rb b/lib/sumup_config.rb
+--------index 78dcc0b..3c69245 100644
+----------- a/lib/sumup_config.rb
+--------+++ b/lib/sumup_config.rb
+--------@@ -15,11 +15,11 @@ module SumupConfig
 --------   end
 -------- 
---------   # ── unsubscribe_from_session ─────────────────────────────────────────────
---------@@ -94,4 +109,83 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
---------     assert_equal false, body["success"]
---------     assert_includes body["message"], "nicht gefunden"
+--------   def self.client_id
+---------    ENV["SUMUP_CLIENT_ID"]
+--------+    setting&.sumup_client_id.presence || ENV["SUMUP_CLIENT_ID"]
 --------   end
---------+
---------+  # ── Schnuppern ────────────────────────────────────────────────────────────
---------+
---------+  test "creates schnupper registration when trial param is true and course allows trial" do
---------+    sign_in @trial_parent
---------+
---------+    assert_difference "CourseRegistration.count", 1 do
---------+      post course_registrations_path, params: {
---------+        course_registration: {
---------+          course_id: @trial_course.id,
---------+          participant_id: @trial_participant.id
---------+        },
---------+        trial: "true"
---------+      }
---------+    end
---------+
---------+    reg = CourseRegistration.last
---------+    assert_equal "schnuppern", reg.status
---------+    assert_redirected_to course_registration_path(reg)
---------+    assert_match "Schnupperplatz", flash[:notice]
---------+  end
---------+
---------+  test "rejects trial when course does not allow trial" do
---------+    @trial_course.update_column(:allows_trial, false)
---------+    sign_in @trial_parent
---------+
---------+    assert_no_difference "CourseRegistration.count" do
---------+      post course_registrations_path, params: {
---------+        course_registration: {
---------+          course_id: @trial_course.id,
---------+          participant_id: @trial_participant.id
---------+        },
---------+        trial: "true"
---------+      }
---------+    end
---------+
---------+    assert_response :unprocessable_entity
---------+  end
---------+
---------+  test "rejects trial when participant already trialed in same category" do
---------+    existing = CourseRegistration.new(
---------+      course: @trial_course, participant: @trial_participant,
---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
---------+    )
---------+    existing.save!(validate: false)
---------+
---------+    sign_in @trial_parent
---------+
---------+    assert_no_difference "CourseRegistration.count" do
---------+      post course_registrations_path, params: {
---------+        course_registration: {
---------+          course_id: @trial_course.id,
---------+          participant_id: @trial_participant.id
---------+        },
---------+        trial: "true"
---------+      }
---------+    end
---------+
---------+    assert_response :unprocessable_entity
---------+  end
---------+
---------+  test "does not redirect to payment when trial even if course has payment" do
---------+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
---------+    sign_in @trial_parent
---------+
---------+    assert_difference "CourseRegistration.count", 1 do
---------+      post course_registrations_path, params: {
---------+        course_registration: {
---------+          course_id: @trial_course.id,
---------+          participant_id: @trial_participant.id
---------+        },
---------+        trial: "true"
---------+      }
---------+    end
---------+
---------+    reg = CourseRegistration.last
---------+    assert_equal "schnuppern", reg.status
---------+    assert_redirected_to course_registration_path(reg)
---------+  end
--------- end
---------diff --git a/test/fixtures/participants.yml b/test/fixtures/participants.yml
---------index 93f0769..5788989 100644
------------ a/test/fixtures/participants.yml
---------+++ b/test/fixtures/participants.yml
---------@@ -17,3 +17,12 @@ two:
---------   ahv_number: MyString
---------   date_of_birth: 2026-03-29
---------   gender: MyString
---------+
---------+parent_only_child:
---------+  user: parent_only
---------+  first_name: Eva
---------+  last_name: Mustermann
---------+  phone_number: "0791234567"
---------+  ahv_number: "756.1234.5678.90"
---------+  date_of_birth: 2015-01-01
---------+  gender: weiblich
---------diff --git a/test/fixtures/users.yml b/test/fixtures/users.yml
---------index 3e2ae97..6711a21 100644
------------ a/test/fixtures/users.yml
---------+++ b/test/fixtures/users.yml
---------@@ -15,3 +15,9 @@ admin:
---------   encrypted_password: $2a$12$xwZ1pdh88HwMVOeW2CIWxeCTWhcpMZ6UyoTnTq1cSlScbmQPGYb/q
---------   admin: true
---------   confirmed_at: 2020-01-01 00:00:00
---------+
---------+parent_only:
---------+  email: parent_only@example.com
---------+  encrypted_password: $2a$12$xwZ1pdh88HwMVOeW2CIWxeCTWhcpMZ6UyoTnTq1cSlScbmQPGYb/q
---------+  admin: false
---------+  confirmed_at: 2020-01-01 00:00:00
---------diff --git a/test/models/course_test.rb b/test/models/course_test.rb
---------index 724dabe..0e1ec11 100644
------------ a/test/models/course_test.rb
---------+++ b/test/models/course_test.rb
---------@@ -1,7 +1,35 @@
--------- require "test_helper"
 -------- 
--------- class CourseTest < ActiveSupport::TestCase
----------  # test "the truth" do
----------  #   assert true
----------  # end
---------+  def base_attrs
---------+    {
---------+      title: "Test Kurs",
---------+      registration_type: "semester",
---------+      registration_mode: "semester",
---------+      has_payment: false,
---------+      has_ticketing: false,
---------+      allows_holiday_deduction: false
---------+    }
---------+  end
---------+
---------+  test "allows_trial is valid when requires_ahv_number is true" do
---------+    course = Course.new(base_attrs.merge(allows_trial: true, requires_ahv_number: true))
---------+    assert course.valid?, course.errors.full_messages.inspect
---------+  end
---------+
---------+  test "allows_trial is invalid when requires_ahv_number is false" do
---------+    course = Course.new(base_attrs.merge(allows_trial: true, requires_ahv_number: false))
---------+    assert_not course.valid?
---------+    assert_includes course.errors[:allows_trial], "kann nur aktiviert werden wenn AHV-Nummer Pflicht ist"
---------+  end
---------+
---------+  test "allows_trial false is valid regardless of requires_ahv_number" do
---------+    course = Course.new(base_attrs.merge(allows_trial: false, requires_ahv_number: false))
---------+    assert course.valid?, course.errors.full_messages.inspect
---------+  end
---------+
---------+  test "allows_trial defaults to false" do
---------+    course = Course.new(base_attrs)
---------+    assert_equal false, course.allows_trial
---------+  end
--------- end
---------diff --git a/test/models/participant_test.rb b/test/models/participant_test.rb
---------index 82da5d0..7250179 100644
------------ a/test/models/participant_test.rb
---------+++ b/test/models/participant_test.rb
---------@@ -1,7 +1,86 @@
--------- require "test_helper"
+--------   def self.client_secret
+---------    ENV["SUMUP_CLIENT_SECRET"]
+--------+    setting&.sumup_client_secret.presence || ENV["SUMUP_CLIENT_SECRET"]
+--------   end
 -------- 
--------- class ParticipantTest < ActiveSupport::TestCase
----------  # test "the truth" do
----------  #   assert true
----------  # end
---------+  setup do
---------+    @participant = participants(:one)
---------+    @course = Course.new(
---------+      title: "Schnupper-Kurs",
---------+      registration_type: "semester",
---------+      registration_mode: "semester",
---------+      has_payment: false,
---------+      has_ticketing: false,
---------+      allows_holiday_deduction: false
---------+    )
---------+    @course.save!(validate: false)
---------+  end
---------+
---------+  test "has_trialed_in_category? returns false when no trial registration exists" do
---------+    assert_not @participant.has_trialed_in_category?("semester")
---------+  end
---------+
---------+  test "has_trialed_in_category? returns true when active trial exists within 7 days" do
---------+    reg = CourseRegistration.new(
---------+      course: @course, participant: @participant,
---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
---------+    )
---------+    reg.save!(validate: false)
---------+
---------+    assert @participant.has_trialed_in_category?("semester")
---------+  end
---------+
---------+  test "has_trialed_in_category? returns false for different registration_type" do
---------+    reg = CourseRegistration.new(
---------+      course: @course, participant: @participant,
---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
---------+    )
---------+    reg.save!(validate: false)
---------+
---------+    assert_not @participant.has_trialed_in_category?("pro_training")
---------+  end
---------+
---------+  test "has_trialed_in_category? returns false when trial is older than 7 days" do
---------+    reg = CourseRegistration.new(
---------+      course: @course, participant: @participant,
---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
---------+    )
---------+    reg.save!(validate: false)
---------+    reg.update_column(:created_at, 8.days.ago)
---------+
---------+    assert_not @participant.has_trialed_in_category?("semester")
---------+  end
---------+
---------+  test "ever_trialed_in_category? returns false when no trial exists" do
---------+    assert_not @participant.ever_trialed_in_category?("semester")
---------+  end
---------+
---------+  test "ever_trialed_in_category? returns true for active trial" do
---------+    reg = CourseRegistration.new(
---------+      course: @course, participant: @participant,
---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
---------+    )
---------+    reg.save!(validate: false)
---------+
---------+    assert @participant.ever_trialed_in_category?("semester")
---------+  end
---------+
---------+  test "ever_trialed_in_category? returns true even for expired trial" do
---------+    reg = CourseRegistration.new(
---------+      course: @course, participant: @participant,
---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
---------+    )
---------+    reg.save!(validate: false)
---------+    reg.update_column(:created_at, 30.days.ago)
---------+
---------+    assert @participant.ever_trialed_in_category?("semester")
---------+  end
---------+
---------+  test "ever_trialed_in_category? returns false for different category" do
---------+    reg = CourseRegistration.new(
---------+      course: @course, participant: @participant,
---------+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
---------+    )
---------+    reg.save!(validate: false)
---------+
---------+    assert_not @participant.ever_trialed_in_category?("pro_training")
---------+  end
--------- end
--------diff --git a/db/schema.rb b/db/schema.rb
--------index 1cf1569..784fc80 100644
----------- a/db/schema.rb
--------+++ b/db/schema.rb
--------@@ -10,7 +10,7 @@
-------- #
-------- # It's strongly recommended that you check this file into your version control system.
+--------   def self.merchant_code
+-------diff --git a/test/models/course_registration_test.rb b/test/models/course_registration_test.rb
+-------index 798eb35..f2f65c5 100644
+---------- a/test/models/course_registration_test.rb
+-------+++ b/test/models/course_registration_test.rb
+-------@@ -1,7 +1,35 @@
+------- require "test_helper"
 ------- 
---------ActiveRecord::Schema[8.1].define(version: 2026_05_19_061441) do
--------+ActiveRecord::Schema[8.1].define(version: 2026_05_19_073055) do
--------   # These are extensions that must be enabled in order to support this database
--------   enable_extension "pg_catalog.plpgsql"
-------- 
--------@@ -255,6 +255,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_061441) do
--------     t.string "currency", default: "chf"
--------     t.text "sumup_access_token_encrypted"
--------     t.string "sumup_api_key"
--------+    t.string "sumup_client_id"
--------+    t.text "sumup_client_secret_encrypted"
--------     t.string "sumup_merchant_code"
--------     t.datetime "updated_at", null: false
--------   end
--------diff --git a/lib/sumup_config.rb b/lib/sumup_config.rb
--------index 78dcc0b..3c69245 100644
----------- a/lib/sumup_config.rb
--------+++ b/lib/sumup_config.rb
--------@@ -15,11 +15,11 @@ module SumupConfig
--------   end
-------- 
--------   def self.client_id
---------    ENV["SUMUP_CLIENT_ID"]
--------+    setting&.sumup_client_id.presence || ENV["SUMUP_CLIENT_ID"]
--------   end
-------- 
--------   def self.client_secret
---------    ENV["SUMUP_CLIENT_SECRET"]
--------+    setting&.sumup_client_secret.presence || ENV["SUMUP_CLIENT_SECRET"]
--------   end
-------- 
--------   def self.merchant_code
-------diff --git a/test/models/course_registration_test.rb b/test/models/course_registration_test.rb
-------index 798eb35..f2f65c5 100644
---------- a/test/models/course_registration_test.rb
-------+++ b/test/models/course_registration_test.rb
-------@@ -1,7 +1,35 @@
------- require "test_helper"
+------- class CourseRegistrationTest < ActiveSupport::TestCase
+--------  # test "the truth" do
+--------  #   assert true
+--------  # end
+-------+  # ── Duplicate-registration validation ───────────────────────────────────────
+-------+
+-------+  test "allows re-registration when existing registration is ausstehend" do
+-------+    # participants(:parent_only_child) has no existing registration in courses(:one)
+-------+    course       = courses(:one)
+-------+    participant  = participants(:parent_only_child)
+-------+
+-------+    existing = CourseRegistration.new(
+-------+      course: course, participant: participant,
+-------+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
+-------+    )
+-------+    existing.save!(validate: false)
+-------+
+-------+    duplicate = CourseRegistration.new(
+-------+      course: course, participant: participant,
+-------+      payment_cleared: false, holiday_deduction_claimed: false
+-------+    )
+-------+
+-------+    assert duplicate.valid?, "Expected no duplicate error for ausstehend registration, got: #{duplicate.errors.full_messages.join(', ')}"
+-------+  end
+-------+
+-------+  test "blocks re-registration when existing registration is bestätigt" do
+-------+    # course_registrations(:one) already has participant :one in course :one with status "bestätigt"
+-------+    duplicate = CourseRegistration.new(
+-------+      course: courses(:one), participant: participants(:one),
+-------+      payment_cleared: false, holiday_deduction_claimed: false
+-------+    )
+-------+
+-------+    assert_not duplicate.valid?
+-------+    assert_match I18n.t("course_registrations.errors.duplicate_registration"), duplicate.errors.full_messages.join
+-------+  end
+------- end
+------diff --git a/db/schema.rb b/db/schema.rb
+------index 784fc80..30d2820 100644
+--------- a/db/schema.rb
+------+++ b/db/schema.rb
+------@@ -10,7 +10,7 @@
+------ #
+------ # It's strongly recommended that you check this file into your version control system.
 ------ 
------- class CourseRegistrationTest < ActiveSupport::TestCase
--------  # test "the truth" do
--------  #   assert true
--------  # end
-------+  # ── Duplicate-registration validation ───────────────────────────────────────
+-------ActiveRecord::Schema[8.1].define(version: 2026_05_19_073055) do
+------+ActiveRecord::Schema[8.1].define(version: 2026_05_19_081437) do
+------   # These are extensions that must be enabled in order to support this database
+------   enable_extension "pg_catalog.plpgsql"
+------ 
+------@@ -258,6 +258,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_073055) do
+------     t.string "sumup_client_id"
+------     t.text "sumup_client_secret_encrypted"
+------     t.string "sumup_merchant_code"
+------+    t.datetime "sumup_token_expires_at"
+------     t.datetime "updated_at", null: false
+------   end
+------ 
+------diff --git a/lib/sumup_config.rb b/lib/sumup_config.rb
+------index 3c69245..ec72acf 100644
+--------- a/lib/sumup_config.rb
+------+++ b/lib/sumup_config.rb
+------@@ -70,6 +70,8 @@ module SumupConfig
+------ 
+------     s = setting || PaymentSetting.new
+------     s.sumup_access_token = token
+------+    expires_in = body["expires_in"].to_i
+------+    s.sumup_token_expires_at = expires_in > 0 ? expires_in.seconds.from_now : 1.hour.from_now
+------     s.save!
+------     Rails.logger.info "[SumupConfig] Neuer Access Token via OAuth2 gespeichert."
+------     token
+------@@ -79,8 +81,18 @@ module SumupConfig
+------   end
+------ 
+------   def self.valid_token
+------+    s = setting
+------     tok = access_token
+-------    return tok if tok.present?
+-------    fetch_token! if client_id.present? && client_secret.present?
 ------+
-------+  test "allows re-registration when existing registration is ausstehend" do
-------+    # participants(:parent_only_child) has no existing registration in courses(:one)
-------+    course       = courses(:one)
-------+    participant  = participants(:parent_only_child)
+------+    if tok.present?
+------+      return tok if s.nil? || !s.respond_to?(:sumup_token_expired?) || !s.sumup_token_expired?
+------+    end
 ------+
-------+    existing = CourseRegistration.new(
-------+      course: course, participant: participant,
-------+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
-------+    )
-------+    existing.save!(validate: false)
-------+
-------+    duplicate = CourseRegistration.new(
-------+      course: course, participant: participant,
-------+      payment_cleared: false, holiday_deduction_claimed: false
-------+    )
-------+
-------+    assert duplicate.valid?, "Expected no duplicate error for ausstehend registration, got: #{duplicate.errors.full_messages.join(', ')}"
-------+  end
-------+
-------+  test "blocks re-registration when existing registration is bestätigt" do
-------+    # course_registrations(:one) already has participant :one in course :one with status "bestätigt"
-------+    duplicate = CourseRegistration.new(
-------+      course: courses(:one), participant: participants(:one),
-------+      payment_cleared: false, holiday_deduction_claimed: false
-------+    )
-------+
-------+    assert_not duplicate.valid?
-------+    assert_match I18n.t("course_registrations.errors.duplicate_registration"), duplicate.errors.full_messages.join
-------+  end
+------+    if client_id.present? && client_secret.present?
+------+      Rails.logger.info "[SumupConfig] Token abgelaufen oder fehlt – hole neuen Token via OAuth2."
+------+      fetch_token!
+------+    else
+------+      tok
+------+    end
+------   end
 ------ end
------diff --git a/db/schema.rb b/db/schema.rb
------index 784fc80..30d2820 100644
--------- a/db/schema.rb
------+++ b/db/schema.rb
------@@ -10,7 +10,7 @@
------ #
------ # It's strongly recommended that you check this file into your version control system.
------ 
-------ActiveRecord::Schema[8.1].define(version: 2026_05_19_073055) do
------+ActiveRecord::Schema[8.1].define(version: 2026_05_19_081437) do
------   # These are extensions that must be enabled in order to support this database
------   enable_extension "pg_catalog.plpgsql"
------ 
------@@ -258,6 +258,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_19_073055) do
------     t.string "sumup_client_id"
------     t.text "sumup_client_secret_encrypted"
------     t.string "sumup_merchant_code"
------+    t.datetime "sumup_token_expires_at"
------     t.datetime "updated_at", null: false
------   end
------ 
------diff --git a/lib/sumup_config.rb b/lib/sumup_config.rb
------index 3c69245..ec72acf 100644
--------- a/lib/sumup_config.rb
------+++ b/lib/sumup_config.rb
------@@ -70,6 +70,8 @@ module SumupConfig
------ 
------     s = setting || PaymentSetting.new
------     s.sumup_access_token = token
------+    expires_in = body["expires_in"].to_i
------+    s.sumup_token_expires_at = expires_in > 0 ? expires_in.seconds.from_now : 1.hour.from_now
------     s.save!
------     Rails.logger.info "[SumupConfig] Neuer Access Token via OAuth2 gespeichert."
------     token
------@@ -79,8 +81,18 @@ module SumupConfig
------   end
------ 
------   def self.valid_token
------+    s = setting
------     tok = access_token
-------    return tok if tok.present?
-------    fetch_token! if client_id.present? && client_secret.present?
------+
------+    if tok.present?
------+      return tok if s.nil? || !s.respond_to?(:sumup_token_expired?) || !s.sumup_token_expired?
------+    end
------+
------+    if client_id.present? && client_secret.present?
------+      Rails.logger.info "[SumupConfig] Token abgelaufen oder fehlt – hole neuen Token via OAuth2."
------+      fetch_token!
------+    else
------+      tok
------+    end
------   end
------ end
---diff --git a/lib/sumup_config.rb b/lib/sumup_config.rb
---index e5d4ae8..2d01133 100644
------ a/lib/sumup_config.rb
---+++ b/lib/sumup_config.rb
---@@ -14,14 +14,6 @@ module SumupConfig
---     setting&.sumup_access_token.presence || ENV["SUMUP_ACCESS_TOKEN"].to_s
---   end
--- 
----  def self.client_id
----    setting&.sumup_client_id.presence || ENV["SUMUP_CLIENT_ID"]
----  end
----
----  def self.client_secret
----    setting&.sumup_client_secret.presence || ENV["SUMUP_CLIENT_SECRET"]
----  end
----
---   def self.merchant_code
---     setting&.sumup_merchant_code.presence || ENV["SUMUP_MERCHANT_CODE"].to_s
---   end
---@@ -37,66 +29,6 @@ module SumupConfig
---   end
--- 
---   def self.configured?
----    access_token.present? || (client_id.present? && client_secret.present?)
----  end
----
----  def self.fetch_token!
----    unless client_id.present? && client_secret.present?
----      Rails.logger.error "[SumupConfig] fetch_token! aufgerufen ohne SUMUP_CLIENT_ID/SUMUP_CLIENT_SECRET"
----      return nil
----    end
----
----    uri = URI("https://api.sumup.com/token")
----    http = Net::HTTP.new(uri.host, uri.port)
----    http.use_ssl = true
----    http.open_timeout = 5
----    http.read_timeout = 10
----
----    request = Net::HTTP::Post.new(uri.path, { "Content-Type" => "application/x-www-form-urlencoded" })
----    request.body = URI.encode_www_form(
----      grant_type: "client_credentials",
----      client_id: client_id,
----      client_secret: client_secret
----    )
----
----    response = http.request(request)
----    body = JSON.parse(response.body)
----    token = body["access_token"]
----
----    unless token.present?
----      Rails.logger.error "[SumupConfig] fetch_token! kein access_token in Antwort: #{response.code} #{response.body}"
----      return nil
----    end
----
----    s = setting || PaymentSetting.new
----    s.sumup_access_token = token
----    expires_in = body["expires_in"].to_i
----    s.sumup_token_expires_at = expires_in > 0 ? expires_in.seconds.from_now : 1.hour.from_now
----    s.save!
----    Rails.logger.info "[SumupConfig] Neuer Access Token via OAuth2 gespeichert."
----    token
----  rescue => e
----    Rails.logger.error "[SumupConfig] fetch_token! Fehler: #{e.class}: #{e.message}"
----    nil
----  end
----
----  def self.valid_token
----    s = setting
----    tok = access_token
----    return nil unless tok.present?
----
----    # Kein expires_at gespeichert → Token wurde manuell gesetzt, direkt verwenden
----    return tok if s.nil? || s.sumup_token_expires_at.nil?
----
----    # Token noch gültig → direkt zurückgeben
----    return tok unless s.sumup_token_expired?
----
----    # Token abgelaufen → neu holen wenn Credentials vorhanden
----    if client_id.present? && client_secret.present?
----      Rails.logger.info "[SumupConfig] Token abgelaufen – hole neuen Token via OAuth2."
----      fetch_token! || tok
----    else
----      tok
----    end
---+    access_token.present?
---   end
--- end
+---diff --git a/lib/sumup_config.rb b/lib/sumup_config.rb
+---index e5d4ae8..2d01133 100644
+------ a/lib/sumup_config.rb
+---+++ b/lib/sumup_config.rb
+---@@ -14,14 +14,6 @@ module SumupConfig
+---     setting&.sumup_access_token.presence || ENV["SUMUP_ACCESS_TOKEN"].to_s
+---   end
+--- 
+----  def self.client_id
+----    setting&.sumup_client_id.presence || ENV["SUMUP_CLIENT_ID"]
+----  end
+----
+----  def self.client_secret
+----    setting&.sumup_client_secret.presence || ENV["SUMUP_CLIENT_SECRET"]
+----  end
+----
+---   def self.merchant_code
+---     setting&.sumup_merchant_code.presence || ENV["SUMUP_MERCHANT_CODE"].to_s
+---   end
+---@@ -37,66 +29,6 @@ module SumupConfig
+---   end
+--- 
+---   def self.configured?
+----    access_token.present? || (client_id.present? && client_secret.present?)
+----  end
+----
+----  def self.fetch_token!
+----    unless client_id.present? && client_secret.present?
+----      Rails.logger.error "[SumupConfig] fetch_token! aufgerufen ohne SUMUP_CLIENT_ID/SUMUP_CLIENT_SECRET"
+----      return nil
+----    end
+----
+----    uri = URI("https://api.sumup.com/token")
+----    http = Net::HTTP.new(uri.host, uri.port)
+----    http.use_ssl = true
+----    http.open_timeout = 5
+----    http.read_timeout = 10
+----
+----    request = Net::HTTP::Post.new(uri.path, { "Content-Type" => "application/x-www-form-urlencoded" })
+----    request.body = URI.encode_www_form(
+----      grant_type: "client_credentials",
+----      client_id: client_id,
+----      client_secret: client_secret
+----    )
+----
+----    response = http.request(request)
+----    body = JSON.parse(response.body)
+----    token = body["access_token"]
+----
+----    unless token.present?
+----      Rails.logger.error "[SumupConfig] fetch_token! kein access_token in Antwort: #{response.code} #{response.body}"
+----      return nil
+----    end
+----
+----    s = setting || PaymentSetting.new
+----    s.sumup_access_token = token
+----    expires_in = body["expires_in"].to_i
+----    s.sumup_token_expires_at = expires_in > 0 ? expires_in.seconds.from_now : 1.hour.from_now
+----    s.save!
+----    Rails.logger.info "[SumupConfig] Neuer Access Token via OAuth2 gespeichert."
+----    token
+----  rescue => e
+----    Rails.logger.error "[SumupConfig] fetch_token! Fehler: #{e.class}: #{e.message}"
+----    nil
+----  end
+----
+----  def self.valid_token
+----    s = setting
+----    tok = access_token
+----    return nil unless tok.present?
+----
+----    # Kein expires_at gespeichert → Token wurde manuell gesetzt, direkt verwenden
+----    return tok if s.nil? || s.sumup_token_expires_at.nil?
+----
+----    # Token noch gültig → direkt zurückgeben
+----    return tok unless s.sumup_token_expired?
+----
+----    # Token abgelaufen → neu holen wenn Credentials vorhanden
+----    if client_id.present? && client_secret.present?
+----      Rails.logger.info "[SumupConfig] Token abgelaufen – hole neuen Token via OAuth2."
+----      fetch_token! || tok
+----    else
+----      tok
+----    end
+---+    access_token.present?
+---   end
+--- end
+diff --git a/test/models/course_test.rb b/test/models/course_test.rb
+index 0e1ec11..1559f8d 100644
+--- a/test/models/course_test.rb
++++ b/test/models/course_test.rb
+@@ -12,15 +12,9 @@ class CourseTest < ActiveSupport::TestCase
+     }
+   end
+ 
+-  test "allows_trial is valid when requires_ahv_number is true" do
+-    course = Course.new(base_attrs.merge(allows_trial: true, requires_ahv_number: true))
+-    assert course.valid?, course.errors.full_messages.inspect
+-  end
+-
+-  test "allows_trial is invalid when requires_ahv_number is false" do
++  test "allows_trial is valid regardless of requires_ahv_number" do
+     course = Course.new(base_attrs.merge(allows_trial: true, requires_ahv_number: false))
+-    assert_not course.valid?
+-    assert_includes course.errors[:allows_trial], "kann nur aktiviert werden wenn AHV-Nummer Pflicht ist"
++    assert course.valid?, course.errors.full_messages.inspect
+   end
+ 
+   test "allows_trial false is valid regardless of requires_ahv_number" do

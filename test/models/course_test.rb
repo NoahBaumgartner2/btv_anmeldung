@@ -12,15 +12,9 @@ class CourseTest < ActiveSupport::TestCase
     }
   end
 
-  test "allows_trial is valid when requires_ahv_number is true" do
-    course = Course.new(base_attrs.merge(allows_trial: true, requires_ahv_number: true))
-    assert course.valid?, course.errors.full_messages.inspect
-  end
-
-  test "allows_trial is invalid when requires_ahv_number is false" do
+  test "allows_trial is valid regardless of requires_ahv_number" do
     course = Course.new(base_attrs.merge(allows_trial: true, requires_ahv_number: false))
-    assert_not course.valid?
-    assert_includes course.errors[:allows_trial], "kann nur aktiviert werden wenn AHV-Nummer Pflicht ist"
+    assert course.valid?, course.errors.full_messages.inspect
   end
 
   test "allows_trial false is valid regardless of requires_ahv_number" do
