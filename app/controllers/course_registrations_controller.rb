@@ -191,6 +191,7 @@ class CourseRegistrationsController < ApplicationController
   def destroy
     course               = @course_registration.course
     training_session_id  = @course_registration.training_session_id
+    CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
     @course_registration.destroy
     WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
     redirect_to participants_path, notice: t("course_registrations.flash.destroyed")
@@ -203,6 +204,7 @@ class CourseRegistrationsController < ApplicationController
     end
 
     @course_registration.update!(status: "storniert")
+    CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
     WaitlistPromotionService.promote_next_from_waitlist(
       @course_registration.course,
       training_session_id: @course_registration.training_session_id

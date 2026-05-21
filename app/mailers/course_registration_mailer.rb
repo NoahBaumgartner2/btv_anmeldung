@@ -126,6 +126,19 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
+  def self_cancelled(course_registration)
+    @course_registration = course_registration
+    @course = course_registration.course
+    @participant = course_registration.participant
+    @recipient = @participant.user
+    return if @recipient.nil?
+
+    mail(
+      to: @recipient.email,
+      subject: "Abmeldung bestätigt: #{@course.title}"
+    )
+  end
+
   def status_changed(course_registration)
     @course_registration = course_registration
     @course = course_registration.course

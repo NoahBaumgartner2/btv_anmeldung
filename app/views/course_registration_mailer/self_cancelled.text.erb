@@ -1,0 +1,15 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+Die Abmeldung von <%= @participant.first_name %> <%= @participant.last_name %> vom Kurs "<%= @course.title %>" wurde erfolgreich verarbeitet.
+
+Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:        <%= @course.title %>
+<% if @course.has_payment? && @course_registration.payment_cleared? %>
+
+Du hast für diesen Kurs bereits bezahlt. Bei Fragen zu einer Rückerstattung wende dich bitte direkt an den Verein.
+<% end %>
+
+Bei Fragen wende dich bitte direkt an uns.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.
