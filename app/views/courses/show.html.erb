@@ -52,7 +52,7 @@
           </li>
           <li class="flex items-start">
             <span class="mr-3 text-xl"></span>
-            <span><%= @course.start_date ? I18n.l(@course.start_date) : "–" %> – <%= @course.end_date ? I18n.l(@course.end_date) : "–" %></span>
+            <span><%= @course.start_date ? I18n.l(@course.start_date.to_date) : "–" %> – <%= @course.end_date ? I18n.l(@course.end_date.to_date) : "–" %></span>
           </li>
         </ul>
       </div>
@@ -112,23 +112,7 @@
             </li>
           <% end %>
 
-          <%# Schnuppern möglich %>
-          <% if @course.allows_trial? %>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
-              <span class="text-amber-700 font-semibold">Schnuppern möglich</span>
-            </li>
-          <% end %>
-
-          <%# Trainer %>
-          <% if @course.trainers.any? %>
-            <li class="flex items-start gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0 mt-1.5"></span>
-              <span><%= @course.trainers.filter_map { |tr| tr.user&.email }.join(", ") %></span>
-            </li>
-          <% end %>
-
-        </ul>
+</ul>
       </div>
     </div>
   </div>
