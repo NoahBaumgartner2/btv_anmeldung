@@ -59,15 +59,75 @@
 
       <div class="bg-gray-50 p-4 sm:p-5 rounded-2xl border border-gray-100">
         <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3"><%= t("courses.show.registration_info") %></p>
-        <ul class="space-y-4 text-gray-900 font-medium">
-          <li class="flex items-start">
-            <span class="mr-3 text-xl"><%= @course.registration_mode == 'single_session' ? "" : "" %></span>
+        <ul class="space-y-2.5 text-sm text-gray-800">
+
+          <%# Anmeldemodus %>
+          <li class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
             <span><%= @course.registration_mode == 'single_session' ? t("courses.show.drop_in_label") : t("courses.show.semester_label") %></span>
           </li>
-          <li class="flex items-start">
-            <span class="mr-3 text-xl"><%= @course.has_payment ? "" : "" %></span>
-            <span><%= @course.has_payment ? t("courses.show.paid_label") : t("courses.show.free_label") %></span>
+
+          <%# Preis %>
+          <li class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
+            <span>
+              <% if @course.has_payment? && @course.price_cents.to_i > 0 %>
+                <span class="font-semibold"><%= @course.price_display %></span>
+              <% else %>
+                <%= t("courses.free") %>
+              <% end %>
+            </span>
           </li>
+
+          <%# Kapazität %>
+          <% if @course.max_participants.present? %>
+            <% confirmed = @course.course_registrations.where(status: %w[bestätigt schnuppern]).count %>
+            <% spots_left = @course.max_participants - confirmed %>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
+              <span>
+                <%= confirmed %> / <%= @course.max_participants %> Plätze belegt
+                <% if spots_left > 0 %>
+                  <span class="text-green-600 font-semibold">&middot; <%= spots_left %> frei</span>
+                <% else %>
+                  <span class="text-red-500 font-semibold">&middot; Ausgebucht</span>
+                <% end %>
+              </span>
+            </li>
+          <% end %>
+
+          <%# Altersangabe %>
+          <% if @course.min_age.present? || @course.max_age.present? %>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
+              <span>
+                <% if @course.min_age.present? && @course.max_age.present? %>
+                  <%= @course.min_age %>–<%= @course.max_age %> Jahre
+                <% elsif @course.min_age.present? %>
+                  Ab <%= @course.min_age %> Jahren
+                <% else %>
+                  Bis <%= @course.max_age %> Jahre
+                <% end %>
+              </span>
+            </li>
+          <% end %>
+
+          <%# Schnuppern möglich %>
+          <% if @course.allows_trial? %>
+            <li class="flex items-center gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+              <span class="text-amber-700 font-semibold">Schnuppern möglich</span>
+            </li>
+          <% end %>
+
+          <%# Trainer %>
+          <% if @course.trainers.any? %>
+            <li class="flex items-start gap-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0 mt-1.5"></span>
+              <span><%= @course.trainers.filter_map { |tr| tr.user&.email }.join(", ") %></span>
+            </li>
+          <% end %>
+
         </ul>
       </div>
     </div>
