@@ -259,8 +259,18 @@
         return;
       }
       if (typeof Html5Qrcode === "undefined") {
-        showError("Scanner-Bibliothek konnte nicht geladen werden. Bitte Internet-Verbindung prüfen und erneut versuchen.");
-        return;
+        try {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement("script");
+            s.src = "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js";
+            s.onload = resolve;
+            s.onerror = reject;
+            document.head.appendChild(s);
+          });
+        } catch (e) {
+          showError("Scanner-Bibliothek konnte nicht geladen werden. Bitte Internet-Verbindung prüfen und erneut versuchen.");
+          return;
+        }
       }
 
       try {
@@ -414,17 +424,29 @@
     });
   } // end init()
 
-  // Turbo-kompatibel: feuert bei initialem Load und bei Turbo-Navigation
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
+  // Verhindert Doppel-Init: Flag damit init() nur einmal pro Page-Load läuft
+  let _initialized = false;
+
+  function safeInit() {
+    if (_initialized) return;
+    if (!document.getElementById("start-camera-btn")) return;
+    _initialized = true;
     init();
   }
-  document.addEventListener("turbo:load", function onTurboLoad() {
-    if (document.getElementById("start-camera-btn")) {
-      document.removeEventListener("turbo:load", onTurboLoad);
-      init();
-    }
-  });
+
+  // Initialer Load (direkte Navigation / Hard Reload)
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", safeInit);
+  } else {
+    safeInit();
+  }
+
+  // Turbo-Navigation zur Scanner-Seite
+  document.addEventListener("turbo:load", safeInit);
+  // turbo:render feuert auch bei Turbo-Frame-Updates
+  document.addEventListener("turbo:render", safeInit);
+
+  // Flag zurücksetzen wenn User die Seite verlässt, damit zweites Öffnen funktioniert
+  document.addEventListener("turbo:before-visit", function() { _initialized = false; });
 })();
 </script>
