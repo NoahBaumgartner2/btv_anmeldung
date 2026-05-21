@@ -1,18 +1,26 @@
 class FixTrainingSessionTimezoneOffset < ActiveRecord::Migration[8.1]
   def up
-    # Vor der Ausführung in der Rails Console prüfen:
-    # TrainingSession.order(:start_time).first(3).map { |s| "#{s.start_time} / #{s.start_time.in_time_zone('Europe/Zurich')}" }
-    #
-    # Nur ausführen wenn start_time als "15:00 UTC" gespeichert war, aber "15:00 Zürich" gemeint war.
-    # In diesem Fall -2h korrigieren:
-    #
-    # TrainingSession.find_each do |s|
-    #   s.update_columns(
-    #     start_time: s.start_time - 2.hours,
-    #     end_time:   s.end_time ? s.end_time - 2.hours : nil
-    #   )
-    # end
+    # Nur Sessions VOR der Sommerzeit-Umstellung 2026 korrigieren.
+    # Sommerzeit 2026 begann am 29. März 2026 um 02:00 Uhr.
+    # Winterzeit-Sessions wurden mit UTC+0 statt UTC+1 gespeichert → +1h korrigieren.
+    winter_cutoff = Time.utc(2026, 3, 29, 1, 0, 0) # 29. März 02:00 Zürich = 01:00 UTC
+
+    TrainingSession.where("start_time < ?", winter_cutoff).find_each do |s|
+      s.update_columns(
+        start_time: s.start_time + 1.hour,
+        end_time:   s.end_time ? s.end_time + 1.hour : nil
+      )
+    end
   end
 
-  def down; end
+  def down
+    winter_cutoff = Time.utc(2026, 3, 29, 2, 0, 0) # nach Korrektur
+
+    TrainingSession.where("start_time < ?", winter_cutoff).find_each do |s|
+      s.update_columns(
+        start_time: s.start_time - 1.hour,
+        end_time:   s.end_time ? s.end_time - 1.hour : nil
+      )
+    end
+  end
 end
