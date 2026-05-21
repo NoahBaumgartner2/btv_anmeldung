@@ -390,7 +390,7 @@
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Schnuppern</p>
     </div>
     <div class="p-6">
-      <p class="text-sm text-gray-500 mb-4">Familien können einmalig pro Trainingskategorie kostenlos schnuppern. Nur verfügbar wenn AHV-Nummer als Pflichtfeld aktiviert ist (zur eindeutigen Identifikation).</p>
+      <p class="text-sm text-gray-500 mb-4">Familien können einmalig pro Trainingskategorie kostenlos schnuppern. Identifikation erfolgt via AHV-Nummer (falls Pflichtfeld) oder Vorname, Nachname und Geburtsdatum.</p>
       <div class="flex items-start gap-3">
         <%= form.check_box :allows_trial,
               class: "h-5 w-5 mt-0.5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
@@ -399,9 +399,6 @@
           <p class="text-xs text-gray-400 mt-0.5">Familien sehen einen zusätzlichen "Jetzt schnuppern"-Button, wenn sie noch nie in dieser Kategorie geschnuppert haben.</p>
         </div>
       </div>
-      <% if form.object.allows_trial? && !form.object.requires_ahv_number? %>
-        <p class="mt-3 text-xs text-red-600 font-medium">&#9888;&#65039; Bitte aktiviere zuerst die AHV-Nummer als Pflichtfeld.</p>
-      <% end %>
     </div>
   </div>
 

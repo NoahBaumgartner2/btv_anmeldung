@@ -44,7 +44,6 @@ class Course < ApplicationRecord
   validates :min_age, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 120 }, allow_nil: true
   validates :max_age, numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 120 }, allow_nil: true
   validate  :max_age_must_be_greater_than_or_equal_to_min_age
-  validate  :trial_requires_ahv_number
 
   def age_restricted?
     min_age.present? || max_age.present?
@@ -124,9 +123,4 @@ class Course < ApplicationRecord
     errors.add(:max_age, "muss grösser oder gleich dem Mindestalter sein") if max_age < min_age
   end
 
-  def trial_requires_ahv_number
-    if allows_trial? && !requires_ahv_number?
-      errors.add(:allows_trial, "kann nur aktiviert werden wenn AHV-Nummer Pflicht ist")
-    end
-  end
 end
