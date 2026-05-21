@@ -255,8 +255,8 @@ class CourseRegistrationsController < ApplicationController
 
     @training_session = @course_registration.course.training_sessions.find(params[:training_session_id])
 
-    unless @training_session.start_time > 24.hours.from_now
-      redirect_to participants_path, alert: "Eine Abmeldung ist nur bis 24 Stunden vor dem Training möglich."
+    unless @training_session.start_time > 1.hour.from_now
+      redirect_to participants_path, alert: "Du kannst dich nur bis 1 Stunde vor Trainingsbeginn abmelden."
       return
     end
 

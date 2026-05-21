@@ -124,7 +124,7 @@
                           <ul class="space-y-2">
                             <% upcoming_sessions.each do |session| %>
                               <% is_unsubscribed = @unsubscribed_pairs.include?([reg.id, session.id]) %>
-                              <% can_unsubscribe = !is_unsubscribed && session.start_time > 24.hours.from_now %>
+                              <% can_unsubscribe = !is_unsubscribed && session.start_time > 1.hour.from_now %>
                               <li class="flex items-center justify-between gap-2 text-sm">
                                 <span class="text-gray-700 font-medium"><%= session.start_time.strftime("%-d. %b, %H:%M") %> <%= t("misc.time_suffix") %></span>
                                 <% if is_unsubscribed %>
@@ -310,7 +310,7 @@
                       <% next unless session %>
                       <% is_past      = session.start_time < now %>
                       <% is_storniert = reg.status == "storniert" %>
-                      <% can_cancel   = !is_storniert && !is_past && session.start_time > 24.hours.from_now %>
+                      <% can_cancel   = !is_storniert && !is_past && session.start_time > 1.hour.from_now %>
                       <div class="flex items-center justify-between gap-2 sm:gap-3 px-4 sm:px-5 py-3 <%= is_past || is_storniert ? 'opacity-50' : '' %>">
                         <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
                           <div class="shrink-0 w-2 h-2 rounded-full <%= is_past || is_storniert ? 'bg-gray-300' : 'bg-blue-400' %>"></div>

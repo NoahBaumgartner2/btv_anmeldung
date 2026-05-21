@@ -67,14 +67,14 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Zugriff verweigert", flash[:alert]
   end
 
-  test "cannot unsubscribe from session within 24 hours" do
+  test "cannot unsubscribe from session within 1 hour" do
     sign_in @parent
 
     post unsubscribe_from_session_course_registration_path(@registration),
          params: { training_session_id: @past_session.id }
 
     assert_redirected_to participants_path
-    assert_match "24 Stunden", flash[:alert]
+    assert_match "1 Stunde", flash[:alert]
     assert_equal 0, @past_session.attendances.where(status: "abgemeldet").count
   end
 
