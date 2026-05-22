@@ -210,13 +210,24 @@
       </p>
     </div>
 
+    <% if @course.course_registrations.count > 5 %>
+      <div class="px-4 sm:px-6 py-3 border-b border-gray-100">
+        <input type="text"
+               id="participants-search"
+               placeholder="Teilnehmer suchen..."
+               class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+               oninput="filterParticipants(this.value)">
+      </div>
+    <% end %>
+
     <% if @course.course_registrations.any? %>
 
       <%# ── Mobile: Card-Layout ────────────────────────────────────────── %>
+      <div class="<%= @course.course_registrations.count > 10 ? 'max-h-[600px] overflow-y-auto' : '' %>">
       <div class="sm:hidden divide-y divide-gray-100">
         <% sorted_registrations.each do |reg| %>
           <% p = reg.participant %>
-          <div class="p-4">
+          <div class="p-4" data-participant-name="<%= "#{p.first_name} #{p.last_name}".downcase %>">
             <%# Name + Status %>
             <div class="flex items-start justify-between gap-2 mb-2">
               <div class="min-w-0">
@@ -480,9 +491,10 @@
           </div>
         <% end %>
       </div>
+      </div>
 
       <%# ── Desktop: Tabelle ───────────────────────────────────────────── %>
-      <div class="overflow-hidden rounded-b-2xl">
+      <div class="<%= @course.course_registrations.count > 10 ? 'max-h-[600px] overflow-y-auto' : '' %> overflow-hidden rounded-b-2xl">
       <table class="hidden sm:table min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
@@ -495,7 +507,7 @@
         <tbody class="divide-y divide-gray-200 bg-white">
           <% sorted_registrations.each do |reg| %>
             <% p = reg.participant %>
-            <tr class="hover:bg-gray-50 transition">
+            <tr class="hover:bg-gray-50 transition" data-participant-name="<%= "#{p.first_name} #{p.last_name}".downcase %>">
               <td class="py-4 px-6 text-sm">
                 <span class="font-semibold text-gray-900"><%= p.first_name %> <%= p.last_name %></span>
                 <% if reg.status == "ausstehend" && reg.sumup_checkout_id.present? && !reg.payment_cleared? %>
@@ -917,3 +929,19 @@
   </div>
 
 </div>
+
+<script>
+function filterParticipants(query) {
+  const q = query.toLowerCase().trim();
+
+  // Mobile cards
+  document.querySelectorAll('.sm\\:hidden [data-participant-name]').forEach(function(card) {
+    card.closest('.p-4') && (card.closest('.p-4').style.display = (!q || card.dataset.participantName.toLowerCase().includes(q)) ? '' : 'none');
+  });
+
+  // Desktop rows
+  document.querySelectorAll('table tbody tr[data-participant-name]').forEach(function(row) {
+    row.style.display = (!q || row.dataset.participantName.toLowerCase().includes(q)) ? '' : 'none';
+  });
+}
+</script>
