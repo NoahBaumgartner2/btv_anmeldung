@@ -88,6 +88,16 @@ class Course < ApplicationRecord
     self.price_cents = value.presence ? (value.to_f * 100).round : nil
   end
 
+  def training_value_chf
+    cents = read_attribute(:training_value_cents)
+    return "" unless cents
+    format("%.2f", cents / 100.0)
+  end
+
+  def training_value_chf=(value)
+    self.training_value_cents = value.presence ? (value.to_f * 100).round : nil
+  end
+
   def price_display
     return I18n.t("courses.free") unless has_payment? && price_cents
     "CHF #{price_chf}"

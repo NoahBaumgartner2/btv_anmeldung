@@ -203,13 +203,40 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
-    @course_registration.update!(status: "storniert")
-    CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
+    @course_registration.update!(
+      status: "storniert",
+      cancelled_at: Time.current
+    )
+
     WaitlistPromotionService.promote_next_from_waitlist(
       @course_registration.course,
       training_session_id: @course_registration.training_session_id
     )
-    redirect_to participants_path, notice: "Die Anmeldung für \"#{@course_registration.course.title}\" wurde storniert."
+
+    course = @course_registration.course
+
+    if @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
+      begin
+        result = RefundService.process(@course_registration)
+        if result[:refunded]
+          amount_chf = format("%.2f", result[:amount_cents] / 100.0)
+          notice = "Die Anmeldung für \"#{course.title}\" wurde storniert. Rückerstattung von CHF #{amount_chf} wurde ausgelöst."
+        else
+          notice = "Die Anmeldung für \"#{course.title}\" wurde storniert."
+        end
+      rescue RuntimeError => e
+        Rails.logger.error "[cancel] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
+        User.where(admin: true).find_each do |admin_user|
+          CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message).deliver_later
+        end
+        notice = "Die Anmeldung für \"#{course.title}\" wurde storniert. Die Rückerstattung konnte nicht automatisch ausgelöst werden — der Administrator wurde informiert."
+      end
+    else
+      notice = "Die Anmeldung für \"#{course.title}\" wurde storniert."
+    end
+
+    CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
+    redirect_to participants_path, notice: notice
   end
 
   # Trainer (oder Admin) meldet ein Kind vom Kurs ab.
@@ -228,14 +255,12 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
-    reason       = params[:cancellation_reason].to_s.strip
-    notify_admin = ActiveModel::Type::Boolean.new.cast(params[:notify_admin])
-    trainer      = Trainer.find_by(user: current_user)
+    reason  = params[:cancellation_reason].to_s.strip
+    trainer = Trainer.find_by(user: current_user)
 
     @course_registration.update!(
       status: "storniert",
       cancellation_reason: reason.presence,
-      cancellation_notify_admin: notify_admin,
       cancelled_at: Time.current,
       cancelled_by_trainer: trainer
     )
@@ -248,15 +273,29 @@ class CourseRegistrationsController < ApplicationController
     # Eltern immer benachrichtigen
     CourseRegistrationMailer.cancelled_by_trainer(@course_registration).deliver_later
 
-    # Admin nur informieren, wenn der Trainer das wünscht (z.B. Rückerstattung)
-    if notify_admin
+    # Automatischer Refund (nur wenn Kurs bezahlt)
+    if @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
+      begin
+        result = RefundService.process(@course_registration)
+        if result[:refunded]
+          amount_chf = format("%.2f", result[:amount_cents] / 100.0)
+          Rails.logger.info "[trainer_cancel] Refund CHF #{amount_chf} für Registration #{@course_registration.id} ausgelöst"
+        else
+          Rails.logger.info "[trainer_cancel] Kein Refund für Registration #{@course_registration.id}: #{result[:reason]}"
+        end
+      rescue RuntimeError => e
+        Rails.logger.error "[trainer_cancel] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
+        User.where(admin: true).find_each do |admin_user|
+          CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message).deliver_later
+        end
+      end
+    elsif @course_registration.cancellation_notify_admin
       User.where(admin: true).find_each do |admin_user|
         CourseRegistrationMailer.admin_refund_notice(@course_registration, admin_user).deliver_later
       end
     end
 
     notice = "#{@course_registration.participant.first_name} wurde vom Kurs abgemeldet."
-    notice += " Der Administrator wurde wegen einer möglichen Rückerstattung benachrichtigt." if notify_admin
     redirect_to manage_course_path(course), notice: notice
   end
 

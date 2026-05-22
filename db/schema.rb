@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_20_143156) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_22_154854) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -158,6 +158,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_20_143156) do
     t.boolean "restricted", default: false, null: false
     t.datetime "start_date"
     t.string "title"
+    t.integer "training_value_cents"
     t.datetime "updated_at", null: false
   end
 

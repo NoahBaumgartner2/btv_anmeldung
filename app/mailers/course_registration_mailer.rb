@@ -64,6 +64,20 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
+  def refund_failed_notice(course_registration, admin_user, error_message)
+    @course_registration = course_registration
+    @course       = course_registration.course
+    @participant  = course_registration.participant
+    @parent       = @participant.user
+    @error_message = error_message
+    @recipient    = admin_user
+
+    mail(
+      to: admin_user.email,
+      subject: "Rückerstattung fehlgeschlagen: #{@participant.first_name} #{@participant.last_name} (#{@course.title})"
+    )
+  end
+
   def admin_refund_notice(course_registration, admin_user)
     @course_registration = course_registration
     @course       = course_registration.course

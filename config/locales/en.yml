@@ -127,6 +127,8 @@ en:
     switch: "Change language"
 
   courses:
+    training_value_label: "Value per training"
+    training_value_hint: "For automatic refunds (CHF per training)"
     index:
       title: "Courses"
       subtitle: "Choose a category and register directly."

@@ -166,6 +166,8 @@ de:
     switch: "Sprache wechseln"
 
   courses:
+    training_value_label: "Wert pro Training"
+    training_value_hint: "Für automatische Rückerstattungen (CHF pro Training)"
     index:
       title: "Kursangebot"
       subtitle: "Wähle die passende Kategorie und melde dich direkt an."
