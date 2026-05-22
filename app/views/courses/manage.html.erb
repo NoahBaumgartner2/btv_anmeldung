@@ -30,6 +30,7 @@
   sorted_registrations = @course.course_registrations
     .includes(:participant)
     .to_a
+    .sort_by { |r| -(r.created_at&.to_i || 0) }
     .uniq(&:participant_id)
     .sort_by { |r| [status_order.fetch(r.status, 99), r.participant&.last_name.to_s] }
   active_registrations    = sorted_registrations.reject { |r| r.status == "storniert" }
