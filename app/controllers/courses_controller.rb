@@ -1,9 +1,9 @@
 class CoursesController < ApplicationController
   # Für neue Kurse oder Bearbeitung MUSS man Admin sein
-  before_action :authorize_admin!, except: [ :index, :show, :manage, :participant_search, :manual_enroll ]
+  before_action :authorize_admin!, except: [ :index, :show, :manage, :participant_search, :manual_enroll, :send_custom_email ]
   # GET /courses or /courses.json
-  before_action :authorize_trainer!, only: [ :manage ]
-  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll ]
+  before_action :authorize_trainer!, only: [ :manage, :send_custom_email ]
+  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email ]
   def index
     all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users)
     @restricted_courses = if current_user&.admin?
@@ -272,6 +272,19 @@ class CoursesController < ApplicationController
     else
       redirect_to manage_course_path(@course), alert: "Bitte Teilnehmer auswählen oder neue Familie erfassen."
     end
+  end
+
+  def send_custom_email
+    reg = @course.course_registrations.find(params[:registration_id])
+    subject = params[:subject].to_s.strip
+    body    = params[:body].to_s.strip
+
+    if subject.blank? || body.blank?
+      return redirect_to manage_course_path(@course), alert: "Betreff und Nachricht dürfen nicht leer sein."
+    end
+
+    CourseRegistrationMailer.custom_message(reg, subject: subject, body: body).deliver_later
+    redirect_to manage_course_path(@course), notice: "E-Mail an #{reg.participant.first_name} #{reg.participant.last_name} wurde gesendet."
   end
 
   def grant_access

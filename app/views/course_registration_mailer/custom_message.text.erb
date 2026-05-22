@@ -1,0 +1,9 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+<%= @custom_body %>
+
+---
+Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:        <%= @course.title %>
+
+Diese E-Mail wurde vom Trainer versendet.

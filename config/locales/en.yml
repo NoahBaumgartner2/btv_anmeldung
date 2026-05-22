@@ -274,6 +274,12 @@ en:
       abo_exhausted: "Exhausted"
       use_abo_entry: "Redeem entry"
       use_abo_entry_confirm: "Redeem entry for %{name}?"
+      send_email: "Email"
+      send_email_modal_title: "Email to %{name}"
+      send_email_subject_label: "Subject"
+      send_email_body_label: "Message"
+      send_email_submit: "Send email"
+      send_email_cancel: "Cancel"
     generate_trainings:
       back: "← Back to Management"
       title: "Generate Training Sessions"

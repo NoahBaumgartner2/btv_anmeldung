@@ -139,6 +139,17 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
+  def custom_message(course_registration, subject:, body:)
+    @course_registration = course_registration
+    @course = course_registration.course
+    @participant = course_registration.participant
+    @recipient = @participant.user
+    @custom_body = body
+    return if @recipient.nil?
+
+    mail(to: @recipient.email, subject: subject)
+  end
+
   def status_changed(course_registration)
     @course_registration = course_registration
     @course = course_registration.course

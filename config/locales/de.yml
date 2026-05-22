@@ -313,6 +313,12 @@ de:
       abo_exhausted: "Erschöpft"
       use_abo_entry: "Eintritt einlösen"
       use_abo_entry_confirm: "Eintritt für %{name} einlösen?"
+      send_email: "E-Mail"
+      send_email_modal_title: "E-Mail an %{name}"
+      send_email_subject_label: "Betreff"
+      send_email_body_label: "Nachricht"
+      send_email_submit: "E-Mail senden"
+      send_email_cancel: "Abbrechen"
     generate_trainings:
       back: "← Zurück zur Kursverwaltung"
       title: "Trainings generieren"

@@ -66,6 +66,7 @@ Rails.application.routes.draw do
       delete :revoke_access
       post :manual_enroll
       get  :participant_search
+      post :send_custom_email
     end
   end
 
