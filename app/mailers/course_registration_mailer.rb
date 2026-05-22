@@ -153,6 +153,33 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
+  def admin_cancel_notice(course_registration, admin_user)
+    @course_registration = course_registration
+    @course       = course_registration.course
+    @participant  = course_registration.participant
+    @parent       = @participant.user
+    @recipient    = admin_user
+    @cancelled_by_trainer = course_registration.cancelled_by_trainer&.user&.email
+
+    mail(
+      to: admin_user.email,
+      subject: "Abmeldung: #{@participant.first_name} #{@participant.last_name} – #{@course.title}"
+    )
+  end
+
+  def trainer_cancel_notice(course_registration, trainer_user)
+    @course_registration = course_registration
+    @course       = course_registration.course
+    @participant  = course_registration.participant
+    @parent       = @participant.user
+    @recipient    = trainer_user
+
+    mail(
+      to: trainer_user.email,
+      subject: "Abmeldung: #{@participant.first_name} #{@participant.last_name} – #{@course.title}"
+    )
+  end
+
   def custom_message(course_registration, subject:, body:)
     @course_registration = course_registration
     @course = course_registration.course

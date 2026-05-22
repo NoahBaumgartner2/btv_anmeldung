@@ -236,6 +236,13 @@ class CourseRegistrationsController < ApplicationController
     end
 
     CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
+    User.where(admin: true).find_each do |admin_user|
+      CourseRegistrationMailer.admin_cancel_notice(@course_registration, admin_user).deliver_later
+    end
+    course.trainers.includes(:user).each do |trainer|
+      next unless trainer.user&.email.present?
+      CourseRegistrationMailer.trainer_cancel_notice(@course_registration, trainer.user).deliver_later
+    end
     redirect_to participants_path, notice: notice
   end
 
@@ -289,10 +296,10 @@ class CourseRegistrationsController < ApplicationController
           CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message).deliver_later
         end
       end
-    elsif @course_registration.cancellation_notify_admin
-      User.where(admin: true).find_each do |admin_user|
-        CourseRegistrationMailer.admin_refund_notice(@course_registration, admin_user).deliver_later
-      end
+    end
+
+    User.where(admin: true).find_each do |admin_user|
+      CourseRegistrationMailer.admin_cancel_notice(@course_registration, admin_user).deliver_later
     end
 
     notice = "#{@course_registration.participant.first_name} wurde vom Kurs abgemeldet."
