@@ -14,7 +14,21 @@ export default class extends Controller {
 
   toggle(event) {
     event.stopPropagation()
-    this.menuTarget.classList.toggle("hidden")
+    const menu = this.menuTarget
+    const isHidden = menu.classList.contains("hidden")
+
+    if (isHidden) {
+      const btn = this.element.querySelector("[data-action*='dropdown#toggle']")
+      const rect = btn.getBoundingClientRect()
+      menu.style.position = "fixed"
+      menu.style.top = (rect.bottom + 4) + "px"
+      menu.style.right = (window.innerWidth - rect.right) + "px"
+      menu.style.left = "auto"
+      menu.style.zIndex = "9999"
+      menu.classList.remove("hidden")
+    } else {
+      menu.classList.add("hidden")
+    }
   }
 
   close() {
