@@ -16,6 +16,7 @@ import PaymentToggleController from "controllers/payment_toggle_controller"
 import TrialCheckController from "controllers/trial_check_controller"
 import ManualEnrollController from "controllers/manual_enroll_controller"
 import TrainerPermissionController from "controllers/trainer_permission_controller"
+import DropdownController from "controllers/dropdown_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -35,3 +36,4 @@ application.register("payment-toggle", PaymentToggleController)
 application.register("trial-check", TrialCheckController)
 application.register("manual-enroll", ManualEnrollController)
 application.register("trainer-permission", TrainerPermissionController)
+application.register("dropdown", DropdownController)
