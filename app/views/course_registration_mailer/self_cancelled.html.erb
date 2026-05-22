@@ -1,41 +1,87 @@
+<% primary = @_club&.effective_primary_color || "#dc2626" %>
+<%
+  club = @_club || ClubSetting.current
+  club_name  = club&.club_name.presence || "BTV Anmeldung"
+  club_email = club&.contact_email
+%>
+
+<% if @refund_amount_chf.present? %>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0;font-size:15px;font-weight:600;color:#166534;font-family:Arial,Helvetica,sans-serif;">&#10003; Abmeldung bestätigt &amp; Rückerstattung ausgelöst</p>
+    </td>
+  </tr>
+</table>
+<% else %>
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:24px;">
   <tr>
     <td style="padding:16px 20px;">
-      <p style="margin:0;font-size:15px;font-weight:600;color:#374151;font-family:Arial,Helvetica,sans-serif;">Abmeldung bestätigt</p>
+      <p style="margin:0;font-size:15px;font-weight:600;color:#374151;font-family:Arial,Helvetica,sans-serif;">&#10003; Abmeldung bestätigt</p>
     </td>
   </tr>
 </table>
+<% end %>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
   Hallo <%= @recipient.email.split("@").first %>,<br><br>
-  Die Abmeldung von <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> vom Kurs
-  <strong><%= @course.title %></strong> wurde erfolgreich verarbeitet.
+  die Abmeldung von <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
+  vom Kurs <strong><%= @course.title %></strong> wurde bestätigt.
 </p>
 
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:24px;">
   <tr>
-    <td style="padding:16px 20px;">
-      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Teilnehmer</p>
-      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @participant.first_name %> <%= @participant.last_name %></p>
+    <td style="padding:20px;">
 
-      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
-      <p style="margin:0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+      <p style="margin:0 0 4px 0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Teilnehmer</p>
+      <p style="margin:0 0 16px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @participant.first_name %> <%= @participant.last_name %></p>
+
+      <p style="margin:0 0 4px 0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
+      <p style="margin:0 0 16px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+
+      <p style="margin:0 0 4px 0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Abmeldedatum</p>
+      <p style="margin:0;font-size:15px;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= I18n.l(@cancelled_at.to_date, format: :long) %></p>
+
     </td>
   </tr>
 </table>
 
-<% if @course.has_payment? && @course_registration.payment_cleared? %>
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;margin-bottom:24px;">
-    <tr>
-      <td style="padding:16px 20px;">
-        <p style="margin:0;font-size:14px;color:#1e40af;font-family:Arial,Helvetica,sans-serif;">
-          Du hast für diesen Kurs bereits bezahlt. Bei Fragen zu einer Rückerstattung wende dich bitte direkt an den Verein.
-        </p>
-      </td>
-    </tr>
-  </table>
+<% if @refund_amount_chf.present? %>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:20px;">
+
+      <table width="100%" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="font-size:14px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:0.05em;padding-bottom:4px;">Erstatteter Betrag</td>
+          <td style="text-align:right;">
+            <span style="font-size:22px;font-weight:800;color:#166534;font-family:Arial,Helvetica,sans-serif;">CHF <%= @refund_amount_chf %></span>
+          </td>
+        </tr>
+      </table>
+
+      <p style="margin:12px 0 4px 0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Datum der Rückerstattung</p>
+      <p style="margin:0 0 12px 0;font-size:15px;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= I18n.l(@cancelled_at.to_date, format: :long) %></p>
+
+      <p style="margin:0;font-size:14px;color:#166534;font-family:Arial,Helvetica,sans-serif;">
+        Die Rückerstattung wurde automatisch auf deine Zahlungsmethode veranlasst und erscheint in den nächsten 3–5 Werktagen.
+      </p>
+
+    </td>
+  </tr>
+</table>
+<% elsif @course_registration.payment_cleared? && @course.has_payment? %>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0;font-size:14px;color:#92400e;font-family:Arial,Helvetica,sans-serif;">
+        Du hast für diesen Kurs bereits bezahlt. Da keine automatische Rückerstattung möglich war, wurde kein Betrag zurückgebucht.
+      </p>
+    </td>
+  </tr>
+</table>
 <% end %>
 
 <p style="margin:0 0 32px 0;font-size:13px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
-  Bei Fragen wende dich bitte direkt an uns.
+  Bei Fragen wende dich bitte an <%= club_email.present? ? club_email : club_name %>.
 </p>

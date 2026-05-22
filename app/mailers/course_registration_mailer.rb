@@ -140,12 +140,16 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
-  def self_cancelled(course_registration)
+  def self_cancelled(course_registration, refund_amount_cents: nil)
     @course_registration = course_registration
     @course = course_registration.course
     @participant = course_registration.participant
     @recipient = @participant.user
     return if @recipient.nil?
+
+    @refund_amount_cents = refund_amount_cents
+    @refund_amount_chf   = refund_amount_cents ? format("%.2f", refund_amount_cents / 100.0) : nil
+    @cancelled_at        = course_registration.cancelled_at || Time.current
 
     mail(
       to: @recipient.email,

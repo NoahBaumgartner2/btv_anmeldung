@@ -28,4 +28,9 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
 
     assert_no_match "Trainer", mail.body.encoded
   end
+
+  test "self_cancelled with refund shows refund amount" do
+    mail = CourseRegistrationMailer.self_cancelled(@registration, refund_amount_cents: 5000)
+    assert_match "50.00", mail.body.encoded
+  end
 end

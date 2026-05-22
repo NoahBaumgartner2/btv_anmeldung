@@ -235,7 +235,8 @@ class CourseRegistrationsController < ApplicationController
       notice = "Die Anmeldung für \"#{course.title}\" wurde storniert."
     end
 
-    CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
+    refund_cents = defined?(result) && result&.dig(:refunded) ? result[:amount_cents] : nil
+    CourseRegistrationMailer.self_cancelled(@course_registration, refund_amount_cents: refund_cents).deliver_later
     User.where(admin: true).find_each do |admin_user|
       CourseRegistrationMailer.admin_cancel_notice(@course_registration, admin_user).deliver_later
     end

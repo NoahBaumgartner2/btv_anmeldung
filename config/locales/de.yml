@@ -397,7 +397,7 @@ de:
       unsubscribe_course_btn: "Vom Kurs abmelden"
       more_courses_in_category: "Weitere %{category}-Kurse ansehen"
       unsubscribe_course_confirm: "%{name} vollständig vom Kurs abmelden?"
-      irreversible: "Du wirst aus dem Kurs ausgetragen und verlierst deinen Platz. Falls du eine Kursgebühr bezahlt hast, melde dich bitte beim Verein für eine allfällige Rückerstattung."
+      irreversible: "Du wirst aus dem Kurs ausgetragen und verlierst deinen Platz. Falls du eine Kursgebühr bezahlt hast, wird diese automatisch zurückerstattet."
       past: "Vergangen"
       cancel_session_confirm: "Termin am %{date} stornieren?"
       ticket_next_session: "Ticket – nächster Termin"
@@ -839,7 +839,7 @@ de:
         heading_course: "Kurs abmelden"
         body_single_html: "Willst du die Buchung für <strong>%{date}</strong> wirklich stornieren?"
         body_course_html: "Willst du dich wirklich vom Kurs <strong>%{title}</strong> abmelden?"
-        irreversible: "Du wirst aus dem Kurs ausgetragen und verlierst deinen Platz. Falls du eine Kursgebühr bezahlt hast, melde dich bitte beim Verein für eine allfällige Rückerstattung."
+        irreversible: "Du wirst aus dem Kurs ausgetragen und verlierst deinen Platz. Falls du eine Kursgebühr bezahlt hast, wird diese automatisch zurückerstattet."
         cancel_btn: "Abbrechen"
         confirm_btn: "Ja, stornieren"
 
