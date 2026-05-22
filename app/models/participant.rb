@@ -81,8 +81,19 @@ class Participant < ApplicationRecord
       .exists?
   end
 
+  def ever_registered_in_category?(category)
+    sibling_ids = trial_sibling_ids
+    CourseRegistration
+      .joins(:course)
+      .where(participant_id: sibling_ids)
+      .where(courses: { category: category })
+      .where.not(status: %w[schnuppern ausstehend])
+      .exists?
+  end
+
   def schnupper_eligible_for_category?(category)
     return false if ever_trialed_in_category?(category)
+    return false if ever_registered_in_category?(category)
 
     sibling_ids = trial_sibling_ids
     CourseRegistration
