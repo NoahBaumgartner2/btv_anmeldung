@@ -1,4 +1,6 @@
 class CourseRegistration < ApplicationRecord
+  TRIAL_STATUS = "schnuppern"
+
   belongs_to :course
   belongs_to :participant
   belongs_to :training_session, optional: true
@@ -8,27 +10,37 @@ class CourseRegistration < ApplicationRecord
 
   validate :participant_has_required_fields, on: :create
   validate :no_duplicate_single_session_registration, on: :create
+  validate :no_duplicate_semester_registration, on: :create
   validate :training_session_bookable, on: :create
 
-  after_destroy :promote_from_waitlist
-  after_update :promote_from_waitlist, if: -> { saved_change_to_status?(to: "storniert") }
+  before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") && payment_expires_at.nil? }
+
+  def trial?
+    status == TRIAL_STATUS
+  end
+
+  def trial_expired?
+    trial? && created_at < 7.days.ago
+  end
+
+  def status_label
+    I18n.t("course_registrations.statuses.#{status}", default: status.to_s.humanize)
+  end
+
+  def abo_entries_remaining
+    return nil unless abo_entries_total.present?
+    abo_entries_total - abo_entries_used.to_i
+  end
+
+  def abo_exhausted?
+    return false unless abo_entries_total.present?
+    abo_entries_used.to_i >= abo_entries_total
+  end
 
   private
 
-  def promote_from_waitlist
-    return unless course.max_participants.present?
-
-    confirmed_count = course.course_registrations.where(status: "bestätigt").count
-    return unless confirmed_count < course.max_participants
-
-    next_in_line = course.course_registrations
-                         .where(status: "warteliste")
-                         .order(:created_at)
-                         .first
-    return unless next_in_line
-
-    next_in_line.update_columns(status: "bestätigt")
-    CourseRegistrationMailer.waitlist_promoted(next_in_line).deliver_later
+  def set_payment_expiry
+    self.payment_expires_at = 48.hours.from_now
   end
 
   def no_duplicate_single_session_registration
@@ -38,18 +50,32 @@ class CourseRegistration < ApplicationRecord
       participant_id: participant_id,
       course_id: course_id,
       training_session_id: training_session_id
-    ).where.not(status: "storniert").exists?
+    ).where.not(status: [ "storniert", "ausstehend" ]).exists?
 
-    errors.add(:base, "Dieses Kind ist für diesen Termin bereits angemeldet.") if already_registered
+    errors.add(:base, I18n.t("course_registrations.errors.duplicate_session")) if already_registered
+  end
+
+  def no_duplicate_semester_registration
+    return if course.blank? || participant_id.blank?
+    return if course.registration_mode == "single_session"
+
+    already_registered = CourseRegistration.where(
+      participant_id: participant_id,
+      course_id: course_id
+    ).where.not(status: [ "storniert", "ausstehend" ]).exists?
+
+    if already_registered
+      errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
+    end
   end
 
   def training_session_bookable
     return unless training_session.present?
 
     if training_session.is_canceled?
-      errors.add(:base, "Dieser Termin wurde leider abgesagt.")
+      errors.add(:base, I18n.t("course_registrations.errors.session_cancelled"))
     elsif training_session.start_time <= Time.current
-      errors.add(:base, "Dieser Termin liegt in der Vergangenheit und kann nicht mehr gebucht werden.")
+      errors.add(:base, I18n.t("course_registrations.errors.session_in_past"))
     end
   end
 
@@ -58,7 +84,9 @@ class CourseRegistration < ApplicationRecord
 
     missing = participant.missing_fields_for(course)
     missing.each do |field|
-      errors.add(:base, "#{Participant.field_label(field)} fehlt für #{participant.first_name} #{participant.last_name}. Bitte zuerst im Profil ergänzen.")
+      errors.add(:base, I18n.t("course_registrations.errors.missing_field",
+                               field: Participant.field_label(field),
+                               name: "#{participant.first_name} #{participant.last_name}"))
     end
   end
 end

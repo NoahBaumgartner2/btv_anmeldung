@@ -1,0 +1,22 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+die Abmeldung von <%= @participant.first_name %> <%= @participant.last_name %> vom Kurs "<%= @course.title %>" wurde bestätigt.
+
+Teilnehmer:   <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:         <%= @course.title %>
+Abmeldedatum: <%= I18n.l(@cancelled_at.to_date, format: :long) %>
+<% if @refund_amount_chf.present? %>
+
+RÜCKERSTATTUNG
+Betrag: CHF <%= @refund_amount_chf %>
+
+Die Rückerstattung wurde automatisch veranlasst und erscheint in den nächsten 3–5 Werktagen auf deiner Zahlungsmethode.
+<% elsif @course_registration.payment_cleared? && @course.has_payment? %>
+
+Du hast für diesen Kurs bereits bezahlt. Da keine automatische Rückerstattung möglich war, wurde kein Betrag zurückgebucht.
+<% end %>
+
+Bei Fragen wende dich bitte direkt an uns.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

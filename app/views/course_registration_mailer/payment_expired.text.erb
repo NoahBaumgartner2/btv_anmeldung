@@ -1,0 +1,13 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+die Reservierung von <%= @participant.first_name %> <%= @participant.last_name %> für den Kurs
+"<%= @course.title %>" wurde automatisch storniert, da die Zahlung nicht innerhalb
+von 48 Stunden eingegangen ist.
+
+Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:        <%= @course.title %>
+
+Du kannst dich jederzeit erneut anmelden – sofern noch Plätze verfügbar sind.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

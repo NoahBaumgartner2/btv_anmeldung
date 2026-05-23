@@ -6,6 +6,8 @@ class PaymentReminderMailer < ApplicationMailer
     @recipient = @participant.user
     @reminder_count = course_registration.payment_reminder_count
 
+    return if @recipient.nil?
+
     mail(
       to: @recipient.email,
       subject: "Zahlungserinnerung: #{@course.title}"

@@ -9,6 +9,20 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     @registration = course_registrations(:one)
     @future_session = training_sessions(:future)
     @past_session = training_sessions(:one)
+
+    @trial_parent = users(:parent_only)
+    @trial_participant = participants(:parent_only_child)
+    @trial_course = Course.new(
+      title: "Schnupper-Kurs",
+      registration_type: "semester",
+      registration_mode: "semester",
+      has_payment: false,
+      has_ticketing: false,
+      allows_holiday_deduction: false,
+      allows_trial: true,
+      requires_ahv_number: true
+    )
+    @trial_course.save!(validate: false)
   end
 
   # ── unsubscribe_from_session ─────────────────────────────────────────────
@@ -53,14 +67,14 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Zugriff verweigert", flash[:alert]
   end
 
-  test "cannot unsubscribe from session within 24 hours" do
+  test "cannot unsubscribe from session within 1 hour" do
     sign_in @parent
 
     post unsubscribe_from_session_course_registration_path(@registration),
          params: { training_session_id: @past_session.id }
 
     assert_redirected_to participants_path
-    assert_match "24 Stunden", flash[:alert]
+    assert_match "1 Stunde", flash[:alert]
     assert_equal 0, @past_session.attendances.where(status: "abgemeldet").count
   end
 
@@ -69,5 +83,230 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
          params: { training_session_id: @future_session.id }
 
     assert_redirected_to new_user_session_path
+  end
+
+  # ── scan ────────────────────────────────────────────────────────────────────
+
+  test "scan redirects with alert when session_id not found" do
+    sign_in @parent  # users(:one) ist auch Trainer (trainer fixture :one)
+
+    post scan_course_registration_path(@registration), params: { session_id: 0 }
+
+    assert_redirected_to root_path
+    assert_match "nicht gefunden", flash[:alert]
+  end
+
+  test "scan returns 404 JSON when session_id not found" do
+    sign_in @parent  # users(:one) ist auch Trainer (trainer fixture :one)
+
+    post scan_course_registration_path(@registration),
+         params: { session_id: 0 },
+         headers: { "Accept" => "application/json" }
+
+    assert_response :not_found
+    body = JSON.parse(response.body)
+    assert_equal false, body["success"]
+    assert_includes body["message"], "nicht gefunden"
+  end
+
+  # ── Schnuppern ────────────────────────────────────────────────────────────
+
+  test "creates schnupper registration when trial param is true and course allows trial" do
+    sign_in @trial_parent
+
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id
+        },
+        trial: "true"
+      }
+    end
+
+    reg = CourseRegistration.last
+    assert_equal "schnuppern", reg.status
+    assert_redirected_to course_registration_path(reg)
+    assert_match "Schnupperplatz", flash[:notice]
+  end
+
+  test "rejects trial when course does not allow trial" do
+    @trial_course.update_column(:allows_trial, false)
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id
+        },
+        trial: "true"
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "rejects trial when participant already trialed in same category" do
+    existing = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    existing.save!(validate: false)
+
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id
+        },
+        trial: "true"
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "does not redirect to payment when trial even if course has payment" do
+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+    sign_in @trial_parent
+
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id
+        },
+        trial: "true"
+      }
+    end
+
+    reg = CourseRegistration.last
+    assert_equal "schnuppern", reg.status
+    assert_redirected_to course_registration_path(reg)
+  end
+
+  # ── trial_eligible ────────────────────────────────────────────────────────
+
+  test "trial_eligible returns eligible true for participant who never trialed" do
+    sign_in @trial_parent
+    get trial_eligible_course_registrations_path,
+        params: { course_id: @trial_course.id, participant_id: @trial_participant.id },
+        headers: { "Accept" => "application/json" }
+    assert_response :ok
+    assert_equal true, JSON.parse(response.body)["eligible"]
+  end
+
+  test "trial_eligible returns eligible false when participant already trialed in category" do
+    reg = CourseRegistration.new(course: @trial_course, participant: @trial_participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+    sign_in @trial_parent
+    get trial_eligible_course_registrations_path,
+        params: { course_id: @trial_course.id, participant_id: @trial_participant.id },
+        headers: { "Accept" => "application/json" }
+    assert_equal false, JSON.parse(response.body)["eligible"]
+  end
+
+  test "trial_eligible returns eligible false when participant already confirmed in same category" do
+    reg = CourseRegistration.new(course: @trial_course, participant: @trial_participant,
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+    sign_in @trial_parent
+    get trial_eligible_course_registrations_path,
+        params: { course_id: @trial_course.id, participant_id: @trial_participant.id },
+        headers: { "Accept" => "application/json" }
+    assert_equal false, JSON.parse(response.body)["eligible"]
+  end
+
+  test "trial_eligible returns eligible false when course does not allow trial" do
+    @trial_course.update_column(:allows_trial, false)
+    sign_in @trial_parent
+    get trial_eligible_course_registrations_path,
+        params: { course_id: @trial_course.id, participant_id: @trial_participant.id },
+        headers: { "Accept" => "application/json" }
+    assert_equal false, JSON.parse(response.body)["eligible"]
+  end
+
+  test "trial_eligible returns eligible false for participant belonging to another user" do
+    other_participant = participants(:one)
+    sign_in @trial_parent
+    get trial_eligible_course_registrations_path,
+        params: { course_id: @trial_course.id, participant_id: other_participant.id },
+        headers: { "Accept" => "application/json" }
+    assert_equal false, JSON.parse(response.body)["eligible"]
+  end
+
+  # ── mark_as_paid ──────────────────────────────────────────────────────────
+
+  test "mark_as_paid markiert Registration als bezahlt (admin only)" do
+    admin = users(:admin)
+    sign_in admin
+
+    reg = course_registrations(:one)
+    reg.update_columns(payment_cleared: false, status: "ausstehend")
+
+    post mark_as_paid_course_registration_path(reg)
+
+    reg.reload
+    assert reg.payment_cleared?
+    assert_equal "bestätigt", reg.status
+    assert_redirected_to manage_course_path(reg.course)
+  end
+
+  test "mark_as_paid ist idempotent – doppelter Aufruf ändert nichts" do
+    admin = users(:admin)
+    sign_in admin
+
+    reg = course_registrations(:one)
+    reg.update_columns(payment_cleared: true, status: "bestätigt", sumup_transaction_id: "orig-tx")
+
+    post mark_as_paid_course_registration_path(reg)
+
+    reg.reload
+    assert reg.payment_cleared?, "payment_cleared soll true bleiben"
+    assert_equal "bestätigt", reg.status
+  end
+
+  test "mark_as_paid verweigert Zugriff für Eltern" do
+    sign_in @parent
+
+    reg = course_registrations(:one)
+    post mark_as_paid_course_registration_path(reg)
+
+    assert_redirected_to root_path
+  end
+
+  # ── Abo ───────────────────────────────────────────────────────────────────
+
+  test "abo_entries_total wird beim Anmelden auf abo_size gesetzt" do
+    abo_course = Course.new(
+      title: "10er-Abo Kurs",
+      registration_type: "semester",
+      registration_mode: "abo",
+      has_payment: false,
+      has_ticketing: false,
+      allows_holiday_deduction: false,
+      allows_trial: false,
+      abo_size: 10
+    )
+    abo_course.save!(validate: false)
+
+    sign_in @trial_parent
+
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: abo_course.id,
+          participant_id: @trial_participant.id
+        }
+      }
+    end
+
+    reg = CourseRegistration.last
+    assert_equal 10, reg.abo_entries_total
+    assert_equal 0, reg.abo_entries_used
   end
 end

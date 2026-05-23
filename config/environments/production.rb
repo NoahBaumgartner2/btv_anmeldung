@@ -59,7 +59,7 @@ Rails.application.configure do
 
   # Set host to be used by links generated in mailer templates.
   config.action_mailer.default_url_options = {
-    host:     ENV.fetch("APP_HOST", "example.com"),
+    host:     ENV.fetch("APP_HOST", "btvbern-anmeldung.ch"),
     protocol: ENV.fetch("APP_PROTOCOL", "https")
   }
 
@@ -88,6 +88,10 @@ Rails.application.configure do
   #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
   # ]
   #
+  # Allow requests from your specific domain
+  config.hosts << "btvbern-anmeldung.ch"
+
   # Skip DNS rebinding protection for the default health check endpoint.
-  # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+  # This is CRITICAL for Kamal to know the app is running.
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end

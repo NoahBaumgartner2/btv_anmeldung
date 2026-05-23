@@ -57,6 +57,7 @@ class DashboardsController < ApplicationController
     now = Time.current
 
     @courses = Course.includes(
+      { trainers: :user },
       training_sessions: :attendances,
       course_registrations: :participant
     ).order(start_date: :desc)
@@ -67,10 +68,10 @@ class DashboardsController < ApplicationController
     @past_sessions    = all_sessions.where("start_time < ?", now).count
     @canceled_sessions = all_sessions.where(is_canceled: true).count
 
-    all_attendances = Attendance.all
-    @present_count  = all_attendances.where(status: "anwesend").count
-    @absent_count   = all_attendances.where(status: "abwesend").count
-    @excused_count  = all_attendances.where(status: "abgemeldet").count
+    non_canceled_attendances = Attendance.joins(:training_session).where(training_sessions: { is_canceled: false })
+    @present_count  = non_canceled_attendances.where(status: "anwesend").count
+    @absent_count   = non_canceled_attendances.where(status: "abwesend").count
+    @excused_count  = non_canceled_attendances.where(status: "abgemeldet").count
 
     # Kurs-Filter (Multi-Select)
     @selected_course_ids = Array(params[:course_ids]).map(&:to_i).select(&:positive?)

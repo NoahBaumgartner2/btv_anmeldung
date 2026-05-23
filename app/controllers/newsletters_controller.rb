@@ -59,7 +59,7 @@ class NewslettersController < ApplicationController
 
     @newsletter.update!(status: "sent", sent_at: Time.current, recipients_count: count)
     redirect_to newsletters_path,
-                notice: "Newsletter an #{count} #{"Empfänger".pluralize(count)} in der Warteschlange."
+                notice: "Newsletter an #{count} Empfänger in die Warteschlange gelegt."
   end
 
   private

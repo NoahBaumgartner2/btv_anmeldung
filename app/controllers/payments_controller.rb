@@ -21,7 +21,7 @@ class PaymentsController < ApplicationController
     end
 
     unless ::SumupConfig.configured?
-      return redirect_to course_registration_path(@registration),
+      redirect_to course_registration_path(@registration),
                          alert: "Zahlung aktuell nicht verfügbar. Bitte kontaktiere uns."
     end
   end
@@ -55,15 +55,18 @@ class PaymentsController < ApplicationController
     body = {
       amount:             amount,
       currency:           ::SumupConfig.currency.upcase,
-      checkout_reference: @registration.id.to_s,
+      checkout_reference: "reg-#{@registration.id}-#{Time.current.to_i}",
       merchant_code:      ::SumupConfig.merchant_code,
-      description:        "#{course.title} – #{course.registration_type}",
-      return_url:         payments_success_url(checkout_id: "{checkout_id}")
+      description:        "#{course.title} – #{@registration.participant.first_name} #{@registration.participant.last_name}",
+      redirect_url:       payments_success_url(registration_id: @registration.id),
+      hosted_checkout:    { enabled: true }
     }
 
     uri = URI("https://api.sumup.com/v0.1/checkouts")
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
+    http.open_timeout = 5
+    http.read_timeout = 10
 
     request = Net::HTTP::Post.new(uri.path, {
       "Content-Type"  => "application/json",
@@ -75,14 +78,26 @@ class PaymentsController < ApplicationController
 
     unless response.is_a?(Net::HTTPSuccess)
       Rails.logger.error "[SumUp] Checkout error #{response.code}: #{response.body}"
+      error_msg = begin
+        JSON.parse(response.body)["message"]
+      rescue
+        nil
+      end
       return redirect_to course_registration_path(@registration),
-                         alert: "Zahlung konnte nicht gestartet werden. Bitte versuche es später erneut."
+                         alert: "Zahlung konnte nicht gestartet werden#{error_msg ? ": #{error_msg}" : ". Bitte versuche es später erneut."}"
     end
 
     checkout = JSON.parse(response.body)
     @registration.update!(sumup_checkout_id: checkout["id"])
 
-    redirect_to checkout["hosted_checkout_url"] || checkout["url"], allow_other_host: true
+    checkout_url = checkout.dig("hosted_checkout", "url") || checkout["hosted_checkout_url"]
+    unless checkout_url.present?
+      Rails.logger.error "[SumUp] Checkout response enthält keine URL: #{checkout.inspect}"
+      return redirect_to course_registration_path(@registration),
+                         alert: "Zahlung konnte nicht gestartet werden. Bitte versuche es später erneut."
+    end
+
+    redirect_to checkout_url, allow_other_host: true
   rescue StandardError => e
     Rails.logger.error "[SumUp] Unexpected error: #{e.message}"
     redirect_to course_registration_path(@registration),
@@ -90,46 +105,56 @@ class PaymentsController < ApplicationController
   end
 
   def success
-    checkout_id = params[:checkout_id]
+    checkout_id     = params[:checkout_id]
+    registration_id = params[:registration_id]
 
-    if checkout_id.present?
-      @registration = CourseRegistration.find_by(sumup_checkout_id: checkout_id)
+    @registration = CourseRegistration.find_by(sumup_checkout_id: checkout_id) if checkout_id.present?
+    @registration ||= CourseRegistration.find_by(id: registration_id) if registration_id.present?
 
-      if @registration && !@registration.payment_cleared?
-        uri = URI("https://api.sumup.com/v0.1/checkouts/#{checkout_id}")
-        http = Net::HTTP.new(uri.host, uri.port)
-        http.use_ssl = true
+    unless @registration
+      return redirect_to root_path, alert: "Zahlung nicht gefunden."
+    end
 
-        request = Net::HTTP::Get.new(uri.path, {
-          "Authorization" => "Bearer #{::SumupConfig.access_token}"
-        })
+    unless current_user.participants.include?(@registration.participant) || current_user.admin?
+      return redirect_to root_path, alert: "Zugriff verweigert."
+    end
 
-        response = http.request(request)
+    unless @registration.payment_cleared?
+      effective_checkout_id = checkout_id || @registration.sumup_checkout_id
 
+      if effective_checkout_id.present?
+        if @registration.sumup_checkout_id != effective_checkout_id
+          @registration.update_column(:sumup_checkout_id, effective_checkout_id)
+        end
+
+        response = PaymentSyncService.fetch_checkout(effective_checkout_id)
         if response.is_a?(Net::HTTPSuccess)
           checkout = JSON.parse(response.body)
-
+          Rails.logger.info "[SumUp] Checkout status: #{checkout['status']} für registration #{@registration.id}"
           if checkout["status"] == "PAID"
-            course = @registration.course
-            if course.max_participants.present?
-              confirmed_count = course.course_registrations.where(status: "bestätigt").count
-              new_status = confirmed_count >= course.max_participants ? "warteliste" : "bestätigt"
-            else
-              new_status = "bestätigt"
-            end
-
             transaction_id = checkout.dig("transactions", 0, "id")
-
-            @registration.update!(
-              payment_cleared:     true,
-              sumup_transaction_id: transaction_id,
-              status:              new_status
-            )
+            PaymentSyncService.mark_paid!(@registration,
+              transaction_id: transaction_id,
+              checkout_id: effective_checkout_id)
           end
         else
           Rails.logger.error "[SumUp] Status check error #{response.code}: #{response.body}"
         end
+      else
+        Rails.logger.warn "[SumUp] success ohne checkout_id für registration #{@registration.id}"
       end
+    end
+
+    @registration.reload
+    redirect_to course_registration_path(@registration),
+                notice: "Deine Zahlung wurde erfolgreich verarbeitet."
+  rescue StandardError => e
+    Rails.logger.error "[SumUp] success callback error: #{e.class}: #{e.message}"
+    if @registration
+      redirect_to course_registration_path(@registration),
+                  notice: "Deine Zahlung wird möglicherweise noch verarbeitet."
+    else
+      redirect_to root_path, alert: "Ein Fehler ist aufgetreten."
     end
   end
 

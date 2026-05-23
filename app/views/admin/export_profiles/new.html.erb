@@ -1,10 +1,10 @@
 <div class="max-w-2xl mx-auto mt-10 mb-16 px-4">
 
   <div class="mb-8">
-    <%= link_to "← Exportprofile", admin_export_profiles_path,
+    <%= link_to t('admin.export_profiles.new.back'), admin_export_profiles_path,
           class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
-    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">Neues Exportprofil</h1>
-    <p class="text-gray-500 mt-1 text-sm">Definiere Name, Format und Felder für diesen Export.</p>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2"><%= t('admin.export_profiles.new.title') %></h1>
+    <p class="text-gray-500 mt-1 text-sm"><%= t('admin.export_profiles.new.subtitle') %></p>
   </div>
 
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">

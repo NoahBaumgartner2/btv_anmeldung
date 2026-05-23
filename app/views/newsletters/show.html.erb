@@ -24,7 +24,7 @@
         <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
           <tr>
             <td style="padding:0;">
-              <%= @newsletter.body_html.html_safe %>
+              <%= sanitize @newsletter.body_html %>
             </td>
           </tr>
           <tr>

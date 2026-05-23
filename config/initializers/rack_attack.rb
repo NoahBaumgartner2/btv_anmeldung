@@ -19,7 +19,7 @@ class Rack::Attack
     [
       429,
       { "Content-Type" => "text/plain; charset=utf-8" },
-      ["Zu viele Anfragen. Bitte warte kurz und versuche es erneut."]
+      [ "Zu viele Anfragen. Bitte warte kurz und versuche es erneut." ]
     ]
   end
 end

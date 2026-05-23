@@ -1,4 +1,7 @@
 class PagesController < ApplicationController
+  def privacy; end
+  def impressum; end
+
   def home
     if user_signed_in?
       if current_user.admin?

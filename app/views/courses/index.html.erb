@@ -1,24 +1,122 @@
-<% content_for :title, "Kursangebot" %>
+<% content_for :title, t("courses.index.title") %>
 
 <div class="max-w-6xl mx-auto w-full px-4 sm:px-6 mt-6 sm:mt-10 mb-16">
 
   <%# ── Header ─────────────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 sm:mb-10 gap-4">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Kursangebot</h1>
-      <p class="text-gray-500 mt-1 text-sm sm:text-base">Wähle die passende Kategorie und melde dich direkt an.</p>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight"><%= t("courses.index.title") %></h1>
+      <p class="text-gray-500 mt-1 text-sm sm:text-base"><%= t("courses.index.subtitle") %></p>
     </div>
     <% if current_user&.admin? %>
-      <%= link_to "+ Neuen Kurs erstellen", new_course_path,
+      <%= link_to t("courses.index.new_course"), new_course_path,
             class: "w-full sm:w-auto shrink-0 inline-flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-5 rounded-lg shadow-sm transition text-sm min-h-[44px]" %>
     <% end %>
   </div>
 
-  <%# ── Kategorien ──────────────────────────────────────────────────────── %>
-  <% if @courses.any? %>
-    <% @courses.group_by { |c| c.title.split("(").first.strip }.sort.each do |category, courses_in_category| %>
+  <%# ── Leistungssport (restricted) ───────────────────────────────────── %>
+  <% if @restricted_courses.any? %>
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider"><%= t("courses.index.restricted_badge") %></span>
+        <span class="text-sm text-gray-400"><%= t("courses.index.restricted_subtitle") %></span>
+      </div>
+      <% @restricted_courses.group_by { |c| c.category.presence || c.title.split("(").first.strip }.sort.each do |category, courses_in_category| %>
+        <details id="restricted-<%= category.parameterize %>" class="group bg-white rounded-2xl shadow-sm border border-red-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">
+          <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 sm:px-5 py-4 min-h-[56px] hover:bg-red-50 transition select-none">
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="text-gray-400 transition-transform duration-200 group-open:rotate-90 shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-4 w-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </span>
+              <div class="min-w-0">
+                <h2 class="text-base sm:text-lg font-bold text-gray-900"><%= category %></h2>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  <%= t("courses.index.slots_available", count: courses_in_category.count) %>
+                </p>
+              </div>
+            </div>
+          </summary>
+          <div class="border-t border-red-100 bg-red-50/30 p-4 sm:p-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <% courses_in_category.each do |course| %>
+                <%
+                  confirmed_count = course.course_registrations.count { |r| r.status == "bestätigt" }
+                  is_full         = course.max_participants.present? && confirmed_count >= course.max_participants
+                  is_single       = course.registration_mode == "single_session"
+                  remaining       = course.max_participants.present? ? (course.max_participants - confirmed_count) : nil
+                %>
+                <article class="flex flex-col bg-white rounded-2xl border border-red-200 shadow-sm hover:shadow-md hover:border-red-300 transition overflow-hidden">
+                  <div class="p-5 flex-1 flex flex-col">
+                    <div class="flex flex-wrap items-center gap-2 mb-3 min-h-[24px]">
+                      <span class="inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full">Eingeschränkt</span>
+                      <% if is_full %>
+                        <span class="inline-flex items-center bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                          <%= t("courses.index.status.full") %>
+                        </span>
+                      <% elsif remaining && remaining <= 3 %>
+                        <span class="inline-flex items-center bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                          <%= t("courses.index.status.spots_last", count: remaining) %>
+                        </span>
+                      <% elsif remaining %>
+                        <span class="inline-flex items-center bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                          <%= t("courses.index.status.spots_free", count: remaining) %>
+                        </span>
+                      <% end %>
+                    </div>
+                    <h3 class="text-lg sm:text-xl font-extrabold text-gray-900 leading-snug mb-3 break-words">
+                      <%= course.title %>
+                    </h3>
+                    <dl class="space-y-2 text-sm text-gray-600 mb-5">
+                      <% if course.location.present? %>
+                        <div class="flex items-start gap-2">
+                          <svg class="h-4 w-4 mt-0.5 shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                          </svg>
+                          <dd class="break-words"><%= course.location %></dd>
+                        </div>
+                      <% end %>
+                      <div class="flex items-start gap-2">
+                        <svg class="h-4 w-4 mt-0.5 shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <dd class="break-words">
+                          <% if course.start_date && course.end_date %>
+                            <%= course.start_date.strftime("%-d. %b %Y") %> – <%= course.end_date.strftime("%-d. %b %Y") %>
+                          <% else %>
+                            <%= t("courses.index.date.tba") %>
+                          <% end %>
+                        </dd>
+                      </div>
+                    </dl>
+                    <div class="mt-auto pt-4 border-t border-gray-100">
+                      <div class="flex items-baseline justify-between gap-3 mb-4">
+                        <span class="text-2xl font-extrabold text-gray-900 break-words"><%= course.price_display %></span>
+                        <% if current_user&.admin? %>
+                          <%= link_to t("courses.index.actions.manage"), manage_course_path(course),
+                                class: "shrink-0 inline-flex items-center justify-center text-xs font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition min-h-[36px]" %>
+                        <% end %>
+                      </div>
+                      <%= link_to t("courses.index.actions.register"), course_path(course),
+                            class: "block w-full text-center text-sm font-bold bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
+                    </div>
+                  </div>
+                </article>
+              <% end %>
+            </div>
+          </div>
+        </details>
+      <% end %>
+    </div>
+  <% end %>
 
-      <details class="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">
+  <%# ── Kategorien ──────────────────────────────────────────────────────── %>
+  <% if @public_courses.any? %>
+    <% @public_courses.group_by { |c| c.category.presence || c.title.split("(").first.strip }.sort.each do |category, courses_in_category| %>
+
+      <details id="<%= category.parameterize %>" class="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">
 
         <%# ── Kategorie-Header (Touch-Target ≥ 44px) ────────────────────── %>
         <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 sm:px-5 py-4 min-h-[56px] hover:bg-gray-50 transition select-none">
@@ -31,7 +129,7 @@
             <div class="min-w-0">
               <h2 class="text-base sm:text-lg font-bold text-gray-900"><%= category %></h2>
               <p class="text-xs text-gray-400 mt-0.5">
-                <%= courses_in_category.count %> <%= courses_in_category.count == 1 ? "Termin verfügbar" : "Termine verfügbar" %>
+                <%= t("courses.index.slots_available", count: courses_in_category.count) %>
               </p>
             </div>
           </div>
@@ -43,7 +141,7 @@
               <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2.5 py-1 rounded-full"><%= loc %></span>
             <% end %>
             <% if courses_in_category.map(&:location).compact.uniq.size > 2 %>
-              <span class="text-xs text-gray-400">+<%= courses_in_category.map(&:location).compact.uniq.size - 2 %> weitere</span>
+              <span class="text-xs text-gray-400">+<%= courses_in_category.map(&:location).compact.uniq.size - 2 %> <%= t("courses.index.more_locations") %></span>
             <% end %>
           </div>
         </summary>
@@ -66,20 +164,20 @@
                   <div class="flex flex-wrap items-center gap-2 mb-3 min-h-[24px]">
                     <% if is_single %>
                       <span class="inline-flex items-center bg-secondary-100 text-secondary-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                        Drop-In
+                        <%= t("courses.index.status.drop_in") %>
                       </span>
                     <% end %>
                     <% if is_full %>
                       <span class="inline-flex items-center bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                        Ausgebucht
+                        <%= t("courses.index.status.full") %>
                       </span>
                     <% elsif remaining && remaining <= 3 %>
                       <span class="inline-flex items-center bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">
-                        Nur noch <%= remaining %> <%= remaining == 1 ? "Platz" : "Plätze" %>
+                        <%= t("courses.index.status.spots_last", count: remaining) %>
                       </span>
                     <% elsif remaining %>
                       <span class="inline-flex items-center bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                        <%= remaining %> Plätze frei
+                        <%= t("courses.index.status.spots_free", count: remaining) %>
                       </span>
                     <% end %>
                     <% if course.age_restricted? %>
@@ -89,10 +187,9 @@
                     <% end %>
                   </div>
 
-                  <%# ── Titel (klickbar → Details, kein truncate) ──── %>
+                  <%# ── Titel ─────────────────────────────────────── %>
                   <h3 class="text-lg sm:text-xl font-extrabold text-gray-900 leading-snug mb-3 break-words">
-                    <%= link_to course.title, course_path(course),
-                          class: "hover:text-primary-700 transition focus:outline-none focus:ring-2 focus:ring-primary-400 rounded" %>
+                    <%= course.title %>
                   </h3>
 
                   <%# ── Metadaten ─────────────────────────────────── %>
@@ -113,23 +210,15 @@
                       </svg>
                       <dd class="break-words">
                         <% if is_single %>
-                          Einzeltermine · jederzeit einsteigen
+                          <%= t("courses.index.date.single_session") %>
                         <% elsif course.start_date && course.end_date %>
                           <%= course.start_date.strftime("%-d. %b %Y") %> – <%= course.end_date.strftime("%-d. %b %Y") %>
                         <% else %>
-                          Termin folgt
+                          <%= t("courses.index.date.tba") %>
                         <% end %>
                       </dd>
                     </div>
 
-                    <% if course.max_participants.present? && !is_full && !is_single %>
-                      <div class="flex items-start gap-2">
-                        <svg class="h-4 w-4 mt-0.5 shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-3.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a4 4 0 11-8 0 4 4 0 018 0z"/>
-                        </svg>
-                        <dd class="break-words"><%= confirmed_count %> von <%= course.max_participants %> angemeldet</dd>
-                      </div>
-                    <% end %>
                   </dl>
 
                   <%# ── Preis + CTA (am Card-Boden, Cards in einer Reihe gleich hoch) ── %>
@@ -139,19 +228,19 @@
                         <%= course.price_display %>
                       </span>
                       <% if current_user&.admin? %>
-                        <%= link_to "Verwalten", manage_course_path(course),
+                        <%= link_to t("courses.index.actions.manage"), manage_course_path(course),
                               class: "shrink-0 inline-flex items-center justify-center text-xs font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition min-h-[36px]" %>
                       <% end %>
                     </div>
 
                     <% if is_single %>
-                      <%= link_to "Termine ansehen", course_path(course),
+                      <%= link_to t("courses.index.actions.view_dates"), course_path(course),
                             class: "block w-full text-center text-sm font-bold bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
                     <% elsif is_full %>
-                      <%= link_to "Auf Warteliste setzen", new_course_registration_path(course_id: course.id),
+                      <%= link_to t("courses.index.actions.join_waitlist"), course_path(course),
                             class: "block w-full text-center text-sm font-bold bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
                     <% else %>
-                      <%= link_to "Jetzt anmelden", new_course_registration_path(course_id: course.id),
+                      <%= link_to t("courses.index.actions.register"), course_path(course),
                             class: "block w-full text-center text-sm font-bold bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
                     <% end %>
                   </div>
@@ -166,10 +255,25 @@
 
     <% end %>
   <% else %>
-    <div class="bg-white p-8 sm:p-12 rounded-2xl border border-gray-200 shadow-sm text-center">
-      <h3 class="text-lg font-bold text-gray-900 mb-1">Noch keine Kurse vorhanden</h3>
-      <p class="text-gray-500 text-sm">Sobald Kurse erstellt werden, erscheinen sie hier.</p>
-    </div>
+    <% unless @restricted_courses.any? %>
+      <div class="bg-white p-8 sm:p-12 rounded-2xl border border-gray-200 shadow-sm text-center">
+        <h3 class="text-lg font-bold text-gray-900 mb-1"><%= t("courses.index.empty.title") %></h3>
+        <p class="text-gray-500 text-sm"><%= t("courses.index.empty.subtitle") %></p>
+      </div>
+    <% end %>
   <% end %>
 
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      const el = document.getElementById(hash);
+      if (el && el.tagName === "DETAILS") {
+        el.open = true;
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  });
+</script>

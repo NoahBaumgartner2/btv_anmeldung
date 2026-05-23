@@ -1,8 +1,8 @@
 <div class="max-w-6xl mx-auto mt-8 mb-16 px-4">
   <div class="mb-6">
-    <%= link_to "← Mailing-Zentrale", newsletters_path,
+    <%= link_to t('newsletters.new.back'), newsletters_path,
           class: "text-sm font-semibold text-gray-400 hover:text-gray-700 transition" %>
-    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">Neuer Newsletter</h1>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2"><%= t('newsletters.new.title') %></h1>
   </div>
 
   <%= render "form", newsletter: @newsletter %>

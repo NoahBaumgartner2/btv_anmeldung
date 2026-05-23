@@ -4,12 +4,42 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, :confirmable, :lockable
 
-  # Ein User (Elternteil) kann mehrere Teilnehmer (Kinder) verwalten:
   has_many :participants, dependent: :destroy
-
   has_one :trainer, dependent: :destroy
+  has_many :course_access_grants, dependent: :destroy
+  has_many :accessible_courses, through: :course_access_grants, source: :course
 
-  after_create :subscribe_to_newsletter
+  attr_accessor :privacy_accepted, :devise_notification_error
+  validates :privacy_accepted, acceptance: { allow_nil: false }, on: :create
+
+  validates :phone_number, :street, :zip_code, :city,
+            presence: true,
+            if: :family_data_completed?
+  validates :house_number, presence: true, if: :family_data_completed?
+  validates :street, format: {
+    without: /\d/,
+    message: "darf keine Zahlen enthalten – bitte Hausnummer separat eintragen"
+  }, allow_blank: true, if: :family_data_completed?
+
+  before_create :set_privacy_accepted_at
+
+  def needs_onboarding?
+    return false if admin? || Trainer.exists?(user: self)
+    !family_data_completed?
+  end
+
+  def family_defaults
+    {
+      phone_number: phone_number,
+      street: street,
+      house_number: house_number,
+      zip_code: zip_code,
+      city: city,
+      country: country.presence || "CH",
+      nationality: nationality.presence || "CH",
+      mother_tongue: mother_tongue.presence || "DE"
+    }
+  end
 
   def newsletter_subscriber
     NewsletterSubscriber.find_by(email: email.downcase.strip)
@@ -19,13 +49,18 @@ class User < ApplicationRecord
     newsletter_subscriber&.subscribed? || false
   end
 
+  def send_devise_notification(notification, *args)
+    super
+  rescue Net::SMTPAuthenticationError, Net::SMTPServerBusy,
+         Net::SMTPSyntaxError, Net::SMTPFatalError,
+         Errno::ECONNREFUSED, SocketError, Timeout::Error => e
+    Rails.logger.error "[Devise Mailer] #{e.class}: #{e.message}"
+    self.devise_notification_error = e
+  end
+
   private
 
-  def subscribe_to_newsletter
-    NewsletterSubscriber.find_or_initialize_by(email: email.downcase.strip).tap do |sub|
-      sub.status = "subscribed"
-      sub.source = "manual"
-      sub.save
-    end
+  def set_privacy_accepted_at
+    self.privacy_accepted_at = Time.current if privacy_accepted.in?([ "1", true ])
   end
 end

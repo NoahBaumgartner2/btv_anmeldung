@@ -37,4 +37,38 @@ class TrainingSessionTest < ActiveSupport::TestCase
     @session.update!(is_canceled: true)
     assert @session.attendance_recorded?
   end
+
+  # --- needs_trainer_reminder? ---
+
+  test "needs_trainer_reminder? returns false when end_time is less than 24 hours ago" do
+    @session.update!(end_time: 23.hours.ago, trainer_reminded_at: nil)
+    assert_not @session.needs_trainer_reminder?
+  end
+
+  test "needs_trainer_reminder? returns true when end_time is more than 24 hours ago and not yet reminded" do
+    @session.update!(end_time: 25.hours.ago, trainer_reminded_at: nil)
+    assert @session.needs_trainer_reminder?
+  end
+
+  test "needs_trainer_reminder? returns false when already reminded" do
+    @session.update!(end_time: 25.hours.ago, trainer_reminded_at: Time.current)
+    assert_not @session.needs_trainer_reminder?
+  end
+
+  # --- needs_admin_notification? ---
+
+  test "needs_admin_notification? returns false when end_time is less than 7 days ago" do
+    @session.update!(end_time: 6.days.ago, admin_notified_at: nil)
+    assert_not @session.needs_admin_notification?
+  end
+
+  test "needs_admin_notification? returns true when end_time is more than 7 days ago and not yet notified" do
+    @session.update!(end_time: 8.days.ago, admin_notified_at: nil)
+    assert @session.needs_admin_notification?
+  end
+
+  test "needs_admin_notification? returns false when already notified" do
+    @session.update!(end_time: 8.days.ago, admin_notified_at: Time.current)
+    assert_not @session.needs_admin_notification?
+  end
 end

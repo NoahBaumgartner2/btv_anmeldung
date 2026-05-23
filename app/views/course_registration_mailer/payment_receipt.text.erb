@@ -1,0 +1,38 @@
+<%
+  club = @_club || ClubSetting.current
+  club_name    = club&.club_name.presence || "BTV Anmeldung"
+  club_address = [ club&.contact_street, [ club&.contact_zip, club&.contact_city ].compact.join(" ") ].select(&:present?).join(", ")
+  club_email   = club&.contact_email
+%>
+Hallo <%= @recipient.email.split("@").first %>,
+
+die Zahlung für die Kursanmeldung wurde erfolgreich verarbeitet.
+
+ZAHLUNGSQUITTUNG
+================
+
+Teilnehmer:    <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:          <%= @course.title %>
+Kategorie:     <%= @course.registration_type_label %>
+<% if @course.start_date.present? %>
+Kurszeitraum:  <%= I18n.l(@course.start_date, format: :long) %><% if @course.end_date.present? %> – <%= I18n.l(@course.end_date, format: :long) %><% end %>
+<% end %>
+Betrag:        <%= @course.price_display %>
+Zahlungsdatum: <%= I18n.l(@paid_at, format: :long) %>
+<% if @transaction_id.present? %>
+Transaktions-ID: <%= @transaction_id %>
+<% end %>
+<% if @qr_code_base64.present? %>
+Eintrittskarte: Dein QR-Code-Ticket findest du in der HTML-Version dieser E-Mail.
+<% end %>
+Quittungsnummer: QU-<%= @course_registration.id %>-<%= @paid_at.strftime("%Y%m%d") %>
+
+AUSSTELLER
+----------
+<%= club_name %>
+<% if club_address.present? %><%= club_address %>
+<% end %><% if club_email.present? %><%= club_email %>
+<% end %>Kein MwSt-pflichtiges Unternehmen (Verein)
+
+Diese E-Mail dient als offizielle Zahlungsbestätigung und kann bei Bedarf
+für Krankenkassen, Steuerunterlagen oder andere Stellen verwendet werden.

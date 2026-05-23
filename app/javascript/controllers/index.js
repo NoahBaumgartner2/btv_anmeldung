@@ -7,6 +7,16 @@ import CancelTrainingController from "controllers/cancel_training_controller"
 import DeleteAccountController from "controllers/delete_account_controller"
 import ModalController from "controllers/modal_controller"
 import MobileMenuController from "controllers/mobile_menu_controller"
+import DatepickerController from "controllers/datepicker_controller"
+import CookieConsentController from "controllers/cookie_consent_controller"
+import RegistrationModeController from "controllers/registration_mode_controller"
+import PasswordToggleController from "controllers/password_toggle_controller"
+import ScrollToErrorController from "controllers/scroll_to_error_controller"
+import PaymentToggleController from "controllers/payment_toggle_controller"
+import TrialCheckController from "controllers/trial_check_controller"
+import ManualEnrollController from "controllers/manual_enroll_controller"
+import TrainerPermissionController from "controllers/trainer_permission_controller"
+import DropdownController from "controllers/dropdown_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -17,3 +27,13 @@ application.register("cancel-training", CancelTrainingController)
 application.register("delete-account", DeleteAccountController)
 application.register("modal", ModalController)
 application.register("mobile-menu", MobileMenuController)
+application.register("datepicker", DatepickerController)
+application.register("cookie-consent", CookieConsentController)
+application.register("registration-mode", RegistrationModeController)
+application.register("password-toggle", PasswordToggleController)
+application.register("scroll-to-error", ScrollToErrorController)
+application.register("payment-toggle", PaymentToggleController)
+application.register("trial-check", TrialCheckController)
+application.register("manual-enroll", ManualEnrollController)
+application.register("trainer-permission", TrainerPermissionController)
+application.register("dropdown", DropdownController)

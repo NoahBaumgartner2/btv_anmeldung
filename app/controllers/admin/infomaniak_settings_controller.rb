@@ -56,8 +56,9 @@ module Admin
                     alert: "Infomaniak API antwortete mit Status #{response.code}."
       end
     rescue => e
+      Rails.logger.error "[Admin::InfomaniakSettings] test_connection Fehler: #{e.class}: #{e.message}"
       redirect_to admin_infomaniak_setting_path,
-                  alert: "Verbindungsfehler: #{e.message}"
+                  alert: "Es ist ein Verbindungsfehler aufgetreten. Bitte versuche es später erneut."
     end
 
     private

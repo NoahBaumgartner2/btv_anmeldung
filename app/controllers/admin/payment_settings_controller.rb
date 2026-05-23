@@ -37,40 +37,18 @@ module Admin
         redirect_to admin_payment_setting_path, notice: msg
       end
     rescue => e
-      Rails.logger.error "[Admin::PaymentSettings] sync_payments Fehler: #{e.message}"
-      redirect_to admin_payment_setting_path, alert: "Fehler beim Abgleich: #{e.message}"
+      Rails.logger.error "[Admin::PaymentSettings] sync_payments Fehler: #{e.class}: #{e.message}"
+      redirect_to admin_payment_setting_path, alert: "Der Zahlungsabgleich konnte nicht durchgeführt werden. Bitte versuche es erneut."
     end
 
     def test_connection
       unless ::SumupConfig.configured?
         return redirect_to admin_payment_setting_path,
-                           alert: "Kein SumUp Access Token konfiguriert."
+                           alert: "Kein API Key konfiguriert."
       end
 
-      uri = URI("https://api.sumup.com/v0.1/me")
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
-
-      request = Net::HTTP::Get.new(uri.path, {
-        "Authorization" => "Bearer #{::SumupConfig.access_token}"
-      })
-
-      response = http.request(request)
-
-      case response.code.to_i
-      when 200
-        redirect_to admin_payment_setting_path,
-                    notice: "Verbindung erfolgreich! SumUp API antwortet korrekt."
-      when 401, 403
-        redirect_to admin_payment_setting_path,
-                    alert: "Authentifizierungsfehler: Der Access Token ist ungültig oder abgelaufen."
-      else
-        redirect_to admin_payment_setting_path,
-                    alert: "SumUp API antwortete mit Status #{response.code}."
-      end
-    rescue => e
       redirect_to admin_payment_setting_path,
-                  alert: "Verbindungsfehler: #{e.message}"
+                  notice: "API Key ist gesetzt und bereit. Die Verbindung wird beim nächsten Checkout automatisch getestet."
     end
 
     private

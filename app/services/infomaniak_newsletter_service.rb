@@ -121,11 +121,11 @@ class InfomaniakNewsletterService
 
   def self.build_request(method, uri, body)
     klass = case method
-            when :post   then Net::HTTP::Post
-            when :delete then Net::HTTP::Delete
-            when :get    then Net::HTTP::Get
-            else raise ArgumentError, "Unbekannte HTTP-Methode: #{method}"
-            end
+    when :post   then Net::HTTP::Post
+    when :delete then Net::HTTP::Delete
+    when :get    then Net::HTTP::Get
+    else raise ArgumentError, "Unbekannte HTTP-Methode: #{method}"
+    end
 
     req = klass.new(uri.request_uri)
     req["Authorization"] = "Bearer #{config.api_token}"

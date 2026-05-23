@@ -30,7 +30,10 @@ class TrainingSessionsController < ApplicationController
   def show
     @registrations = @training_session.course.course_registrations
       .includes(:participant)
-      .where(status: "bestätigt")
+      .where(status: %w[bestätigt schnuppern])
+      .order(id: :desc)
+      .to_a
+      .uniq(&:participant_id)
     @attendances_by_reg_id = @training_session.attendances.index_by(&:course_registration_id)
   end
 
@@ -70,12 +73,16 @@ class TrainingSessionsController < ApplicationController
   end
 
   def cancel
+    authorize_trainer!
+    return if performed?
+
     @training_session.update!(is_canceled: true)
 
     @training_session.course.course_registrations
       .where(status: "bestätigt")
       .includes(participant: :user)
       .each do |registration|
+        next unless registration.participant&.user.present?
         TrainingSessionMailer.cancellation_notice(@training_session, registration.participant.user).deliver_later
       end
 
@@ -94,8 +101,18 @@ class TrainingSessionsController < ApplicationController
   def toggle_attendance
     return redirect_to @training_session, alert: "Training ist abgesagt – Anwesenheit kann nicht erfasst werden." if @training_session.is_canceled?
 
+    if @training_session.start_time > Time.current
+      return redirect_to @training_session,
+                         alert: t("training_sessions.show.attendance_not_yet_possible")
+    end
+
     # Wir fangen jetzt die ID der Kursanmeldung auf
     course_registration_id = params[:course_registration_id]
+
+    course_registration = CourseRegistration.find_by(id: course_registration_id)
+    unless course_registration && course_registration.course_id == @training_session.course_id
+      return redirect_to @training_session, alert: "Ungültige Kursanmeldung."
+    end
 
     # Prüfen, ob für diese Anmeldung schon eine Anwesenheit existiert
     attendance = @training_session.attendances.find_by(course_registration_id: course_registration_id)
@@ -105,7 +122,10 @@ class TrainingSessionsController < ApplicationController
 
       attendance.destroy
     else
-      @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
+      attendance = @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
+      unless attendance.persisted?
+        return redirect_to @training_session, alert: "Anwesenheit konnte nicht gespeichert werden."
+      end
     end
 
     redirect_to @training_session

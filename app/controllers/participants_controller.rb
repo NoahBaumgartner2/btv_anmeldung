@@ -3,6 +3,10 @@ class ParticipantsController < ApplicationController
   before_action :set_participant, only: %i[show edit update destroy]
 
   def index
+    if current_user.admin? || Trainer.exists?(user: current_user)
+      redirect_to my_profile_path and return
+    end
+
     @participants = current_user.participants
       .includes(course_registrations: [ :course, :training_session ])
 
@@ -12,13 +16,13 @@ class ParticipantsController < ApplicationController
     # haben ihre Session direkt auf der CourseRegistration via training_session_id;
     # abgeschlossene/stornierte Kurse brauchen keine upcoming sessions)
     today = Date.today
-    semester_confirmed = all_regs.select { |r|
-      r.status == "bestätigt" &&
+    semester_active = all_regs.select { |r|
+      %w[bestätigt schnuppern].include?(r.status) &&
       r.course.registration_mode != "single_session" &&
       (r.course.end_date.nil? || r.course.end_date >= today)
     }
-    semester_course_ids = semester_confirmed.map(&:course_id).uniq
-    semester_reg_ids    = semester_confirmed.map(&:id)
+    semester_course_ids = semester_active.map(&:course_id).uniq
+    semester_reg_ids    = semester_active.map(&:id)
 
     upcoming = TrainingSession
       .where(course_id: semester_course_ids, is_canceled: false)
@@ -33,13 +37,36 @@ class ParticipantsController < ApplicationController
       .where(course_registration_id: semester_reg_ids, status: "abgemeldet")
       .pluck(:course_registration_id, :training_session_id)
       .to_set
+
+    # Kurse pro Kategorie für "weitere Kurse"-Links
+    active_course_ids = all_regs
+      .reject { |r| r.status == "storniert" }
+      .map(&:course_id)
+      .uniq
+
+    @more_courses_by_category = Course
+      .where("end_date >= ? OR end_date IS NULL", today)
+      .where.not(id: active_course_ids)
+      .where.not(category: [ nil, "" ])
+      .group_by(&:category)
+  end
+
+  def my_profile
+    unless current_user.admin? || Trainer.exists?(user: current_user)
+      redirect_to participants_path and return
+    end
+    @trainer = Trainer.find_or_initialize_by(user: current_user)
   end
 
   def show
   end
 
   def new
-    @participant = Participant.new
+    if Trainer.exists?(user: current_user)
+      redirect_to my_profile_path, alert: "Trainer können keine Teilnehmer erfassen." and return
+    end
+    defaults = current_user.admin? ? {} : current_user.family_defaults
+    @participant = Participant.new(defaults)
     @participant.user_id = current_user.id unless current_user.admin?
   end
 
@@ -47,6 +74,9 @@ class ParticipantsController < ApplicationController
   end
 
   def create
+    if Trainer.exists?(user: current_user)
+      redirect_to my_profile_path, alert: "Trainer können keine Teilnehmer erfassen." and return
+    end
     @participant = Participant.new(participant_params)
     @participant.user_id = current_user.id unless current_user.admin?
 

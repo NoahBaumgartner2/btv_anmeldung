@@ -1,0 +1,11 @@
+Hallo <%= @recipient.email.split("@").first %>,
+
+<%= @participant.first_name %> <%= @participant.last_name %> hat sich vom Kurs "<%= @course.title %>" abgemeldet.
+
+Teilnehmer:   <%= @participant.first_name %> <%= @participant.last_name %>
+Eltern-Email: <%= @parent&.email || "—" %>
+
+Bei Fragen wende dich bitte direkt an uns.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

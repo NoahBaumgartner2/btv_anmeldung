@@ -21,7 +21,7 @@ class Participant < ApplicationRecord
   validates :first_name, :last_name, :date_of_birth, :gender, :phone_number, presence: true
   validates :gender, inclusion: { in: GENDERS }
   validates :first_name, uniqueness: {
-    scope: [:last_name, :date_of_birth, :user_id],
+    scope: [ :last_name, :date_of_birth, :user_id ],
     message: "– diese Person ist in deinem Profil bereits erfasst"
   }
 
@@ -33,11 +33,14 @@ class Participant < ApplicationRecord
             },
             allow_blank: true
 
-  # Telefonnummer: mindestens 7 Zeichen, nur +, Ziffern, Leerzeichen, Bindestriche
-  validates :phone_number,
+  validate :phone_number_format, if: -> { phone_number.present? }
+  validate :date_of_birth_plausible, if: -> { date_of_birth.present? }
+
+  # Hausnummer: Zahl mit optionalem Buchstaben (z.B. 12 oder 12a)
+  validates :house_number,
             format: {
-              with: /\A[+\d][\d\s\-\/]{6,}\z/,
-              message: "muss mindestens 7 Zeichen haben (erlaubt: +, Ziffern, Leerzeichen, -)"
+              with: /\A\d+[a-zA-Z]?\z/,
+              message: "muss mit einer Zahl beginnen (z.B. 12 oder 12a)"
             },
             allow_blank: true
 
@@ -57,6 +60,50 @@ class Participant < ApplicationRecord
             },
             allow_blank: true
 
+  def has_trialed_in_category?(category)
+    sibling_ids = trial_sibling_ids
+    CourseRegistration
+      .joins(:course)
+      .where(participant_id: sibling_ids)
+      .where(status: "schnuppern")
+      .where(courses: { category: category })
+      .where("course_registrations.created_at > ?", 7.days.ago)
+      .exists?
+  end
+
+  def ever_trialed_in_category?(category)
+    sibling_ids = trial_sibling_ids
+    CourseRegistration
+      .joins(:course)
+      .where(participant_id: sibling_ids)
+      .where(status: "schnuppern")
+      .where(courses: { category: category })
+      .exists?
+  end
+
+  def ever_registered_in_category?(category)
+    sibling_ids = trial_sibling_ids
+    CourseRegistration
+      .joins(:course)
+      .where(participant_id: sibling_ids)
+      .where(courses: { category: category })
+      .where.not(status: %w[schnuppern ausstehend])
+      .exists?
+  end
+
+  def schnupper_eligible_for_category?(category)
+    return false if ever_trialed_in_category?(category)
+    return false if ever_registered_in_category?(category)
+
+    sibling_ids = trial_sibling_ids
+    CourseRegistration
+      .joins(:course)
+      .where(participant_id: sibling_ids)
+      .where(courses: { category: category })
+      .where.not(status: %w[storniert ausstehend])
+      .none?
+  end
+
   # Gibt fehlende Pflichtfelder für einen bestimmten Kurs zurück (als Symbole)
   def missing_fields_for(course)
     course.required_participant_fields.select { |field| self[field].blank? }
@@ -75,5 +122,36 @@ class Participant < ApplicationRecord
   # Human-readable Label für ein Pflichtfeld
   def self.field_label(field)
     Course::CONFIGURABLE_REQUIRED_FIELDS[field] || field.to_s.humanize
+  end
+
+  private
+
+  def phone_number_format
+    stripped = phone_number.gsub(/[\s\-\/]/, "")
+    unless stripped.match?(/\A[+\d]\d{6,}\z/)
+      errors.add(:phone_number, "muss mindestens 7 Ziffern haben (erlaubt: +, Ziffern, Leerzeichen, -)")
+    end
+  end
+
+  def date_of_birth_plausible
+    if date_of_birth >= Date.today
+      errors.add(:date_of_birth, "muss in der Vergangenheit liegen")
+    elsif date_of_birth < 120.years.ago.to_date
+      errors.add(:date_of_birth, "ist nicht plausibel (mehr als 120 Jahre zurück)")
+    end
+  end
+
+  def trial_sibling_ids
+    if ahv_number.present?
+      normalized = ahv_number.gsub(/[\s.]/, "")
+      Participant
+        .where("REPLACE(REPLACE(ahv_number, '.', ''), ' ', '') = ?", normalized)
+        .pluck(:id)
+    else
+      Participant
+        .where("LOWER(TRIM(first_name)) = ? AND LOWER(TRIM(last_name)) = ? AND date_of_birth = ?",
+               first_name.to_s.strip.downcase, last_name.to_s.strip.downcase, date_of_birth)
+        .pluck(:id)
+    end
   end
 end

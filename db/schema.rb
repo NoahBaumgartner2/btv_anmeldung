@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_22_154854) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,13 +54,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
 
   create_table "club_settings", force: :cascade do |t|
     t.string "club_name"
+    t.string "contact_city"
+    t.string "contact_email"
+    t.string "contact_phone"
+    t.string "contact_street"
+    t.string "contact_website"
+    t.string "contact_zip"
     t.datetime "created_at", null: false
+    t.string "hosting_country"
+    t.string "hosting_provider"
+    t.string "legal_form"
+    t.string "payment_provider", default: "SumUp"
     t.string "primary_color"
+    t.string "privacy_officer_email"
+    t.string "privacy_officer_name"
+    t.string "responsible_function"
+    t.string "responsible_name"
     t.string "secondary_color"
+    t.string "smtp_provider"
     t.datetime "updated_at", null: false
   end
 
+  create_table "course_access_grants", force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["course_id", "user_id"], name: "index_course_access_grants_on_course_id_and_user_id", unique: true
+    t.index ["course_id"], name: "index_course_access_grants_on_course_id"
+    t.index ["user_id"], name: "index_course_access_grants_on_user_id"
+  end
+
   create_table "course_registrations", force: :cascade do |t|
+    t.integer "abo_entries_total"
+    t.integer "abo_entries_used", default: 0
     t.boolean "cancellation_notify_admin", default: false, null: false
     t.text "cancellation_reason"
     t.datetime "cancelled_at"
@@ -70,6 +97,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
     t.boolean "holiday_deduction_claimed"
     t.bigint "participant_id", null: false
     t.boolean "payment_cleared"
+    t.datetime "payment_expires_at"
     t.integer "payment_reminder_count", default: 0, null: false
     t.string "status"
     t.string "sumup_checkout_id"
@@ -85,6 +113,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
   end
 
   create_table "course_trainers", force: :cascade do |t|
+    t.boolean "can_manually_enroll", default: false, null: false
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
     t.bigint "trainer_id", null: false
@@ -94,18 +123,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
   end
 
   create_table "courses", force: :cascade do |t|
+    t.integer "abo_size"
     t.boolean "allows_holiday_deduction"
+    t.boolean "allows_trial", default: false, null: false
+    t.string "category"
     t.datetime "created_at", null: false
     t.integer "default_end_hour"
     t.integer "default_end_minute"
     t.integer "default_start_hour"
     t.integer "default_start_minute"
     t.text "description"
+    t.boolean "enable_waitlist", default: true, null: false
     t.datetime "end_date"
     t.boolean "has_payment"
     t.boolean "has_ticketing"
     t.boolean "is_js_training", default: false, null: false
     t.string "location"
+    t.string "location_address"
     t.integer "max_age"
     t.integer "max_participants"
     t.integer "min_age"
@@ -121,8 +155,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
     t.boolean "requires_nationality", default: false, null: false
     t.boolean "requires_street", default: false, null: false
     t.boolean "requires_zip_code", default: false, null: false
+    t.boolean "restricted", default: false, null: false
     t.datetime "start_date"
     t.string "title"
+    t.integer "training_value_cents"
     t.datetime "updated_at", null: false
   end
 
@@ -169,6 +205,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
   end
 
   create_table "mail_settings", force: :cascade do |t|
+    t.string "app_host"
     t.datetime "created_at", null: false
     t.string "smtp_authentication", default: "plain"
     t.boolean "smtp_enable_starttls", default: true, null: false
@@ -187,8 +224,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
     t.string "name"
     t.string "source", default: "manual"
     t.string "status", default: "subscribed", null: false
+    t.string "unsubscribe_token"
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_newsletter_subscribers_on_email", unique: true
+    t.index ["unsubscribe_token"], name: "index_newsletter_subscribers_on_unsubscribe_token", unique: true
   end
 
   create_table "newsletters", force: :cascade do |t|
@@ -230,15 +269,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
     t.string "currency", default: "chf"
     t.text "sumup_access_token_encrypted"
     t.string "sumup_api_key"
+    t.string "sumup_client_id"
+    t.text "sumup_client_secret_encrypted"
     t.string "sumup_merchant_code"
+    t.datetime "sumup_token_expires_at"
     t.datetime "updated_at", null: false
   end
 
   create_table "trainers", force: :cascade do |t|
+    t.string "ahv_number"
+    t.string "city"
+    t.string "country", default: "CH"
     t.datetime "created_at", null: false
+    t.date "date_of_birth"
+    t.string "first_name"
+    t.string "gender"
+    t.string "house_number"
+    t.string "iban"
+    t.boolean "js_anerkennung", default: false, null: false
+    t.string "js_person_number"
+    t.string "last_name"
+    t.string "mother_tongue", default: "DE"
+    t.string "nationality", default: "CH"
     t.string "phone"
+    t.string "street"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "zip_code"
     t.index ["user_id"], name: "index_trainers_on_user_id"
   end
 
@@ -247,7 +304,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
     t.datetime "end_time"
-    t.boolean "is_canceled"
+    t.boolean "is_canceled", default: false, null: false
     t.datetime "start_time"
     t.datetime "trainer_reminded_at"
     t.datetime "updated_at", null: false
@@ -256,20 +313,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
 
   create_table "users", force: :cascade do |t|
     t.boolean "admin", default: false
+    t.string "city"
     t.datetime "confirmation_sent_at"
     t.string "confirmation_token"
     t.datetime "confirmed_at"
+    t.string "country", default: "CH"
     t.datetime "created_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.integer "failed_attempts", default: 0, null: false
+    t.boolean "family_data_completed", default: false, null: false
+    t.string "house_number"
     t.datetime "locked_at"
+    t.string "mother_tongue", default: "DE"
+    t.string "nationality", default: "CH"
+    t.string "phone_number"
+    t.datetime "privacy_accepted_at"
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
+    t.string "street"
     t.string "unconfirmed_email"
     t.string "unlock_token"
     t.datetime "updated_at", null: false
+    t.string "zip_code"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -280,6 +347,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_11_112903) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "attendances", "course_registrations"
   add_foreign_key "attendances", "training_sessions"
+  add_foreign_key "course_access_grants", "courses"
+  add_foreign_key "course_access_grants", "users"
   add_foreign_key "course_registrations", "courses"
   add_foreign_key "course_registrations", "participants"
   add_foreign_key "course_registrations", "trainers", column: "cancelled_by_trainer_id"

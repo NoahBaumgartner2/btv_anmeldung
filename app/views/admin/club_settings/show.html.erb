@@ -3,49 +3,49 @@
   <%# ── Header ────────────────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
     <div>
-      <%= link_to "← Kommandozentrale", dashboards_admin_path,
+      <%= link_to t('admin.club_settings.show.back'), dashboards_admin_path,
             class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">Vereinseinstellungen</h1>
-      <p class="text-gray-500 mt-1 text-sm">Name, Farben und Logo des Vereins.</p>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2"><%= t('admin.club_settings.show.title') %></h1>
+      <p class="text-gray-500 mt-1 text-sm"><%= t('admin.club_settings.show.subtitle') %></p>
     </div>
-    <%= link_to "Bearbeiten", edit_admin_club_setting_path,
+    <%= link_to t('admin.club_settings.show.edit'), edit_admin_club_setting_path,
           class: "shrink-0 inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition min-h-11" %>
   </div>
 
   <%# ── Vereinsidentität ───────────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Vereinsidentität</p>
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide"><%= t('admin.club_settings.show.section_identity') %></p>
     </div>
     <dl class="divide-y divide-gray-100">
 
       <div class="px-6 py-3.5 flex items-center justify-between text-sm">
-        <dt class="font-medium text-gray-500 w-48 shrink-0">Vereinsname</dt>
+        <dt class="font-medium text-gray-500 w-48 shrink-0"><%= t('admin.club_settings.show.label_name') %></dt>
         <dd class="font-semibold text-gray-900">
           <%= @club_setting.club_name.presence || "—" %>
         </dd>
       </div>
 
       <div class="px-6 py-3.5 flex items-center justify-between text-sm">
-        <dt class="font-medium text-gray-500 w-48 shrink-0">Primärfarbe</dt>
+        <dt class="font-medium text-gray-500 w-48 shrink-0"><%= t('admin.club_settings.show.label_primary') %></dt>
         <dd class="flex items-center gap-2.5">
           <div class="w-5 h-5 rounded-full border border-gray-200 shrink-0"
                style="background-color: <%= @club_setting.effective_primary_color %>"></div>
           <span class="font-mono text-xs text-gray-700"><%= @club_setting.effective_primary_color %></span>
           <% if @club_setting.primary_color.blank? %>
-            <span class="text-xs text-gray-400">(Standard)</span>
+            <span class="text-xs text-gray-400"><%= t('admin.club_settings.show.default_suffix') %></span>
           <% end %>
         </dd>
       </div>
 
       <div class="px-6 py-3.5 flex items-center justify-between text-sm">
-        <dt class="font-medium text-gray-500 w-48 shrink-0">Sekundärfarbe</dt>
+        <dt class="font-medium text-gray-500 w-48 shrink-0"><%= t('admin.club_settings.show.label_secondary') %></dt>
         <dd class="flex items-center gap-2.5">
           <div class="w-5 h-5 rounded-full border border-gray-200 shrink-0"
                style="background-color: <%= @club_setting.effective_secondary_color %>"></div>
           <span class="font-mono text-xs text-gray-700"><%= @club_setting.effective_secondary_color %></span>
           <% if @club_setting.secondary_color.blank? %>
-            <span class="text-xs text-gray-400">(Standard)</span>
+            <span class="text-xs text-gray-400"><%= t('admin.club_settings.show.default_suffix') %></span>
           <% end %>
         </dd>
       </div>
@@ -53,18 +53,54 @@
     </dl>
   </div>
 
+  <%# ── Datenschutz & Impressum ──────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center justify-between">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Datenschutz &amp; Impressum</p>
+      <div class="flex gap-3 text-xs">
+        <%= link_to "Datenschutz ansehen", privacy_path, target: "_blank", class: "text-primary-600 hover:underline" %>
+        <%= link_to "Impressum ansehen", impressum_path, target: "_blank", class: "text-primary-600 hover:underline" %>
+      </div>
+    </div>
+    <dl class="divide-y divide-gray-100 text-sm">
+      <% {
+        "Adresse"         => [@club_setting.contact_street, [@club_setting.contact_zip, @club_setting.contact_city].compact.join(" ")].select(&:present?).join(", "),
+        "E-Mail"          => @club_setting.contact_email,
+        "Telefon"         => @club_setting.contact_phone,
+        "Website"         => @club_setting.contact_website,
+        "Rechtsform"      => @club_setting.legal_form,
+        "Verantwortlich"  => [@club_setting.responsible_name, @club_setting.responsible_function].select(&:present?).join(", "),
+        "DSB"             => @club_setting.privacy_officer_name.presence ? "#{@club_setting.privacy_officer_name} (#{@club_setting.privacy_officer_email})" : nil,
+        "Zahlungsanbieter"=> @club_setting.payment_provider,
+        "SMTP-Provider"   => @club_setting.smtp_provider,
+        "Hosting"         => [@club_setting.hosting_provider, @club_setting.hosting_country].select(&:present?).join(", "),
+      }.each do |label, value| %>
+        <% next if value.blank? %>
+        <div class="px-6 py-3 flex items-center justify-between">
+          <dt class="font-medium text-gray-500 w-48 shrink-0"><%= label %></dt>
+          <dd class="text-gray-900"><%= value %></dd>
+        </div>
+      <% end %>
+      <% if @club_setting.contact_street.blank? && @club_setting.contact_email.blank? %>
+        <div class="px-6 py-4 text-gray-400 text-sm italic">
+          Noch keine Datenschutz-Angaben hinterlegt. <%= link_to "Jetzt ausfüllen", edit_admin_club_setting_path, class: "text-primary-600 hover:underline not-italic" %>
+        </div>
+      <% end %>
+    </dl>
+  </div>
+
   <%# ── Logo ──────────────────────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
-      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide">Logo</p>
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide"><%= t('admin.club_settings.show.section_logo') %></p>
     </div>
     <div class="px-6 py-5">
       <% if @club_setting.logo.attached? %>
         <img src="<%= @club_setting.logo_url %>"
-             alt="Vereinslogo"
+             alt="<%= t('admin.club_settings.show.title') %>"
              class="max-h-20 object-contain rounded-lg border border-gray-100">
       <% else %>
-        <p class="text-sm text-gray-400 font-medium">Kein Logo hinterlegt.</p>
+        <p class="text-sm text-gray-400 font-medium"><%= t('admin.club_settings.show.no_logo') %></p>
       <% end %>
     </div>
   </div>

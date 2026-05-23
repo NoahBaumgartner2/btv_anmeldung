@@ -1,8 +1,11 @@
 require "test_helper"
 
 class HolidaysControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
     @holiday = holidays(:one)
+    sign_in users(:admin)
   end
 
   test "should get index" do
@@ -20,7 +23,7 @@ class HolidaysControllerTest < ActionDispatch::IntegrationTest
       post holidays_url, params: { holiday: { end_date: @holiday.end_date, start_date: @holiday.start_date, title: @holiday.title } }
     end
 
-    assert_redirected_to holiday_url(Holiday.last)
+    assert_redirected_to holidays_url
   end
 
   test "should show holiday" do
@@ -35,7 +38,7 @@ class HolidaysControllerTest < ActionDispatch::IntegrationTest
 
   test "should update holiday" do
     patch holiday_url(@holiday), params: { holiday: { end_date: @holiday.end_date, start_date: @holiday.start_date, title: @holiday.title } }
-    assert_redirected_to holiday_url(@holiday)
+    assert_redirected_to holidays_url
   end
 
   test "should destroy holiday" do

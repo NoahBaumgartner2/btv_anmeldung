@@ -1,0 +1,11 @@
+one:
+  name: Test Export
+  format: csv
+  export_type: teilnehmerliste
+  schedule: none
+  recipient_email: test@example.com
+  fields: "{last_name,first_name}"
+  col_sep: ";"
+  row_sep: "\\n"
+  quote_char: "\""
+  include_header: true

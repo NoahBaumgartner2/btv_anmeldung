@@ -17,7 +17,7 @@ module BtvAnmeldung
     config.autoload_lib(ignore: %w[assets tasks])
 
     config.i18n.default_locale = :de
-    config.i18n.available_locales = [:de, :en, :fr]
+    config.i18n.available_locales = [ :de, :en, :fr ]
 
     config.middleware.use Rack::Attack
 
@@ -29,7 +29,8 @@ module BtvAnmeldung
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    config.time_zone = "Europe/Zurich"
+    config.active_record.default_timezone = :local
     # config.eager_load_paths << Rails.root.join("extras")
   end
 end

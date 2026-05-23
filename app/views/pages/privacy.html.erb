@@ -1,0 +1,200 @@
+<% content_for :title, t("pages.privacy.title") %>
+<% cs = club_setting %>
+
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2"><%= t("pages.privacy.title") %></h1>
+  <p class="text-sm text-gray-500 mb-8"><%= t("pages.privacy.updated", date: l(Date.new(2026, 4, 28), format: :long)) %></p>
+
+  <% if user_signed_in? && current_user.admin? && cs.contact_email.blank? %>
+    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6 text-sm text-amber-800">
+      <strong>Admin:</strong> <%= t("pages.privacy.admin_hint") %>
+      <%= link_to t("pages.privacy.admin_hint_link"), edit_admin_club_setting_path, class: "underline font-semibold" %>
+    </div>
+  <% end %>
+
+  <%# ── 1. Verantwortlicher ──────────────────────────────────────────────── %>
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3"><%= t("pages.privacy.s1") %></h2>
+    <div class="text-sm text-gray-700 space-y-1 bg-gray-50 rounded-lg p-4 border border-gray-200">
+      <p class="font-semibold"><%= cs.club_name.presence || "—" %><% if cs.legal_form.present? %>, <%= cs.legal_form %><% end %></p>
+      <% if cs.contact_street.present? %><p><%= cs.contact_street %></p><% end %>
+      <% if cs.contact_zip.present? || cs.contact_city.present? %>
+        <p><%= [cs.contact_zip, cs.contact_city].select(&:present?).join(" ") %>, Schweiz</p>
+      <% end %>
+      <% if cs.contact_email.present? %>
+        <p class="pt-2">E-Mail: <a href="mailto:<%= cs.contact_email %>" class="text-primary-600 underline"><%= cs.contact_email %></a></p>
+      <% end %>
+      <% if cs.contact_phone.present? %><p><%= cs.contact_phone %></p><% end %>
+      <% if cs.contact_website.present? %><p class="text-primary-600"><%= cs.contact_website %></p><% end %>
+    </div>
+    <% if cs.privacy_officer_name.present? %>
+      <div class="mt-3 text-sm text-gray-700 bg-gray-50 rounded-lg p-4 border border-gray-200">
+        <p class="font-semibold mb-1"><%= cs.privacy_officer_name %></p>
+        <% if cs.privacy_officer_email.present? %>
+          <p><a href="mailto:<%= cs.privacy_officer_email %>" class="text-primary-600 underline"><%= cs.privacy_officer_email %></a></p>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500 mt-3"><%= t("pages.privacy.no_dpo") %></p>
+    <% end %>
+  </section>
+
+  <%# ── 2. Erhobene Daten ────────────────────────────────────────────────── %>
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3"><%= t("pages.privacy.s2") %></h2>
+    <p class="text-sm text-gray-600 mb-4"><%= t("pages.privacy.s2_intro") %></p>
+    <div class="rounded-lg border border-gray-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="text-left px-4 py-2.5 font-semibold text-gray-700 w-1/3"><%= t("pages.privacy.th_category") %></th>
+            <th class="text-left px-4 py-2.5 font-semibold text-gray-700 w-1/3"><%= t("pages.privacy.th_purpose") %></th>
+            <th class="text-left px-4 py-2.5 font-semibold text-gray-700"><%= t("pages.privacy.th_basis") %></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <% %w[r1 r2 r3 r4 r5 r6 r7 r8 r9].each do |r| %>
+            <tr>
+              <td class="px-4 py-3 text-gray-700<%= r == 'r3' ? ' font-medium' : '' %>"><%= t("pages.privacy.#{r}_cat") %></td>
+              <td class="px-4 py-3 text-gray-600"><%= t("pages.privacy.#{r}_purpose") %></td>
+              <td class="px-4 py-3 text-gray-600"><%= t("pages.privacy.#{r}_basis") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <%# ── 3. Besondere Kategorien ──────────────────────────────────────────── %>
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3"><%= t("pages.privacy.s3") %></h2>
+    <div class="space-y-4 text-sm text-gray-700">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <p class="font-semibold text-blue-800 mb-1"><%= t("pages.privacy.ahv_title") %></p>
+        <p><%= t("pages.privacy.ahv_body") %></p>
+      </div>
+      <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+        <p class="font-semibold text-purple-800 mb-1"><%= t("pages.privacy.minors_title") %></p>
+        <p><%= t("pages.privacy.minors_body") %></p>
+      </div>
+    </div>
+  </section>
+
+  <%# ── 4. Drittanbieter ─────────────────────────────────────────────────── %>
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3"><%= t("pages.privacy.s4") %></h2>
+    <div class="space-y-3 text-sm text-gray-700">
+      <div class="border border-gray-200 rounded-lg p-4">
+        <p class="font-semibold mb-1"><%= t("pages.privacy.payment_title", provider: cs.payment_provider.presence || "—") %></p>
+        <p><%= t("pages.privacy.payment_body", provider: cs.payment_provider.presence || "—") %></p>
+      </div>
+      <div class="border border-gray-200 rounded-lg p-4">
+        <p class="font-semibold mb-1"><%= t("pages.privacy.smtp_title", provider: cs.smtp_provider.presence || "—") %></p>
+        <p><%= t("pages.privacy.smtp_body", provider: cs.smtp_provider.presence || "—") %></p>
+      </div>
+      <div class="border border-gray-200 rounded-lg p-4">
+        <p class="font-semibold mb-1"><%= t("pages.privacy.hosting_title") %></p>
+        <% if cs.hosting_provider.present? %>
+          <p><%= t("pages.privacy.hosting_body_with", provider: cs.hosting_provider, country: cs.hosting_country.presence || "—") %></p>
+        <% else %>
+          <p><%= t("pages.privacy.hosting_body_without") %></p>
+        <% end %>
+      </div>
+    </div>
+  </section>
+
+  <%# ── 5. Cookies ──────────────────────────────────────────────────────── %>
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3"><%= t("pages.privacy.s5") %></h2>
+    <p class="text-sm text-gray-600 mb-3"><%= t("pages.privacy.cookies_intro") %></p>
+    <div class="rounded-lg border border-gray-200 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="text-left px-4 py-2.5 font-semibold text-gray-700"><%= t("pages.privacy.tc_name") %></th>
+            <th class="text-left px-4 py-2.5 font-semibold text-gray-700"><%= t("pages.privacy.tc_purpose") %></th>
+            <th class="text-left px-4 py-2.5 font-semibold text-gray-700"><%= t("pages.privacy.tc_type") %></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr>
+            <td class="px-4 py-3 font-mono text-xs text-gray-700">_session_id</td>
+            <td class="px-4 py-3 text-gray-600"><%= t("pages.privacy.tc_session_purpose") %></td>
+            <td class="px-4 py-3 text-gray-600"><%= t("pages.privacy.tc_necessary") %></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-mono text-xs text-gray-700">authenticity_token</td>
+            <td class="px-4 py-3 text-gray-600"><%= t("pages.privacy.tc_csrf_purpose") %></td>
+            <td class="px-4 py-3 text-gray-600"><%= t("pages.privacy.tc_necessary") %></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-3 font-mono text-xs text-gray-700">cookie_consent</td>
+            <td class="px-4 py-3 text-gray-600"><%= t("pages.privacy.tc_consent_purpose") %></td>
+            <td class="px-4 py-3 text-gray-600"><%= t("pages.privacy.tc_necessary") %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="text-sm text-gray-500 mt-3"><%= t("pages.privacy.cookies_note") %></p>
+  </section>
+
+  <%# ── 6. Speicherdauer ─────────────────────────────────────────────────── %>
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3"><%= t("pages.privacy.s6") %></h2>
+    <ul class="text-sm text-gray-600 space-y-2 list-disc ml-5">
+      <% %w[ret1 ret2 ret3 ret4 ret5].each do |k| %>
+        <li><%= t("pages.privacy.#{k}") %></li>
+      <% end %>
+    </ul>
+  </section>
+
+  <%# ── 7. Betroffenenrechte ────────────────────────────────────────────── %>
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3"><%= t("pages.privacy.s7") %></h2>
+    <p class="text-sm text-gray-600 mb-3"><%= t("pages.privacy.rights_intro") %></p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+      <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+        <p class="font-semibold text-gray-800"><%= t("pages.privacy.right_access_title") %></p>
+        <p class="text-gray-600 mt-1"><%= t("pages.privacy.right_access_body") %></p>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+        <p class="font-semibold text-gray-800"><%= t("pages.privacy.right_rect_title") %></p>
+        <p class="text-gray-600 mt-1"><%= t("pages.privacy.right_rect_body") %></p>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+        <p class="font-semibold text-gray-800"><%= t("pages.privacy.right_erase_title") %></p>
+        <p class="text-gray-600 mt-1"><%= t("pages.privacy.right_erase_body_html", url: account_path).html_safe %></p>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+        <p class="font-semibold text-gray-800"><%= t("pages.privacy.right_port_title") %></p>
+        <p class="text-gray-600 mt-1"><%= t("pages.privacy.right_port_body_html", url: export_account_path).html_safe %></p>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+        <p class="font-semibold text-gray-800"><%= t("pages.privacy.right_obj_title") %></p>
+        <p class="text-gray-600 mt-1"><%= t("pages.privacy.right_obj_body") %></p>
+      </div>
+      <div class="bg-gray-50 rounded-lg p-3 border border-gray-200">
+        <p class="font-semibold text-gray-800"><%= t("pages.privacy.right_revoke_title") %></p>
+        <p class="text-gray-600 mt-1"><%= t("pages.privacy.right_revoke_body_html", url: unsubscribe_newsletter_subscriber_path).html_safe %></p>
+      </div>
+    </div>
+  </section>
+
+  <%# ── 8. Beschwerderecht ───────────────────────────────────────────────── %>
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3"><%= t("pages.privacy.s8") %></h2>
+    <p class="text-sm text-gray-600"><%= t("pages.privacy.complaint_intro") %></p>
+    <div class="mt-3 bg-gray-50 rounded-lg p-4 border border-gray-200 text-sm text-gray-700">
+      <p class="font-semibold"><%= t("pages.privacy.edob_name") %></p>
+      <p><%= t("pages.privacy.edob_address") %></p>
+      <p class="text-primary-600"><%= t("pages.privacy.edob_website") %></p>
+    </div>
+    <p class="text-sm text-gray-500 mt-3"><%= t("pages.privacy.edob_note") %></p>
+  </section>
+
+  <%# ── 9. Änderungen ────────────────────────────────────────────────────── %>
+  <section class="mb-4">
+    <h2 class="text-lg font-semibold text-gray-800 mb-3"><%= t("pages.privacy.s9") %></h2>
+    <p class="text-sm text-gray-600"><%= t("pages.privacy.changes_body") %></p>
+  </section>
+</div>

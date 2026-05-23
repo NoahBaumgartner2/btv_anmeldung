@@ -1,0 +1,15 @@
+Abmeldung erhalten
+
+Teilnehmer:   <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:         <%= @course.title %>
+Eltern-Email: <%= @parent&.email || "—" %>
+<% if @cancelled_by_trainer.present? %>
+Abgemeldet durch: <%= @cancelled_by_trainer %>
+<% end %>
+<% if @course_registration.payment_cleared? && @course.has_payment? %>
+
+Zahlung war erfolgt — eine allfällige Rückerstattung wird automatisch verarbeitet.
+<% end %>
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

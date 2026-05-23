@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  post "locale", to: "locales#update", as: :locale
+
   # NEU: Die Routen für unsere Dashboards
   get "up" => "rails/health#show", as: :rails_health_check
   get  "dashboards/admin"
@@ -31,27 +33,55 @@ Rails.application.routes.draw do
       post :export_awk
       get  :check_attendance
     end
+    resource :reports, only: [ :show ], controller: "reports" do
+      post :btv_teilnehmerzahl
+      post :sportfonds_breitensport
+      post :sportfonds_spitzensport
+      post :krabbel_gym_statistik
+    end
   end
 
-  resources :trainers
+  resources :trainers do
+    member do
+      patch :update_profile
+      post  :update_courses
+    end
+    collection do
+      post :invite
+    end
+  end
   resources :holidays
+
+  get "my_profile", to: "participants#my_profile", as: :my_profile
+
   resources :participants
 
   resources :courses do
     member do
-      get :generate_trainings
+      get  :generate_trainings
       post :create_generated_trainings
-      get :manage # NEU: Der Maschinenraum für einen einzelnen Kurs!
+      get  :manage
+      post :confirm_destroy
+      post :grant_access
+      delete :revoke_access
+      post :manual_enroll
+      get  :participant_search
+      post :send_custom_email
     end
   end
 
   resources :course_registrations do
+    collection do
+      get :trial_eligible
+    end
     member do
       post :scan
       post :unsubscribe_from_session
-      post :mark_as_paid
+      post :resubscribe_to_session
       post :cancel
       post :trainer_cancel
+      post :use_abo_entry
+      post :mark_as_paid
     end
   end
 
@@ -71,13 +101,12 @@ Rails.application.routes.draw do
     end
   end
 
+  get "newsletter_subscribers/unsubscribe", to: "newsletter_subscribers#unsubscribe", as: "unsubscribe_newsletter_subscriber"
+
   resources :newsletter_subscribers, only: %i[index create update destroy] do
     collection do
       post :import
       get  :export
-    end
-    member do
-      get :unsubscribe
     end
   end
 
@@ -97,6 +126,16 @@ Rails.application.routes.draw do
   # Dynamische CSS-Variablen (Vereinsfarben) – öffentlich, versioniert via ?v=
   get "/club_colors.css", to: "club_colors#show", as: :club_colors
 
-  devise_for :users, controllers: { confirmations: "users/confirmations" }
+  get  "/onboarding", to: "onboarding#show",   as: :onboarding
+  post "/onboarding", to: "onboarding#create"
+  resource :family_data, only: [ :edit, :update ], controller: "family_data"
+
+  devise_for :users, controllers: {
+    confirmations: "users/confirmations",
+    registrations: "users/registrations"
+  }
+  get "/datenschutz", to: "pages#privacy",   as: :privacy
+  get "/impressum",   to: "pages#impressum", as: :impressum
+
   root "pages#home"
 end

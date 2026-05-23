@@ -1,8 +1,13 @@
 require "test_helper"
 
 class ParticipantsControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
-    @participant = participants(:one)
+    # parent_only is a plain parent (no trainer record, no admin) — owns parent_only_child
+    @user        = users(:parent_only)
+    @participant = participants(:parent_only_child)
+    sign_in @user
   end
 
   test "should get index" do
@@ -17,10 +22,19 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create participant" do
     assert_difference("Participant.count") do
-      post participants_url, params: { participant: { ahv_number: @participant.ahv_number, date_of_birth: @participant.date_of_birth, email: @participant.email, first_name: @participant.first_name, gender: @participant.gender, last_name: @participant.last_name, phone_number: @participant.phone_number, user_id: @participant.user_id } }
+      post participants_url, params: {
+        participant: {
+          ahv_number:   "756.9999.8888.77",
+          date_of_birth: @participant.date_of_birth,
+          first_name:   "Test",
+          gender:       @participant.gender,
+          last_name:    "Kind",
+          phone_number: @participant.phone_number
+        }
+      }
     end
 
-    assert_redirected_to participant_url(Participant.last)
+    assert_redirected_to participants_url
   end
 
   test "should show participant" do
@@ -34,8 +48,17 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update participant" do
-    patch participant_url(@participant), params: { participant: { ahv_number: @participant.ahv_number, date_of_birth: @participant.date_of_birth, email: @participant.email, first_name: @participant.first_name, gender: @participant.gender, last_name: @participant.last_name, phone_number: @participant.phone_number, user_id: @participant.user_id } }
-    assert_redirected_to participant_url(@participant)
+    patch participant_url(@participant), params: {
+      participant: {
+        ahv_number:    @participant.ahv_number,
+        date_of_birth: @participant.date_of_birth,
+        first_name:    @participant.first_name,
+        gender:        @participant.gender,
+        last_name:     @participant.last_name,
+        phone_number:  @participant.phone_number
+      }
+    }
+    assert_redirected_to participants_url
   end
 
   test "should destroy participant" do

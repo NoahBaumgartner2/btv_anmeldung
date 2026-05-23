@@ -6,9 +6,11 @@ class ScheduledExportJob < ApplicationJob
   def perform(frequency)
     ExportProfile.where(schedule: frequency).find_each do |profile|
       next unless profile.recipient_email.present?
-
       participants = build_participants_scope(profile)
       ExportProfileMailer.scheduled_export(profile, participants).deliver_now
+    rescue Net::SMTPError, Net::OpenTimeout, Net::ReadTimeout, SocketError,
+           Errno::ECONNREFUSED, EOFError => e
+      Rails.logger.error "[ScheduledExportJob] Fehler bei Profil #{profile.id}: #{e.class}: #{e.message}"
     end
   end
 

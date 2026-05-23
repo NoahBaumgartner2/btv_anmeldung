@@ -48,7 +48,7 @@ module InfomaniakConfig
     private
 
     def load_from_db
-      InfomaniakSetting.first
+      ::InfomaniakSetting.first
     rescue => e
       Rails.logger.warn "[InfomaniakConfig] DB-Lese-Fehler: #{e.message}"
       nil
@@ -56,12 +56,33 @@ module InfomaniakConfig
   end
 end
 
-begin
-  InfomaniakConfig.load!
-  Rails.logger.info "[InfomaniakConfig] Konfiguration geladen – " \
-                    "#{InfomaniakConfig.configured? ? 'vollständig' : 'unvollständig (Dev/Test)'}"
-rescue RuntimeError => e
-  raise e  # In Production immer hart fehlschlagen
-rescue => e
-  Rails.logger.warn "[InfomaniakConfig] Initializer übersprungen: #{e.message}"
+# Beim Asset-Precompile-Schritt im Docker-Build ist keine DB verfügbar.
+# In diesem Fall überspringen wir das Laden der DB-Konfiguration.
+if ENV["SECRET_KEY_BASE_DUMMY"].present?
+  Rails.logger.info "[InfomaniakConfig] Asset-Precompile-Modus – DB-Konfiguration wird übersprungen."
+else
+  Rails.application.config.after_initialize do
+    # `table_exists?` wirft ActiveRecord::NoDatabaseError wenn die DB noch nicht
+    # existiert – z.B. während `bin/rails db:test:prepare` im CI, wo der
+    # Initializer bereits läuft bevor die Testdatenbank angelegt wurde.
+    begin
+      next unless defined?(InfomaniakSetting) &&
+                  ActiveRecord::Base.connection.table_exists?("infomaniak_settings")
+    rescue ActiveRecord::NoDatabaseError, ActiveRecord::StatementInvalid => e
+      Rails.logger.warn "[InfomaniakConfig] DB-Prüfung übersprungen: #{e.message}"
+      next
+    end
+
+    begin
+      InfomaniakConfig.load!
+      Rails.logger.info "[InfomaniakConfig] Konfiguration geladen – " \
+                        "#{InfomaniakConfig.configured? ? 'vollständig' : 'unvollständig (Dev/Test)'}"
+    rescue => e
+      if Rails.env.production?
+        raise e
+      else
+        Rails.logger.warn "[InfomaniakConfig] Initializer übersprungen: #{e.message}"
+      end
+    end
+  end
 end

@@ -1,8 +1,11 @@
 class MailSetting < ApplicationRecord
   AUTHENTICATION_OPTIONS = %w[plain login cram_md5].freeze
 
+  HOSTNAME_REGEXP = /\A[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9\-]{0,61}[a-z0-9])?)*\z/i
+
   validates :smtp_port, numericality: { only_integer: true, greater_than: 0, less_than: 65_536 }, allow_blank: true
   validates :smtp_authentication, inclusion: { in: AUTHENTICATION_OPTIONS }, allow_blank: true
+  validates :app_host, format: { with: HOSTNAME_REGEXP, message: "muss ein gültiger Hostname sein (z.B. btvbern-anmeldung.ch)" }, allow_blank: true
 
   # ── Virtual attribute for password (stored encrypted) ──────────────────────
   attr_reader :smtp_password
@@ -25,16 +28,49 @@ class MailSetting < ApplicationRecord
     first_or_initialize
   end
 
+  # Opens a raw SMTP connection (TCP + optional STARTTLS + auth) without sending
+  # a message — useful as a pre-flight connectivity check from the admin UI.
+  def self.test_connection
+    setting = first
+    return { success: false, error: "Keine SMTP-Einstellungen konfiguriert." } unless setting&.smtp_host.present?
+
+    require "net/smtp"
+    smtp     = Net::SMTP.new(setting.smtp_host, (setting.smtp_port.presence || 587).to_i)
+    smtp.enable_starttls_auto if setting.smtp_enable_starttls
+
+    user     = setting.smtp_username.presence
+    password = setting.smtp_password_decrypted
+    authtype = setting.smtp_authentication.presence&.to_sym
+
+    smtp.start("localhost", user, password, authtype) { }
+
+    { success: true }
+  rescue Net::SMTPAuthenticationError => e
+    { success: false, error: "Authentifizierungsfehler: #{e.message.to_s.truncate(200)}" }
+  rescue => e
+    { success: false, error: "#{e.class}: #{e.message.to_s.truncate(200)}" }
+  end
+
   # ── Apply SMTP settings to ActionMailer ────────────────────────────────────
   def self.apply!
     setting = first
 
     if setting&.smtp_host.present?
-      ActionMailer::Base.delivery_method  = :smtp
-      ActionMailer::Base.smtp_settings    = setting.to_smtp_hash
-      ActionMailer::Base.default_options  = { from: setting.from_header }
+      ActionMailer::Base.delivery_method = :smtp
+      ActionMailer::Base.smtp_settings   = setting.to_smtp_hash
+      ActionMailer::Base.default(from: setting.from_header) if setting.from_header.present?
     else
       apply_from_env!
+    end
+
+    from = ActionMailer::Base.default_params[:from]
+    Devise.mailer_sender = from if from.present?
+
+    # config/environments/production.rb setzt default_url_options aus ENV während der
+    # Config-Phase. Dieser Block läuft in after_initialize – nach den Railtie-Initializers –
+    # und überschreibt den ENV-Wert bewusst, damit der DB-Wert immer Vorrang hat.
+    if setting&.app_host.present? && setting.app_host.match?(HOSTNAME_REGEXP)
+      ActionMailer::Base.default_url_options = { host: setting.app_host, protocol: "https" }
     end
   rescue => e
     Rails.logger.warn "[MailSetting] Could not apply DB settings: #{e.message}. Falling back to ENV."
@@ -54,8 +90,8 @@ class MailSetting < ApplicationRecord
       enable_starttls_auto: ENV.fetch("SMTP_ENABLE_STARTTLS", "true") == "true"
     }.compact
 
-    from = [ENV["SMTP_FROM_NAME"], ENV["SMTP_FROM_ADDRESS"]].compact.join(" ")
-    ActionMailer::Base.default_options = { from: from } if from.present?
+    from = [ ENV["SMTP_FROM_NAME"], ENV["SMTP_FROM_ADDRESS"] ].compact.join(" ")
+    ActionMailer::Base.default(from: from) if from.present?
   end
 
   def to_smtp_hash

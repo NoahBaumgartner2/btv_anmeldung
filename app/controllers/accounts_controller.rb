@@ -12,8 +12,14 @@ class AccountsController < ApplicationController
     sub = NewsletterSubscriber.find_or_initialize_by(email: current_user.email.downcase.strip)
     sub.status = "subscribed"
     sub.source ||= "manual"
-    sub.save
-    redirect_to account_path, notice: "Du erhältst ab sofort wieder den BTV-Newsletter."
+    if sub.save
+      redirect_to account_path, notice: "Du erhältst ab sofort wieder den BTV-Newsletter."
+    else
+      redirect_to account_path, alert: "Fehler beim Anmelden: #{sub.errors.full_messages.join(', ')}"
+    end
+  rescue => e
+    Rails.logger.error "[AccountsController] subscribe_newsletter Fehler: #{e.class}: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+    redirect_to account_path, alert: "Technischer Fehler beim Anmelden. Bitte später erneut versuchen."
   end
 
   def unsubscribe_newsletter
@@ -24,7 +30,17 @@ class AccountsController < ApplicationController
 
   def destroy
     unless current_user.valid_password?(params[:password])
-      redirect_to account_path, alert: "Falsches Passwort. Dein Konto wurde nicht gelöscht."
+      redirect_to account_path, alert: t("accounts.show.wrong_password")
+      return
+    end
+
+    today = Date.today
+    active_registrations = current_user.participants
+      .flat_map(&:course_registrations)
+      .select { |r| r.status == "bestätigt" && (r.course.end_date.nil? || r.course.end_date >= today) }
+
+    if active_registrations.any?
+      redirect_to account_path, alert: t("accounts.show.delete_blocked_active_registrations")
       return
     end
 
@@ -32,7 +48,7 @@ class AccountsController < ApplicationController
     sign_out(user)
     user.destroy!
 
-    redirect_to root_path, notice: "Dein Konto und alle Daten wurden gelöscht."
+    redirect_to root_path, notice: t("accounts.show.deleted_notice")
   end
 
   def export

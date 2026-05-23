@@ -4,11 +4,12 @@ class Course < ApplicationRecord
   has_many :course_trainers, dependent: :destroy
   has_many :trainers, through: :course_trainers
   has_many :training_sessions, dependent: :destroy
+  has_many :course_access_grants, dependent: :destroy
+  has_many :permitted_users, through: :course_access_grants, source: :user
 
   # Verfügbare Zahlungsmethoden (→ Anzeigenamen)
   PAYMENT_METHODS = {
-    "card"  => "Kreditkarte / Debitkarte",
-    "twint" => "TWINT"
+    "card" => "Kreditkarte / Debitkarte"
   }.freeze
 
   before_save :clean_payment_methods
@@ -16,7 +17,7 @@ class Course < ApplicationRecord
   # Gibt die tatsächlich nutzbaren Zahlungsmethoden zurück (bereinigt, mit Fallback)
   def effective_payment_methods
     m = (payment_methods.presence || []).select { |v| PAYMENT_METHODS.key?(v) }
-    m.any? ? m : ["card"]
+    m.any? ? m : [ "card" ]
   end
 
   # Konfigurierbare Pflichtfelder: Symbol → Anzeigename
@@ -87,16 +88,44 @@ class Course < ApplicationRecord
     self.price_cents = value.presence ? (value.to_f * 100).round : nil
   end
 
+  def training_value_chf
+    cents = read_attribute(:training_value_cents)
+    return "" unless cents
+    format("%.2f", cents / 100.0)
+  end
+
+  def training_value_chf=(value)
+    self.training_value_cents = value.presence ? (value.to_f * 100).round : nil
+  end
+
   def price_display
-    return "Kostenlos" unless has_payment? && price_cents
+    return I18n.t("courses.free") unless has_payment? && price_cents
     "CHF #{price_chf}"
+  end
+
+  def registration_mode_label
+    return nil unless registration_mode.present?
+    I18n.t("courses.registration_modes.#{registration_mode}", default: registration_mode.humanize)
+  end
+
+  def registration_type_label
+    return nil unless registration_type.present?
+    I18n.t("courses.registration_types.#{registration_type}", default: registration_type.humanize)
+  end
+
+  def abo?
+    registration_mode == "abo"
+  end
+
+  def accessible_by?(user)
+    !restricted? || user&.admin? || permitted_users.include?(user)
   end
 
   private
 
   def clean_payment_methods
     self.payment_methods = (payment_methods || []).reject(&:blank?).select { |v| PAYMENT_METHODS.key?(v) }
-    self.payment_methods = ["card"] if payment_methods.empty?
+    self.payment_methods = [ "card" ] if payment_methods.empty?
   end
 
   def max_age_must_be_greater_than_or_equal_to_min_age

@@ -1,3 +1,7 @@
+require "net/http"
+require "uri"
+require "json"
+
 module SumupConfig
   def self.setting
     PaymentSetting.first
@@ -8,6 +12,11 @@ module SumupConfig
 
   def self.access_token
     setting&.sumup_access_token.presence || ENV["SUMUP_ACCESS_TOKEN"].to_s
+  end
+
+  # Gibt einen gültigen Token zurück. Einstiegspunkt für zukünftigen OAuth2-Refresh.
+  def self.valid_token
+    access_token
   end
 
   def self.merchant_code

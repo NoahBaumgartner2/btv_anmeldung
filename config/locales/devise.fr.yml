@@ -37,6 +37,7 @@ fr:
       signed_up_but_inactive: "Vous vous êtes inscrit avec succès, mais votre compte n'est pas encore activé."
       signed_up_but_locked: "Vous vous êtes inscrit avec succès, mais votre compte est verrouillé."
       signed_up_but_unconfirmed: "Un e-mail avec un lien de confirmation a été envoyé à votre adresse. Veuillez suivre le lien pour activer votre compte."
+      confirmation_email_failed: "Votre compte a été créé, mais l'e-mail de confirmation n'a pas pu être envoyé. Veuillez contacter l'administrateur."
       update_needs_confirmation: "Votre compte a été mis à jour. Veuillez confirmer votre nouvelle adresse e-mail."
       updated: "Votre compte a été mis à jour avec succès."
       updated_but_not_signed_in: "Votre compte a été mis à jour, mais vous devez vous reconnecter car votre mot de passe a changé."

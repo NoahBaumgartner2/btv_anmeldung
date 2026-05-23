@@ -13,20 +13,15 @@ PaymentSetting.destroy_all
 puts "👤 Erstelle Benutzer (Admin, Trainer & Eltern)..."
 
 # 👑 Der Admin-Account (Reto)
-admin_user = User.create!(
-  email: 'admin@btv.ch',
-  password: 'password',
-  password_confirmation: 'password',
-  admin: true,
-  confirmed_at: Time.current
-)
+Anmel
 
 # Ein normaler Trainer Account
 trainer_user = User.create!(
-  email: 'trainer@btv.ch',
+  email: 'trainer@btv.com',
   password: 'password',
   password_confirmation: 'password',
-  confirmed_at: Time.current
+  confirmed_at: Time.current,
+  privacy_accepted: true
 )
 
 # Zwei Eltern-Accounts
@@ -34,13 +29,15 @@ parent1 = User.create!(
   email: 'familie.meier@example.com',
   password: 'password',
   password_confirmation: 'password',
-  confirmed_at: Time.current
+  confirmed_at: Time.current,
+  privacy_accepted: true
 )
 parent2 = User.create!(
   email: 'familie.weber@example.com',
   password: 'password',
   password_confirmation: 'password',
-  confirmed_at: Time.current
+  confirmed_at: Time.current,
+  privacy_accepted: true
 )
 
 puts "🏋️ Erstelle Trainer-Profil..."
@@ -83,6 +80,7 @@ semester_end   = semester_start + 5.months
 # 1. Krabbel Gym – montags, Drop-In, Ticketing aktiv
 krabbel_gym = Course.create!(
   title: 'Krabbel Gym',
+  category: 'Krabbel Gym',
   description: 'Wöchentliches Turnen für die Kleinsten. Bitte für jedes Training einzeln anmelden!',
   location: 'Turnhalle BTV',
   start_date: semester_start,
@@ -99,6 +97,7 @@ krabbel_gym = Course.create!(
 # 2. Kids Gym Kurse – Semester-Anmeldung
 kids_gym_mi_morgen = Course.create!(
   title: 'Kids Gym (Mittwoch Morgen)',
+  category: 'Kids Gym',
   description: 'Semesterkurs für Kids. Einmalige Anmeldung sichert den Platz für das ganze Semester.',
   location: 'Turnhalle BTV',
   start_date: semester_start,
@@ -115,6 +114,7 @@ kids_gym_mi_morgen = Course.create!(
 
 kids_gym_mi_nachmittag = Course.create!(
   title: 'Kids Gym (Mittwoch Nachmittag)',
+  category: 'Kids Gym',
   description: 'Semesterkurs für Kids. Einmalige Anmeldung sichert den Platz für das ganze Semester.',
   location: 'Turnhalle BTV',
   start_date: semester_start,
@@ -131,6 +131,7 @@ kids_gym_mi_nachmittag = Course.create!(
 
 kids_gym_do_morgen = Course.create!(
   title: 'Kids Gym (Donnerstag Morgen)',
+  category: 'Kids Gym',
   description: 'Semesterkurs für Kids. Einmalige Anmeldung sichert den Platz für das ganze Semester.',
   location: 'Turnhalle BTV',
   start_date: semester_start,
