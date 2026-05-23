@@ -128,13 +128,14 @@ class CourseRegistrationsController < ApplicationController
 
     # 2d. Duplikat-Check für Semesterkurse
     if course && participant && course.registration_mode != "single_session"
-      duplicate = CourseRegistration.where(
+      existing_reg = CourseRegistration.where(
         participant_id: participant.id,
         course_id: course.id
-      ).where.not(status: [ "storniert", "ausstehend" ]).exists?
+      ).where.not(status: [ "storniert", "ausstehend" ]).first
 
-      if duplicate
-        @course_registration.errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
+      if existing_reg
+        error_key = existing_reg.status == CourseRegistration::TRIAL_STATUS ? "duplicate_schnuppern" : "duplicate_registration"
+        @course_registration.errors.add(:base, I18n.t("course_registrations.errors.#{error_key}"))
         setup_new_form(course)
         return render :new, status: :unprocessable_entity
       end
@@ -215,7 +216,9 @@ class CourseRegistrationsController < ApplicationController
   def destroy
     course               = @course_registration.course
     training_session_id  = @course_registration.training_session_id
-    CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
+    unless @course_registration.status == "storniert"
+      CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
+    end
     @course_registration.destroy
     WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
     redirect_to participants_path, notice: t("course_registrations.flash.destroyed")
@@ -386,11 +389,18 @@ class CourseRegistrationsController < ApplicationController
   end
 
   def trial_eligible
-    course      = Course.find_by(id: params[:course_id])
-    participant = current_user.participants.find_by(id: params[:participant_id])
+    course = Course.find_by(id: params[:course_id])
+    if course.nil?
+      return render json: { eligible: false, reason: "not_found" }, status: :not_found
+    end
 
-    if course.nil? || participant.nil? || !course.allows_trial?
-      return render json: { eligible: false }
+    unless course.allows_trial?
+      return render json: { eligible: false, reason: "not_allowed" }
+    end
+
+    participant = current_user.participants.find_by(id: params[:participant_id])
+    if participant.nil?
+      return render json: { eligible: false, reason: "forbidden" }, status: :forbidden
     end
 
     render json: { eligible: participant.schnupper_eligible_for_category?(course.category) }

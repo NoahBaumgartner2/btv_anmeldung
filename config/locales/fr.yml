@@ -127,6 +127,8 @@ fr:
     switch: "Changer de langue"
 
   courses:
+    training_value_label: "Valeur par entraînement"
+    training_value_hint: "Pour les remboursements automatiques (CHF par entraînement)"
     index:
       title: "Cours"
       subtitle: "Choisissez une catégorie et inscrivez-vous directement."
@@ -270,10 +272,17 @@ fr:
       col_paid: "Payé"
       col_actions: "Actions"
       no_registrations: "Aucune inscription pour ce cours."
+      cancelled_registrations_label: "Inscriptions annulées (%{count})"
       abo_entries_label: "Entrées abonnement"
       abo_exhausted: "Épuisé"
       use_abo_entry: "Utiliser une entrée"
       use_abo_entry_confirm: "Utiliser une entrée pour %{name} ?"
+      send_email: "E-mail"
+      send_email_modal_title: "E-mail à %{name}"
+      send_email_subject_label: "Objet"
+      send_email_body_label: "Message"
+      send_email_submit: "Envoyer l'e-mail"
+      send_email_cancel: "Annuler"
     generate_trainings:
       back: "← Retour à la gestion du cours"
       title: "Générer les entraînements"
@@ -715,6 +724,7 @@ fr:
       warteliste: "Liste d'attente"
       storniert: "Annulé"
       ausstehend: "En attente"
+      schnuppern: "Essai"
     form:
       course_label: "Cours"
       course_prompt: "Choisir un cours..."
@@ -739,6 +749,7 @@ fr:
     errors:
       duplicate_session: "Cet enfant est déjà inscrit à cette séance."
       duplicate_registration: "Cette personne est déjà inscrite à ce cours."
+      duplicate_schnuppern: "Cette personne a déjà une place d'essai dans ce cours."
       session_cancelled: "Cette séance a malheureusement été annulée."
       session_in_past: "Cette séance est dans le passé et ne peut plus être réservée."
       missing_field: "%{field} manque pour %{name}. Veuillez d'abord compléter le profil."
@@ -875,6 +886,13 @@ fr:
       cancel: "Annuler"
 
   trainers:
+    my_profile:
+      title: "Mon profil"
+      iban_label: "IBAN"
+      iban_hint: "Pour le versement du salaire."
+      js_label: "Reconnaissance J+S"
+      js_hint: "Je dispose d'une reconnaissance J+S valide (OFSPO)"
+      save: "Enregistrer les modifications"
     index:
       title: "Entraîneurs"
       new_trainer: "Nouvel entraîneur"

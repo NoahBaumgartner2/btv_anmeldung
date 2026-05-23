@@ -311,6 +311,7 @@ de:
       col_paid: "Bezahlt"
       col_actions: "Aktionen"
       no_registrations: "Noch keine Anmeldungen für diesen Kurs."
+      cancelled_registrations_label: "Stornierte Anmeldungen (%{count})"
       abo_entries_label: "Abo-Eintritte"
       abo_exhausted: "Erschöpft"
       use_abo_entry: "Eintritt einlösen"
@@ -791,6 +792,7 @@ de:
     errors:
       duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
       duplicate_registration: "Diese Person ist bereits für diesen Kurs angemeldet."
+      duplicate_schnuppern: "Diese Person hat bereits einen Schnupperplatz in diesem Kurs."
       session_cancelled: "Dieser Termin wurde leider abgesagt."
       session_in_past: "Dieser Termin liegt in der Vergangenheit und kann nicht mehr gebucht werden."
       missing_field: "%{field} fehlt für %{name}. Bitte zuerst im Profil ergänzen."

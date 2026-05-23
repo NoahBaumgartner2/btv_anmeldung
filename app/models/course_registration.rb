@@ -59,12 +59,16 @@ class CourseRegistration < ApplicationRecord
     return if course.blank? || participant_id.blank?
     return if course.registration_mode == "single_session"
 
-    already_registered = CourseRegistration.where(
+    existing = CourseRegistration.where(
       participant_id: participant_id,
       course_id: course_id
-    ).where.not(status: [ "storniert", "ausstehend" ]).exists?
+    ).where.not(status: [ "storniert", "ausstehend" ]).first
 
-    if already_registered
+    return unless existing
+
+    if existing.status == TRIAL_STATUS
+      errors.add(:base, I18n.t("course_registrations.errors.duplicate_schnuppern"))
+    else
       errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
     end
   end
