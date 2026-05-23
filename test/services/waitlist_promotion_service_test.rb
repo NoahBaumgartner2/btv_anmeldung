@@ -2,6 +2,7 @@ require "test_helper"
 
 class WaitlistPromotionServiceTest < ActiveSupport::TestCase
   include ActionMailer::TestHelper
+  include ActiveJob::TestHelper
 
   def make_course(attrs = {})
     Course.new({
