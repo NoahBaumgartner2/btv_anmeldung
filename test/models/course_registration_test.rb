@@ -90,7 +90,7 @@ class CourseRegistrationTest < ActiveSupport::TestCase
   end
 
   test "single_session erlaubt unterschiedliche sessions, verhindert aber doppelte session" do
-    course = Course.new(title: "Z", registration_mode: "single_session", registration_type: "single_session",
+    course = Course.new(title: "Z", registration_mode: "single_session",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
     course.save!(validate: false)
 
