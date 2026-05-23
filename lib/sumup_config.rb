@@ -26,14 +26,20 @@ module SumupConfig
     return unless s&.sumup_token_expires_at.present?
     return if s.sumup_token_expires_at > 5.minutes.from_now
 
+    Rails.logger.warn "[SumupConfig] Access-Token läuft ab (#{s.sumup_token_expires_at}), starte Refresh..."
     refresh_access_token!
+    Rails.logger.info "[SumupConfig] Token-Refresh erfolgreich."
   rescue => e
-    Rails.logger.warn "[SumupConfig] Token-Refresh fehlgeschlagen: #{e.message}"
+    Rails.logger.error "[SumupConfig] Token-Refresh fehlgeschlagen: #{e.message}"
+    raise
   end
 
   def self.refresh_access_token!
     s = setting
-    return unless s&.sumup_client_id.present? && s.sumup_client_secret.present?
+    unless s&.sumup_client_id.present? && s&.sumup_client_secret.present?
+      Rails.logger.error "[SumupConfig] Token-Refresh nicht möglich: client_id oder client_secret fehlen"
+      raise "[SumupConfig] Token-Refresh nicht möglich: sumup_client_id und/oder sumup_client_secret fehlen. Bitte in den Zahlungseinstellungen ergänzen."
+    end
 
     uri = URI("https://api.sumup.com/token")
     http = Net::HTTP.new(uri.host, uri.port)
