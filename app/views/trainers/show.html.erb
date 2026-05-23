@@ -27,19 +27,19 @@
     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Adresse</p>
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
       <div><dt class="text-gray-500">Strasse</dt><dd class="font-semibold text-gray-900"><%= [@trainer.street, @trainer.house_number].compact.join(" ").presence || "–" %></dd></div>
-      <div><dt class="text-gray-500">PLZ / Ort</dt><dd class="font-semibold text-gray-900"><%= [@trainer.zip_code, @trainer.city].compact.join(" ").presence || "–" %></dd></div>
-      <div><dt class="text-gray-500">Nationalität</dt><dd class="font-semibold text-gray-900"><%= @trainer.nationality || "–" %></dd></div>
-      <div><dt class="text-gray-500">Muttersprache</dt><dd class="font-semibold text-gray-900"><%= @trainer.mother_tongue || "–" %></dd></div>
+      <div><dt class="text-gray-500"><%= t("trainers.show.zip_city") %></dt><dd class="font-semibold text-gray-900"><%= [@trainer.zip_code, @trainer.city].compact.join(" ").presence || "–" %></dd></div>
+      <div><dt class="text-gray-500"><%= t("trainers.show.nationality") %></dt><dd class="font-semibold text-gray-900"><%= @trainer.nationality || "–" %></dd></div>
+      <div><dt class="text-gray-500"><%= t("trainers.show.mother_tongue") %></dt><dd class="font-semibold text-gray-900"><%= @trainer.mother_tongue || "–" %></dd></div>
     </dl>
   </div>
 
   <%# ── J+S & Lohnangaben ───────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">J+S & Lohnangaben</p>
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4"><%= t("trainers.show.section_js_salary") %></p>
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-      <div><dt class="text-gray-500">J+S Personennummer</dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.js_person_number || "–" %></dd></div>
-      <div><dt class="text-gray-500">J+S-Anerkennung</dt><dd class="font-semibold text-gray-900"><%= @trainer.js_anerkennung? ? "✓ Ja" : "Nein" %></dd></div>
-      <div class="sm:col-span-2"><dt class="text-gray-500">IBAN</dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.iban || "–" %></dd></div>
+      <div><dt class="text-gray-500"><%= t("trainers.show.js_person_number") %></dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.js_person_number || "–" %></dd></div>
+      <div><dt class="text-gray-500"><%= t("trainers.show.js_anerkennung") %></dt><dd class="font-semibold text-gray-900"><%= @trainer.js_anerkennung? ? t("trainers.show.yes") : t("trainers.show.no") %></dd></div>
+      <div class="sm:col-span-2"><dt class="text-gray-500"><%= t("trainers.show.iban") %></dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.iban || "–" %></dd></div>
     </dl>
   </div>
 

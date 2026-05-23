@@ -414,9 +414,9 @@
 
   <%# ── Aktionen ───────────────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row gap-3">
-    <%= form.submit course.new_record? ? "Kurs erstellen" : "Änderungen speichern",
+    <%= form.submit course.new_record? ? t("courses.form.submit_create") : t("courses.form.submit_update"),
           class: "w-full sm:w-auto cursor-pointer bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition min-h-11" %>
-    <%= link_to "Abbrechen", course.new_record? ? courses_path : manage_course_path(course),
+    <%= link_to t("courses.form.cancel"), course.new_record? ? courses_path : manage_course_path(course),
           class: "w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-sm transition min-h-11 flex items-center justify-center" %>
   </div>
 <% end %>
