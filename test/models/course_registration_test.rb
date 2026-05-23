@@ -17,7 +17,7 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     second = CourseRegistration.new(course: course, participant: participant,
       status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false)
 
-    assert_raises(ActiveRecord::RecordNotUnique, ActiveRecord::StatementInvalid) do
+    assert_raises(ActiveRecord::RecordNotUnique) do
       second.save!(validate: false)
     end
   end
