@@ -19,6 +19,10 @@ class CourseRegistration < ApplicationRecord
     status == TRIAL_STATUS
   end
 
+  def refund_already_processed?
+    refunded_at.present?
+  end
+
   def trial_expired?
     trial? && created_at < 7.days.ago
   end

@@ -214,14 +214,36 @@ class CourseRegistrationsController < ApplicationController
 
   # NEU: Eine Anmeldung komplett löschen/stornieren
   def destroy
-    course               = @course_registration.course
-    training_session_id  = @course_registration.training_session_id
-    unless @course_registration.status == "storniert"
-      CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
+    course              = @course_registration.course
+    training_session_id = @course_registration.training_session_id
+    already_cancelled   = @course_registration.status == "storniert"
+
+    refund_cents = nil
+    if !already_cancelled && @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
+      begin
+        result = RefundService.process(@course_registration)
+        refund_cents = result[:amount_cents] if result[:refunded]
+      rescue RuntimeError => e
+        Rails.logger.error "[destroy] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
+        User.where(admin: true).find_each do |admin_user|
+          CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message).deliver_later
+        end
+      end
+    end
+
+    unless already_cancelled
+      CourseRegistrationMailer.self_cancelled(@course_registration, refund_amount_cents: refund_cents).deliver_later
     end
     @course_registration.destroy
     WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
-    redirect_to participants_path, notice: t("course_registrations.flash.destroyed")
+
+    notice = if refund_cents
+      amount_chf = format("%.2f", refund_cents / 100.0)
+      "#{t("course_registrations.flash.destroyed")} Rückerstattung von CHF #{amount_chf} wurde ausgelöst."
+    else
+      t("course_registrations.flash.destroyed")
+    end
+    redirect_to participants_path, notice: notice
   end
 
   def cancel
@@ -230,15 +252,28 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
-    @course_registration.update!(
-      status: "storniert",
-      cancelled_at: Time.current
-    )
+    already_cancelled_in_lock = false
+    @course_registration.with_lock do
+      if @course_registration.status == "storniert"
+        already_cancelled_in_lock = true
+        next
+      end
 
-    WaitlistPromotionService.promote_next_from_waitlist(
-      @course_registration.course,
-      training_session_id: @course_registration.training_session_id
-    )
+      @course_registration.update!(
+        status: "storniert",
+        cancelled_at: Time.current
+      )
+
+      WaitlistPromotionService.promote_next_from_waitlist(
+        @course_registration.course,
+        training_session_id: @course_registration.training_session_id
+      )
+    end
+
+    if already_cancelled_in_lock
+      redirect_to participants_path, alert: t("course_registrations.flash.already_cancelled")
+      return
+    end
 
     course = @course_registration.course
 
