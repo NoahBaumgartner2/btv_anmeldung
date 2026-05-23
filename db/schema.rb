@@ -108,7 +108,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_100002) do
     t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
     t.index ["course_id"], name: "index_course_registrations_on_course_id"
     t.index ["participant_id", "course_id"], name: "index_course_registrations_unique_active", unique: true, where: "((training_session_id IS NULL) AND ((status IS NULL) OR ((status)::text <> ALL ((ARRAY['storniert'::character varying, 'ausstehend'::character varying])::text[]))))"
-    t.index ["participant_id", "training_session_id"], name: "index_course_registrations_unique_session", unique: true, where: "((training_session_id IS NOT NULL) AND ((status)::text <> ALL ((ARRAY['storniert'::character varying, 'ausstehend'::character varying])::text[])))"
+    t.index ["participant_id", "training_session_id"], name: "index_course_registrations_unique_session", unique: true, where: "((training_session_id IS NOT NULL) AND ((status IS NULL) OR ((status)::text <> ALL ((ARRAY['storniert'::character varying, 'ausstehend'::character varying])::text[]))))"
     t.index ["participant_id"], name: "index_course_registrations_on_participant_id"
     t.index ["status"], name: "index_course_registrations_on_status"
     t.index ["sumup_checkout_id"], name: "index_course_registrations_on_sumup_checkout_id"

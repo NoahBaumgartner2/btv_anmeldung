@@ -28,7 +28,7 @@ class WaitlistPromotionService
         waitlist_scope  = waitlist_scope.where(training_session_id: nil)
       end
 
-      return if confirmed_scope.count >= course.max_participants
+      return if confirmed_scope.distinct.count(:participant_id) >= course.max_participants
 
       next_in_line = waitlist_scope.order(:created_at).first
       return unless next_in_line

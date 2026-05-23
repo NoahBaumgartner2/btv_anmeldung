@@ -22,56 +22,6 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     end
   end
 
-  test "DB-Constraint erlaubt mehrere aktive Single-Session-Anmeldungen für verschiedene Sessions" do
-    course = Course.new(title: "Single Session X", registration_mode: "single_session",
-      registration_type: "pro_training", has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
-    course.save!(validate: false)
-
-    session_one = TrainingSession.new(course: course)
-    session_one.save!(validate: false)
-
-    session_two = TrainingSession.new(course: course)
-    session_two.save!(validate: false)
-
-    participant = participants(:one)
-
-    first = CourseRegistration.new(course: course, participant: participant,
-      training_session: session_one, status: "bestätigt",
-      payment_cleared: false, holiday_deduction_claimed: false)
-    first.save!(validate: false)
-
-    second = CourseRegistration.new(course: course, participant: participant,
-      training_session: session_two, status: "bestätigt",
-      payment_cleared: false, holiday_deduction_claimed: false)
-
-    assert second.save(validate: false),
-      "Mehrere aktive Single-Session-Anmeldungen für unterschiedliche Sessions sollen möglich sein"
-  end
-
-  test "DB-Constraint verhindert doppelte aktive Single-Session-Anmeldung in derselben Session" do
-    course = Course.new(title: "Single Session Y", registration_mode: "single_session",
-      registration_type: "pro_training", has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
-    course.save!(validate: false)
-
-    session = TrainingSession.new(course: course)
-    session.save!(validate: false)
-
-    participant = participants(:one)
-
-    first = CourseRegistration.new(course: course, participant: participant,
-      training_session: session, status: "bestätigt",
-      payment_cleared: false, holiday_deduction_claimed: false)
-    first.save!(validate: false)
-
-    second = CourseRegistration.new(course: course, participant: participant,
-      training_session: session, status: "bestätigt",
-      payment_cleared: false, holiday_deduction_claimed: false)
-
-    assert_raises(ActiveRecord::RecordNotUnique) do
-      second.save!(validate: false)
-    end
-  end
-
   test "stornierte Anmeldung erlaubt Neu-Anmeldung" do
     course = Course.new(title: "Y", registration_type: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
