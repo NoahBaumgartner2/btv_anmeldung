@@ -585,6 +585,11 @@ de:
         no_results: "Keine Treffer für \"%{q}\""
         no_results_hint: "Prüfe die Schreibweise oder suche nach der E-Mail-Adresse."
         enter_query: "Gib mindestens 2 Zeichen ein, um zu suchen."
+        first_50_hits: "Erste 50 Treffer für \"%{q}\" — Suche verfeinern für genauere Ergebnisse"
+        hits_count:
+          one: "1 Treffer für \"%{q}\""
+          other: "%{count} Treffer für \"%{q}\""
+        col_action: "Aktion"
     trainer:
       label: "Trainer-Dashboard"
       greeting: "Hallo, %{name}"
@@ -1017,6 +1022,21 @@ de:
       yes: "✓ Ja"
       no: "Nein"
       iban: "IBAN"
+    new:
+      title: "Trainer erfassen"
+      subtitle: "Suche ein bestehendes Benutzerkonto und verknüpfe es als Trainer."
+      selected_account: "Ausgewähltes Konto"
+      change: "Ändern"
+      errors:
+        one: "Es gibt einen Fehler:"
+        other: "Es gibt %{count} Fehler:"
+      section_data: "Trainer-Daten"
+      phone_label: "Telefonnummer *"
+      phone_hint: "Pflichtfeld – z.B. +41 79 123 45 67"
+      submit: "Trainer erfassen"
+      cancel: "Abbrechen"
+      tab_search: "Bestehendes Konto suchen"
+      tab_invite: "Neuen Trainer einladen"
 
   payments:
     checkout_preview:

@@ -546,6 +546,11 @@ en:
         no_results: "No results for \"%{q}\""
         no_results_hint: "Check the spelling or search by email address."
         enter_query: "Enter at least 2 characters to search."
+        first_50_hits: "First 50 results for \"%{q}\" — refine your search for more precise results"
+        hits_count:
+          one: "1 result for \"%{q}\""
+          other: "%{count} results for \"%{q}\""
+        col_action: "Action"
     trainer:
       label: "Trainer Dashboard"
       greeting: "Hello, %{name}"
@@ -978,6 +983,21 @@ en:
       yes: "✓ Yes"
       no: "No"
       iban: "IBAN"
+    new:
+      title: "Add trainer"
+      subtitle: "Search for an existing account and link it as a trainer."
+      selected_account: "Selected account"
+      change: "Change"
+      errors:
+        one: "There is one error:"
+        other: "There are %{count} errors:"
+      section_data: "Trainer details"
+      phone_label: "Phone number *"
+      phone_hint: "Required – e.g. +41 79 123 45 67"
+      submit: "Add trainer"
+      cancel: "Cancel"
+      tab_search: "Search existing account"
+      tab_invite: "Invite new trainer"
 
   payments:
     checkout_preview:

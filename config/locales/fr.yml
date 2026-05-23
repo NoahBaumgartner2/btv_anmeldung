@@ -546,6 +546,11 @@ fr:
         no_results: "Aucun résultat pour \"%{q}\""
         no_results_hint: "Vérifiez l'orthographe ou recherchez par e-mail."
         enter_query: "Saisissez au moins 2 caractères pour rechercher."
+        first_50_hits: "50 premiers résultats pour \"%{q}\" — affinez la recherche pour plus de précision"
+        hits_count:
+          one: "1 résultat pour \"%{q}\""
+          other: "%{count} résultats pour \"%{q}\""
+        col_action: "Action"
     trainer:
       label: "Tableau de bord entraîneur"
       greeting: "Bonjour, %{name}"
@@ -974,6 +979,21 @@ fr:
       yes: "✓ Oui"
       no: "Non"
       iban: "IBAN"
+    new:
+      title: "Ajouter un entraîneur"
+      subtitle: "Recherchez un compte existant et associez-le comme entraîneur."
+      selected_account: "Compte sélectionné"
+      change: "Modifier"
+      errors:
+        one: "Il y a une erreur :"
+        other: "Il y a %{count} erreurs :"
+      section_data: "Données entraîneur"
+      phone_label: "Numéro de téléphone *"
+      phone_hint: "Obligatoire – p. ex. +41 79 123 45 67"
+      submit: "Ajouter l'entraîneur"
+      cancel: "Annuler"
+      tab_search: "Rechercher un compte existant"
+      tab_invite: "Inviter un nouvel entraîneur"
 
   payments:
     checkout_preview:
