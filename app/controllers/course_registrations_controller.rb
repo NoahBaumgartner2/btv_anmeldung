@@ -1,7 +1,7 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry, :convert_trial ]
   before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
 
   def show
@@ -511,6 +511,30 @@ class CourseRegistrationsController < ApplicationController
     remaining = @course_registration.abo_entries_remaining
     notice = "Eintritt für #{@course_registration.participant.first_name} eingelöst. Noch #{remaining} #{"Eintritt".pluralize(remaining)} übrig."
     redirect_to manage_course_path(course), notice: notice
+  end
+
+  def convert_trial
+    unless @course_registration.status == "schnuppern"
+      return redirect_to course_registration_path(@course_registration),
+        alert: "Diese Anmeldung ist kein Schnupperplatz."
+    end
+
+    unless current_user.participants.include?(@course_registration.participant)
+      return redirect_to root_path, alert: "Zugriff verweigert."
+    end
+
+    course = @course_registration.course
+
+    if course.has_payment? && course.price_cents.to_i > 0
+      @course_registration.update!(status: "ausstehend", payment_expires_at: 24.hours.from_now)
+      CourseRegistrationMailer.confirmation(@course_registration).deliver_later
+      redirect_to checkout_preview_registration_path(@course_registration)
+    else
+      @course_registration.update!(status: "bestätigt")
+      CourseRegistrationMailer.confirmation(@course_registration).deliver_later
+      redirect_to course_registration_path(@course_registration),
+        notice: "Du wurdest erfolgreich regulär angemeldet."
+    end
   end
 
   def mark_as_paid

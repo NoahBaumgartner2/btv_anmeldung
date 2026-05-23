@@ -121,10 +121,25 @@ class TrainingSessionsController < ApplicationController
       return redirect_to @training_session if attendance.abgemeldet?
 
       attendance.destroy
+      reg = course_registration
+      if reg.abo_entries_total.present? && reg.abo_entries_used.to_i > 0
+        reg.update_columns(abo_entries_used: reg.abo_entries_used - 1)
+      end
     else
       attendance = @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
       unless attendance.persisted?
         return redirect_to @training_session, alert: "Anwesenheit konnte nicht gespeichert werden."
+      end
+
+      reg = course_registration
+      if reg.abo_entries_total.present? && reg.abo_entries_total > 0
+        new_used = [ reg.abo_entries_used.to_i + 1, reg.abo_entries_total ].min
+        reg.update_columns(abo_entries_used: new_used)
+
+        if new_used >= reg.abo_entries_total
+          reg.update!(status: "storniert")
+          CourseRegistrationMailer.abo_exhausted(reg).deliver_later
+        end
       end
     end
 

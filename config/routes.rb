@@ -82,6 +82,7 @@ Rails.application.routes.draw do
       post :trainer_cancel
       post :use_abo_entry
       post :mark_as_paid
+      post :convert_trial
     end
   end
 
