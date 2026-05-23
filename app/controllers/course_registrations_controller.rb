@@ -6,14 +6,29 @@ class CourseRegistrationsController < ApplicationController
 
   def show
     if @course_registration.status == "ausstehend" && @course_registration.course.price_cents.to_i == 0
-      course = @course_registration.course
-      confirmed = course.course_registrations.where(status: "bestätigt").count
-      max       = course.max_participants
-      new_status = (max.present? && confirmed >= max) ? "warteliste" : "bestätigt"
-      CourseRegistration.where(id: @course_registration.id, status: "ausstehend")
-                        .update_all(status: new_status)
+      Course.find(@course_registration.course_id).with_lock do
+        @course_registration.reload
+        break unless @course_registration.status == "ausstehend"
+
+        course     = @course_registration.course
+        confirmed  = course.course_registrations.where(status: "bestätigt").count
+        max        = course.max_participants
+        new_status = (max.present? && confirmed >= max) ? "warteliste" : "bestätigt"
+        CourseRegistration.where(id: @course_registration.id, status: "ausstehend")
+                          .update_all(status: new_status)
+      end
       @course_registration.reload
     end
+  rescue ActiveRecord::RecordNotUnique
+    timestamp = Time.current
+    @course_registration.update_columns(
+      status: "storniert",
+      cancelled_at: timestamp,
+      updated_at: timestamp
+    )
+    Rails.logger.warn "[CourseRegistrations#show] Duplicate active registration #{@course_registration.id} auto-cancelled."
+    redirect_to course_path(@course_registration.course),
+      alert: "Deine Anmeldung konnte nicht bestätigt werden, da bereits eine aktive Anmeldung für diesen Kurs existiert." and return
   end
 
   def new

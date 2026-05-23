@@ -50,6 +50,8 @@ class PaymentsController < ApplicationController
                          alert: "Zahlung aktuell nicht verfügbar. Bitte kontaktiere uns."
     end
 
+    ::SumupConfig.ensure_valid_token!
+
     amount = (course.price_cents / 100.0).round(2)
 
     body = {

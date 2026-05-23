@@ -86,6 +86,8 @@ class PaymentSyncService
   end
 
   def self.fetch_checkout(checkout_id)
+    ::SumupConfig.ensure_valid_token!
+
     uri = URI("https://api.sumup.com/v0.1/checkouts/#{checkout_id}")
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true

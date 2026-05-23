@@ -15,7 +15,7 @@ class WaitlistPromotionService
       return if course.max_participants.blank?
 
       paid_course = course.has_payment? && course.price_cents.to_i > 0
-      occupied_statuses = %w[bestätigt]
+      occupied_statuses = paid_course ? %w[bestätigt ausstehend schnuppern] : %w[bestätigt schnuppern]
 
       confirmed_scope = course.course_registrations.where(status: occupied_statuses)
       waitlist_scope  = course.course_registrations.where(status: "warteliste")
@@ -28,7 +28,7 @@ class WaitlistPromotionService
         waitlist_scope  = waitlist_scope.where(training_session_id: nil)
       end
 
-      return if confirmed_scope.count >= course.max_participants
+      return if confirmed_scope.distinct.count(:participant_id) >= course.max_participants
 
       next_in_line = waitlist_scope.order(:created_at).first
       return unless next_in_line

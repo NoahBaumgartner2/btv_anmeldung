@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_22_154854) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_23_100002) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,6 +49,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_154854) do
     t.bigint "training_session_id", null: false
     t.datetime "updated_at", null: false
     t.index ["course_registration_id"], name: "index_attendances_on_course_registration_id"
+    t.index ["training_session_id", "course_registration_id"], name: "index_attendances_unique_per_session", unique: true
     t.index ["training_session_id"], name: "index_attendances_on_training_session_id"
   end
 
@@ -106,7 +107,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_154854) do
     t.datetime "updated_at", null: false
     t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
     t.index ["course_id"], name: "index_course_registrations_on_course_id"
+    t.index ["participant_id", "course_id"], name: "index_course_registrations_unique_active", unique: true, where: "((training_session_id IS NULL) AND ((status IS NULL) OR ((status)::text <> ALL ((ARRAY['storniert'::character varying, 'ausstehend'::character varying])::text[]))))"
+    t.index ["participant_id", "training_session_id"], name: "index_course_registrations_unique_session", unique: true, where: "((training_session_id IS NOT NULL) AND ((status IS NULL) OR ((status)::text <> ALL ((ARRAY['storniert'::character varying, 'ausstehend'::character varying])::text[]))))"
     t.index ["participant_id"], name: "index_course_registrations_on_participant_id"
+    t.index ["status"], name: "index_course_registrations_on_status"
     t.index ["sumup_checkout_id"], name: "index_course_registrations_on_sumup_checkout_id"
     t.index ["sumup_transaction_id"], name: "index_course_registrations_on_sumup_transaction_id"
     t.index ["training_session_id"], name: "index_course_registrations_on_training_session_id"
@@ -259,6 +263,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_22_154854) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.string "zip_code"
+    t.index ["ahv_number"], name: "index_participants_on_ahv_number"
     t.index ["first_name", "last_name", "date_of_birth", "user_id"], name: "index_participants_unique_per_user", unique: true
     t.index ["user_id"], name: "index_participants_on_user_id"
   end

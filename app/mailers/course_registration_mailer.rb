@@ -42,6 +42,10 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
+    @registration_url = course_registration_url(course_registration)
+    @needs_payment = @course.has_payment? && @course.price_cents.to_i > 0
+    @checkout_preview_url = checkout_preview_registration_url(course_registration) if @needs_payment
+
     mail(
       to: @recipient.email,
       subject: "Du hast einen Platz erhalten: #{@course.title}"
