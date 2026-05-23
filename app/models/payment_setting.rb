@@ -27,6 +27,21 @@ class PaymentSetting < ApplicationRecord
     sumup_access_token_encrypted.present?
   end
 
+  # ── sumup_client_secret (encrypted) ────────────────────────────────────────
+  def sumup_client_secret=(value)
+    @sumup_client_secret = value
+    self.sumup_client_secret_encrypted = encryptor.encrypt_and_sign(value) if value.present?
+  end
+
+  def sumup_client_secret
+    return @sumup_client_secret if @sumup_client_secret
+    return nil if sumup_client_secret_encrypted.blank?
+    encryptor.decrypt_and_verify(sumup_client_secret_encrypted)
+  rescue ActiveSupport::MessageEncryptor::InvalidMessage,
+         ActiveSupport::MessageVerifier::InvalidSignature
+    nil
+  end
+
   # ── Convenience ────────────────────────────────────────────────────────────
   def fully_configured?
     sumup_access_token_present? && sumup_merchant_code.present?

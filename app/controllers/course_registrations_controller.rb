@@ -6,12 +6,17 @@ class CourseRegistrationsController < ApplicationController
 
   def show
     if @course_registration.status == "ausstehend" && @course_registration.course.price_cents.to_i == 0
-      course = @course_registration.course
-      confirmed = course.course_registrations.where(status: "bestätigt").count
-      max       = course.max_participants
-      new_status = (max.present? && confirmed >= max) ? "warteliste" : "bestätigt"
-      CourseRegistration.where(id: @course_registration.id, status: "ausstehend")
-                        .update_all(status: new_status)
+      Course.find(@course_registration.course_id).with_lock do
+        @course_registration.reload
+        break unless @course_registration.status == "ausstehend"
+
+        course     = @course_registration.course
+        confirmed  = course.course_registrations.where(status: "bestätigt").count
+        max        = course.max_participants
+        new_status = (max.present? && confirmed >= max) ? "warteliste" : "bestätigt"
+        CourseRegistration.where(id: @course_registration.id, status: "ausstehend")
+                          .update_all(status: new_status)
+      end
       @course_registration.reload
     end
   end

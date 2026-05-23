@@ -1,6 +1,48 @@
 require "test_helper"
 
 class CourseRegistrationTest < ActiveSupport::TestCase
+  # ── DB-level unique index ────────────────────────────────────────────────────
+
+  test "DB constraint prevents duplicate active registration for same participant and course" do
+    course      = courses(:one)
+    participant = participants(:parent_only_child)
+
+    first = CourseRegistration.new(
+      course: course, participant: participant,
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    first.save!(validate: false)
+
+    second = CourseRegistration.new(
+      course: course, participant: participant,
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    )
+
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      second.save!(validate: false)
+    end
+  end
+
+  test "DB constraint allows new registration when existing is storniert" do
+    course      = courses(:one)
+    participant = participants(:parent_only_child)
+
+    cancelled = CourseRegistration.new(
+      course: course, participant: participant,
+      status: "storniert", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    cancelled.save!(validate: false)
+
+    new_reg = CourseRegistration.new(
+      course: course, participant: participant,
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    )
+
+    assert_nothing_raised do
+      new_reg.save!(validate: false)
+    end
+  end
+
   # ── Duplicate-registration validation ───────────────────────────────────────
 
   test "allows re-registration when existing registration is ausstehend" do
