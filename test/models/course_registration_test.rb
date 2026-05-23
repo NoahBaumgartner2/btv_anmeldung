@@ -23,8 +23,8 @@ class CourseRegistrationTest < ActiveSupport::TestCase
   end
 
   test "DB-Constraint erlaubt mehrere aktive Single-Session-Anmeldungen für verschiedene Sessions" do
-    course = Course.new(title: "Single Session X", registration_type: "single_session",
-      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course = Course.new(title: "Single Session X", registration_mode: "single_session",
+      registration_type: "pro_training", has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
     course.save!(validate: false)
 
     session_one = TrainingSession.new(course: course)
@@ -49,8 +49,8 @@ class CourseRegistrationTest < ActiveSupport::TestCase
   end
 
   test "DB-Constraint verhindert doppelte aktive Single-Session-Anmeldung in derselben Session" do
-    course = Course.new(title: "Single Session Y", registration_type: "single_session",
-      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course = Course.new(title: "Single Session Y", registration_mode: "single_session",
+      registration_type: "pro_training", has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
     course.save!(validate: false)
 
     session = TrainingSession.new(course: course)

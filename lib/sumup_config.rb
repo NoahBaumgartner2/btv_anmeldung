@@ -63,11 +63,26 @@ module SumupConfig
     new_token      = data["access_token"]
     expires_in_sec = data["expires_in"].to_i
 
-    s.sumup_access_token    = new_token
-    s.sumup_token_expires_at = Time.current + expires_in_sec.seconds
-    s.save!
+    if new_token.blank?
+      raise "[SumupConfig] Token-Refresh: SumUp hat keinen access_token zurückgegeben. Response: #{response.body.truncate(200)}"
+    end
+    if expires_in_sec <= 0
+      Rails.logger.warn "[SumupConfig] Token-Refresh: expires_in ist 0 oder negativ (#{expires_in_sec}), verwende 1 Stunde als Fallback."
+      expires_in_sec = 3600
+    end
 
-    Rails.logger.info "[SumupConfig] Access Token erneuert, gültig bis #{s.sumup_token_expires_at}"
+    PaymentSetting.transaction do
+      s.lock!
+      s.reload
+      if s.sumup_token_expires_at.nil? || s.sumup_token_expires_at <= 5.minutes.from_now
+        s.sumup_access_token     = new_token
+        s.sumup_token_expires_at = Time.current + expires_in_sec.seconds
+        s.save!
+        Rails.logger.info "[SumupConfig] Access Token erneuert, gültig bis #{s.sumup_token_expires_at}"
+      else
+        Rails.logger.info "[SumupConfig] Token bereits durch parallelen Refresh erneuert, überspringe."
+      end
+    end
   end
 
   def self.merchant_code

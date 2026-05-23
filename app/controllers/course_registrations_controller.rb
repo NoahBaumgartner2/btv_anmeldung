@@ -19,6 +19,11 @@ class CourseRegistrationsController < ApplicationController
       end
       @course_registration.reload
     end
+  rescue ActiveRecord::RecordNotUnique
+    @course_registration.update_columns(status: "storniert")
+    Rails.logger.warn "[CourseRegistrations#show] Duplicate active registration detected for registration #{@course_registration.id}, auto-cancelled."
+    redirect_to course_path(@course_registration.course),
+      alert: "Deine Anmeldung konnte nicht bestätigt werden, da bereits eine aktive Anmeldung für diesen Kurs existiert." and return
   end
 
   def new

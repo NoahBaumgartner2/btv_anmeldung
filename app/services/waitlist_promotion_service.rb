@@ -15,7 +15,7 @@ class WaitlistPromotionService
       return if course.max_participants.blank?
 
       paid_course = course.has_payment? && course.price_cents.to_i > 0
-      occupied_statuses = paid_course ? %w[bestätigt ausstehend] : %w[bestätigt]
+      occupied_statuses = paid_course ? %w[bestätigt ausstehend schnuppern] : %w[bestätigt schnuppern]
 
       confirmed_scope = course.course_registrations.where(status: occupied_statuses)
       waitlist_scope  = course.course_registrations.where(status: "warteliste")
