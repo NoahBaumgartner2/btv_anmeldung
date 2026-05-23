@@ -8,7 +8,7 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
-    if ["bestätigt", "schnuppern"].include?(course_registration.status) && @course.has_ticketing?
+    if [ "bestätigt", "schnuppern" ].include?(course_registration.status) && @course.has_ticketing?
       qr = RQRCode::QRCode.new(scan_course_registration_url(course_registration))
       png = qr.as_png(
         bit_depth: 1,

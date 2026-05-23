@@ -88,7 +88,7 @@ Rails.application.configure do
   #   /.*\.example\.com/ # Allow requests from subdomains like `www.example.com`
   # ]
   #
-# Allow requests from your specific domain
+  # Allow requests from your specific domain
   config.hosts << "btvbern-anmeldung.ch"
 
   # Skip DNS rebinding protection for the default health check endpoint.

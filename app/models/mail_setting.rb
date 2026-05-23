@@ -90,7 +90,7 @@ class MailSetting < ApplicationRecord
       enable_starttls_auto: ENV.fetch("SMTP_ENABLE_STARTTLS", "true") == "true"
     }.compact
 
-    from = [ENV["SMTP_FROM_NAME"], ENV["SMTP_FROM_ADDRESS"]].compact.join(" ")
+    from = [ ENV["SMTP_FROM_NAME"], ENV["SMTP_FROM_ADDRESS"] ].compact.join(" ")
     ActionMailer::Base.default(from: from) if from.present?
   end
 

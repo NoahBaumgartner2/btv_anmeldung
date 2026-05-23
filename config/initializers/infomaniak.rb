@@ -62,8 +62,16 @@ if ENV["SECRET_KEY_BASE_DUMMY"].present?
   Rails.logger.info "[InfomaniakConfig] Asset-Precompile-Modus – DB-Konfiguration wird übersprungen."
 else
   Rails.application.config.after_initialize do
-    next unless defined?(InfomaniakSetting) &&
-                ActiveRecord::Base.connection.table_exists?("infomaniak_settings")
+    # `table_exists?` wirft ActiveRecord::NoDatabaseError wenn die DB noch nicht
+    # existiert – z.B. während `bin/rails db:test:prepare` im CI, wo der
+    # Initializer bereits läuft bevor die Testdatenbank angelegt wurde.
+    begin
+      next unless defined?(InfomaniakSetting) &&
+                  ActiveRecord::Base.connection.table_exists?("infomaniak_settings")
+    rescue ActiveRecord::NoDatabaseError, ActiveRecord::StatementInvalid => e
+      Rails.logger.warn "[InfomaniakConfig] DB-Prüfung übersprungen: #{e.message}"
+      next
+    end
 
     begin
       InfomaniakConfig.load!

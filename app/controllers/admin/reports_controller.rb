@@ -13,12 +13,12 @@ module Admin
     def btv_teilnehmerzahl
       courses = Course.includes(:course_registrations).order(:title)
       csv = CSV.generate(col_sep: ";") do |csv|
-        csv << ["Kurs", "Kategorie", "Bestätigt", "Warteliste", "Total Anmeldungen"]
+        csv << [ "Kurs", "Kategorie", "Bestätigt", "Warteliste", "Total Anmeldungen" ]
         courses.each do |course|
           bestaetigt = course.course_registrations.count { |r| r.status == "bestätigt" }
           warteliste = course.course_registrations.count { |r| r.status == "warteliste" }
           total      = course.course_registrations.count
-          csv << [course.title, course.category, bestaetigt, warteliste, total]
+          csv << [ course.title, course.category, bestaetigt, warteliste, total ]
         end
       end
       send_data "\xEF\xBB\xBF#{csv}",
@@ -36,7 +36,7 @@ module Admin
                 .where.not(courses: { category: "Krabbel Gym" })
       scope = scope.where(course_id: course_id) if course_id
       csv = CSV.generate(col_sep: ";") do |csv|
-        csv << ["Vorname", "Nachname", "Geburtsdatum", "Geschlecht", "Nationalität", "PLZ", "Wohnort", "Kurs", "Kategorie"]
+        csv << [ "Vorname", "Nachname", "Geburtsdatum", "Geschlecht", "Nationalität", "PLZ", "Wohnort", "Kurs", "Kategorie" ]
         scope.each do |reg|
           p = reg.participant
           csv << [
@@ -61,7 +61,7 @@ module Admin
                 .where(status: "bestätigt")
       scope = scope.where(course_id: course_id) if course_id
       csv = CSV.generate(col_sep: ";") do |csv|
-        csv << ["Vorname", "Nachname", "Geburtsdatum", "Geschlecht", "Nationalität", "PLZ", "Wohnort", "AHV-Nummer", "Telefon", "Kurs", "Kategorie"]
+        csv << [ "Vorname", "Nachname", "Geburtsdatum", "Geschlecht", "Nationalität", "PLZ", "Wohnort", "AHV-Nummer", "Telefon", "Kurs", "Kategorie" ]
         scope.each do |reg|
           p = reg.participant
           csv << [
@@ -88,7 +88,7 @@ module Admin
       scope = scope.where(course_id: course_id) if course_id
       scope = scope.order(:start_time)
       csv = CSV.generate(col_sep: ";") do |csv|
-        csv << ["Datum", "Uhrzeit", "Kurs", "Anwesend", "Abwesend", "Abgemeldet", "Total erfasst"]
+        csv << [ "Datum", "Uhrzeit", "Kurs", "Anwesend", "Abwesend", "Abgemeldet", "Total erfasst" ]
         scope.each do |session|
           anwesend   = session.attendances.count { |a| a.status == "anwesend" }
           abwesend   = session.attendances.count { |a| a.status == "abwesend" }

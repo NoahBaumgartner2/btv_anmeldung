@@ -132,5 +132,4 @@ class Course < ApplicationRecord
     return if min_age.blank? || max_age.blank?
     errors.add(:max_age, "muss grösser oder gleich dem Mindestalter sein") if max_age < min_age
   end
-
 end

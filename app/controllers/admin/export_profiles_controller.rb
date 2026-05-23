@@ -50,19 +50,19 @@ module Admin
         end
         date_range = @export_profile.effective_date_range
         data, mime, ext = case @export_profile.format
-                          when "xlsx"
+        when "xlsx"
                             [ @export_profile.generate_attendance_xlsx(course, date_range),
                               "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                               "xlsx" ]
-                          when "pdf"
+        when "pdf"
                             [ @export_profile.generate_attendance_pdf(course, date_range),
                               "application/pdf",
                               "pdf" ]
-                          else
+        else
                             [ @export_profile.generate_attendance_csv(course, date_range),
                               "text/csv; charset=utf-8",
                               "csv" ]
-                          end
+        end
         filename = "#{@export_profile.name.parameterize}-anwesenheit-#{Date.today.iso8601}.#{ext}"
       elsif @export_profile.export_type == "baspo_awk"
         unless course
@@ -76,18 +76,18 @@ module Admin
       elsif @export_profile.export_type == "baspo_personenimport"
         participants = if course
                         course.participants.includes(:user, :courses)
-                      else
+        else
                         Participant.includes(:user, :courses)
-                      end
+        end
         data     = ExportProfile.generate_baspo_person_csv(participants)
         mime     = "text/csv; charset=utf-8-bom"
         filename = "#{@export_profile.name.parameterize}-baspo-#{Date.today.iso8601}.csv"
       else
         participants = if course
                         course.participants.includes(:user, :courses)
-                      else
+        else
                         Participant.includes(:user, :courses)
-                      end
+        end
         data     = @export_profile.generate_csv(participants)
         mime     = "text/csv; charset=utf-8"
         filename = "#{@export_profile.name.parameterize}-#{Date.today.iso8601}.csv"

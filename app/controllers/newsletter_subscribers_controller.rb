@@ -44,7 +44,7 @@ class NewsletterSubscribersController < ApplicationController
 
   def import
     file = params[:csv_file]
-    unless file&.content_type&.in?(["text/csv", "text/plain", "application/vnd.ms-excel"])
+    unless file&.content_type&.in?([ "text/csv", "text/plain", "application/vnd.ms-excel" ])
       return redirect_to newsletter_subscribers_path, alert: "Bitte eine CSV-Datei hochladen."
     end
 
@@ -97,9 +97,9 @@ class NewsletterSubscribersController < ApplicationController
   def export
     subscribers = NewsletterSubscriber.order(:email)
     csv_data = CSV.generate(headers: true) do |csv|
-      csv << ["email", "name", "status", "source", "erstellt_am"]
+      csv << [ "email", "name", "status", "source", "erstellt_am" ]
       subscribers.each do |s|
-        csv << [s.email, s.name, s.status, s.source, s.created_at.strftime("%d.%m.%Y")]
+        csv << [ s.email, s.name, s.status, s.source, s.created_at.strftime("%d.%m.%Y") ]
       end
     end
     send_data csv_data, filename: "newsletter_empfaenger_#{Date.today}.csv", type: "text/csv"

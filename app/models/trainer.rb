@@ -28,7 +28,7 @@ class Trainer < ApplicationRecord
             allow_blank: true
 
   def full_name
-    [first_name, last_name].compact.join(" ").presence || user.email
+    [ first_name, last_name ].compact.join(" ").presence || user.email
   end
 
   private

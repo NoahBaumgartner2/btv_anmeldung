@@ -23,9 +23,9 @@ class PaymentSyncService
                               .count
       new_status = if course.max_participants.present? && confirmed_count >= course.max_participants
                      "warteliste"
-                   else
+      else
                      "bestätigt"
-                   end
+      end
 
       registration.update!(
         payment_cleared:      true,
@@ -45,7 +45,7 @@ class PaymentSyncService
     pending = CourseRegistration.where(
       status:          "ausstehend",
       payment_cleared: false
-    ).where.not(sumup_checkout_id: [nil, ""])
+    ).where.not(sumup_checkout_id: [ nil, "" ])
 
     total       = pending.size
     paid_count  = 0

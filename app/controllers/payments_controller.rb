@@ -21,7 +21,7 @@ class PaymentsController < ApplicationController
     end
 
     unless ::SumupConfig.configured?
-      return redirect_to course_registration_path(@registration),
+      redirect_to course_registration_path(@registration),
                          alert: "Zahlung aktuell nicht verfügbar. Bitte kontaktiere uns."
     end
   end

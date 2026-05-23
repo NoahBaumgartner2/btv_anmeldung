@@ -17,7 +17,7 @@ module BtvAnmeldung
     config.autoload_lib(ignore: %w[assets tasks])
 
     config.i18n.default_locale = :de
-    config.i18n.available_locales = [:de, :en, :fr]
+    config.i18n.available_locales = [ :de, :en, :fr ]
 
     config.middleware.use Rack::Attack
 

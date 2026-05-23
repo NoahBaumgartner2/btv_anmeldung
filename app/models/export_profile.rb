@@ -251,11 +251,11 @@ class ExportProfile < ApplicationRecord
           status = att_map[s.id]&.status
           row_data << attendance_symbol(status, syms)
           row_styles << case status
-                        when "anwesend"   then s_present
-                        when "abwesend"   then s_absent
-                        when "abgemeldet" then s_excused
-                        else s_none
-                        end
+          when "anwesend"   then s_present
+          when "abwesend"   then s_absent
+          when "abgemeldet" then s_excused
+          else s_none
+          end
         end
 
         sv = summary_values(reg, sessions)

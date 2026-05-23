@@ -72,8 +72,8 @@ gem "tailwindcss-rails", "~> 4.4"
 
 gem "devise", "~> 5.0"
 
-gem 'rqrcode'
-gem 'rack-attack'
-gem 'caxlsx'
-gem 'prawn'
-gem 'prawn-table'
+gem "rqrcode"
+gem "rack-attack"
+gem "caxlsx"
+gem "prawn"
+gem "prawn-table"

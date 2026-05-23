@@ -2,7 +2,7 @@ class TrainersController < ApplicationController
   before_action :set_trainer, only: %i[ show edit update destroy update_profile update_courses ]
   before_action :authenticate_user!
   before_action :authorize_admin!, except: [ :update_profile ]
-  # GET /trainers or /trainers.json
+# GET /trainers or /trainers.json
 def index
     # .includes lädt die verknüpften Tabellen direkt mit, das macht die Seite extrem schnell!
     @trainers = Trainer.includes(:user, :courses).all
@@ -88,7 +88,7 @@ def index
     user = User.find_or_initialize_by(email: email)
 
     if user.persisted? && Trainer.exists?(user: user)
-      @invite_errors     = ["#{email} ist bereits als Trainer erfasst."]
+      @invite_errors     = [ "#{email} ist bereits als Trainer erfasst." ]
       @invite_tab        = true
       @invite_first_name = first_name
       @invite_last_name  = last_name
@@ -119,7 +119,7 @@ def index
       notice: "#{first_name} #{last_name} wurde eingeladen. Eine E-Mail mit dem Link zum Passwort setzen wurde verschickt."
   rescue => e
     Rails.logger.error "[TrainersController] invite Fehler: #{e.class}: #{e.message}"
-    @invite_errors     = ["Es ist ein Fehler aufgetreten: #{e.message.truncate(120)}"]
+    @invite_errors     = [ "Es ist ein Fehler aufgetreten: #{e.message.truncate(120)}" ]
     @invite_tab        = true
     @invite_first_name = params[:first_name]
     @invite_last_name  = params[:last_name]
