@@ -37,9 +37,9 @@
         Dein Schnupperplatz ist bis <%= I18n.l((@course_registration.created_at + 7.days).to_date) %> gesichert.
         Danach musst du dich regulär anmelden, um weiterhin an den Trainings teilzunehmen.
       </p>
-      <%= button_to "Jetzt regulär anmelden", convert_trial_course_registration_path(@course_registration),
+      <%= button_to t("course_registrations.show.convert_trial.button"), convert_trial_course_registration_path(@course_registration),
             method: :post,
-            data: { turbo_confirm: "Möchtest du deinen Schnupperplatz in eine reguläre Anmeldung umwandeln?" },
+            data: { turbo_confirm: t("course_registrations.show.convert_trial.confirm") },
             class: "mt-2 bg-primary-600 text-white font-bold py-2 px-4 rounded-xl text-sm hover:bg-primary-700 transition" %>
     </div>
   <% end %>

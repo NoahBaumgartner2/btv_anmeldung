@@ -845,6 +845,8 @@ de:
       updated: "Anmeldung wurde erfolgreich aktualisiert."
       destroyed: "Die Anmeldung wurde gelöscht."
       already_cancelled: "Diese Anmeldung ist bereits storniert."
+      not_a_trial: "Diese Anmeldung ist kein Schnupperplatz."
+      trial_converted: "Du wurdest erfolgreich regulär angemeldet."
     errors:
       duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
       duplicate_registration: "Diese Person ist bereits für diesen Kurs angemeldet."
@@ -900,6 +902,9 @@ de:
         irreversible: "Du wirst aus dem Kurs ausgetragen und verlierst deinen Platz. Falls du eine Kursgebühr bezahlt hast, wird diese automatisch zurückerstattet."
         cancel_btn: "Abbrechen"
         confirm_btn: "Ja, stornieren"
+      convert_trial:
+        button: "Jetzt regulär anmelden"
+        confirm: "Möchtest du deinen Schnupperplatz in eine reguläre Anmeldung umwandeln?"
 
   training_sessions:
     show:
@@ -1476,6 +1481,9 @@ de:
     submit: "Weiter – Person erfassen"
     cancel: "Abbrechen"
     success_notice: "Super! Familiendaten gespeichert. Jetzt die erste Person erfassen."
+
+  shared:
+    access_denied: "Zugriff verweigert."
 
   misc:
     time_suffix: "Uhr"

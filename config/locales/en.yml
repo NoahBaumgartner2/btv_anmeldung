@@ -806,6 +806,8 @@ en:
       updated: "Registration was successfully updated."
       destroyed: "The registration was deleted."
       already_cancelled: "This registration is already cancelled."
+      not_a_trial: "This registration is not a trial spot."
+      trial_converted: "You have been successfully registered as a regular participant."
     errors:
       duplicate_session: "This child is already registered for this session."
       duplicate_registration: "This person is already registered for this course."
@@ -861,6 +863,9 @@ en:
         irreversible: "You will be removed from the course and lose your spot. If you have paid a course fee, it will be refunded automatically."
         cancel_btn: "Cancel"
         confirm_btn: "Yes, cancel"
+      convert_trial:
+        button: "Register now as regular participant"
+        confirm: "Do you want to convert your trial spot into a regular registration?"
 
   training_sessions:
     show:
@@ -1437,6 +1442,9 @@ en:
     submit: "Continue – add a person"
     cancel: "Cancel"
     success_notice: "Great! Family details saved. Now add the first person."
+
+  shared:
+    access_denied: "Access denied."
 
   misc:
     time_suffix: ""

@@ -220,13 +220,17 @@ class CourseRegistrationsController < ApplicationController
 
     refund_cents = nil
     if !already_cancelled && @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
-      begin
-        result = RefundService.process(@course_registration)
-        refund_cents = result[:amount_cents] if result[:refunded]
-      rescue RuntimeError => e
-        Rails.logger.error "[destroy] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
-        User.where(admin: true).find_each do |admin_user|
-          CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message).deliver_later
+      @course_registration.with_lock do
+        @course_registration.reload
+        break if @course_registration.refunded_at.present?
+        begin
+          result = RefundService.process(@course_registration)
+          refund_cents = result[:amount_cents] if result[:refunded]
+        rescue RuntimeError => e
+          Rails.logger.error "[destroy] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
+          User.where(admin: true).find_each do |admin_user|
+            CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message).deliver_later
+          end
         end
       end
     end
@@ -253,6 +257,8 @@ class CourseRegistrationsController < ApplicationController
     end
 
     already_cancelled_in_lock = false
+    training_session_id = @course_registration.training_session_id
+
     @course_registration.with_lock do
       if @course_registration.status == "storniert"
         already_cancelled_in_lock = true
@@ -263,11 +269,6 @@ class CourseRegistrationsController < ApplicationController
         status: "storniert",
         cancelled_at: Time.current
       )
-
-      WaitlistPromotionService.promote_next_from_waitlist(
-        @course_registration.course,
-        training_session_id: @course_registration.training_session_id
-      )
     end
 
     if already_cancelled_in_lock
@@ -276,6 +277,11 @@ class CourseRegistrationsController < ApplicationController
     end
 
     course = @course_registration.course
+
+    WaitlistPromotionService.promote_next_from_waitlist(
+      course,
+      training_session_id: training_session_id
+    )
 
     if @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
       begin
@@ -516,24 +522,23 @@ class CourseRegistrationsController < ApplicationController
   def convert_trial
     unless @course_registration.status == "schnuppern"
       return redirect_to course_registration_path(@course_registration),
-        alert: "Diese Anmeldung ist kein Schnupperplatz."
+        alert: t("course_registrations.flash.not_a_trial")
     end
 
     unless current_user.participants.include?(@course_registration.participant)
-      return redirect_to root_path, alert: "Zugriff verweigert."
+      return redirect_to root_path, alert: t("shared.access_denied")
     end
 
     course = @course_registration.course
 
     if course.has_payment? && course.price_cents.to_i > 0
-      @course_registration.update!(status: "ausstehend", payment_expires_at: 24.hours.from_now)
-      CourseRegistrationMailer.confirmation(@course_registration).deliver_later
+      @course_registration.update!(status: "ausstehend")
       redirect_to checkout_preview_registration_path(@course_registration)
     else
       @course_registration.update!(status: "bestätigt")
       CourseRegistrationMailer.confirmation(@course_registration).deliver_later
       redirect_to course_registration_path(@course_registration),
-        notice: "Du wurdest erfolgreich regulär angemeldet."
+        notice: t("course_registrations.flash.trial_converted")
     end
   end
 

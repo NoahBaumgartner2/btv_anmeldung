@@ -139,6 +139,10 @@ class TrainingSessionsController < ApplicationController
         if new_used >= reg.abo_entries_total
           reg.update!(status: "storniert")
           CourseRegistrationMailer.abo_exhausted(reg).deliver_later
+          WaitlistPromotionService.promote_next_from_waitlist(
+            @training_session.course,
+            training_session_id: @training_session.id
+          )
         end
       end
     end

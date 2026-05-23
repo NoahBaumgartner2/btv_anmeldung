@@ -42,7 +42,6 @@ class WaitlistPromotionService
         break unless next_in_line
 
         update_attrs = { status: new_status }
-        update_attrs[:payment_expires_at] = 24.hours.from_now if new_status == "ausstehend"
         next_in_line.update!(update_attrs)
         promoted << next_in_line
       end

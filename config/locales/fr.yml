@@ -802,6 +802,8 @@ fr:
       updated: "L'inscription a été mise à jour avec succès."
       destroyed: "L'inscription a été supprimée."
       already_cancelled: "Cette inscription est déjà annulée."
+      not_a_trial: "Cette inscription n'est pas une place d'essai."
+      trial_converted: "Vous avez été inscrit(e) avec succès en tant que participant(e) régulier(ère)."
     errors:
       duplicate_session: "Cet enfant est déjà inscrit à cette séance."
       duplicate_registration: "Cette personne est déjà inscrite à ce cours."
@@ -857,6 +859,9 @@ fr:
         irreversible: "Vous serez désinscrit(e) du cours et perdrez votre place. Si vous avez payé des frais de cours, veuillez contacter l'association pour un éventuel remboursement."
         cancel_btn: "Annuler"
         confirm_btn: "Oui, annuler"
+      convert_trial:
+        button: "S'inscrire maintenant comme participant(e) régulier(ère)"
+        confirm: "Souhaitez-vous convertir votre place d'essai en inscription régulière ?"
 
   training_sessions:
     show:
@@ -1433,6 +1438,9 @@ fr:
     submit: "Continuer – enregistrer une personne"
     cancel: "Annuler"
     success_notice: "Super ! Données familiales enregistrées. Ajoutez maintenant la première personne."
+
+  shared:
+    access_denied: "Accès refusé."
 
   misc:
     time_suffix: ""
