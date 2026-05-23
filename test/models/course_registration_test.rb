@@ -95,4 +95,40 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     assert_not duplicate.valid?
     assert_match I18n.t("course_registrations.errors.duplicate_registration"), duplicate.errors.full_messages.join
   end
+
+  test "shows schnuppern-specific error when normal registration attempted with existing schnuppern" do
+    course = Course.new(title: "Schnupper-Test", registration_type: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+
+    participant = participants(:parent_only_child)
+
+    trial = CourseRegistration.new(course: course, participant: participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false)
+    trial.save!(validate: false)
+
+    duplicate = CourseRegistration.new(course: course, participant: participant,
+      payment_cleared: false, holiday_deduction_claimed: false)
+
+    assert_not duplicate.valid?
+    assert_match I18n.t("course_registrations.errors.duplicate_schnuppern"), duplicate.errors.full_messages.join
+    assert_no_match I18n.t("course_registrations.errors.duplicate_registration"), duplicate.errors.full_messages.join
+  end
+
+  test "allows normal registration after schnuppern is storniert" do
+    course = Course.new(title: "Schnupper-Storniert-Test", registration_type: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+
+    participant = participants(:parent_only_child)
+
+    trial = CourseRegistration.new(course: course, participant: participant,
+      status: "storniert", payment_cleared: false, holiday_deduction_claimed: false)
+    trial.save!(validate: false)
+
+    new_reg = CourseRegistration.new(course: course, participant: participant,
+      payment_cleared: false, holiday_deduction_claimed: false)
+
+    assert new_reg.valid?, "Registration after cancelled schnuppern should be valid, got: #{new_reg.errors.full_messages.join(', ')}"
+  end
 end

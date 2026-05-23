@@ -127,6 +127,8 @@ fr:
     switch: "Changer de langue"
 
   courses:
+    training_value_label: "Valeur par entraînement"
+    training_value_hint: "Pour les remboursements automatiques (CHF par entraînement)"
     index:
       title: "Cours"
       subtitle: "Choisissez une catégorie et inscrivez-vous directement."
@@ -194,6 +196,8 @@ fr:
         title: "Vos billets numériques"
         enlarge: "Agrandir le billet"
         close: "Fermer"
+      restricted_title: "Accès restreint"
+      restricted_body: "Ce cours est accessible uniquement aux participants invités. Veuillez contacter la direction du cours."
     delete_modal:
       btn: "Supprimer le cours"
       title: "Supprimer le cours"
@@ -270,10 +274,17 @@ fr:
       col_paid: "Payé"
       col_actions: "Actions"
       no_registrations: "Aucune inscription pour ce cours."
+      cancelled_registrations_label: "Inscriptions annulées (%{count})"
       abo_entries_label: "Entrées abonnement"
       abo_exhausted: "Épuisé"
       use_abo_entry: "Utiliser une entrée"
       use_abo_entry_confirm: "Utiliser une entrée pour %{name} ?"
+      send_email: "E-mail"
+      send_email_modal_title: "E-mail à %{name}"
+      send_email_subject_label: "Objet"
+      send_email_body_label: "Message"
+      send_email_submit: "Envoyer l'e-mail"
+      send_email_cancel: "Annuler"
     generate_trainings:
       back: "← Retour à la gestion du cours"
       title: "Générer les entraînements"
@@ -300,11 +311,22 @@ fr:
       add_holiday: "Ajouter une période de congé"
       submit: "Générer les entraînements maintenant"
       cancel: "Annuler"
+    new:
+      back: "← Retour"
+      title: "Créer un nouveau cours"
+      subtitle: "Créez un nouveau cours et définissez ses paramètres."
+    edit:
+      back: "← Retour à la gestion du cours"
+      title: "Modifier le cours"
+      subtitle: "Modifiez les données pour %{title}."
     form:
       restricted_label: "Accès restreint (Sur invitation uniquement)"
       location_address_label: "Adresse"
       location_address_placeholder: "Rue Principale 12, 3000 Berne"
       location_address_hint: "Adresse complète pour la navigation (optionnel)"
+      submit_create: "Créer le cours"
+      submit_update: "Enregistrer les modifications"
+      cancel: "Annuler"
     free: "Gratuit"
     registration_modes:
       semester: "Par semestre"
@@ -434,6 +456,44 @@ fr:
       submit_edit: "Enregistrer les modifications"
       cancel: "Annuler"
       address_prefilled_hint: "L'adresse et la nationalité ont été reprises de vos données familiales."
+    my_profile:
+      title: "Mon profil"
+      subtitle: "Gérez ici vos informations personnelles. Ces données sont utilisées pour la paie et les rapports J+S."
+      section_account: "Compte"
+      email_label: "Adresse e-mail"
+      account_settings: "Paramètres du compte"
+      section_personal: "Données personnelles"
+      first_name_label: "Prénom"
+      last_name_label: "Nom"
+      dob_label: "Date de naissance"
+      gender_label: "Sexe"
+      gender_prompt: "Veuillez sélectionner…"
+      gender_male: "masculin"
+      gender_female: "féminin"
+      phone_label: "Numéro de téléphone"
+      section_address: "Adresse"
+      street_label: "Rue"
+      house_number_label: "No."
+      zip_label: "NPA"
+      city_label: "Localité"
+      nationality_label: "Nationalité"
+      mother_tongue_label: "Langue maternelle"
+      other_option: "Autre"
+      section_js_ahv: "J+S & AVS"
+      ahv_label: "Numéro AVS"
+      optional: "(optionnel)"
+      ahv_format_hint: "Format : 756.XXXX.XXXX.XX"
+      js_label: "Reconnaissance J+S"
+      js_hint: "Je dispose d'une reconnaissance J+S valide (Jeunesse+Sport, OFSPO)"
+      section_salary: "Données salariales"
+      iban_label: "IBAN"
+      iban_hint: "Pour le versement du salaire. Format : CH56 0483 5012 3456 7800 9"
+      save: "Enregistrer le profil"
+      errors:
+        one: "Il y a une erreur :"
+        other: "Il y a %{count} erreurs :"
+      admin_title: "Compte administrateur"
+      admin_body_html: "En tant qu'administrateur, vous n'avez pas de profil entraîneur. Vos paramètres de compte se trouvent %{link}."
 
   dashboards:
     admin:
@@ -486,6 +546,11 @@ fr:
         no_results: "Aucun résultat pour \"%{q}\""
         no_results_hint: "Vérifiez l'orthographe ou recherchez par e-mail."
         enter_query: "Saisissez au moins 2 caractères pour rechercher."
+        first_50_hits: "50 premiers résultats pour \"%{q}\" — affinez la recherche pour plus de précision"
+        hits_count:
+          one: "1 résultat pour \"%{q}\""
+          other: "%{count} résultats pour \"%{q}\""
+        col_action: "Action"
     trainer:
       label: "Tableau de bord entraîneur"
       greeting: "Bonjour, %{name}"
@@ -715,6 +780,7 @@ fr:
       warteliste: "Liste d'attente"
       storniert: "Annulé"
       ausstehend: "En attente"
+      schnuppern: "Essai"
     form:
       course_label: "Cours"
       course_prompt: "Choisir un cours..."
@@ -736,9 +802,12 @@ fr:
       updated: "L'inscription a été mise à jour avec succès."
       destroyed: "L'inscription a été supprimée."
       already_cancelled: "Cette inscription est déjà annulée."
+      not_a_trial: "Cette inscription n'est pas une place d'essai."
+      trial_converted: "Vous avez été inscrit(e) avec succès en tant que participant(e) régulier(ère)."
     errors:
       duplicate_session: "Cet enfant est déjà inscrit à cette séance."
       duplicate_registration: "Cette personne est déjà inscrite à ce cours."
+      duplicate_schnuppern: "Cette personne a déjà une place d'essai dans ce cours."
       session_cancelled: "Cette séance a malheureusement été annulée."
       session_in_past: "Cette séance est dans le passé et ne peut plus être réservée."
       missing_field: "%{field} manque pour %{name}. Veuillez d'abord compléter le profil."
@@ -790,6 +859,9 @@ fr:
         irreversible: "Vous serez désinscrit(e) du cours et perdrez votre place. Si vous avez payé des frais de cours, veuillez contacter l'association pour un éventuel remboursement."
         cancel_btn: "Annuler"
         confirm_btn: "Oui, annuler"
+      convert_trial:
+        button: "S'inscrire maintenant comme participant(e) régulier(ère)"
+        confirm: "Souhaitez-vous convertir votre place d'essai en inscription régulière ?"
 
   training_sessions:
     show:
@@ -875,6 +947,13 @@ fr:
       cancel: "Annuler"
 
   trainers:
+    my_profile:
+      title: "Mon profil"
+      iban_label: "IBAN"
+      iban_hint: "Pour le versement du salaire."
+      js_label: "Reconnaissance J+S"
+      js_hint: "Je dispose d'une reconnaissance J+S valide (OFSPO)"
+      save: "Enregistrer les modifications"
     index:
       title: "Entraîneurs"
       new_trainer: "Nouvel entraîneur"
@@ -896,6 +975,30 @@ fr:
       edit_trainer: "Modifier l'entraîneur"
       delete_trainer: "Supprimer l'entraîneur"
       delete_confirm: "Vraiment supprimer %{email} comme entraîneur ?"
+      zip_city: "NPA / Localité"
+      nationality: "Nationalité"
+      mother_tongue: "Langue maternelle"
+      section_js_salary: "J+S & Données salariales"
+      js_person_number: "Numéro de personne J+S"
+      js_anerkennung: "Reconnaissance J+S"
+      yes: "✓ Oui"
+      no: "Non"
+      iban: "IBAN"
+    new:
+      title: "Ajouter un entraîneur"
+      subtitle: "Recherchez un compte existant et associez-le comme entraîneur."
+      selected_account: "Compte sélectionné"
+      change: "Modifier"
+      errors:
+        one: "Il y a une erreur :"
+        other: "Il y a %{count} erreurs :"
+      section_data: "Données entraîneur"
+      phone_label: "Numéro de téléphone *"
+      phone_hint: "Obligatoire – p. ex. +41 79 123 45 67"
+      submit: "Ajouter l'entraîneur"
+      cancel: "Annuler"
+      tab_search: "Rechercher un compte existant"
+      tab_invite: "Inviter un nouvel entraîneur"
 
   payments:
     checkout_preview:
@@ -1335,6 +1438,9 @@ fr:
     submit: "Continuer – enregistrer une personne"
     cancel: "Annuler"
     success_notice: "Super ! Données familiales enregistrées. Ajoutez maintenant la première personne."
+
+  shared:
+    access_denied: "Accès refusé."
 
   misc:
     time_suffix: ""

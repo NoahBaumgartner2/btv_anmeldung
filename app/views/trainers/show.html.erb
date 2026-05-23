@@ -27,19 +27,19 @@
     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">Adresse</p>
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
       <div><dt class="text-gray-500">Strasse</dt><dd class="font-semibold text-gray-900"><%= [@trainer.street, @trainer.house_number].compact.join(" ").presence || "–" %></dd></div>
-      <div><dt class="text-gray-500">PLZ / Ort</dt><dd class="font-semibold text-gray-900"><%= [@trainer.zip_code, @trainer.city].compact.join(" ").presence || "–" %></dd></div>
-      <div><dt class="text-gray-500">Nationalität</dt><dd class="font-semibold text-gray-900"><%= @trainer.nationality || "–" %></dd></div>
-      <div><dt class="text-gray-500">Muttersprache</dt><dd class="font-semibold text-gray-900"><%= @trainer.mother_tongue || "–" %></dd></div>
+      <div><dt class="text-gray-500"><%= t("trainers.show.zip_city") %></dt><dd class="font-semibold text-gray-900"><%= [@trainer.zip_code, @trainer.city].compact.join(" ").presence || "–" %></dd></div>
+      <div><dt class="text-gray-500"><%= t("trainers.show.nationality") %></dt><dd class="font-semibold text-gray-900"><%= @trainer.nationality || "–" %></dd></div>
+      <div><dt class="text-gray-500"><%= t("trainers.show.mother_tongue") %></dt><dd class="font-semibold text-gray-900"><%= @trainer.mother_tongue || "–" %></dd></div>
     </dl>
   </div>
 
   <%# ── J+S & Lohnangaben ───────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
-    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4">J+S & Lohnangaben</p>
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4"><%= t("trainers.show.section_js_salary") %></p>
     <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-      <div><dt class="text-gray-500">J+S Personennummer</dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.js_person_number || "–" %></dd></div>
-      <div><dt class="text-gray-500">J+S-Anerkennung</dt><dd class="font-semibold text-gray-900"><%= @trainer.js_anerkennung? ? "✓ Ja" : "Nein" %></dd></div>
-      <div class="sm:col-span-2"><dt class="text-gray-500">IBAN</dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.iban || "–" %></dd></div>
+      <div><dt class="text-gray-500"><%= t("trainers.show.js_person_number") %></dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.js_person_number || "–" %></dd></div>
+      <div><dt class="text-gray-500"><%= t("trainers.show.js_anerkennung") %></dt><dd class="font-semibold text-gray-900"><%= @trainer.js_anerkennung? ? t("trainers.show.yes") : t("trainers.show.no") %></dd></div>
+      <div class="sm:col-span-2"><dt class="text-gray-500"><%= t("trainers.show.iban") %></dt><dd class="font-semibold font-mono text-gray-900"><%= @trainer.iban || "–" %></dd></div>
     </dl>
   </div>
 
@@ -53,9 +53,9 @@
     <% if @trainer.courses.any? %>
       <ul class="divide-y divide-gray-100">
         <% @trainer.courses.order(:title).each do |course| %>
-          <li class="flex items-center justify-between px-5 py-3">
-            <span class="text-sm font-medium text-gray-900"><%= course.title %></span>
-            <span class="text-xs text-gray-400">
+          <li class="flex items-center justify-between gap-3 px-5 py-3">
+            <span class="text-sm font-medium text-gray-900 min-w-0 truncate"><%= course.title %></span>
+            <span class="text-xs text-gray-400 shrink-0">
               <%= course.start_date&.strftime("%-d. %b %Y") %> – <%= course.end_date&.strftime("%-d. %b %Y") %>
             </span>
           </li>
@@ -119,7 +119,7 @@
           class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
     <%= button_to t('trainers.show.delete_trainer'), @trainer, method: :delete,
           data: { turbo_confirm: t('trainers.show.delete_confirm', email: @trainer.user.email) },
-          class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium cursor-pointer transition" %>
+          class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium cursor-pointer transition min-h-11" %>
   </div>
 
 </div>

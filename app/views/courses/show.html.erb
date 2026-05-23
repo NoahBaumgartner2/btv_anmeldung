@@ -17,8 +17,8 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m0 0v2m0-2h2m-2 0H10m2-5V7m0 0V5m0 2h2M12 7H10m9.293 9.707A8 8 0 1 0 4.707 4.707a8 8 0 0 0 14.586 10z"/>
       </svg>
       <div>
-        <p class="font-bold text-red-800 text-sm">Eingeschränkter Zugang</p>
-        <p class="text-red-700 text-sm mt-0.5">Dieser Kurs ist nur für eingeladene Teilnehmende zugänglich. Bitte wende dich an die Kursleitung.</p>
+        <p class="font-bold text-red-800 text-sm"><%= t("courses.show.restricted_title") %></p>
+        <p class="text-red-700 text-sm mt-0.5"><%= t("courses.show.restricted_body") %></p>
       </div>
     </div>
   <% end %>
@@ -224,7 +224,7 @@
           <%= t("courses.show.trainer_area.title") %>
         </h2>
 
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <% if current_user.admin? %>
             <%= link_to t("courses.show.trainer_area.edit"), edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-gray-50 active:bg-gray-100 transition min-h-11 flex items-center" %>
             <%= render 'delete_modal', course: @course %>

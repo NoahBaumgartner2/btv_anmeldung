@@ -1,0 +1,43 @@
+name: Claude PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       contains(github.event.comment.body, '@claude') &&
+       github.event.comment.user.type != 'Bot' &&
+       (github.event.comment.author_association == 'OWNER' ||
+        github.event.comment.author_association == 'MEMBER' ||
+        github.event.comment.author_association == 'COLLABORATOR'))
+    steps:
+      - uses: drillan/claude-pr-reviewer@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_model: claude-sonnet-4-6
+          review_language: German
+          custom_prompt: |
+            Dies ist eine Ruby on Rails 8 Anwendung für Kursanmeldungen (BTV Anmeldung).
+            Achte besonders auf:
+            - Race Conditions bei der Kursanmeldung (Kapazitätsprüfung ohne DB-Lock)
+            - Korrekte Verwendung von with_lock bei Zahlungs- und Wartelisten-Logik
+            - N+1 Queries in Views und Controllers (fehlende includes/eager loading)
+            - Fehlende Nil-Guards bei optionalen Feldern (end_time, payment_expires_at, etc.)
+            - Status-Konsistenz bei CourseRegistration (bestätigt/ausstehend/warteliste/storniert/schnuppern)
+            - Fehlende oder unvollständige Tests für neue Features
+            - Sicherheitsrelevante Änderungen (starke Parameter, Authentifizierung, Authorization)
+            - I18n: Alle User-facing Strings müssen über de.yml/en.yml/fr.yml laufen

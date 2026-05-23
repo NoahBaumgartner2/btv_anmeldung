@@ -1,7 +1,7 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry, :convert_trial ]
   before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
 
   def show
@@ -128,45 +128,55 @@ class CourseRegistrationsController < ApplicationController
 
     # 2d. Duplikat-Check für Semesterkurse
     if course && participant && course.registration_mode != "single_session"
-      duplicate = CourseRegistration.where(
+      existing_reg = CourseRegistration.where(
         participant_id: participant.id,
         course_id: course.id
-      ).where.not(status: [ "storniert", "ausstehend" ]).exists?
+      ).where.not(status: [ "storniert", "ausstehend" ]).first
 
-      if duplicate
-        @course_registration.errors.add(:base, I18n.t("course_registrations.errors.duplicate_registration"))
+      if existing_reg
+        error_key = existing_reg.status == CourseRegistration::TRIAL_STATUS ? "duplicate_schnuppern" : "duplicate_registration"
+        @course_registration.errors.add(:base, I18n.t("course_registrations.errors.#{error_key}"))
         setup_new_form(course)
         return render :new, status: :unprocessable_entity
       end
     end
 
-    # 3. Status bestimmen
+    # 3. Status bestimmen und Anmeldung speichern.
+    # Für kostenlose Kurse: pessimistischer Lock auf Course verhindert Race Condition
+    # bei gleichzeitigen Requests (zwei Anfragen sehen sonst beide einen freien Platz).
+    save_result = nil
+
     if is_trial
       @course_registration.status = "schnuppern"
       erfolgs_nachricht = "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+      save_result = @course_registration.save
     elsif course.has_payment? && course.price_cents.to_i > 0
-      # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt
+      # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt; Kapazität wird in mark_paid! geprüft
       @course_registration.status = "ausstehend"
+      save_result = @course_registration.save
     else
-      # Kostenlos → sofort bestätigt oder Warteliste, Kapazität je nach Modus prüfen
-      bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
-        course.course_registrations
-              .where(status: [ "bestätigt", "schnuppern" ], training_session_id: @course_registration.training_session_id)
-              .count
-      else
-        course.course_registrations.where(status: [ "bestätigt", "schnuppern" ]).count
-      end
+      # Kostenlos → Kapazitätsprüfung + Speichern atomar unter Lock (Race-Condition-Schutz)
+      Course.find(course.id).with_lock do
+        bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
+          course.course_registrations
+                .where(status: [ "bestätigt", "schnuppern" ], training_session_id: @course_registration.training_session_id)
+                .count
+        else
+          course.course_registrations.where(status: [ "bestätigt", "schnuppern" ]).count
+        end
 
-      if course.enable_waitlist? && course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
-        @course_registration.status = "warteliste"
-        erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
-      else
-        @course_registration.status = "bestätigt"
-        erfolgs_nachricht = t("course_registrations.flash.confirmed", name: participant.first_name)
+        if course.enable_waitlist? && course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
+          @course_registration.status = "warteliste"
+          erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
+        else
+          @course_registration.status = "bestätigt"
+          erfolgs_nachricht = t("course_registrations.flash.confirmed", name: participant.first_name)
+        end
+        save_result = @course_registration.save
       end
     end
 
-    if @course_registration.save
+    if save_result
       unless @course_registration.status == "ausstehend"
         CourseRegistrationMailer.confirmation(@course_registration).deliver_later
       end
@@ -204,12 +214,40 @@ class CourseRegistrationsController < ApplicationController
 
   # NEU: Eine Anmeldung komplett löschen/stornieren
   def destroy
-    course               = @course_registration.course
-    training_session_id  = @course_registration.training_session_id
-    CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
+    course              = @course_registration.course
+    training_session_id = @course_registration.training_session_id
+    already_cancelled   = @course_registration.status == "storniert"
+
+    refund_cents = nil
+    if !already_cancelled && @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
+      @course_registration.with_lock do
+        @course_registration.reload
+        break if @course_registration.refunded_at.present?
+        begin
+          result = RefundService.process(@course_registration)
+          refund_cents = result[:amount_cents] if result[:refunded]
+        rescue RuntimeError => e
+          Rails.logger.error "[destroy] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
+          User.where(admin: true).find_each do |admin_user|
+            CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message).deliver_later
+          end
+        end
+      end
+    end
+
+    unless already_cancelled
+      CourseRegistrationMailer.self_cancelled(@course_registration, refund_amount_cents: refund_cents).deliver_later
+    end
     @course_registration.destroy
     WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
-    redirect_to participants_path, notice: t("course_registrations.flash.destroyed")
+
+    notice = if refund_cents
+      amount_chf = format("%.2f", refund_cents / 100.0)
+      "#{t("course_registrations.flash.destroyed")} Rückerstattung von CHF #{amount_chf} wurde ausgelöst."
+    else
+      t("course_registrations.flash.destroyed")
+    end
+    redirect_to participants_path, notice: notice
   end
 
   def cancel
@@ -218,17 +256,32 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
-    @course_registration.update!(
-      status: "storniert",
-      cancelled_at: Time.current
-    )
+    already_cancelled_in_lock = false
+    training_session_id = @course_registration.training_session_id
 
-    WaitlistPromotionService.promote_next_from_waitlist(
-      @course_registration.course,
-      training_session_id: @course_registration.training_session_id
-    )
+    @course_registration.with_lock do
+      if @course_registration.status == "storniert"
+        already_cancelled_in_lock = true
+        next
+      end
+
+      @course_registration.update!(
+        status: "storniert",
+        cancelled_at: Time.current
+      )
+    end
+
+    if already_cancelled_in_lock
+      redirect_to participants_path, alert: t("course_registrations.flash.already_cancelled")
+      return
+    end
 
     course = @course_registration.course
+
+    WaitlistPromotionService.promote_next_from_waitlist(
+      course,
+      training_session_id: training_session_id
+    )
 
     if @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
       begin
@@ -377,11 +430,18 @@ class CourseRegistrationsController < ApplicationController
   end
 
   def trial_eligible
-    course      = Course.find_by(id: params[:course_id])
-    participant = current_user.participants.find_by(id: params[:participant_id])
+    course = Course.find_by(id: params[:course_id])
+    if course.nil?
+      return render json: { eligible: false, reason: "not_found" }, status: :not_found
+    end
 
-    if course.nil? || participant.nil? || !course.allows_trial?
-      return render json: { eligible: false }
+    unless course.allows_trial?
+      return render json: { eligible: false, reason: "not_allowed" }
+    end
+
+    participant = current_user.participants.find_by(id: params[:participant_id])
+    if participant.nil?
+      return render json: { eligible: false, reason: "forbidden" }, status: :forbidden
     end
 
     render json: { eligible: participant.schnupper_eligible_for_category?(course.category) }
@@ -457,6 +517,29 @@ class CourseRegistrationsController < ApplicationController
     remaining = @course_registration.abo_entries_remaining
     notice = "Eintritt für #{@course_registration.participant.first_name} eingelöst. Noch #{remaining} #{"Eintritt".pluralize(remaining)} übrig."
     redirect_to manage_course_path(course), notice: notice
+  end
+
+  def convert_trial
+    unless @course_registration.status == "schnuppern"
+      return redirect_to course_registration_path(@course_registration),
+        alert: t("course_registrations.flash.not_a_trial")
+    end
+
+    unless current_user.participants.include?(@course_registration.participant)
+      return redirect_to root_path, alert: t("shared.access_denied")
+    end
+
+    course = @course_registration.course
+
+    if course.has_payment? && course.price_cents.to_i > 0
+      @course_registration.update!(status: "ausstehend")
+      redirect_to checkout_preview_registration_path(@course_registration)
+    else
+      @course_registration.update!(status: "bestätigt")
+      CourseRegistrationMailer.confirmation(@course_registration).deliver_later
+      redirect_to course_registration_path(@course_registration),
+        notice: t("course_registrations.flash.trial_converted")
+    end
   end
 
   def mark_as_paid

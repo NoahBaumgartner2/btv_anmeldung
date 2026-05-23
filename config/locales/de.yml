@@ -235,6 +235,8 @@ de:
         title: "Eure digitalen Tickets"
         enlarge: "Ticket vergrößern"
         close: "Schließen"
+      restricted_title: "Eingeschränkter Zugang"
+      restricted_body: "Dieser Kurs ist nur für eingeladene Teilnehmende zugänglich. Bitte wende dich an die Kursleitung."
     delete_modal:
       btn: "Kurs löschen"
       title: "Kurs löschen"
@@ -311,6 +313,7 @@ de:
       col_paid: "Bezahlt"
       col_actions: "Aktionen"
       no_registrations: "Noch keine Anmeldungen für diesen Kurs."
+      cancelled_registrations_label: "Stornierte Anmeldungen (%{count})"
       abo_entries_label: "Abo-Eintritte"
       abo_exhausted: "Erschöpft"
       use_abo_entry: "Eintritt einlösen"
@@ -347,11 +350,22 @@ de:
       add_holiday: "Ferienzeitraum hinzufügen"
       submit: "Trainings jetzt generieren"
       cancel: "Abbrechen"
+    new:
+      back: "← Zurück"
+      title: "Neuen Kurs erstellen"
+      subtitle: "Lege einen neuen Kurs an und definiere die Einstellungen."
+    edit:
+      back: "← Zurück zur Kursverwaltung"
+      title: "Kurs bearbeiten"
+      subtitle: "Passe die Daten für %{title} an."
     form:
       restricted_label: "Eingeschränkter Zugang (Nur auf Einladung)"
       location_address_label: "Adresse / Halle"
       location_address_placeholder: "Musterstrasse 12, 3000 Bern"
       location_address_hint: "Vollständige Adresse für die Navigation (optional)"
+      submit_create: "Kurs erstellen"
+      submit_update: "Änderungen speichern"
+      cancel: "Abbrechen"
     free: "Kostenlos"
     registration_modes:
       semester: "Pro Semester"
@@ -481,6 +495,44 @@ de:
       submit_edit: "Änderungen speichern"
       cancel: "Abbrechen"
       address_prefilled_hint: "Adresse & Nationalität wurden aus deinen Familiendaten übernommen."
+    my_profile:
+      title: "Mein Profil"
+      subtitle: "Pflege hier deine persönlichen Angaben. Diese Daten werden für Lohnabrechnungen und J+S-Meldungen verwendet."
+      section_account: "Konto"
+      email_label: "E-Mail-Adresse"
+      account_settings: "Kontoeinstellungen"
+      section_personal: "Persönliche Daten"
+      first_name_label: "Vorname"
+      last_name_label: "Nachname"
+      dob_label: "Geburtsdatum"
+      gender_label: "Geschlecht"
+      gender_prompt: "Bitte wählen…"
+      gender_male: "männlich"
+      gender_female: "weiblich"
+      phone_label: "Telefonnummer"
+      section_address: "Adresse"
+      street_label: "Strasse"
+      house_number_label: "Nr."
+      zip_label: "PLZ"
+      city_label: "Ort"
+      nationality_label: "Nationalität"
+      mother_tongue_label: "Muttersprache"
+      other_option: "Andere"
+      section_js_ahv: "J+S & AHV"
+      ahv_label: "AHV-Nummer"
+      optional: "(optional)"
+      ahv_format_hint: "Format: 756.XXXX.XXXX.XX"
+      js_label: "J+S-Anerkennung"
+      js_hint: "Ich besitze eine gültige J+S-Anerkennung (Jugend+Sport, BASPO)"
+      section_salary: "Lohnangaben"
+      iban_label: "IBAN"
+      iban_hint: "Für die Lohnauszahlung. Format: CH56 0483 5012 3456 7800 9"
+      save: "Profil speichern"
+      errors:
+        one: "Es gibt einen Fehler:"
+        other: "Es gibt %{count} Fehler:"
+      admin_title: "Admin-Konto"
+      admin_body_html: "Als Administrator hast du kein Trainer-Profil. Deine Kontoeinstellungen findest du %{link}."
 
   dashboards:
     admin:
@@ -533,6 +585,11 @@ de:
         no_results: "Keine Treffer für \"%{q}\""
         no_results_hint: "Prüfe die Schreibweise oder suche nach der E-Mail-Adresse."
         enter_query: "Gib mindestens 2 Zeichen ein, um zu suchen."
+        first_50_hits: "Erste 50 Treffer für \"%{q}\" — Suche verfeinern für genauere Ergebnisse"
+        hits_count:
+          one: "1 Treffer für \"%{q}\""
+          other: "%{count} Treffer für \"%{q}\""
+        col_action: "Aktion"
     trainer:
       label: "Trainer-Dashboard"
       greeting: "Hallo, %{name}"
@@ -788,9 +845,12 @@ de:
       updated: "Anmeldung wurde erfolgreich aktualisiert."
       destroyed: "Die Anmeldung wurde gelöscht."
       already_cancelled: "Diese Anmeldung ist bereits storniert."
+      not_a_trial: "Diese Anmeldung ist kein Schnupperplatz."
+      trial_converted: "Du wurdest erfolgreich regulär angemeldet."
     errors:
       duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
       duplicate_registration: "Diese Person ist bereits für diesen Kurs angemeldet."
+      duplicate_schnuppern: "Diese Person hat bereits einen Schnupperplatz in diesem Kurs."
       session_cancelled: "Dieser Termin wurde leider abgesagt."
       session_in_past: "Dieser Termin liegt in der Vergangenheit und kann nicht mehr gebucht werden."
       missing_field: "%{field} fehlt für %{name}. Bitte zuerst im Profil ergänzen."
@@ -842,6 +902,9 @@ de:
         irreversible: "Du wirst aus dem Kurs ausgetragen und verlierst deinen Platz. Falls du eine Kursgebühr bezahlt hast, wird diese automatisch zurückerstattet."
         cancel_btn: "Abbrechen"
         confirm_btn: "Ja, stornieren"
+      convert_trial:
+        button: "Jetzt regulär anmelden"
+        confirm: "Möchtest du deinen Schnupperplatz in eine reguläre Anmeldung umwandeln?"
 
   training_sessions:
     show:
@@ -955,6 +1018,30 @@ de:
       edit_trainer: "Trainer bearbeiten"
       delete_trainer: "Trainer löschen"
       delete_confirm: "%{email} wirklich als Trainer entfernen?"
+      zip_city: "PLZ / Ort"
+      nationality: "Nationalität"
+      mother_tongue: "Muttersprache"
+      section_js_salary: "J+S & Lohnangaben"
+      js_person_number: "J+S Personennummer"
+      js_anerkennung: "J+S-Anerkennung"
+      yes: "✓ Ja"
+      no: "Nein"
+      iban: "IBAN"
+    new:
+      title: "Trainer erfassen"
+      subtitle: "Suche ein bestehendes Benutzerkonto und verknüpfe es als Trainer."
+      selected_account: "Ausgewähltes Konto"
+      change: "Ändern"
+      errors:
+        one: "Es gibt einen Fehler:"
+        other: "Es gibt %{count} Fehler:"
+      section_data: "Trainer-Daten"
+      phone_label: "Telefonnummer *"
+      phone_hint: "Pflichtfeld – z.B. +41 79 123 45 67"
+      submit: "Trainer erfassen"
+      cancel: "Abbrechen"
+      tab_search: "Bestehendes Konto suchen"
+      tab_invite: "Neuen Trainer einladen"
 
   payments:
     checkout_preview:
@@ -1394,6 +1481,9 @@ de:
     submit: "Weiter – Person erfassen"
     cancel: "Abbrechen"
     success_notice: "Super! Familiendaten gespeichert. Jetzt die erste Person erfassen."
+
+  shared:
+    access_denied: "Zugriff verweigert."
 
   misc:
     time_suffix: "Uhr"

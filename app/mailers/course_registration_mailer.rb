@@ -97,6 +97,19 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
+  def abo_exhausted(course_registration)
+    @course_registration = course_registration
+    @course = course_registration.course
+    @participant = course_registration.participant
+    @recipient = @participant.user
+    return if @recipient.nil?
+
+    mail(
+      to: @recipient.email,
+      subject: "Abo aufgebraucht: #{@course.title}"
+    )
+  end
+
   def payment_expired(course_registration)
     @course_registration = course_registration
     @course = course_registration.course

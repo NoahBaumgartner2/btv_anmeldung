@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_23_100002) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_23_115644) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -100,16 +100,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_100002) do
     t.boolean "payment_cleared"
     t.datetime "payment_expires_at"
     t.integer "payment_reminder_count", default: 0, null: false
+    t.datetime "refunded_at"
     t.string "status"
     t.string "sumup_checkout_id"
     t.string "sumup_transaction_id"
     t.bigint "training_session_id"
     t.datetime "updated_at", null: false
     t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
+    t.index ["course_id", "status"], name: "index_course_registrations_on_course_id_and_status"
     t.index ["course_id"], name: "index_course_registrations_on_course_id"
     t.index ["participant_id", "course_id"], name: "index_course_registrations_unique_active", unique: true, where: "((training_session_id IS NULL) AND ((status IS NULL) OR ((status)::text <> ALL ((ARRAY['storniert'::character varying, 'ausstehend'::character varying])::text[]))))"
     t.index ["participant_id", "training_session_id"], name: "index_course_registrations_unique_session", unique: true, where: "((training_session_id IS NOT NULL) AND ((status IS NULL) OR ((status)::text <> ALL ((ARRAY['storniert'::character varying, 'ausstehend'::character varying])::text[]))))"
     t.index ["participant_id"], name: "index_course_registrations_on_participant_id"
+    t.index ["payment_expires_at"], name: "index_course_registrations_on_payment_expires_at_not_null", where: "(payment_expires_at IS NOT NULL)"
     t.index ["status"], name: "index_course_registrations_on_status"
     t.index ["sumup_checkout_id"], name: "index_course_registrations_on_sumup_checkout_id"
     t.index ["sumup_transaction_id"], name: "index_course_registrations_on_sumup_transaction_id"

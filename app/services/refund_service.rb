@@ -1,5 +1,7 @@
 class RefundService
   def self.process(registration)
+    return { refunded: false, reason: "already_refunded" } if registration.refund_already_processed?
+
     course = registration.course
 
     return { refunded: false, reason: "no_payment" } unless course.has_payment? && registration.payment_cleared?
@@ -48,6 +50,7 @@ class RefundService
       raise RuntimeError, "SumUp Refund API Fehler #{response.code}: #{error_msg}"
     end
 
+    registration.update_column(:refunded_at, Time.current) if registration.persisted?
     Rails.logger.info "[RefundService] Rückerstattung CHF #{amount} für Registration #{registration.id} erfolgreich (txn: #{txn_id})"
     { refunded: true, amount_cents: refund_cents, sessions_count: sessions_count }
 

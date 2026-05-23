@@ -196,6 +196,8 @@ en:
         title: "Your digital tickets"
         enlarge: "Enlarge ticket"
         close: "Close"
+      restricted_title: "Restricted access"
+      restricted_body: "This course is only accessible to invited participants. Please contact the course management."
     delete_modal:
       btn: "Delete course"
       title: "Delete course"
@@ -272,6 +274,7 @@ en:
       col_paid: "Paid"
       col_actions: "Actions"
       no_registrations: "No registrations for this course yet."
+      cancelled_registrations_label: "Cancelled registrations (%{count})"
       abo_entries_label: "Block entries"
       abo_exhausted: "Exhausted"
       use_abo_entry: "Redeem entry"
@@ -308,11 +311,22 @@ en:
       add_holiday: "Add holiday period"
       submit: "Generate training sessions now"
       cancel: "Cancel"
+    new:
+      back: "← Back"
+      title: "Create new course"
+      subtitle: "Create a new course and define its settings."
+    edit:
+      back: "← Back to course management"
+      title: "Edit course"
+      subtitle: "Edit the details for %{title}."
     form:
       restricted_label: "Restricted access (By invitation only)"
       location_address_label: "Address"
       location_address_placeholder: "Main Street 12, 3000 Bern"
       location_address_hint: "Full address for navigation (optional)"
+      submit_create: "Create course"
+      submit_update: "Save changes"
+      cancel: "Cancel"
     free: "Free"
     registration_modes:
       semester: "Per semester"
@@ -442,6 +456,44 @@ en:
       submit_edit: "Save changes"
       cancel: "Cancel"
       address_prefilled_hint: "Address & nationality were pre-filled from your family details."
+    my_profile:
+      title: "My Profile"
+      subtitle: "Manage your personal details here. This data is used for payroll and J+S reports."
+      section_account: "Account"
+      email_label: "Email address"
+      account_settings: "Account settings"
+      section_personal: "Personal details"
+      first_name_label: "First name"
+      last_name_label: "Last name"
+      dob_label: "Date of birth"
+      gender_label: "Gender"
+      gender_prompt: "Please select…"
+      gender_male: "male"
+      gender_female: "female"
+      phone_label: "Phone number"
+      section_address: "Address"
+      street_label: "Street"
+      house_number_label: "No."
+      zip_label: "Postcode"
+      city_label: "City"
+      nationality_label: "Nationality"
+      mother_tongue_label: "Mother tongue"
+      other_option: "Other"
+      section_js_ahv: "J+S & AHV"
+      ahv_label: "AHV number"
+      optional: "(optional)"
+      ahv_format_hint: "Format: 756.XXXX.XXXX.XX"
+      js_label: "J+S accreditation"
+      js_hint: "I hold a valid J+S accreditation (Youth+Sport, BASPO)"
+      section_salary: "Salary details"
+      iban_label: "IBAN"
+      iban_hint: "For payroll purposes. Format: CH56 0483 5012 3456 7800 9"
+      save: "Save profile"
+      errors:
+        one: "There is one error:"
+        other: "There are %{count} errors:"
+      admin_title: "Admin account"
+      admin_body_html: "As an administrator you do not have a trainer profile. Your account settings can be found %{link}."
 
   dashboards:
     admin:
@@ -494,6 +546,11 @@ en:
         no_results: "No results for \"%{q}\""
         no_results_hint: "Check the spelling or search by email address."
         enter_query: "Enter at least 2 characters to search."
+        first_50_hits: "First 50 results for \"%{q}\" — refine your search for more precise results"
+        hits_count:
+          one: "1 result for \"%{q}\""
+          other: "%{count} results for \"%{q}\""
+        col_action: "Action"
     trainer:
       label: "Trainer Dashboard"
       greeting: "Hello, %{name}"
@@ -749,9 +806,12 @@ en:
       updated: "Registration was successfully updated."
       destroyed: "The registration was deleted."
       already_cancelled: "This registration is already cancelled."
+      not_a_trial: "This registration is not a trial spot."
+      trial_converted: "You have been successfully registered as a regular participant."
     errors:
       duplicate_session: "This child is already registered for this session."
       duplicate_registration: "This person is already registered for this course."
+      duplicate_schnuppern: "This person already has a trial spot in this course."
       session_cancelled: "This session has unfortunately been cancelled."
       session_in_past: "This session is in the past and can no longer be booked."
       missing_field: "%{field} is missing for %{name}. Please update the profile first."
@@ -803,6 +863,9 @@ en:
         irreversible: "You will be removed from the course and lose your spot. If you have paid a course fee, it will be refunded automatically."
         cancel_btn: "Cancel"
         confirm_btn: "Yes, cancel"
+      convert_trial:
+        button: "Register now as regular participant"
+        confirm: "Do you want to convert your trial spot into a regular registration?"
 
   training_sessions:
     show:
@@ -916,6 +979,30 @@ en:
       edit_trainer: "Edit trainer"
       delete_trainer: "Delete trainer"
       delete_confirm: "Really remove %{email} as trainer?"
+      zip_city: "Postcode / City"
+      nationality: "Nationality"
+      mother_tongue: "Mother tongue"
+      section_js_salary: "J+S & Salary details"
+      js_person_number: "J+S person number"
+      js_anerkennung: "J+S accreditation"
+      yes: "✓ Yes"
+      no: "No"
+      iban: "IBAN"
+    new:
+      title: "Add trainer"
+      subtitle: "Search for an existing account and link it as a trainer."
+      selected_account: "Selected account"
+      change: "Change"
+      errors:
+        one: "There is one error:"
+        other: "There are %{count} errors:"
+      section_data: "Trainer details"
+      phone_label: "Phone number *"
+      phone_hint: "Required – e.g. +41 79 123 45 67"
+      submit: "Add trainer"
+      cancel: "Cancel"
+      tab_search: "Search existing account"
+      tab_invite: "Invite new trainer"
 
   payments:
     checkout_preview:
@@ -1355,6 +1442,9 @@ en:
     submit: "Continue – add a person"
     cancel: "Cancel"
     success_notice: "Great! Family details saved. Now add the first person."
+
+  shared:
+    access_denied: "Access denied."
 
   misc:
     time_suffix: ""
