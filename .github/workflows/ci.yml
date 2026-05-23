@@ -163,7 +163,7 @@ jobs:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-        run: bundle exec kamal proxy reboot
+        run: bundle exec kamal proxy reboot -y
 
       - name: Deploy with Kamal
         env:
