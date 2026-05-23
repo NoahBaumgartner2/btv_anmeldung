@@ -1,8 +1,11 @@
 require "test_helper"
 
 class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
+  include Devise::Test::IntegrationHelpers
+
   setup do
     @training_session = training_sessions(:one)
+    sign_in users(:admin)
   end
 
   test "should get index" do
@@ -17,10 +20,17 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create training_session" do
     assert_difference("TrainingSession.count") do
-      post training_sessions_url, params: { training_session: { course_id: @training_session.course_id, end_time: @training_session.end_time, is_canceled: @training_session.is_canceled, start_time: @training_session.start_time } }
+      post training_sessions_url, params: {
+        training_session: {
+          course_id:   @training_session.course_id,
+          end_time:    @training_session.end_time,
+          is_canceled: @training_session.is_canceled,
+          start_time:  @training_session.start_time
+        }
+      }
     end
 
-    assert_redirected_to training_session_url(TrainingSession.last)
+    assert_redirected_to manage_course_path(TrainingSession.last.course)
   end
 
   test "should show training_session" do
@@ -34,7 +44,14 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should update training_session" do
-    patch training_session_url(@training_session), params: { training_session: { course_id: @training_session.course_id, end_time: @training_session.end_time, is_canceled: @training_session.is_canceled, start_time: @training_session.start_time } }
+    patch training_session_url(@training_session), params: {
+      training_session: {
+        course_id:   @training_session.course_id,
+        end_time:    @training_session.end_time,
+        is_canceled: @training_session.is_canceled,
+        start_time:  @training_session.start_time
+      }
+    }
     assert_redirected_to training_session_url(@training_session)
   end
 
@@ -43,6 +60,6 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
       delete training_session_url(@training_session)
     end
 
-    assert_redirected_to training_sessions_url
+    assert_redirected_to course_path(@training_session.course)
   end
 end

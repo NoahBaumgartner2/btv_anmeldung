@@ -3,6 +3,16 @@ require "test_helper"
 class NewsletterSubscriberTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
+  setup do
+    # Jobs werden nur enqueued wenn InfomaniakConfig konfiguriert ist.
+    # Im Test-Environment gibt es keine echten Credentials, daher überschreiben wir die Methode.
+    InfomaniakConfig.define_singleton_method(:configured?) { true }
+  end
+
+  teardown do
+    InfomaniakConfig.singleton_class.remove_method(:configured?)
+  end
+
   # ── Neuer Subscriber → Subscribe-Job ───────────────────────────────────────
 
   test "neuer Subscriber mit status subscribed enqueued InfomaniakSubscribeJob" do
