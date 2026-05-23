@@ -281,6 +281,53 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   # ── Abo ───────────────────────────────────────────────────────────────────
 
+  # ── Race Condition / Overbooking ─────────────────────────────────────────────
+
+  test "zweite Anmeldung landet auf Warteliste wenn Kurs voll ist" do
+    course = Course.new(
+      title: "Voller Kurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 1, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    # Simuliert einen direkten DB-Insert (wie Race-Condition-Gewinner)
+    # participants(:one) gehört users(:one) – hier direkt eingefügt ohne Controller
+    CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    # Zweite Anmeldung über den Controller (trial_parent ist kein Trainer/Admin)
+    sign_in @trial_parent
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: { course_id: course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    assert_equal "warteliste", CourseRegistration.last.status,
+      "Zweite Anmeldung muss auf Warteliste da Kurs voll (Overbooking-Schutz)"
+  end
+
+  test "erste Anmeldung für freien Kurs bekommt Status bestätigt" do
+    course = Course.new(
+      title: "Freier Kurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 5, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    sign_in @trial_parent
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: { course_id: course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    assert_equal "bestätigt", CourseRegistration.last.status
+  end
+
   test "abo_entries_total wird beim Anmelden auf abo_size gesetzt" do
     abo_course = Course.new(
       title: "10er-Abo Kurs",

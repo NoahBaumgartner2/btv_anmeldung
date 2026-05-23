@@ -90,6 +90,35 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     assert_equal "orig-tx", registration.sumup_transaction_id, "Bereits bezahlte Registration darf nicht überschrieben werden"
   end
 
+  test "mark_paid! setzt bestätigt auch wenn andere Teilnehmer ausstehend sind" do
+    course = Course.new(
+      title: "Kurs mit ausstehenden", registration_type: "semester", has_payment: true,
+      has_ticketing: false, allows_holiday_deduction: false, max_participants: 2
+    )
+    course.save!(validate: false)
+
+    # participant_a hat ausstehende Anmeldung (nicht bestätigt → zählt nicht als belegt)
+    pending_a = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    pending_a.save!(validate: false)
+
+    # participant_b bezahlt jetzt → soll bestätigt werden, nicht warteliste
+    pending_b = CourseRegistration.new(
+      course: course, participant: participants(:two),
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    pending_b.save!(validate: false)
+
+    PaymentSyncService.mark_paid!(pending_b, transaction_id: "tx-ok")
+
+    pending_b.reload
+    assert pending_b.payment_cleared?
+    assert_equal "bestätigt", pending_b.status,
+      "Ausstehende Anmeldungen anderer Teilnehmer dürfen nicht als belegt zählen"
+  end
+
   test "mark_paid! setzt warteliste wenn Kurs voll – zählt aktuelle Registration nicht doppelt" do
     course = Course.new(
       title: "Voller Kurs", registration_type: "semester", has_payment: true,

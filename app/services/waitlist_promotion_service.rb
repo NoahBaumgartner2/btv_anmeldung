@@ -10,6 +10,8 @@ class WaitlistPromotionService
   # Stornierungen (z.B. Trainer + Elternteil im selben Moment) dieselbe Wartelisten-
   # Anmeldung doppelt hochstufen, weil beide das gleiche confirmed_count lesen.
   def self.promote_next_from_waitlist(course, training_session_id: nil)
+    # with_lock beginnt eine Transaktion, führt SELECT...FOR UPDATE aus und reloaded
+    # den Course-Datensatz — dadurch sind course.max_participants etc. stets frisch.
     course.with_lock do
       return unless course.enable_waitlist?
       return if course.max_participants.blank?

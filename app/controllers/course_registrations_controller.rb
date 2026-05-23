@@ -140,33 +140,42 @@ class CourseRegistrationsController < ApplicationController
       end
     end
 
-    # 3. Status bestimmen
+    # 3. Status bestimmen und Anmeldung speichern.
+    # Für kostenlose Kurse: pessimistischer Lock auf Course verhindert Race Condition
+    # bei gleichzeitigen Requests (zwei Anfragen sehen sonst beide einen freien Platz).
+    save_result = nil
+
     if is_trial
       @course_registration.status = "schnuppern"
       erfolgs_nachricht = "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+      save_result = @course_registration.save
     elsif course.has_payment? && course.price_cents.to_i > 0
-      # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt
+      # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt; Kapazität wird in mark_paid! geprüft
       @course_registration.status = "ausstehend"
+      save_result = @course_registration.save
     else
-      # Kostenlos → sofort bestätigt oder Warteliste, Kapazität je nach Modus prüfen
-      bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
-        course.course_registrations
-              .where(status: [ "bestätigt", "schnuppern" ], training_session_id: @course_registration.training_session_id)
-              .count
-      else
-        course.course_registrations.where(status: [ "bestätigt", "schnuppern" ]).count
-      end
+      # Kostenlos → Kapazitätsprüfung + Speichern atomar unter Lock (Race-Condition-Schutz)
+      Course.find(course.id).with_lock do
+        bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
+          course.course_registrations
+                .where(status: [ "bestätigt", "schnuppern" ], training_session_id: @course_registration.training_session_id)
+                .count
+        else
+          course.course_registrations.where(status: [ "bestätigt", "schnuppern" ]).count
+        end
 
-      if course.enable_waitlist? && course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
-        @course_registration.status = "warteliste"
-        erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
-      else
-        @course_registration.status = "bestätigt"
-        erfolgs_nachricht = t("course_registrations.flash.confirmed", name: participant.first_name)
+        if course.enable_waitlist? && course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
+          @course_registration.status = "warteliste"
+          erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
+        else
+          @course_registration.status = "bestätigt"
+          erfolgs_nachricht = t("course_registrations.flash.confirmed", name: participant.first_name)
+        end
+        save_result = @course_registration.save
       end
     end
 
-    if @course_registration.save
+    if save_result
       unless @course_registration.status == "ausstehend"
         CourseRegistrationMailer.confirmation(@course_registration).deliver_later
       end

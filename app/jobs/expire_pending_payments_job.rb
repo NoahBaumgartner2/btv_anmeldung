@@ -12,6 +12,12 @@ class ExpirePendingPaymentsJob < ApplicationJob
 
     Rails.logger.info "[ExpirePendingPaymentsJob] #{total} abgelaufene Reservierung(en) gefunden."
 
+    stuck = CourseRegistration.where(status: "ausstehend", payment_cleared: false)
+                               .where(payment_expires_at: nil).count
+    if stuck > 0
+      Rails.logger.warn "[ExpirePendingPaymentsJob] WARNUNG: #{stuck} ausstehende Registrierung(en) ohne payment_expires_at gefunden – diese werden nie automatisch storniert!"
+    end
+
     scope.includes(:course, participant: :user).find_each do |registration|
       did_cancel = false
 
