@@ -238,4 +238,35 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
         headers: { "Accept" => "application/json" }
     assert_equal false, JSON.parse(response.body)["eligible"]
   end
+
+  # ── Abo ───────────────────────────────────────────────────────────────────
+
+  test "abo_entries_total wird beim Anmelden auf abo_size gesetzt" do
+    abo_course = Course.new(
+      title: "10er-Abo Kurs",
+      registration_type: "semester",
+      registration_mode: "abo",
+      has_payment: false,
+      has_ticketing: false,
+      allows_holiday_deduction: false,
+      allows_trial: false,
+      abo_size: 10
+    )
+    abo_course.save!(validate: false)
+
+    sign_in @trial_parent
+
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: abo_course.id,
+          participant_id: @trial_participant.id
+        }
+      }
+    end
+
+    reg = CourseRegistration.last
+    assert_equal 10, reg.abo_entries_total
+    assert_equal 0, reg.abo_entries_used
+  end
 end
