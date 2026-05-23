@@ -224,7 +224,7 @@
           <%= t("courses.show.trainer_area.title") %>
         </h2>
 
-        <div class="flex gap-2">
+        <div class="flex flex-wrap gap-2">
           <% if current_user.admin? %>
             <%= link_to t("courses.show.trainer_area.edit"), edit_course_path(@course), class: "bg-white border border-gray-300 text-gray-700 text-sm font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-gray-50 active:bg-gray-100 transition min-h-11 flex items-center" %>
             <%= render 'delete_modal', course: @course %>

@@ -53,9 +53,9 @@
     <% if @trainer.courses.any? %>
       <ul class="divide-y divide-gray-100">
         <% @trainer.courses.order(:title).each do |course| %>
-          <li class="flex items-center justify-between px-5 py-3">
-            <span class="text-sm font-medium text-gray-900"><%= course.title %></span>
-            <span class="text-xs text-gray-400">
+          <li class="flex items-center justify-between gap-3 px-5 py-3">
+            <span class="text-sm font-medium text-gray-900 min-w-0 truncate"><%= course.title %></span>
+            <span class="text-xs text-gray-400 shrink-0">
               <%= course.start_date&.strftime("%-d. %b %Y") %> – <%= course.end_date&.strftime("%-d. %b %Y") %>
             </span>
           </li>
@@ -119,7 +119,7 @@
           class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
     <%= button_to t('trainers.show.delete_trainer'), @trainer, method: :delete,
           data: { turbo_confirm: t('trainers.show.delete_confirm', email: @trainer.user.email) },
-          class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium cursor-pointer transition" %>
+          class: "w-full sm:w-auto rounded-lg px-5 py-2.5 bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm font-medium cursor-pointer transition min-h-11" %>
   </div>
 
 </div>
