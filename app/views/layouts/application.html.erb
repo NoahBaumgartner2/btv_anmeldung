@@ -56,7 +56,15 @@
 
       Turbo.setConfirmMethod((message) => Promise.resolve(window.confirm(message)))
     </script>
-  </head>
+
+  <% if Rails.env.development? || Rails.env.production? %>
+    <script 
+      nonce="<%= request.content_security_policy_nonce %>"
+      data-project-id="fLvWwVnUUx6shCbkbdb44N1hnHNqd1psfnNCKHK1" 
+      src="https://snippet.meticulous.ai/v1/meticulous.js">
+    </script>
+  <% end %>
+</head>
 
   <body class="bg-gray-50 text-gray-900 font-sans antialiased">
 
