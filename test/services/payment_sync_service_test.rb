@@ -67,15 +67,17 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
 
   # ── mark_paid! – Idempotenz ─────────────────────────────────────────────────
 
-  test "mark_paid! markiert Registration als bezahlt" do
+  test "mark_paid! markiert Registration als bezahlt und setzt Status bestätigt wenn Platz frei" do
     registration = course_registrations(:one)
     registration.update_columns(payment_cleared: false, status: "ausstehend")
+    registration.course.update_columns(max_participants: 10)
 
     PaymentSyncService.mark_paid!(registration, transaction_id: "tx-123", checkout_id: "co-456")
 
     registration.reload
     assert registration.payment_cleared?
     assert_equal "tx-123", registration.sumup_transaction_id
+    assert_equal "bestätigt", registration.status
   end
 
   test "mark_paid! überspringt bereits bezahlte Registration" do
@@ -86,5 +88,36 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
 
     registration.reload
     assert_equal "orig-tx", registration.sumup_transaction_id, "Bereits bezahlte Registration darf nicht überschrieben werden"
+  end
+
+  test "mark_paid! setzt warteliste wenn Kurs voll – zählt aktuelle Registration nicht doppelt" do
+    course = Course.new(
+      title: "Voller Kurs", registration_type: "semester", has_payment: true,
+      has_ticketing: false, allows_holiday_deduction: false, max_participants: 1
+    )
+    course.save!(validate: false)
+
+    participant_a = participants(:one)
+    participant_b = participants(:two)
+
+    # Platz 1 bereits bestätigt belegt
+    confirmed = CourseRegistration.new(
+      course: course, participant: participant_a,
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false
+    )
+    confirmed.save!(validate: false)
+
+    # Neue ausstehende Anmeldung
+    pending = CourseRegistration.new(
+      course: course, participant: participant_b,
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    pending.save!(validate: false)
+
+    PaymentSyncService.mark_paid!(pending, transaction_id: "tx-waitlist")
+
+    pending.reload
+    assert pending.payment_cleared?
+    assert_equal "warteliste", pending.status
   end
 end

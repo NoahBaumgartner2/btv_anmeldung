@@ -32,4 +32,5 @@ production:
   expire_trial_registrations:
     class: ExpireTrialRegistrationsJob
     queue: default
-    schedule: at 3am every day
+    schedule: "0 2 * * *"
+    description: "Storniert Schnupper-Anmeldungen die älter als 7 Tage sind"

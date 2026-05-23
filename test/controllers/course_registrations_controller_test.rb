@@ -239,6 +239,46 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal false, JSON.parse(response.body)["eligible"]
   end
 
+  # ── mark_as_paid ──────────────────────────────────────────────────────────
+
+  test "mark_as_paid markiert Registration als bezahlt (admin only)" do
+    admin = users(:admin)
+    sign_in admin
+
+    reg = course_registrations(:one)
+    reg.update_columns(payment_cleared: false, status: "ausstehend")
+
+    post mark_as_paid_course_registration_path(reg)
+
+    reg.reload
+    assert reg.payment_cleared?
+    assert_equal "bestätigt", reg.status
+    assert_redirected_to manage_course_path(reg.course)
+  end
+
+  test "mark_as_paid ist idempotent – doppelter Aufruf ändert nichts" do
+    admin = users(:admin)
+    sign_in admin
+
+    reg = course_registrations(:one)
+    reg.update_columns(payment_cleared: true, status: "bestätigt", sumup_transaction_id: "orig-tx")
+
+    post mark_as_paid_course_registration_path(reg)
+
+    reg.reload
+    assert reg.payment_cleared?, "payment_cleared soll true bleiben"
+    assert_equal "bestätigt", reg.status
+  end
+
+  test "mark_as_paid verweigert Zugriff für Eltern" do
+    sign_in @parent
+
+    reg = course_registrations(:one)
+    post mark_as_paid_course_registration_path(reg)
+
+    assert_redirected_to root_path
+  end
+
   # ── Abo ───────────────────────────────────────────────────────────────────
 
   test "abo_entries_total wird beim Anmelden auf abo_size gesetzt" do

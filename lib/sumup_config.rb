@@ -14,6 +14,11 @@ module SumupConfig
     setting&.sumup_access_token.presence || ENV["SUMUP_ACCESS_TOKEN"].to_s
   end
 
+  # Gibt einen gültigen Token zurück. Einstiegspunkt für zukünftigen OAuth2-Refresh.
+  def self.valid_token
+    access_token
+  end
+
   def self.merchant_code
     setting&.sumup_merchant_code.presence || ENV["SUMUP_MERCHANT_CODE"].to_s
   end

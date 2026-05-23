@@ -444,6 +444,33 @@ class CourseRegistrationsController < ApplicationController
     redirect_to manage_course_path(course), notice: notice
   end
 
+  def mark_as_paid
+    authorize_admin!
+    return if performed?
+
+    @course_registration = CourseRegistration.find(params[:id])
+    course = @course_registration.course
+
+    Course.find(course.id).with_lock do
+      @course_registration.reload
+      next if @course_registration.payment_cleared?
+
+      new_status = if course.max_participants.present?
+        confirmed = course.course_registrations
+                          .where(status: "bestätigt")
+                          .where.not(id: @course_registration.id)
+                          .count
+        confirmed >= course.max_participants ? "warteliste" : "bestätigt"
+      else
+        "bestätigt"
+      end
+
+      @course_registration.update!(payment_cleared: true, status: new_status)
+    end
+
+    redirect_to manage_course_path(course), notice: "#{@course_registration.reload.participant.first_name} als bezahlt markiert."
+  end
+
   private
 
   def set_course_registration

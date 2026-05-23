@@ -17,7 +17,10 @@ class PaymentSyncService
       return if registration.payment_cleared?
 
       course = registration.course
-      confirmed_count = course.course_registrations.where(status: "bestätigt").count
+      confirmed_count = course.course_registrations
+                              .where(status: "bestätigt")
+                              .where.not(id: registration.id)
+                              .count
       new_status = if course.max_participants.present? && confirmed_count >= course.max_participants
                      "warteliste"
                    else
@@ -90,7 +93,7 @@ class PaymentSyncService
     http.read_timeout = 10
 
     request = Net::HTTP::Get.new(uri.path, {
-      "Authorization" => "Bearer #{::SumupConfig.access_token}"
+      "Authorization" => "Bearer #{::SumupConfig.valid_token}"
     })
 
     http.request(request)
