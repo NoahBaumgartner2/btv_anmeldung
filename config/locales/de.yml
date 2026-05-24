@@ -554,8 +554,6 @@ de:
         stats_desc: "Auswertungen & Berichte"
         email_settings: "E-Mail-Einstellungen"
         email_settings_desc: "SMTP & Absender konfigurieren"
-        automated_mails: "Automatische E-Mails"
-        automated_mails_desc: "E-Mail-Benachrichtigungen konfigurieren"
         payments: "Zahlungen"
         payments_desc: "SumUp & Payment-Setup"
         newsletter_api: "Newsletter-API"

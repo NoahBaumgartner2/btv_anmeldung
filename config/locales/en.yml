@@ -515,8 +515,6 @@ en:
         stats_desc: "Reports & analytics"
         email_settings: "Email settings"
         email_settings_desc: "SMTP & sender config"
-        automated_mails: "Automated emails"
-        automated_mails_desc: "Configure email notifications"
         payments: "Payments"
         payments_desc: "SumUp & payment setup"
         newsletter_api: "Newsletter API"
