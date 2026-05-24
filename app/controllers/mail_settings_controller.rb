@@ -53,7 +53,12 @@ class MailSettingsController < ApplicationController
     params.require(:mail_setting).permit(
       :smtp_host, :smtp_port, :smtp_username, :smtp_password,
       :smtp_from_address, :smtp_from_name, :smtp_authentication,
-      :smtp_enable_starttls, :app_host
+      :smtp_enable_starttls, :app_host,
+      :mail_registration_confirmation_enabled,
+      :mail_waitlist_promoted_enabled,
+      :mail_cancelled_by_trainer_enabled,
+      :mail_payment_expired_enabled,
+      :mail_course_access_invited_enabled
     )
   end
 end

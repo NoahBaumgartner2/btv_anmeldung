@@ -28,6 +28,12 @@ class MailSetting < ApplicationRecord
     first_or_initialize
   end
 
+  def self.mail_enabled?(key)
+    rec = first
+    return true if rec.nil?
+    rec.public_send(:"#{key}_enabled")
+  end
+
   # Opens a raw SMTP connection (TCP + optional STARTTLS + auth) without sending
   # a message — useful as a pre-flight connectivity check from the admin UI.
   def self.test_connection

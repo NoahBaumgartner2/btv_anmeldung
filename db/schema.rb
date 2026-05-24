@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_23_115644) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_24_000001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -109,8 +109,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_115644) do
     t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
     t.index ["course_id", "status"], name: "index_course_registrations_on_course_id_and_status"
     t.index ["course_id"], name: "index_course_registrations_on_course_id"
-    t.index ["participant_id", "course_id"], name: "index_course_registrations_unique_active", unique: true, where: "((training_session_id IS NULL) AND ((status IS NULL) OR ((status)::text <> ALL ((ARRAY['storniert'::character varying, 'ausstehend'::character varying])::text[]))))"
-    t.index ["participant_id", "training_session_id"], name: "index_course_registrations_unique_session", unique: true, where: "((training_session_id IS NOT NULL) AND ((status IS NULL) OR ((status)::text <> ALL ((ARRAY['storniert'::character varying, 'ausstehend'::character varying])::text[]))))"
+    t.index ["participant_id", "course_id"], name: "index_course_registrations_unique_active", unique: true, where: "((training_session_id IS NULL) AND ((status IS NULL) OR ((status)::text <> ALL (ARRAY[('storniert'::character varying)::text, ('ausstehend'::character varying)::text]))))"
+    t.index ["participant_id", "training_session_id"], name: "index_course_registrations_unique_session", unique: true, where: "((training_session_id IS NOT NULL) AND ((status IS NULL) OR ((status)::text <> ALL (ARRAY[('storniert'::character varying)::text, ('ausstehend'::character varying)::text]))))"
     t.index ["participant_id"], name: "index_course_registrations_on_participant_id"
     t.index ["payment_expires_at"], name: "index_course_registrations_on_payment_expires_at_not_null", where: "(payment_expires_at IS NOT NULL)"
     t.index ["status"], name: "index_course_registrations_on_status"
@@ -214,6 +214,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_23_115644) do
   create_table "mail_settings", force: :cascade do |t|
     t.string "app_host"
     t.datetime "created_at", null: false
+    t.boolean "mail_cancelled_by_trainer_enabled", default: true, null: false
+    t.boolean "mail_course_access_invited_enabled", default: true, null: false
+    t.boolean "mail_payment_expired_enabled", default: true, null: false
+    t.boolean "mail_registration_confirmation_enabled", default: true, null: false
+    t.boolean "mail_waitlist_promoted_enabled", default: true, null: false
     t.string "smtp_authentication", default: "plain"
     t.boolean "smtp_enable_starttls", default: true, null: false
     t.string "smtp_from_address"
