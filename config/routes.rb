@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
   post "locale", to: "locales#update", as: :locale
+  post "cookie_consent", to: "cookie_consents#create", as: :cookie_consent
 
   # NEU: Die Routen für unsere Dashboards
   get "up" => "rails/health#show", as: :rails_health_check
