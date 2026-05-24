@@ -8,6 +8,9 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
+    setting = MailSetting.first
+    return if setting && !setting.mail_registration_confirmation_enabled
+
     if [ "bestätigt", "schnuppern" ].include?(course_registration.status) && @course.has_ticketing?
       qr = RQRCode::QRCode.new(scan_course_registration_url(course_registration))
       png = qr.as_png(
@@ -42,6 +45,9 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
+    setting = MailSetting.first
+    return if setting && !setting.mail_waitlist_promoted_enabled
+
     @registration_url = course_registration_url(course_registration)
     @needs_payment = @course.has_payment? && @course.price_cents.to_i > 0
     @checkout_preview_url = checkout_preview_registration_url(course_registration) if @needs_payment
@@ -58,6 +64,9 @@ class CourseRegistrationMailer < ApplicationMailer
     @participant  = course_registration.participant
     @recipient    = @participant.user
     return if @recipient.nil?
+
+    setting = MailSetting.first
+    return if setting && !setting.mail_cancelled_by_trainer_enabled
 
     @reason       = course_registration.cancellation_reason
     @cancelled_by = course_registration.cancelled_by_trainer&.user&.email
@@ -116,6 +125,9 @@ class CourseRegistrationMailer < ApplicationMailer
     @participant = course_registration.participant
     @recipient = @participant.user
     return if @recipient.nil?
+
+    setting = MailSetting.first
+    return if setting && !setting.mail_payment_expired_enabled
 
     mail(
       to: @recipient.email,

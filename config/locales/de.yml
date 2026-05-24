@@ -554,6 +554,8 @@ de:
         stats_desc: "Auswertungen & Berichte"
         email_settings: "E-Mail-Einstellungen"
         email_settings_desc: "SMTP & Absender konfigurieren"
+        automated_mails: "Automatische E-Mails"
+        automated_mails_desc: "E-Mail-Benachrichtigungen konfigurieren"
         payments: "Zahlungen"
         payments_desc: "SumUp & Payment-Setup"
         newsletter_api: "Newsletter-API"
@@ -1228,6 +1230,27 @@ de:
       section_url: "App-URL (für E-Mail-Links)"
       save: "Einstellungen speichern"
       cancel: "Abbrechen"
+    automated_mails:
+      title: "Automatische E-Mails"
+      subtitle: "Aktiviere oder deaktiviere automatische E-Mail-Benachrichtigungen"
+      enabled: "Aktiv"
+      disabled: "Inaktiv"
+      mails:
+        registration_confirmation:
+          name: "Anmeldebestätigung"
+          description: "Wird nach jeder Kursanmeldung verschickt (bestätigt, Warteliste, Schnuppern)"
+        waitlist_promoted:
+          name: "Von Warteliste nachrücken"
+          description: "Wird verschickt wenn ein Teilnehmer von der Warteliste einen Platz erhält"
+        cancelled_by_trainer:
+          name: "Abmeldung durch Trainer"
+          description: "Wird verschickt wenn ein Trainer eine Anmeldung storniert"
+        payment_expired:
+          name: "Zahlung abgelaufen"
+          description: "Wird verschickt wenn eine ausstehende Zahlung abläuft"
+        course_access_invited:
+          name: "Kurszugang eingeladen"
+          description: "Wird verschickt wenn ein Benutzer manuell Zugang zu einem Kurs erhält"
 
   accounts:
     show:

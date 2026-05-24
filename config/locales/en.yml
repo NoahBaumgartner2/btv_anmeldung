@@ -515,6 +515,8 @@ en:
         stats_desc: "Reports & analytics"
         email_settings: "Email settings"
         email_settings_desc: "SMTP & sender config"
+        automated_mails: "Automated emails"
+        automated_mails_desc: "Configure email notifications"
         payments: "Payments"
         payments_desc: "SumUp & payment setup"
         newsletter_api: "Newsletter API"
@@ -1189,6 +1191,27 @@ en:
       section_url: "App URL (for email links)"
       save: "Save settings"
       cancel: "Cancel"
+    automated_mails:
+      title: "Automated emails"
+      subtitle: "Enable or disable automatic email notifications"
+      enabled: "Active"
+      disabled: "Inactive"
+      mails:
+        registration_confirmation:
+          name: "Registration confirmation"
+          description: "Sent after every course registration (confirmed, waitlist, trial)"
+        waitlist_promoted:
+          name: "Promoted from waitlist"
+          description: "Sent when a participant receives a spot from the waitlist"
+        cancelled_by_trainer:
+          name: "Cancelled by trainer"
+          description: "Sent when a trainer cancels a registration"
+        payment_expired:
+          name: "Payment expired"
+          description: "Sent when a pending payment expires"
+        course_access_invited:
+          name: "Course access invitation"
+          description: "Sent when a user is manually granted access to a course"
 
   accounts:
     show:
