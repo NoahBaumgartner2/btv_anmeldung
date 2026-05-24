@@ -1251,6 +1251,31 @@ de:
         course_access_invited:
           name: "Kurszugang eingeladen"
           description: "Wird verschickt wenn ein Benutzer manuell Zugang zu einem Kurs erhält"
+      always_active_title: "Immer aktive System-Mails"
+      always_active_subtitle: "Diese Mails werden immer verschickt und können nicht deaktiviert werden"
+      always_active_badge: "Immer aktiv"
+      mails_always:
+        training_cancelled:
+          name: "Kurs abgesagt"
+          description: "Wird verschickt wenn ein Trainer einen Kurs vollständig absagt"
+        session_unsubscription:
+          name: "Abmeldung durch Teilnehmer"
+          description: "Wird verschickt wenn sich ein Teilnehmer selbst vom Kurs abmeldet"
+        attendance_reminder_trainer:
+          name: "Anwesenheits-Erinnerung (Trainer)"
+          description: "Erinnerung an Trainer, die Anwesenheit vor dem Training einzutragen"
+        attendance_reminder_admin:
+          name: "Anwesenheits-Erinnerung (Admin)"
+          description: "Benachrichtigung an Admin bei fehlenden Anwesenheitseinträgen"
+        custom_trainer_message:
+          name: "Trainer-Nachricht"
+          description: "Manuelle Nachricht von einem Trainer an Kursteilnehmer"
+        devise_confirmation:
+          name: "E-Mail-Bestätigung (Konto)"
+          description: "Wird nach der Registrierung zur Bestätigung der E-Mail-Adresse verschickt"
+        devise_password_reset:
+          name: "Passwort zurücksetzen"
+          description: "Wird verschickt wenn ein Benutzer sein Passwort zurücksetzen möchte"
 
   accounts:
     show:

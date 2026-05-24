@@ -1185,6 +1185,52 @@ fr:
       section_url: "URL de l'app (pour les liens e-mail)"
       save: "Enregistrer les paramètres"
       cancel: "Annuler"
+    automated_mails:
+      title: "E-mails automatiques"
+      subtitle: "Activer ou désactiver les notifications e-mail automatiques"
+      enabled: "Actif"
+      disabled: "Inactif"
+      mails:
+        registration_confirmation:
+          name: "Confirmation d'inscription"
+          description: "Envoyé après chaque inscription à un cours (confirmé, liste d'attente, essai)"
+        waitlist_promoted:
+          name: "Promu de la liste d'attente"
+          description: "Envoyé lorsqu'un participant obtient une place depuis la liste d'attente"
+        cancelled_by_trainer:
+          name: "Annulation par le formateur"
+          description: "Envoyé lorsqu'un formateur annule une inscription"
+        payment_expired:
+          name: "Paiement expiré"
+          description: "Envoyé lorsqu'un paiement en attente expire"
+        course_access_invited:
+          name: "Invitation accès cours"
+          description: "Envoyé lorsqu'un utilisateur obtient manuellement l'accès à un cours"
+      always_active_title: "E-mails système toujours actifs"
+      always_active_subtitle: "Ces e-mails sont toujours envoyés et ne peuvent pas être désactivés"
+      always_active_badge: "Toujours actif"
+      mails_always:
+        training_cancelled:
+          name: "Cours annulé"
+          description: "Envoyé lorsqu'un formateur annule entièrement un cours"
+        session_unsubscription:
+          name: "Désinscription du participant"
+          description: "Envoyé lorsqu'un participant annule sa propre inscription"
+        attendance_reminder_trainer:
+          name: "Rappel de présence (formateur)"
+          description: "Rappel aux formateurs de saisir les présences avant la séance"
+        attendance_reminder_admin:
+          name: "Rappel de présence (admin)"
+          description: "Notification admin en cas d'entrées de présence manquantes"
+        custom_trainer_message:
+          name: "Message du formateur"
+          description: "Message manuel d'un formateur aux participants du cours"
+        devise_confirmation:
+          name: "Confirmation e-mail (compte)"
+          description: "Envoyé après l'inscription pour confirmer l'adresse e-mail"
+        devise_password_reset:
+          name: "Réinitialisation du mot de passe"
+          description: "Envoyé lorsqu'un utilisateur demande la réinitialisation de son mot de passe"
 
   accounts:
     show:
