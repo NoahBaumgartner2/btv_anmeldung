@@ -1212,6 +1212,31 @@ en:
         course_access_invited:
           name: "Course access invitation"
           description: "Sent when a user is manually granted access to a course"
+      always_active_title: "Always-active system mails"
+      always_active_subtitle: "These emails are always sent and cannot be disabled"
+      always_active_badge: "Always active"
+      mails_always:
+        training_cancelled:
+          name: "Course cancelled"
+          description: "Sent when a trainer fully cancels a course"
+        session_unsubscription:
+          name: "Participant self-cancellation"
+          description: "Sent when a participant cancels their own registration"
+        attendance_reminder_trainer:
+          name: "Attendance reminder (trainer)"
+          description: "Reminder to trainers to record attendance before the training"
+        attendance_reminder_admin:
+          name: "Attendance reminder (admin)"
+          description: "Admin notification when attendance entries are missing"
+        custom_trainer_message:
+          name: "Trainer message"
+          description: "Manual message from a trainer to course participants"
+        devise_confirmation:
+          name: "Email confirmation (account)"
+          description: "Sent after registration to confirm the email address"
+        devise_password_reset:
+          name: "Password reset"
+          description: "Sent when a user requests a password reset"
 
   accounts:
     show:

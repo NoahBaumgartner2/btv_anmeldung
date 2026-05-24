@@ -23,9 +23,15 @@ class MailSettingsController < ApplicationController
 
     if @mail_setting.update(mail_setting_params)
       MailSetting.apply!
-      redirect_to mail_setting_path, notice: "E-Mail-Einstellungen wurden gespeichert."
+      respond_to do |format|
+        format.json { render json: { ok: true } }
+        format.html { redirect_to mail_setting_path, notice: "E-Mail-Einstellungen wurden gespeichert." }
+      end
     else
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.json { render json: { ok: false, errors: @mail_setting.errors.full_messages }, status: :unprocessable_entity }
+        format.html { render :edit, status: :unprocessable_entity }
+      end
     end
   end
 
