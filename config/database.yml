@@ -2,10 +2,10 @@ default: &default
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  # ZUGANGSDATEN HIERHER VERSCHOBEN (gilt dann für alle):
   host: <%= ENV["DB_HOST"] %>
-  username: btv_app
-  password: <%= ENV["POSTGRES_PASSWORD"] %>
+  port: <%= ENV.fetch("DB_PORT", 5432) %>
+  username: <%= ENV.fetch("DB_USERNAME", "btv_app") %>
+  password: <%= ENV["POSTGRES_PASSWORD"] || ENV["POSTGRES_PASSWORD_STAGING"] %>
 
 development:
   <<: *default
@@ -18,16 +18,16 @@ test:
 production:
   primary: &primary_production
     <<: *default
-    database: btv_anmeldung_production
+    database: <%= ENV.fetch("DB_NAME", "btv_anmeldung_production") %>
   cache:
     <<: *primary_production
-    database: btv_anmeldung_production_cache
+    database: <%= ENV.fetch("DB_NAME_CACHE", "btv_anmeldung_production_cache") %>
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
-    database: btv_anmeldung_production_queue
+    database: <%= ENV.fetch("DB_NAME_QUEUE", "btv_anmeldung_production_queue") %>
     migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
-    database: btv_anmeldung_production_cable
+    database: <%= ENV.fetch("DB_NAME_CABLE", "btv_anmeldung_production_cable") %>
     migrations_paths: db/cable_migrate
