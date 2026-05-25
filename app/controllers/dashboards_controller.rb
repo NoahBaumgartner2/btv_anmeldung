@@ -77,6 +77,16 @@ class DashboardsController < ApplicationController
     @selected_course_ids = Array(params[:course_ids]).map(&:to_i).select(&:positive?)
   end
 
+  def talents
+    authorize_admin!
+    @talented_registrations = CourseRegistration
+      .joins(:course, :participant)
+      .where(talent_flag: true)
+      .where(courses: { allows_talent_marking: true })
+      .includes(:course, :participant)
+      .order("courses.title, participants.last_name, participants.first_name")
+  end
+
   def trainer
     authorize_trainer!
     @trainer = Trainer.find_by(user: current_user)

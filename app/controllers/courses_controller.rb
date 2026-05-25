@@ -1,9 +1,9 @@
 class CoursesController < ApplicationController
   # Für neue Kurse oder Bearbeitung MUSS man Admin sein
-  before_action :authorize_admin!, except: [ :index, :show, :manage, :participant_search, :manual_enroll, :send_custom_email ]
+  before_action :authorize_admin!, except: [ :index, :show, :manage, :participant_search, :manual_enroll, :send_custom_email, :toggle_talent ]
   # GET /courses or /courses.json
-  before_action :authorize_trainer!, only: [ :manage, :send_custom_email ]
-  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email ]
+  before_action :authorize_trainer!, only: [ :manage, :send_custom_email, :toggle_talent ]
+  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email toggle_talent ]
   def index
     all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users)
     @restricted_courses = if current_user&.admin?
@@ -274,6 +274,25 @@ class CoursesController < ApplicationController
     end
   end
 
+  def toggle_talent
+    reg = @course.course_registrations.find(params[:registration_id])
+
+    unless current_user.admin? || @course.trainers.exists?(user_id: current_user.id)
+      return redirect_to manage_course_path(@course), alert: "Zugriff verweigert."
+    end
+
+    unless @course.allows_talent_marking?
+      return redirect_to manage_course_path(@course), alert: "Talentmarkierung ist für diesen Kurs nicht aktiviert."
+    end
+
+    reg.update!(
+      talent_flag: !reg.talent_flag,
+      talent_note: params[:talent_note].to_s.strip.presence
+    )
+
+    redirect_to manage_course_path(@course), notice: reg.talent_flag? ? "#{reg.participant.first_name} als Talent markiert." : "Talentmarkierung entfernt."
+  end
+
   def send_custom_email
     reg = @course.course_registrations.find(params[:registration_id])
     subject = params[:subject].to_s.strip
@@ -331,7 +350,7 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, :allows_talent_marking, trainer_ids: [], payment_methods: [])
     end
 
     def derive_registration_type(registration_mode)

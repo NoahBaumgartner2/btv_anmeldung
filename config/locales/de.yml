@@ -552,6 +552,8 @@ de:
         newsletters_desc: "Newsletter erstellen & versenden"
         stats: "Statistiken"
         stats_desc: "Auswertungen & Berichte"
+        talents: "Talentliste"
+        talents_desc: "Als Talent markierte Teilnehmende"
         email_settings: "E-Mail-Einstellungen"
         email_settings_desc: "SMTP & Absender konfigurieren"
         payments: "Zahlungen"

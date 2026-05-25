@@ -1,0 +1,78 @@
+<div class="max-w-5xl mx-auto mt-6 sm:mt-10 mb-16 px-4">
+
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+    <div>
+      <span class="text-amber-500 font-bold text-sm tracking-wider uppercase mb-1 block">⭐ Talente</span>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900">Talentliste</h1>
+      <p class="text-gray-500 mt-1 text-sm">Alle als Talent markierten Teilnehmenden über alle Kurse hinweg.</p>
+    </div>
+    <%= link_to "← Admin-Dashboard", dashboards_admin_path,
+          class: "shrink-0 bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
+  </div>
+
+  <% if @talented_registrations.any? %>
+    <%# Mobile: Cards %>
+    <div class="sm:hidden bg-white rounded-2xl shadow-sm border border-gray-200 divide-y divide-gray-100 mb-6">
+      <% @talented_registrations.each do |reg| %>
+        <% p = reg.participant %>
+        <div class="p-4">
+          <div class="flex items-start justify-between gap-2 mb-1">
+            <div>
+              <p class="font-bold text-gray-900 text-sm"><%= p.first_name %> <%= p.last_name %> <span class="text-amber-400">⭐</span></p>
+              <p class="text-xs text-gray-500 mt-0.5"><%= reg.course.title %></p>
+            </div>
+            <span class="text-xs text-gray-400 shrink-0"><%= p.date_of_birth&.strftime("%d.%m.%Y") %></span>
+          </div>
+          <% if reg.talent_note.present? %>
+            <p class="text-xs text-gray-500 italic mt-1 bg-amber-50 rounded-lg px-2 py-1"><%= reg.talent_note %></p>
+          <% end %>
+          <p class="text-xs text-gray-400 mt-1.5">Markiert: <%= reg.updated_at.in_time_zone.strftime("%d.%m.%Y") %></p>
+        </div>
+      <% end %>
+    </div>
+
+    <%# Desktop: Tabelle %>
+    <div class="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kurs</th>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Geburtsdatum</th>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Notiz</th>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Markiert am</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+          <% @talented_registrations.each do |reg| %>
+            <% p = reg.participant %>
+            <tr class="hover:bg-amber-50 transition">
+              <td class="py-3.5 px-4 text-sm font-semibold text-gray-900">
+                <%= p.first_name %> <%= p.last_name %> <span class="text-amber-400">⭐</span>
+              </td>
+              <td class="py-3.5 px-4 text-sm text-gray-600">
+                <%= link_to reg.course.title, manage_course_path(reg.course), class: "hover:text-primary-600 font-medium" %>
+              </td>
+              <td class="py-3.5 px-4 text-sm text-gray-500">
+                <%= p.date_of_birth&.strftime("%d.%m.%Y") || "—" %>
+              </td>
+              <td class="py-3.5 px-4 text-sm text-gray-500 italic max-w-xs">
+                <%= reg.talent_note.presence || "—" %>
+              </td>
+              <td class="py-3.5 px-4 text-sm text-gray-400">
+                <%= reg.updated_at.in_time_zone.strftime("%d.%m.%Y") %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 py-16 text-center">
+      <p class="text-4xl mb-4">☆</p>
+      <p class="text-gray-600 font-semibold">Noch keine Talente markiert.</p>
+      <p class="text-gray-400 text-sm mt-1">Sobald Kursleiter*innen Teilnehmende als Talent markieren, erscheinen sie hier.</p>
+    </div>
+  <% end %>
+
+</div>

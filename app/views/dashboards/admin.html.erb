@@ -95,6 +95,20 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
           </svg>
         <% end %>
+
+        <%= link_to talents_dashboard_path,
+              class: "group flex items-center gap-3.5 px-4 py-3.5 hover:bg-amber-50 active:bg-amber-100 transition min-h-12" do %>
+          <div class="shrink-0 w-9 h-9 rounded-xl bg-amber-100 group-hover:bg-amber-200 flex items-center justify-center transition text-lg leading-none">
+            ⭐
+          </div>
+          <div class="min-w-0">
+            <p class="text-sm font-bold text-gray-800 group-hover:text-amber-700 transition"><%= t("dashboards.admin.links.talents") %></p>
+            <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.talents_desc") %></p>
+          </div>
+          <svg xmlns="http://www.w3.org/2000/svg" class="ml-auto h-4 w-4 text-gray-300 group-hover:text-amber-400 shrink-0 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+        <% end %>
       </div>
     </div>
 

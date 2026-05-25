@@ -7,6 +7,7 @@ Rails.application.routes.draw do
   get  "dashboards/admin"
   get  "dashboards/trainer"
   get  "dashboards/stats"
+  get  "dashboards/talents", as: "talents_dashboard"
   get  "dashboards/export_participants", as: "export_participants_dashboard"
 
 
@@ -68,6 +69,7 @@ Rails.application.routes.draw do
       post :manual_enroll
       get  :participant_search
       post :send_custom_email
+      post :toggle_talent
     end
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_24_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_25_120650) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -104,6 +104,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_000001) do
     t.string "status"
     t.string "sumup_checkout_id"
     t.string "sumup_transaction_id"
+    t.boolean "talent_flag", default: false, null: false
+    t.text "talent_note"
     t.bigint "training_session_id"
     t.datetime "updated_at", null: false
     t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
@@ -132,6 +134,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_24_000001) do
   create_table "courses", force: :cascade do |t|
     t.integer "abo_size"
     t.boolean "allows_holiday_deduction"
+    t.boolean "allows_talent_marking", default: false, null: false
     t.boolean "allows_trial", default: false, null: false
     t.string "category"
     t.datetime "created_at", null: false

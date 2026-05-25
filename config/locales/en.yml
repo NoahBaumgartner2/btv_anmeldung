@@ -513,6 +513,8 @@ en:
         newsletters_desc: "Create & send newsletters"
         stats: "Statistics"
         stats_desc: "Reports & analytics"
+        talents: "Talent list"
+        talents_desc: "Participants marked as talent"
         email_settings: "Email settings"
         email_settings_desc: "SMTP & sender config"
         payments: "Payments"

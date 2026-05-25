@@ -234,7 +234,12 @@
             <%# Name + Status %>
             <div class="flex items-start justify-between gap-2 mb-2">
               <div class="min-w-0">
-                <p class="font-semibold text-gray-900 text-sm truncate"><%= p.first_name %> <%= p.last_name %></p>
+                <p class="font-semibold text-gray-900 text-sm truncate">
+                  <%= p.first_name %> <%= p.last_name %>
+                  <% if @course.allows_talent_marking? && reg.talent_flag? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
+                    <span class="text-amber-400" title="<%= reg.talent_note.presence || 'Talent' %>">⭐</span>
+                  <% end %>
+                </p>
                 <% if reg.status == "ausstehend" && reg.sumup_checkout_id.present? && !reg.payment_cleared? %>
                   <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full mt-1">
                     <%= t("courses.manage.payment_pending") %>
@@ -437,6 +442,27 @@
                 </div>
               </div>
 
+              <% if @course.allows_talent_marking? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
+                <details class="relative">
+                  <summary class="flex items-center justify-center w-11 h-11 rounded-lg <%= reg.talent_flag? ? 'bg-amber-100' : 'bg-gray-100' %> cursor-pointer list-none" title="Talent markieren">
+                    <span class="text-lg leading-none"><%= reg.talent_flag? ? "⭐" : "☆" %></span>
+                  </summary>
+                  <div class="absolute left-0 z-10 mt-1 w-56 bg-white border border-gray-200 rounded-xl shadow-lg p-3">
+                    <%= form_with url: toggle_talent_course_path(@course), method: :post, local: true do |f| %>
+                      <%= f.hidden_field :registration_id, value: reg.id %>
+                      <p class="text-xs font-bold text-gray-700 mb-1"><%= reg.talent_flag? ? "Markierung entfernen?" : "Als Talent markieren" %></p>
+                      <% unless reg.talent_flag? %>
+                        <%= f.text_area :talent_note, placeholder: "Notiz (optional)", value: reg.talent_note,
+                              rows: 2,
+                              class: "w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 mb-2 focus:ring-primary-500 focus:border-primary-500 resize-none" %>
+                      <% end %>
+                      <%= f.submit reg.talent_flag? ? "Markierung entfernen" : "Als Talent markieren",
+                            class: "w-full text-xs font-bold py-1.5 px-3 rounded-lg cursor-pointer " + (reg.talent_flag? ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-amber-50 text-amber-700 hover:bg-amber-100") %>
+                    <% end %>
+                  </div>
+                </details>
+              <% end %>
+
               <% if reg.status != "storniert" %>
                 <%# Abmelden-Button + Modal %>
                 <div data-controller="modal">
@@ -513,6 +539,9 @@
             <tr class="hover:bg-gray-50 transition" data-participant-name="<%= "#{p.first_name} #{p.last_name}".downcase %>">
               <td class="py-4 px-6 text-sm">
                 <span class="font-semibold text-gray-900"><%= p.first_name %> <%= p.last_name %></span>
+                <% if @course.allows_talent_marking? && reg.talent_flag? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
+                  <span class="text-amber-400 ml-1" title="<%= reg.talent_note.presence || 'Talent' %>">⭐</span>
+                <% end %>
                 <% if reg.status == "ausstehend" && reg.sumup_checkout_id.present? && !reg.payment_cleared? %>
                   <span class="ml-1.5 inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full">
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -586,6 +615,14 @@
                             class="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition cursor-pointer">
                       <%= t("courses.manage.send_email") %>
                     </button>
+                    <% if @course.allows_talent_marking? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
+                      <button type="button"
+                              data-action="click->dropdown#openDialog"
+                              data-dialog-id="dialog-talent-<%= reg.id %>"
+                              class="block w-full text-left px-4 py-2.5 text-sm text-amber-600 hover:bg-amber-50 transition cursor-pointer">
+                        <%= reg.talent_flag? ? "⭐ Markierung entfernen" : "☆ Als Talent markieren" %>
+                      </button>
+                    <% end %>
                     <% if reg.status != "storniert" && @course.registration_mode != "single_session" %>
                       <div class="border-t border-gray-100 mt-1 pt-1">
                         <button type="button"
@@ -716,6 +753,47 @@
                     </div>
                   </div>
                 </div>
+                <% if @course.allows_talent_marking? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
+                  <%# Talent modal %>
+                  <div data-controller="modal">
+                    <div id="dialog-talent-<%= reg.id %>"
+                         data-modal-target="dialog"
+                         data-action="click->modal#backdropClose"
+                         class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+                      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-left">
+                        <div class="flex items-center gap-3 mb-4">
+                          <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0 text-xl">
+                            <%= reg.talent_flag? ? "⭐" : "☆" %>
+                          </div>
+                          <h3 class="text-lg font-extrabold text-gray-900"><%= reg.talent_flag? ? "Markierung entfernen?" : "Als Talent markieren" %></h3>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-4"><%= p.first_name %> <%= p.last_name %></p>
+                        <%= form_with url: toggle_talent_course_path(@course), method: :post, data: { turbo: false }, class: "space-y-3" do %>
+                          <%= hidden_field_tag :registration_id, reg.id %>
+                          <% unless reg.talent_flag? %>
+                            <div>
+                              <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Notiz <span class="font-normal text-gray-400">(optional)</span></label>
+                              <textarea name="talent_note" rows="2" placeholder="z.B. Sehr gute Koordination, Potenzial fürs Kader"
+                                        class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"><%= reg.talent_note %></textarea>
+                            </div>
+                          <% end %>
+                          <div class="flex gap-3 pt-1">
+                            <button type="submit"
+                                    class="flex-1 font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11 <%= reg.talent_flag? ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-amber-50 text-amber-700 hover:bg-amber-100' %>">
+                              <%= reg.talent_flag? ? "Markierung entfernen" : "Als Talent markieren" %>
+                            </button>
+                            <button type="button"
+                                    data-action="click->modal#close"
+                                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
+                              Abbrechen
+                            </button>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+
                 <% if reg.status != "storniert" %>
                   <%# Abmelden modal %>
                   <div data-controller="modal">
