@@ -199,7 +199,7 @@ jobs:
           KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
           RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
           POSTGRES_PASSWORD_STAGING: ${{ secrets.POSTGRES_PASSWORD_STAGING }}
-        run: bundle exec kamal accessory boot db -c config/deploy.staging.yml || bundle exec kamal accessory reboot db -c config/deploy.staging.yml -y
+        run: bundle exec kamal accessory boot db -c config/deploy.staging.yml || true
 
       - name: Deploy Staging with Kamal
         env:
