@@ -22,8 +22,8 @@ registry:
 env:
   clear:
     SOLID_QUEUE_IN_PUMA: true
-    DB_HOST: "127.0.0.1"
-    DB_PORT: "5433"
+    DB_HOST: "btv_anmeldung_staging-db"
+    DB_PORT: "5432"
     DB_USERNAME: "btv_app_staging"
     DB_NAME: "btv_anmeldung_staging"
     DB_NAME_CACHE: "btv_anmeldung_staging_cache"
