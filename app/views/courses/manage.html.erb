@@ -879,15 +879,22 @@
       </div>
 
       <%# Bestehende Zugriffe %>
-      <% if @course.permitted_users.any? %>
+      <% if @course.course_access_grants.any? %>
         <ul class="divide-y divide-gray-100">
-          <% @course.permitted_users.each do |user| %>
+          <% @course.course_access_grants.includes(:user).each do |grant| %>
             <li class="px-4 sm:px-6 py-3 flex items-center justify-between gap-3">
-              <span class="text-sm font-medium text-gray-900"><%= user.email %></span>
-              <%= button_to revoke_access_course_path(@course, user_id: user.id),
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="text-sm font-medium text-gray-900"><%= grant.user.email %></span>
+                <% if grant.confirmed? %>
+                  <span class="text-green-600 font-semibold text-sm">Bestätigt</span>
+                <% else %>
+                  <span class="text-yellow-600 font-semibold text-sm">Eingeladen</span>
+                <% end %>
+              </div>
+              <%= button_to revoke_access_course_path(@course, user_id: grant.user_id),
                     method: :delete,
                     class: "text-xs text-red-600 font-bold hover:text-red-800 transition cursor-pointer bg-transparent border-0 p-0",
-                    data: { turbo_confirm: "Zugriff für #{user.email} entfernen?" } do %>
+                    data: { turbo_confirm: "Zugriff für #{grant.user.email} entfernen?" } do %>
                 Entfernen
               <% end %>
             </li>
