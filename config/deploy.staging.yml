@@ -1,0 +1,56 @@
+service: btv_anmeldung_staging
+
+image: noahbaumgartner2/btv_anmeldung
+
+servers:
+  web:
+    - 89.47.51.202
+
+ssh:
+  user: ubuntu
+
+proxy:
+  ssl: true
+  host: test.btvbern-anmeldung.ch
+
+registry:
+  server: ghcr.io
+  username: noahbaumgartner2
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  clear:
+    SOLID_QUEUE_IN_PUMA: true
+    DB_HOST: "btv_anmeldung_staging-db"
+    DB_PORT: "5432"
+    DB_USERNAME: "btv_app_staging"
+    DB_NAME: "btv_anmeldung_staging"
+    DB_NAME_CACHE: "btv_anmeldung_staging_cache"
+    DB_NAME_QUEUE: "btv_anmeldung_staging_queue"
+    DB_NAME_CABLE: "btv_anmeldung_staging_cable"
+    APP_HOST: "test.btvbern-anmeldung.ch"
+    APP_PROTOCOL: "https"
+  secret:
+    - RAILS_MASTER_KEY
+    - POSTGRES_PASSWORD_STAGING
+
+accessories:
+  db:
+    image: postgres:16
+    host: 89.47.51.202
+    port: "127.0.0.1:5433:5432"
+    env:
+      clear:
+        POSTGRES_USER: btv_app_staging
+        POSTGRES_DB: btv_anmeldung_staging
+      secret:
+        - POSTGRES_PASSWORD_STAGING
+    directories:
+      - data:/var/lib/postgresql/data
+
+builder:
+  arch: amd64
+
+aliases:
+  migrate: app exec --interactive --reuse 'bin/rails db:migrate'
