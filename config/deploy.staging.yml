@@ -29,6 +29,8 @@ env:
     DB_NAME_CACHE: "btv_anmeldung_staging_cache"
     DB_NAME_QUEUE: "btv_anmeldung_staging_queue"
     DB_NAME_CABLE: "btv_anmeldung_staging_cable"
+    APP_HOST: "test.btvbern-anmeldung.ch"
+    APP_PROTOCOL: "https"
   secret:
     - RAILS_MASTER_KEY
     - POSTGRES_PASSWORD_STAGING
