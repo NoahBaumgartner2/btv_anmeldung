@@ -39,3 +39,6 @@
 
 # Google Search Console verification (only needed in main/production)
 /public/google5da83ef8309a409a.html
+
+# Sitemap (only needed in main/production)
+/public/sitemap.xml
