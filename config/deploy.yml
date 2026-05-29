@@ -7,10 +7,10 @@ image: noahbaumgartner2/btv_anmeldung
 # Dein Infomaniak Server
 servers:
   web:
-    hosts:
-      - 89.47.51.202
-    volumes:
-      - /var/lib/btv_anmeldung/storage:/rails/storage
+    - 89.47.51.202
+
+volumes:
+  - /var/lib/btv_anmeldung/storage:/rails/storage
 
 # WICHTIG: Hier sagen wir Kamal, dass es sich als 'ubuntu' einloggen soll
 ssh:
