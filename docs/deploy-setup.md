@@ -20,4 +20,4 @@ sudo chown ubuntu:ubuntu /var/lib/btv_anmeldung_staging/storage
 ```
 
 > Diese Befehle müssen nur einmalig auf dem jeweiligen Server ausgeführt werden.
-> Das Volume-Mapping ist in `config/deploy.yml` bzw. `config/deploy.staging.yml` unter `servers.web.volumes` konfiguriert.
+> Das Volume-Mapping ist in `config/deploy.yml` bzw. `config/deploy.staging.yml` als Top-Level `volumes`-Key konfiguriert (parallel zu `servers:`, nicht darunter verschachtelt).
