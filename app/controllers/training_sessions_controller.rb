@@ -67,9 +67,12 @@ class TrainingSessionsController < ApplicationController
   end
 
   def destroy
+    authorize_admin!
+    return if performed?
+
     course = @training_session.course
-    @training_session.destroy
-    redirect_to course_path(course), notice: "Training gelöscht."
+    @training_session.destroy!
+    redirect_to course_path(course), notice: t("training_sessions.show.deleted_notice")
   end
 
   def cancel
