@@ -8,7 +8,7 @@
 
   <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
     <div class="bg-white py-8 px-4 shadow-sm sm:rounded-xl sm:px-10 border border-gray-200">
-      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-6" }) do |f| %>
+      <%= form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "space-y-6", data: { controller: "newsletter-opt-in" } }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
 
         <div>
@@ -33,6 +33,8 @@
                  name="user[privacy_accepted]"
                  value="1"
                  required
+                 data-newsletter-opt-in-target="privacy"
+                 data-action="change->newsletter-opt-in#privacyChanged"
                  class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer shrink-0">
           <span class="text-xs text-gray-700 leading-relaxed">
             Ich habe die <%= link_to "Datenschutzerklärung", privacy_path, target: "_blank", class: "text-primary-600 underline hover:text-primary-800" %> gelesen und stimme der Verarbeitung meiner Daten gemäss den beschriebenen Zwecken zu. <span class="text-red-500">*</span>
@@ -44,6 +46,7 @@
           <input type="checkbox"
                  name="user[newsletter_opt_in]"
                  value="1"
+                 data-newsletter-opt-in-target="newsletter"
                  class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer shrink-0">
           <span class="text-xs text-gray-600 leading-relaxed">
             <%= t("devise.registrations.new.newsletter_label_html").html_safe %>
