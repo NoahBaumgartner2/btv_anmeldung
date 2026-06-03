@@ -10,6 +10,7 @@ class User < ApplicationRecord
   has_many :accessible_courses, through: :course_access_grants, source: :course
 
   attr_accessor :privacy_accepted, :devise_notification_error
+  attr_accessor :photo_consent_accepted
   validates :privacy_accepted, acceptance: { allow_nil: false }, on: :create
 
   validates :phone_number, :street, :zip_code, :city,
@@ -22,6 +23,11 @@ class User < ApplicationRecord
   }, allow_blank: true, if: :family_data_completed?
 
   before_create :set_privacy_accepted_at
+  before_create :set_photo_consent_accepted_at
+
+  def photo_consent_accepted?
+    photo_consent_accepted_at.present?
+  end
 
   def needs_onboarding?
     return false if admin? || Trainer.exists?(user: self)
@@ -62,5 +68,9 @@ class User < ApplicationRecord
 
   def set_privacy_accepted_at
     self.privacy_accepted_at = Time.current if privacy_accepted.in?([ "1", true ])
+  end
+
+  def set_photo_consent_accepted_at
+    self.photo_consent_accepted_at = Time.current if photo_consent_accepted.in?([ "1", true ])
   end
 end
