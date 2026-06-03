@@ -70,6 +70,43 @@
     </div>
   </div>
 
+  <%# ── Foto-Einverständnis ──────────────────────────────────────────────── %>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+    <div class="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gray-50">
+      <p class="text-xs font-bold text-gray-500 uppercase tracking-wide"><%= t('accounts.show.section_photo_consent') %></p>
+    </div>
+    <div class="px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div>
+        <p class="text-sm font-semibold text-gray-900 mb-1"><%= t('accounts.show.photo_consent_title') %></p>
+        <p class="text-xs text-gray-500 leading-relaxed">
+          <% if @photo_consent %>
+            <%= t('accounts.show.photo_consent_granted_html').html_safe %>
+            <span class="text-gray-400 ml-1">(<%= t('accounts.show.photo_consent_since', date: l(current_user.photo_consent_accepted_at.to_date, format: :long)) %>)</span>
+          <% else %>
+            <%= t('accounts.show.photo_consent_not_granted_html').html_safe %>
+          <% end %>
+        </p>
+      </div>
+      <% if @photo_consent %>
+        <%= button_to revoke_photo_consent_account_path, method: :post,
+              class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-700 font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+          </svg>
+          <%= t('accounts.show.photo_consent_revoke') %>
+        <% end %>
+      <% else %>
+        <%= button_to grant_photo_consent_account_path, method: :post,
+              class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <%= t('accounts.show.photo_consent_grant') %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
   <%# ── Daten exportieren ──────────────────────────────────────────────────── %>
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
     <div class="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gray-50">

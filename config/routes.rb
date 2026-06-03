@@ -125,6 +125,8 @@ Rails.application.routes.draw do
     get  :export,                on: :member
     post :subscribe_newsletter,  on: :member
     post :unsubscribe_newsletter, on: :member
+    post :grant_photo_consent,    on: :member
+    post :revoke_photo_consent,   on: :member
   end
 
   # Dynamische CSS-Variablen (Vereinsfarben) – öffentlich, versioniert via ?v=
