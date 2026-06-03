@@ -6,6 +6,7 @@ class AccountsController < ApplicationController
       course_registrations: [ :course, { attendances: :training_session } ]
     )
     @newsletter_subscribed = current_user.newsletter_subscribed?
+    @photo_consent = current_user.photo_consent_accepted?
   end
 
   def subscribe_newsletter
@@ -26,6 +27,16 @@ class AccountsController < ApplicationController
     sub = current_user.newsletter_subscriber
     sub&.update(status: "unsubscribed")
     redirect_to account_path, notice: "Du wurdest vom BTV-Newsletter abgemeldet."
+  end
+
+  def grant_photo_consent
+    current_user.update!(photo_consent_accepted_at: Time.current)
+    redirect_to account_path, notice: t("accounts.show.photo_consent_granted_notice")
+  end
+
+  def revoke_photo_consent
+    current_user.update!(photo_consent_accepted_at: nil)
+    redirect_to account_path, notice: t("accounts.show.photo_consent_revoked_notice")
   end
 
   def destroy
