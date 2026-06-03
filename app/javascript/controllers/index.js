@@ -19,6 +19,7 @@ import TrainerPermissionController from "controllers/trainer_permission_controll
 import DropdownController from "controllers/dropdown_controller"
 import MailToggleController from "controllers/mail_toggle_controller"
 import ExtraHolidaysController from "controllers/extra_holidays_controller"
+import NewsletterOptInController from "controllers/newsletter_opt_in_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -41,3 +42,4 @@ application.register("trainer-permission", TrainerPermissionController)
 application.register("dropdown", DropdownController)
 application.register("mail-toggle", MailToggleController)
 application.register("extra-holidays", ExtraHolidaysController)
+application.register("newsletter-opt-in", NewsletterOptInController)
