@@ -20,15 +20,15 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Rebase feat/workingspace onto main
+      - name: Rebase staging onto main
         run: |
           git fetch origin
-          git checkout feat/workingspace
+          git checkout staging
           git rebase origin/main
-          git push origin feat/workingspace --force-with-lease
+          git push origin staging --force-with-lease
 
-      - name: Rebase workingbranch onto feat/workingspace
+      - name: Rebase workingbranch onto staging
         run: |
           git checkout workingbranch
-          git rebase origin/feat/workingspace
+          git rebase origin/staging
           git push origin workingbranch --force-with-lease

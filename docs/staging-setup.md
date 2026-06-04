@@ -26,7 +26,7 @@ bundle exec kamal app exec --interactive --reuse 'bin/rails db:seed' -c config/d
 
 ## Laufendes Deployment
 
-Ab dann deployed der CI automatisch bei jedem Push auf `feat/workingspace`.
+Ab dann deployed der CI automatisch bei jedem Push auf `staging`.
 
 ## Unterschiede zur Production
 
@@ -36,4 +36,4 @@ Ab dann deployed der CI automatisch bei jedem Push auf `feat/workingspace`.
 | Service | btv_anmeldung | btv_anmeldung_staging |
 | DB Name | btv_anmeldung_production | btv_anmeldung_staging |
 | DB Port | 5432 | 5433 |
-| Branch | main | feat/workingspace |
+| Branch | main | staging |
