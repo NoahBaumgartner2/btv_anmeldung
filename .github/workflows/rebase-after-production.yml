@@ -1,0 +1,34 @@
+name: Rebase after Production Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+    # Nur wenn es ein echter Merge/Push auf main ist (nicht der CI selbst)
+    steps:
+      - name: Checkout repository (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Rebase feat/workingspace onto main
+        run: |
+          git fetch origin
+          git checkout feat/workingspace
+          git rebase origin/main
+          git push origin feat/workingspace --force-with-lease
+
+      - name: Rebase workingbranch onto feat/workingspace
+        run: |
+          git checkout workingbranch
+          git rebase origin/feat/workingspace
+          git push origin workingbranch --force-with-lease
