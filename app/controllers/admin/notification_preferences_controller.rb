@@ -1,7 +1,7 @@
 module Admin
   class NotificationPreferencesController < ApplicationController
     before_action :authenticate_user!
-    before_action :authorize_admin!
+    before_action :authorize_trainer!
 
     def edit
       # zeigt das Formular für current_user

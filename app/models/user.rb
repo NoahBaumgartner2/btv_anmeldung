@@ -36,7 +36,7 @@ class User < ApplicationRecord
   end
 
   def admin_notification_enabled?(type)
-    return false unless admin?
+    # Gilt für alle Empfänger (Trainer wie Admins).
     # Default: alle aktiviert (leeres Hash = alles aktiv)
     admin_notification_preferences.fetch(type.to_s, true)
   end
