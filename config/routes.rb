@@ -41,6 +41,7 @@ Rails.application.routes.draw do
       post :sportfonds_spitzensport
       post :krabbel_gym_statistik
     end
+    resource :notification_preferences, only: [ :edit, :update ]
   end
 
   resources :trainers do

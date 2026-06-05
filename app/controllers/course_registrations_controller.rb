@@ -306,6 +306,7 @@ class CourseRegistrationsController < ApplicationController
     refund_cents = defined?(result) && result&.dig(:refunded) ? result[:amount_cents] : nil
     CourseRegistrationMailer.self_cancelled(@course_registration, refund_amount_cents: refund_cents).deliver_later
     User.where(admin: true).find_each do |admin_user|
+      next unless admin_user.admin_notification_enabled?("cancel_notice")
       CourseRegistrationMailer.admin_cancel_notice(@course_registration, admin_user).deliver_later
     end
     course.trainers.includes(:user).each do |trainer|
@@ -368,6 +369,7 @@ class CourseRegistrationsController < ApplicationController
     end
 
     User.where(admin: true).find_each do |admin_user|
+      next unless admin_user.admin_notification_enabled?("cancel_notice")
       CourseRegistrationMailer.admin_cancel_notice(@course_registration, admin_user).deliver_later
     end
 
@@ -393,6 +395,7 @@ class CourseRegistrationsController < ApplicationController
     attendance.update!(status: "abgemeldet")
 
     User.where(admin: true).each do |admin_user|
+      next unless admin_user.admin_notification_enabled?("session_unsubscription")
       TrainingSessionMailer.session_unsubscription_notice(
         @training_session, @course_registration, admin_user
       ).deliver_later
