@@ -89,6 +89,11 @@ class TrainingSessionsController < ApplicationController
         TrainingSessionMailer.cancellation_notice(@training_session, registration.participant.user).deliver_later
       end
 
+    # Admins über Trainingsabsage informieren
+    User.where(admin: true).find_each do |admin_user|
+      TrainingSessionMailer.training_cancelled_admin_notice(@training_session, admin_user).deliver_later
+    end
+
     redirect_to @training_session, notice: "Das Training wurde abgesagt und alle Teilnehmenden wurden per E-Mail benachrichtigt."
   end
 

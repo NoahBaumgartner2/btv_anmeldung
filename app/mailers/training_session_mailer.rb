@@ -22,4 +22,16 @@ class TrainingSessionMailer < ApplicationMailer
       subject: "Abmeldung: #{@participant.first_name} #{@participant.last_name} – #{@course.title} am #{I18n.l(training_session.start_time.to_date)}"
     )
   end
+
+  def training_cancelled_admin_notice(training_session, admin_user)
+    @training_session = training_session
+    @course = training_session.course
+    @admin_user = admin_user
+    @training_session_url = training_session_url(training_session)
+
+    mail(
+      to: admin_user.email,
+      subject: "Training abgesagt: #{@course.title} am #{I18n.l(training_session.start_time.to_date)}"
+    )
+  end
 end

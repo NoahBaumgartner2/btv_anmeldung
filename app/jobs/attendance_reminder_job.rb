@@ -19,9 +19,10 @@ class AttendanceReminderJob < ApplicationJob
       end
 
       if session.needs_admin_notification?
-        User.where(admin: true).find_each do |admin_user|
-          next unless admin_user.admin_notification_enabled?("attendance_reminder")
-          AttendanceReminderMailer.admin_notification_for(session, admin_user).deliver_later
+        session.course.trainers.includes(:user).each do |trainer|
+          next unless trainer.user&.email.present?
+          next unless trainer.user.admin_notification_enabled?("attendance_reminder")
+          AttendanceReminderMailer.admin_notification_for(session, trainer.user).deliver_later
         end
         session.update_columns(admin_notified_at: Time.current)
       end
