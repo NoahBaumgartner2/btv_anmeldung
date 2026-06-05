@@ -1,0 +1,36 @@
+<% primary = @_club&.effective_primary_color || "#dc2626" %>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#fef2f2;border:1px solid #fecaca;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0;font-size:15px;font-weight:600;color:#991b1b;font-family:Arial,Helvetica,sans-serif;">
+        Eine Trainingseinheit wurde von einem Trainer abgesagt.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Datum &amp; Zeit</p>
+      <p style="margin:0;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;">
+        <%= I18n.l(@training_session.start_time, format: :long) %> – <%= I18n.l(@training_session.end_time, format: :short) %>
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 24px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Die betroffenen Teilnehmenden wurden bereits automatisch per E-Mail benachrichtigt.
+</p>
+
+<table cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+  <tr>
+    <td style="background:<%= primary %>;border-radius:8px;padding:12px 24px;">
+      <a href="<%= @training_session_url %>" style="color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;font-family:Arial,Helvetica,sans-serif;">Trainingseinheit ansehen</a>
+    </td>
+  </tr>
+</table>

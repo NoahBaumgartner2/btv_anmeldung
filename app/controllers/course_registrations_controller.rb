@@ -305,12 +305,9 @@ class CourseRegistrationsController < ApplicationController
 
     refund_cents = defined?(result) && result&.dig(:refunded) ? result[:amount_cents] : nil
     CourseRegistrationMailer.self_cancelled(@course_registration, refund_amount_cents: refund_cents).deliver_later
-    User.where(admin: true).find_each do |admin_user|
-      next unless admin_user.admin_notification_enabled?("cancel_notice")
-      CourseRegistrationMailer.admin_cancel_notice(@course_registration, admin_user).deliver_later
-    end
     course.trainers.includes(:user).each do |trainer|
       next unless trainer.user&.email.present?
+      next unless trainer.user.admin_notification_enabled?("cancel_notice")
       CourseRegistrationMailer.trainer_cancel_notice(@course_registration, trainer.user).deliver_later
     end
     redirect_to participants_path, notice: notice
@@ -368,9 +365,11 @@ class CourseRegistrationsController < ApplicationController
       end
     end
 
-    User.where(admin: true).find_each do |admin_user|
-      next unless admin_user.admin_notification_enabled?("cancel_notice")
-      CourseRegistrationMailer.admin_cancel_notice(@course_registration, admin_user).deliver_later
+    course.trainers.includes(:user).each do |trainer|
+      next unless trainer.user&.email.present?
+      next if trainer.user == current_user
+      next unless trainer.user.admin_notification_enabled?("cancel_notice")
+      CourseRegistrationMailer.trainer_cancel_notice(@course_registration, trainer.user).deliver_later
     end
 
     notice = "#{@course_registration.participant.first_name} wurde vom Kurs abgemeldet."
@@ -394,10 +393,11 @@ class CourseRegistrationsController < ApplicationController
     )
     attendance.update!(status: "abgemeldet")
 
-    User.where(admin: true).each do |admin_user|
-      next unless admin_user.admin_notification_enabled?("session_unsubscription")
+    @course_registration.course.trainers.includes(:user).each do |trainer|
+      next unless trainer.user&.email.present?
+      next unless trainer.user.admin_notification_enabled?("session_unsubscription")
       TrainingSessionMailer.session_unsubscription_notice(
-        @training_session, @course_registration, admin_user
+        @training_session, @course_registration, trainer.user
       ).deliver_later
     end
 
