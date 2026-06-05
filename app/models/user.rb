@@ -13,6 +13,12 @@ class User < ApplicationRecord
   attr_accessor :photo_consent_accepted
   validates :privacy_accepted, acceptance: { allow_nil: false }, on: :create
 
+  ADMIN_NOTIFICATION_TYPES = %w[
+    cancel_notice
+    session_unsubscription
+    attendance_reminder
+  ].freeze
+
   validates :phone_number, :street, :zip_code, :city,
             presence: true,
             if: :family_data_completed?
@@ -27,6 +33,12 @@ class User < ApplicationRecord
 
   def photo_consent_accepted?
     photo_consent_accepted_at.present?
+  end
+
+  def admin_notification_enabled?(type)
+    return false unless admin?
+    # Default: alle aktiviert (leeres Hash = alles aktiv)
+    admin_notification_preferences.fetch(type.to_s, true)
   end
 
   def needs_onboarding?

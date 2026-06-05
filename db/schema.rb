@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_03_172530) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_05_133401) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -330,6 +330,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_03_172530) do
 
   create_table "users", force: :cascade do |t|
     t.boolean "admin", default: false
+    t.jsonb "admin_notification_preferences", default: {}, null: false
     t.string "city"
     t.datetime "confirmation_sent_at"
     t.string "confirmation_token"
