@@ -10,7 +10,7 @@ jobs:
     # Nur wenn es ein echter Merge/Push auf main ist (nicht der CI selbst)
     steps:
       - name: Checkout repository (full history)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
