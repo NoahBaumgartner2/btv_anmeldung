@@ -157,7 +157,8 @@ def index
     unless @trainer.user == current_user
       redirect_to root_path, alert: "Zugriff verweigert." and return
     end
-    if @trainer.update(profile_params)
+    @trainer.assign_attributes(profile_params)
+    if @trainer.save(context: :profile_completion)
       redirect_to my_profile_path, notice: "Dein Profil wurde aktualisiert."
     else
       render "participants/my_profile", status: :unprocessable_entity

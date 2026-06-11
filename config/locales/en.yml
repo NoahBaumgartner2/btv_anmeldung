@@ -956,6 +956,9 @@ en:
       cancel: "Cancel"
 
   trainers:
+    profile_incomplete_alert: "Please complete your trainer profile first before you can continue."
+    profile_incomplete_banner_title: "Profile incomplete"
+    profile_incomplete_banner_body: "Please fill in all required fields (*). Only then can you use the platform."
     my_profile:
       title: "My Profile"
       iban_label: "IBAN"

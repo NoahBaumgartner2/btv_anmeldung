@@ -950,6 +950,9 @@ fr:
       cancel: "Annuler"
 
   trainers:
+    profile_incomplete_alert: "Veuillez d'abord compléter votre profil d'entraîneur avant de continuer."
+    profile_incomplete_banner_title: "Profil incomplet"
+    profile_incomplete_banner_body: "Veuillez remplir tous les champs obligatoires (*). Ce n'est qu'ensuite que vous pourrez utiliser la plateforme."
     my_profile:
       title: "Mon profil"
       iban_label: "IBAN"

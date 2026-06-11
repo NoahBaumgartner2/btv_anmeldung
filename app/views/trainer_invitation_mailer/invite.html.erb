@@ -10,8 +10,21 @@
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
   Hallo <%= @trainer.first_name.presence || @trainer.user.email.split("@").first %>,<br><br>
-  du wurdest als Trainer im Anmeldungssystem erfasst. Bitte setze jetzt dein Passwort, um dich einzuloggen.
+  du wurdest als Trainer im Anmeldungssystem erfasst. So geht es los:
 </p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+  <tr>
+    <td style="padding:0 0 10px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+      <strong>1.</strong> Setze über den Button unten dein persönliches Passwort und logge dich ein.
+    </td>
+  </tr>
+  <tr>
+    <td style="padding:0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+      <strong>2.</strong> Vervollständige danach dein Trainer-Profil (persönliche Angaben, Adresse, AHV-Nummer). Erst wenn dein Profil vollständig ist, kannst du die Plattform nutzen.
+    </td>
+  </tr>
+</table>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
   <tr>

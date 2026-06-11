@@ -6,6 +6,13 @@ class Trainer < ApplicationRecord
 
   GENDERS = %w[männlich weiblich].freeze
 
+  REQUIRED_PROFILE_FIELDS = %i[
+    first_name last_name phone date_of_birth gender ahv_number
+    street house_number zip_code city country nationality mother_tongue
+  ].freeze
+
+  validates(*REQUIRED_PROFILE_FIELDS, presence: true, on: :profile_completion)
+
   validate :phone_format, if: -> { phone.present? }
   validate :date_of_birth_plausible, if: -> { date_of_birth.present? }
 
@@ -29,6 +36,10 @@ class Trainer < ApplicationRecord
 
   def full_name
     [ first_name, last_name ].compact.join(" ").presence || user.email
+  end
+
+  def profile_complete?
+    REQUIRED_PROFILE_FIELDS.all? { |f| public_send(f).present? }
   end
 
   private
