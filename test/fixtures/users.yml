@@ -22,3 +22,9 @@ parent_only:
   admin: false
   confirmed_at: 2020-01-01 00:00:00
   family_data_completed: true
+
+incomplete_trainer:
+  email: incomplete_trainer@example.com
+  encrypted_password: $2a$12$xwZ1pdh88HwMVOeW2CIWxeCTWhcpMZ6UyoTnTq1cSlScbmQPGYb/q
+  admin: false
+  confirmed_at: 2020-01-01 00:00:00

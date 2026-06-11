@@ -50,29 +50,23 @@ class TrainersControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "trainer with incomplete profile is redirected to my_profile" do
-    sign_in users(:one) # trainer :one has only a phone number → incomplete
+    sign_in users(:incomplete_trainer) # trainer :incomplete has only a phone number
     get dashboards_trainer_url
     assert_redirected_to my_profile_path
   end
 
   test "trainer with complete profile is not redirected" do
-    trainers(:two).update_columns(
-      first_name: "Test", last_name: "Trainer", date_of_birth: "1990-01-01",
-      gender: "männlich", ahv_number: "756.1234.5678.90", street: "Musterstrasse",
-      house_number: "1", zip_code: "3000", city: "Bern",
-      country: "CH", nationality: "CH", mother_tongue: "DE"
-    )
-    sign_in users(:two)
+    sign_in users(:two) # trainer :two is complete via fixture
     get dashboards_trainer_url
     assert_response :success
   end
 
   test "update_profile with missing required fields renders unprocessable_entity" do
-    sign_in users(:one)
-    patch update_profile_trainer_url(trainers(:one)), params: {
+    sign_in users(:incomplete_trainer)
+    patch update_profile_trainer_url(trainers(:incomplete)), params: {
       trainer: { first_name: "Nur Vorname", last_name: "", phone: "+41791234567" }
     }
     assert_response :unprocessable_entity
-    assert_not trainers(:one).reload.profile_complete?
+    assert_not trainers(:incomplete).reload.profile_complete?
   end
 end
