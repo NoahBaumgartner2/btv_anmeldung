@@ -21,9 +21,7 @@
     s.end_time ? s.end_time > now : s.start_time > 2.hours.ago
   end
 
-  confirmed_count = @course.course_registrations.where(status: 'bestätigt').count
   waitlist_count  = @course.course_registrations.where(status: 'warteliste').count
-  pending_count   = @course.course_registrations.where(status: 'ausstehend').count
   trial_count     = @course.course_registrations.where(status: 'schnuppern').count
 
   status_order = { 'bestätigt' => 0, 'schnuppern' => 1, 'warteliste' => 2, 'ausstehend' => 3 }.freeze
@@ -35,6 +33,16 @@
     .sort_by { |r| [status_order.fetch(r.status, 99), r.participant&.last_name.to_s] }
   active_registrations    = sorted_registrations.reject { |r| r.status == "storniert" }
   cancelled_registrations = sorted_registrations.select { |r| r.status == "storniert" }
+
+  # Anzeige-Aufteilung (keine Kapazitäts-/Status-Logik): unbezahlte Anmeldungen
+  # wandern aus der Hauptliste in die zugeklappte Sektion "Zahlung ausstehend".
+  pending_payment_registrations = active_registrations.select { |r|
+    r.status == "ausstehend" || (r.status == "bestätigt" && r.payment_required? && !r.payment_cleared?)
+  }
+  main_registrations = active_registrations - pending_payment_registrations
+
+  confirmed_count = main_registrations.count { |r| r.status == "bestätigt" }
+  pending_count   = pending_payment_registrations.size
 %>
 
 <div class="max-w-6xl mx-auto w-full px-4 mt-6 sm:mt-8 mb-16" data-course-id="<%= @course.id %>">
@@ -228,296 +236,8 @@
       <%# ── Mobile: Card-Layout ────────────────────────────────────────── %>
       <div class="<%= @course.course_registrations.count > 10 ? 'max-h-[600px] overflow-y-auto' : '' %>">
       <div class="sm:hidden divide-y divide-gray-100">
-        <% active_registrations.each do |reg| %>
-          <% p = reg.participant %>
-          <div class="p-4" data-participant-name="<%= "#{p.first_name} #{p.last_name}".downcase %>">
-            <%# Name + Status %>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <div class="min-w-0">
-                <p class="font-semibold text-gray-900 text-sm truncate">
-                  <%= p.first_name %> <%= p.last_name %>
-                  <% if @course.allows_talent_marking? && reg.talent_flag? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
-                    <span class="text-amber-400" title="<%= reg.talent_note.presence || 'Talent' %>">⭐</span>
-                  <% end %>
-                </p>
-                <% if reg.status == "ausstehend" && reg.sumup_checkout_id.present? && !reg.payment_cleared? %>
-                  <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full mt-1">
-                    <%= t("courses.manage.payment_pending") %>
-                  </span>
-                <% end %>
-              </div>
-              <% case reg.status %>
-              <% when 'bestätigt' %>
-                <span class="shrink-0 bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_confirmed") %></span>
-              <% when 'warteliste' %>
-                <span class="shrink-0 bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
-              <% when 'ausstehend' %>
-                <span class="shrink-0 bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_open") %></span>
-              <% when 'schnuppern' %>
-                <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
-              <% else %>
-                <span class="shrink-0 bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
-              <% end %>
-            </div>
-
-            <%# Zahlungsstatus %>
-            <% if @course.has_payment? %>
-              <div class="mb-3">
-                <% if reg.payment_cleared? %>
-                  <span class="inline-flex items-center gap-1 text-green-700 font-semibold text-xs">
-                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                    <%= t("courses.manage.paid") %>
-                  </span>
-                <% else %>
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-yellow-600 font-medium text-xs"><%= t("courses.manage.payment_pending") %></span>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
-
-            <%# Abo-Eintritte (mobile) %>
-            <% if @course.abo? && reg.status == "bestätigt" %>
-              <div class="mb-3 flex items-center justify-between gap-2 flex-wrap">
-                <span class="text-xs text-gray-500">
-                  <%= t("courses.manage.abo_entries_label") %>:
-                  <span class="font-semibold text-gray-900"><%= reg.abo_entries_used.to_i %> / <%= reg.abo_entries_total.to_i %></span>
-                  <% if reg.abo_exhausted? %>
-                    <span class="ml-1 inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.abo_exhausted") %></span>
-                  <% end %>
-                </span>
-                <%= button_to t("courses.manage.use_abo_entry"), use_abo_entry_course_registration_path(reg),
-                      method: :post,
-                      disabled: reg.abo_exhausted?,
-                      class: "text-xs bg-primary-50 active:bg-primary-100 text-primary-700 font-semibold border border-primary-200 px-2.5 py-1.5 rounded-lg transition cursor-pointer min-h-[36px] flex items-center disabled:opacity-50 disabled:cursor-not-allowed",
-                      data: { turbo_confirm: t("courses.manage.use_abo_entry_confirm", name: p.first_name) } %>
-              </div>
-            <% end %>
-
-            <%# Actions %>
-            <div class="flex gap-2">
-              <%# Details-Button + Modal %>
-              <div data-controller="modal" class="flex-1">
-                <button type="button"
-                        data-action="click->modal#open"
-                        class="w-full text-center text-gray-600 font-bold bg-gray-100 active:bg-gray-200 py-2.5 px-3 rounded-lg text-sm transition cursor-pointer min-h-11">
-                  <%= t("courses.manage.details") %>
-                </button>
-
-                <div data-modal-target="dialog"
-                     data-action="click->modal#backdropClose"
-                     class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
-                  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-5 sm:p-6 text-left">
-                    <div class="flex items-center gap-3 sm:gap-4 mb-5">
-                      <div class="h-12 w-12 sm:h-14 sm:w-14 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-extrabold text-lg sm:text-xl shrink-0">
-                        <%= p.first_name&.first&.upcase %><%= p.last_name&.first&.upcase %>
-                      </div>
-                      <div class="min-w-0">
-                        <h3 class="text-lg sm:text-xl font-extrabold text-gray-900 leading-tight truncate"><%= p.first_name %> <%= p.last_name %></h3>
-                        <p class="text-xs text-gray-400 font-medium mt-0.5"><%= p.gender&.capitalize %></p>
-                      </div>
-                    </div>
-
-                    <dl class="space-y-3 text-sm mb-6">
-                      <div class="flex justify-between gap-4">
-                        <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.birthdate") %></dt>
-                        <dd class="font-semibold text-gray-900 text-right"><%= p.date_of_birth&.strftime("%d.%m.%Y") || "&mdash;".html_safe %></dd>
-                      </div>
-                      <div class="flex justify-between gap-4">
-                        <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.email") %></dt>
-                        <dd class="font-semibold text-gray-900 text-right truncate"><%= p.user.email %></dd>
-                      </div>
-                      <div class="flex justify-between gap-4">
-                        <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.phone") %></dt>
-                        <dd class="font-semibold text-gray-900 text-right"><%= p.phone_number.presence || "&mdash;".html_safe %></dd>
-                      </div>
-                      <% if p.ahv_number.present? %>
-                        <div class="flex justify-between gap-4">
-                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.ahv_number") %></dt>
-                          <dd class="font-semibold text-gray-900 text-right"><%= p.ahv_number %></dd>
-                        </div>
-                      <% end %>
-                      <div class="flex justify-between gap-4 pt-2 border-t border-gray-100">
-                        <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.registration_status") %></dt>
-                        <dd class="font-semibold text-right">
-                          <% case reg.status %>
-                          <% when 'bestätigt' %>
-                            <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_confirmed") %></span>
-                          <% when 'warteliste' %>
-                            <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
-                          <% when 'ausstehend' %>
-                            <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
-                          <% when 'schnuppern' %>
-                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
-                          <% else %>
-                            <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
-                          <% end %>
-                        </dd>
-                      </div>
-                      <div class="flex justify-between gap-4">
-                        <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.payment_label") %></dt>
-                        <dd class="font-semibold text-gray-900 text-right"><%= reg.payment_cleared ? t("courses.manage.payment_cleared") : t("courses.manage.payment_outstanding") %></dd>
-                      </div>
-                      <% if @course.abo? %>
-                        <div class="flex justify-between gap-4">
-                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.abo_entries_label") %></dt>
-                          <dd class="font-semibold text-gray-900 text-right">
-                            <%= reg.abo_entries_used.to_i %> / <%= reg.abo_entries_total.to_i %>
-                            <% if reg.abo_exhausted? %>
-                              <span class="ml-1 inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-1.5 py-0.5 rounded-full"><%= t("courses.manage.abo_exhausted") %></span>
-                            <% end %>
-                          </dd>
-                        </div>
-                      <% end %>
-                    </dl>
-
-                    <button type="button"
-                            data-action="click->modal#close"
-                            class="w-full bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 rounded-xl transition cursor-pointer min-h-11">
-                      <%= t("courses.manage.close") %>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <% if current_user.admin? %>
-                <%= link_to edit_course_registration_path(reg),
-                      class: "flex items-center justify-center w-11 h-11 rounded-lg bg-primary-50 active:bg-primary-100 text-primary-600 shrink-0",
-                      aria: { label: t("courses.manage.edit_aria", name: p.first_name) } do %>
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                  </svg>
-                <% end %>
-              <% end %>
-
-              <%# E-Mail-Button (mobile) + Modal %>
-              <div data-controller="modal">
-                <button type="button"
-                        data-action="click->modal#open"
-                        class="flex items-center justify-center w-11 h-11 rounded-lg bg-primary-50 active:bg-primary-100 text-primary-600 shrink-0 cursor-pointer"
-                        aria-label="<%= t("courses.manage.send_email_modal_title", name: p.first_name) %>">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                  </svg>
-                </button>
-
-                <div data-modal-target="dialog"
-                     data-action="click->modal#backdropClose"
-                     class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
-                  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-6 text-left">
-                    <div class="flex items-center gap-3 mb-5">
-                      <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center shrink-0">
-                        <svg class="w-5 h-5 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                      </div>
-                      <h3 class="text-lg font-extrabold text-gray-900"><%= t("courses.manage.send_email_modal_title", name: p.first_name) %></h3>
-                    </div>
-
-                    <%= form_with url: send_custom_email_course_path(@course), method: :post, data: { turbo: false }, class: "space-y-4" do %>
-                      <%= hidden_field_tag :registration_id, reg.id %>
-                      <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t("courses.manage.send_email_subject_label") %></label>
-                        <input type="text" name="subject" required
-                               class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                      </div>
-                      <div>
-                        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t("courses.manage.send_email_body_label") %></label>
-                        <textarea name="body" rows="4" required
-                                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
-                      </div>
-                      <div class="flex gap-3 pt-2">
-                        <button type="submit"
-                                class="flex-1 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11">
-                          <%= t("courses.manage.send_email_submit") %>
-                        </button>
-                        <button type="button"
-                                data-action="click->modal#close"
-                                class="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
-                          <%= t("courses.manage.send_email_cancel") %>
-                        </button>
-                      </div>
-                    <% end %>
-                  </div>
-                </div>
-              </div>
-
-              <% if @course.allows_talent_marking? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
-                <details class="relative">
-                  <summary class="flex items-center justify-center w-11 h-11 rounded-lg <%= reg.talent_flag? ? 'bg-amber-100' : 'bg-gray-100' %> cursor-pointer list-none" title="Talent markieren">
-                    <span class="text-lg leading-none"><%= reg.talent_flag? ? "⭐" : "☆" %></span>
-                  </summary>
-                  <div class="absolute left-0 z-10 mt-1 w-56 bg-white border border-gray-200 rounded-xl shadow-lg p-3">
-                    <%= form_with url: toggle_talent_course_path(@course), method: :post, local: true do |f| %>
-                      <%= f.hidden_field :registration_id, value: reg.id %>
-                      <p class="text-xs font-bold text-gray-700 mb-1"><%= reg.talent_flag? ? "Markierung entfernen?" : "Als Talent markieren" %></p>
-                      <% unless reg.talent_flag? %>
-                        <%= f.text_area :talent_note, placeholder: "Notiz (optional)", value: reg.talent_note,
-                              rows: 2,
-                              class: "w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 mb-2 focus:ring-primary-500 focus:border-primary-500 resize-none" %>
-                      <% end %>
-                      <%= f.submit reg.talent_flag? ? "Markierung entfernen" : "Als Talent markieren",
-                            class: "w-full text-xs font-bold py-1.5 px-3 rounded-lg cursor-pointer " + (reg.talent_flag? ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-amber-50 text-amber-700 hover:bg-amber-100") %>
-                    <% end %>
-                  </div>
-                </details>
-              <% end %>
-
-              <% if reg.status != "storniert" %>
-                <%# Abmelden-Button + Modal %>
-                <div data-controller="modal">
-                  <button type="button"
-                          data-action="click->modal#open"
-                          class="flex items-center justify-center w-11 h-11 rounded-lg bg-red-50 active:bg-red-100 text-red-600 shrink-0 cursor-pointer"
-                          aria-label="<%= t("courses.manage.unsubscribe_aria", name: p.first_name) %>">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                  </button>
-
-                  <div data-modal-target="dialog"
-                       data-action="click->modal#backdropClose"
-                       class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
-                    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-5 sm:p-6 text-left">
-                      <div class="flex items-center gap-3 mb-5">
-                        <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
-                          <svg class="w-5 h-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                          </svg>
-                        </div>
-                        <div>
-                          <h3 class="text-lg font-extrabold text-gray-900"><%= t("courses.manage.unsubscribe_confirm", name: "#{p.first_name} #{p.last_name}") %></h3>
-                          <p class="text-xs text-gray-500"><%= t("courses.manage.unsubscribe_parents_info") %></p>
-                        </div>
-                      </div>
-
-                      <%= form_with url: trainer_cancel_course_registration_path(reg), method: :post, data: { turbo: false }, class: "space-y-4" do %>
-                        <div>
-                          <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t("courses.manage.reason_label") %> <span class="font-normal text-gray-400"><%= t("courses.manage.reason_optional") %></span></label>
-                          <textarea name="cancellation_reason"
-                                    rows="3"
-                                    placeholder="<%= t("courses.manage.reason_placeholder") %>"
-                                    class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
-                        </div>
-
-                        <div class="flex gap-3 pt-2">
-                          <button type="submit"
-                                  class="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11">
-                            <%= t("courses.manage.unsubscribe_now") %>
-                          </button>
-                          <button type="button"
-                                  data-action="click->modal#close"
-                                  class="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
-                            <%= t("courses.manage.cancel") %>
-                          </button>
-                        </div>
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          </div>
+        <% main_registrations.each do |reg| %>
+          <%= render "manage_participant_card", reg: reg %>
         <% end %>
       </div>
       </div>
@@ -534,315 +254,42 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 bg-white">
-          <% active_registrations.each do |reg| %>
-            <% p = reg.participant %>
-            <tr class="hover:bg-gray-50 transition" data-participant-name="<%= "#{p.first_name} #{p.last_name}".downcase %>">
-              <td class="py-4 px-6 text-sm">
-                <span class="font-semibold text-gray-900"><%= p.first_name %> <%= p.last_name %></span>
-                <% if @course.allows_talent_marking? && reg.talent_flag? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
-                  <span class="text-amber-400 ml-1" title="<%= reg.talent_note.presence || 'Talent' %>">⭐</span>
-                <% end %>
-                <% if reg.status == "ausstehend" && reg.sumup_checkout_id.present? && !reg.payment_cleared? %>
-                  <span class="ml-1.5 inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                    </svg>
-                    <%= t("courses.manage.payment_pending") %>
-                  </span>
-                <% end %>
-              </td>
-              <td class="py-4 px-6">
-                <% case reg.status %>
-                <% when 'bestätigt' %>
-                  <span class="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_confirmed") %></span>
-                <% when 'warteliste' %>
-                  <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
-                <% when 'ausstehend' %>
-                  <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
-                <% when 'schnuppern' %>
-                  <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
-                <% else %>
-                  <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
-                <% end %>
-              </td>
-              <td class="py-4 px-6 text-sm">
-                <% if !@course.has_payment? %>
-                  <span class="text-gray-300 font-medium">&mdash;</span>
-                <% elsif reg.payment_cleared? %>
-                  <span class="inline-flex items-center gap-1 text-green-700 font-semibold">
-                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                    <%= t("courses.manage.paid") %>
-                  </span>
-                <% else %>
-                  <div class="flex items-center gap-2">
-                    <span class="text-yellow-600 font-medium"><%= t("courses.manage.payment_outstanding") %></span>
-                  </div>
-                <% end %>
-              </td>
-              <td class="py-4 px-6 text-right text-sm">
-                <% if @course.abo? && reg.status == "bestätigt" %>
-                  <%= button_to t("courses.manage.use_abo_entry"), use_abo_entry_course_registration_path(reg),
-                        method: :post,
-                        disabled: reg.abo_exhausted?,
-                        class: "mr-2 text-xs text-primary-700 font-bold hover:text-primary-900 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
-                        data: { turbo_confirm: t("courses.manage.use_abo_entry_confirm", name: p.first_name) } %>
-                <% end %>
-                <%# Aktionen-Dropdown %>
-                <div class="inline-block text-left" data-controller="dropdown">
-                  <button type="button"
-                          data-action="click->dropdown#toggle"
-                          class="inline-flex items-center gap-1 text-sm font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition cursor-pointer">
-                    Aktionen
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                  </button>
-                  <div data-dropdown-target="menu"
-                       class="hidden w-48 bg-white rounded-xl shadow-lg ring-1 ring-gray-200 py-1">
-                    <button type="button"
-                            data-action="click->dropdown#openDialog"
-                            data-dialog-id="dialog-details-<%= reg.id %>"
-                            class="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition cursor-pointer">
-                      <%= t("courses.manage.details") %>
-                    </button>
-                    <% if current_user.admin? %>
-                      <%= link_to t("courses.manage.edit_link"), edit_course_registration_path(reg),
-                            class: "block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition" %>
-                    <% end %>
-                    <button type="button"
-                            data-action="click->dropdown#openDialog"
-                            data-dialog-id="dialog-email-<%= reg.id %>"
-                            class="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition cursor-pointer">
-                      <%= t("courses.manage.send_email") %>
-                    </button>
-                    <% if @course.allows_talent_marking? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
-                      <button type="button"
-                              data-action="click->dropdown#openDialog"
-                              data-dialog-id="dialog-talent-<%= reg.id %>"
-                              class="block w-full text-left px-4 py-2.5 text-sm text-amber-600 hover:bg-amber-50 transition cursor-pointer">
-                        <%= reg.talent_flag? ? "⭐ Markierung entfernen" : "☆ Als Talent markieren" %>
-                      </button>
-                    <% end %>
-                    <% if reg.status != "storniert" && @course.registration_mode != "single_session" %>
-                      <div class="border-t border-gray-100 mt-1 pt-1">
-                        <button type="button"
-                                data-action="click->dropdown#openDialog"
-                                data-dialog-id="dialog-unsubscribe-<%= reg.id %>"
-                                class="block w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-bold transition cursor-pointer">
-                          <%= t("courses.manage.unsubscribe") %>
-                        </button>
-                      </div>
-                    <% end %>
-                  </div>
-                </div>
-                <%# Details modal — dialog outside dropdown panel so fixed overlay is not blocked by display:none %>
-                <div data-controller="modal">
-                  <div id="dialog-details-<%= reg.id %>"
-                       data-modal-target="dialog"
-                       data-action="click->modal#backdropClose"
-                       class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
-                    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-left">
-                      <div class="flex items-center gap-4 mb-5">
-                        <div class="h-14 w-14 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-extrabold text-xl shrink-0">
-                          <%= p.first_name&.first&.upcase %><%= p.last_name&.first&.upcase %>
-                        </div>
-                        <div>
-                          <h3 class="text-xl font-extrabold text-gray-900 leading-tight"><%= p.first_name %> <%= p.last_name %></h3>
-                          <p class="text-xs text-gray-400 font-medium mt-0.5"><%= p.gender&.capitalize %></p>
-                        </div>
-                      </div>
-                      <dl class="space-y-3 text-sm mb-6">
-                        <div class="flex justify-between gap-4">
-                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.birthdate") %></dt>
-                          <dd class="font-semibold text-gray-900 text-right"><%= p.date_of_birth&.strftime("%d.%m.%Y") || "—" %></dd>
-                        </div>
-                        <div class="flex justify-between gap-4">
-                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.email") %></dt>
-                          <dd class="font-semibold text-gray-900 text-right truncate"><%= p.user.email %></dd>
-                        </div>
-                        <div class="flex justify-between gap-4">
-                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.phone") %></dt>
-                          <dd class="font-semibold text-gray-900 text-right"><%= p.phone_number.presence || "—" %></dd>
-                        </div>
-                        <% if p.ahv_number.present? %>
-                          <div class="flex justify-between gap-4">
-                            <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.ahv_number") %></dt>
-                            <dd class="font-semibold text-gray-900 text-right"><%= p.ahv_number %></dd>
-                          </div>
-                        <% end %>
-                        <div class="flex justify-between gap-4 pt-2 border-t border-gray-100">
-                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.registration_status") %></dt>
-                          <dd class="font-semibold text-right">
-                            <% case reg.status %>
-                            <% when 'bestätigt' %>
-                              <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_confirmed") %></span>
-                            <% when 'warteliste' %>
-                              <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
-                            <% when 'ausstehend' %>
-                              <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
-                            <% when 'schnuppern' %>
-                              <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
-                            <% else %>
-                              <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
-                            <% end %>
-                          </dd>
-                        </div>
-                        <div class="flex justify-between gap-4">
-                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.payment_label") %></dt>
-                          <dd class="font-semibold text-gray-900 text-right"><%= reg.payment_cleared ? t("courses.manage.payment_cleared") : t("courses.manage.payment_outstanding") %></dd>
-                        </div>
-                        <% if @course.abo? %>
-                          <div class="flex justify-between gap-4">
-                            <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.abo_entries_label") %></dt>
-                            <dd class="font-semibold text-gray-900 text-right">
-                              <%= reg.abo_entries_used.to_i %> / <%= reg.abo_entries_total.to_i %>
-                              <% if reg.abo_exhausted? %>
-                                <span class="ml-1 inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-1.5 py-0.5 rounded-full"><%= t("courses.manage.abo_exhausted") %></span>
-                              <% end %>
-                            </dd>
-                          </div>
-                        <% end %>
-                      </dl>
-                      <button type="button"
-                              data-action="click->modal#close"
-                              class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition cursor-pointer min-h-11">
-                        <%= t("courses.manage.close") %>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <%# Email modal %>
-                <div data-controller="modal">
-                  <div id="dialog-email-<%= reg.id %>"
-                       data-modal-target="dialog"
-                       data-action="click->modal#backdropClose"
-                       class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
-                    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 text-left">
-                      <div class="flex items-center gap-3 mb-5">
-                        <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center shrink-0">
-                          <svg class="w-5 h-5 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                          </svg>
-                        </div>
-                        <h3 class="text-lg font-extrabold text-gray-900"><%= t("courses.manage.send_email_modal_title", name: p.first_name) %></h3>
-                      </div>
-                      <%= form_with url: send_custom_email_course_path(@course), method: :post, data: { turbo: false }, class: "space-y-4" do %>
-                        <%= hidden_field_tag :registration_id, reg.id %>
-                        <div>
-                          <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t("courses.manage.send_email_subject_label") %></label>
-                          <input type="text" name="subject" required
-                                 class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
-                        </div>
-                        <div>
-                          <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t("courses.manage.send_email_body_label") %></label>
-                          <textarea name="body" rows="5" required
-                                    class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
-                        </div>
-                        <div class="flex gap-3 pt-2">
-                          <button type="submit"
-                                  class="flex-1 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11">
-                            <%= t("courses.manage.send_email_submit") %>
-                          </button>
-                          <button type="button"
-                                  data-action="click->modal#close"
-                                  class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
-                            <%= t("courses.manage.send_email_cancel") %>
-                          </button>
-                        </div>
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
-                <% if @course.allows_talent_marking? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
-                  <%# Talent modal %>
-                  <div data-controller="modal">
-                    <div id="dialog-talent-<%= reg.id %>"
-                         data-modal-target="dialog"
-                         data-action="click->modal#backdropClose"
-                         class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
-                      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-left">
-                        <div class="flex items-center gap-3 mb-4">
-                          <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0 text-xl">
-                            <%= reg.talent_flag? ? "⭐" : "☆" %>
-                          </div>
-                          <h3 class="text-lg font-extrabold text-gray-900"><%= reg.talent_flag? ? "Markierung entfernen?" : "Als Talent markieren" %></h3>
-                        </div>
-                        <p class="text-sm text-gray-500 mb-4"><%= p.first_name %> <%= p.last_name %></p>
-                        <%= form_with url: toggle_talent_course_path(@course), method: :post, data: { turbo: false }, class: "space-y-3" do %>
-                          <%= hidden_field_tag :registration_id, reg.id %>
-                          <% unless reg.talent_flag? %>
-                            <div>
-                              <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Notiz <span class="font-normal text-gray-400">(optional)</span></label>
-                              <textarea name="talent_note" rows="2" placeholder="z.B. Sehr gute Koordination, Potenzial fürs Kader"
-                                        class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"><%= reg.talent_note %></textarea>
-                            </div>
-                          <% end %>
-                          <div class="flex gap-3 pt-1">
-                            <button type="submit"
-                                    class="flex-1 font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11 <%= reg.talent_flag? ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-amber-50 text-amber-700 hover:bg-amber-100' %>">
-                              <%= reg.talent_flag? ? "Markierung entfernen" : "Als Talent markieren" %>
-                            </button>
-                            <button type="button"
-                                    data-action="click->modal#close"
-                                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
-                              Abbrechen
-                            </button>
-                          </div>
-                        <% end %>
-                      </div>
-                    </div>
-                  </div>
-                <% end %>
-
-                <% if reg.status != "storniert" %>
-                  <%# Abmelden modal %>
-                  <div data-controller="modal">
-                    <div id="dialog-unsubscribe-<%= reg.id %>"
-                         data-modal-target="dialog"
-                         data-action="click->modal#backdropClose"
-                         class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
-                      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 text-left">
-                        <div class="flex items-center gap-3 mb-5">
-                          <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center shrink-0">
-                            <svg class="w-5 h-5 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                          </div>
-                          <div>
-                            <h3 class="text-lg font-extrabold text-gray-900"><%= t("courses.manage.unsubscribe_confirm", name: "#{p.first_name} #{p.last_name}") %></h3>
-                            <p class="text-xs text-gray-500"><%= t("courses.manage.unsubscribe_parents_info") %></p>
-                          </div>
-                        </div>
-                        <%= form_with url: trainer_cancel_course_registration_path(reg), method: :post, data: { turbo: false }, class: "space-y-4" do %>
-                          <div>
-                            <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t("courses.manage.reason_label") %> <span class="font-normal text-gray-400"><%= t("courses.manage.reason_optional") %></span></label>
-                            <textarea name="cancellation_reason"
-                                      rows="3"
-                                      placeholder="<%= t("courses.manage.reason_placeholder") %>"
-                                      class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
-                          </div>
-                          <div class="flex gap-3 pt-2">
-                            <button type="submit"
-                                    class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11">
-                              <%= t("courses.manage.unsubscribe_now") %>
-                            </button>
-                            <button type="button"
-                                    data-action="click->modal#close"
-                                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
-                              <%= t("courses.manage.cancel") %>
-                            </button>
-                          </div>
-                        <% end %>
-                      </div>
-                    </div>
-                  </div>
-                <% end %>
-              </td>
-            </tr>
+          <% main_registrations.each do |reg| %>
+            <%= render "manage_participant_row", reg: reg %>
           <% end %>
         </tbody>
       </table>
       </div>
+
+      <% if pending_payment_registrations.any? %>
+        <details class="border-t border-gray-100">
+          <summary class="px-4 sm:px-6 py-3 text-sm font-medium text-gray-400 cursor-pointer hover:text-gray-600 hover:bg-gray-50 transition list-none flex items-center gap-2">
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+            </svg>
+            <%= t("courses.manage.pending_payment_section", count: pending_payment_registrations.count) %>
+          </summary>
+          <p class="px-4 sm:px-6 py-2 text-xs text-gray-400 bg-gray-50/50"><%= t("courses.manage.pending_payment_hint") %></p>
+
+          <%# Mobile: Card-Layout %>
+          <div class="sm:hidden divide-y divide-gray-100">
+            <% pending_payment_registrations.each do |reg| %>
+              <%= render "manage_participant_card", reg: reg %>
+            <% end %>
+          </div>
+
+          <%# Desktop: Tabelle %>
+          <div class="overflow-hidden">
+            <table class="hidden sm:table min-w-full divide-y divide-gray-200">
+              <tbody class="divide-y divide-gray-200 bg-white">
+                <% pending_payment_registrations.each do |reg| %>
+                  <%= render "manage_participant_row", reg: reg %>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        </details>
+      <% end %>
 
       <% if cancelled_registrations.any? %>
         <details class="border-t border-gray-100">

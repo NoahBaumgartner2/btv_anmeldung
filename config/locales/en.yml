@@ -275,6 +275,8 @@ en:
       col_actions: "Actions"
       no_registrations: "No registrations for this course yet."
       cancelled_registrations_label: "Cancelled registrations (%{count})"
+      pending_payment_section: "Payment pending (%{count})"
+      pending_payment_hint: "These registrations only appear in the participant list once payment has been confirmed."
       abo_entries_label: "Block entries"
       abo_exhausted: "Exhausted"
       use_abo_entry: "Redeem entry"

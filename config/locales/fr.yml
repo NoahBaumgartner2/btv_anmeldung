@@ -275,6 +275,8 @@ fr:
       col_actions: "Actions"
       no_registrations: "Aucune inscription pour ce cours."
       cancelled_registrations_label: "Inscriptions annulées (%{count})"
+      pending_payment_section: "Paiement en attente (%{count})"
+      pending_payment_hint: "Ces inscriptions n'apparaissent dans la liste des participants qu'une fois le paiement confirmé."
       abo_entries_label: "Entrées abonnement"
       abo_exhausted: "Épuisé"
       use_abo_entry: "Utiliser une entrée"
