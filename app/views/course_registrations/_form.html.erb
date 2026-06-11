@@ -110,6 +110,25 @@
       <p class="text-sm font-bold text-amber-800">Kostenlos schnuppern möglich</p>
       <p class="text-sm text-amber-700 mt-1">Dieses Kind hat in dieser Kategorie noch nie geschnuppert. Du kannst das erste Training kostenlos und unverbindlich besuchen.</p>
     </div>
+
+    <%# Schnuppertraining-Auswahl — nur für Semesterkurse (nicht Drop-In), Stimulus-gesteuert %>
+    <% if course_registration.new_record? && training_session.blank? && course&.allows_trial? %>
+      <div data-trial-check-target="trialSession" class="hidden">
+        <% if @trial_sessions.present? %>
+          <%= form.label :trial_session_id, t("course_registrations.form.trial_session_label"), class: "block text-sm font-bold text-gray-700 mb-1.5" %>
+          <%= form.collection_select :trial_session_id, @trial_sessions, :id,
+                ->(s) { I18n.l(s.start_time, format: :long) },
+                { prompt: t("course_registrations.form.trial_session_prompt") },
+                class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]",
+                data: { "trial-check-target": "trialSelect" } %>
+        <% else %>
+          <div data-trial-check-target="trialEmpty" class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600">
+            <%= t("course_registrations.form.trial_no_sessions") %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
     <input type="hidden" name="trial" value="false" data-trial-check-target="trialField">
 
     <%= form.hidden_field :holiday_deduction_claimed, value: false %>
@@ -145,7 +164,7 @@
             data-action="click->trial-check#submitTrial"
             class="hidden w-full sm:w-auto flex-col justify-center items-center py-3 sm:py-2 px-5 shadow-sm text-base sm:text-sm font-bold rounded-lg text-white bg-amber-500 hover:bg-amber-600 transition min-h-[44px]">
       Erstes Training schnuppern
-      <span class="text-xs font-normal opacity-80">Kostenlos · unverbindlich</span>
+      <span class="text-xs font-normal opacity-80">Kostenlos · Platz bis 7 Tage nach dem Training gesichert</span>
     </button>
     <button type="submit"
             data-trial-check-target="submitBtn"

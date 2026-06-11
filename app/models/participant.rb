@@ -67,7 +67,11 @@ class Participant < ApplicationRecord
       .where(participant_id: sibling_ids)
       .where(status: "schnuppern")
       .where(courses: { category: category })
-      .where("course_registrations.created_at > ?", 7.days.ago)
+      .where(
+        "(course_registrations.trial_expires_at IS NOT NULL AND course_registrations.trial_expires_at > :now) OR " \
+        "(course_registrations.trial_expires_at IS NULL AND course_registrations.created_at > :cutoff)",
+        now: Time.current, cutoff: 7.days.ago
+      )
       .exists?
   end
 

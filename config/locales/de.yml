@@ -831,6 +831,9 @@ de:
       course_prompt: "Kurs wählen..."
       participant_label: "Wer soll angemeldet werden?"
       participant_prompt: "Person auswählen..."
+      trial_session_label: "Schnuppertraining wählen *"
+      trial_session_prompt: "Training auswählen..."
+      trial_no_sessions: "Aktuell sind keine kommenden Trainings verfügbar – Schnuppern ist momentan nicht möglich."
       no_participants: "Du hast noch keine Teilnehmer in deinem Profil hinterlegt."
       add_participant: "Jetzt Person erfassen"
       error_count:
@@ -855,6 +858,8 @@ de:
       duplicate_schnuppern: "Diese Person hat bereits einen Schnupperplatz in diesem Kurs."
       session_cancelled: "Dieser Termin wurde leider abgesagt."
       session_in_past: "Dieser Termin liegt in der Vergangenheit und kann nicht mehr gebucht werden."
+      trial_session_required: "Bitte wähle das Training aus, in dem du schnuppern möchtest."
+      trial_session_wrong_course: "Das gewählte Schnuppertraining gehört nicht zu diesem Kurs."
       missing_field: "%{field} fehlt für %{name}. Bitte zuerst im Profil ergänzen."
     new:
       title: "Kursanmeldung"
