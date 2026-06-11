@@ -1065,7 +1065,7 @@ fr:
         remove_logo_confirm: "Vraiment supprimer le logo ?"
         upload_logo: "Télécharger un logo"
         upload_logo_new: "Télécharger un nouveau logo"
-        logo_hint: "PNG, JPEG ou SVG · Recommandé : fond transparent"
+        logo_hint: "PNG, JPEG ou SVG · Recommandé : fond transparent. Pour l'affichage dans les e-mails, PNG ou JPEG est recommandé, car le SVG n'est pas pris en charge par de nombreux logiciels de messagerie (dans les e-mails, le nom du club s'affiche alors sous forme de texte)."
         save: "Enregistrer les paramètres"
         cancel: "Annuler"
     payment_settings:
