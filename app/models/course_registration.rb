@@ -23,6 +23,18 @@ class CourseRegistration < ApplicationRecord
     status == TRIAL_STATUS
   end
 
+  def payment_required?
+    course.has_payment? && course.price_cents.to_i > 0
+  end
+
+  # In der Kursverwaltung als "echter" Teilnehmer sichtbar:
+  # - Schnuppern ist gratis → immer sichtbar
+  # - bestätigt nur, wenn keine Zahlung nötig ODER tatsächlich bezahlt
+  def fully_confirmed?
+    return true if status == TRIAL_STATUS
+    status == "bestätigt" && (!payment_required? || payment_cleared?)
+  end
+
   def refund_already_processed?
     refunded_at.present?
   end

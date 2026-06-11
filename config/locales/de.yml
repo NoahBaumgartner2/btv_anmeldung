@@ -314,6 +314,8 @@ de:
       col_actions: "Aktionen"
       no_registrations: "Noch keine Anmeldungen für diesen Kurs."
       cancelled_registrations_label: "Stornierte Anmeldungen (%{count})"
+      pending_payment_section: "Zahlung ausstehend (%{count})"
+      pending_payment_hint: "Diese Anmeldungen erscheinen erst in der Teilnehmerliste, wenn die Zahlung bestätigt wurde."
       abo_entries_label: "Abo-Eintritte"
       abo_exhausted: "Erschöpft"
       use_abo_entry: "Eintritt einlösen"
