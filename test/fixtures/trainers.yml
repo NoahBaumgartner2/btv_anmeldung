@@ -2,8 +2,37 @@
 
 one:
   user: one
-  phone: "+41791234567"
+  first_name: "Anna"
+  last_name: "Trainerin"
+  phone: "+41 79 123 45 67"
+  date_of_birth: 1990-01-01
+  gender: "weiblich"
+  ahv_number: "756.1111.2222.33"
+  street: "Trainerweg"
+  house_number: "1"
+  zip_code: "3000"
+  city: "Bern"
+  country: "CH"
+  nationality: "CH"
+  mother_tongue: "DE"
 
 two:
   user: two
-  phone: "+41791234568"
+  first_name: "Beat"
+  last_name: "Trainer"
+  phone: "+41 79 123 45 68"
+  date_of_birth: 1985-05-05
+  gender: "männlich"
+  ahv_number: "756.4444.5555.66"
+  street: "Coachgasse"
+  house_number: "2"
+  zip_code: "3001"
+  city: "Bern"
+  country: "CH"
+  nationality: "CH"
+  mother_tongue: "DE"
+
+# Bewusst unvollständig (nur Telefon) für die Profil-Gate-Tests.
+incomplete:
+  user: incomplete_trainer
+  phone: "+41 79 000 00 00"
