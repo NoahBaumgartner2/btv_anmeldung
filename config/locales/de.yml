@@ -1110,7 +1110,7 @@ de:
         remove_logo_confirm: "Logo wirklich entfernen?"
         upload_logo: "Logo hochladen"
         upload_logo_new: "Neues Logo hochladen"
-        logo_hint: "PNG, JPEG oder SVG · Empfohlen: transparenter Hintergrund"
+        logo_hint: "PNG, JPEG oder SVG · Empfohlen: transparenter Hintergrund. Für die Darstellung in E-Mails wird PNG oder JPEG empfohlen, da SVG von vielen E-Mail-Programmen nicht unterstützt wird (in E-Mails wird bei SVG der Vereinsname als Text angezeigt)."
         save: "Einstellungen speichern"
         cancel: "Abbrechen"
     payment_settings:

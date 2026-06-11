@@ -1071,7 +1071,7 @@ en:
         remove_logo_confirm: "Really remove logo?"
         upload_logo: "Upload logo"
         upload_logo_new: "Upload new logo"
-        logo_hint: "PNG, JPEG or SVG · Recommended: transparent background"
+        logo_hint: "PNG, JPEG or SVG · Recommended: transparent background. For display in emails, PNG or JPEG is recommended, as SVG is not supported by many email clients (in emails, the club name is shown as text for SVG)."
         save: "Save settings"
         cancel: "Cancel"
     payment_settings:
