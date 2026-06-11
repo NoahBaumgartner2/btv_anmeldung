@@ -1,6 +1,9 @@
 Hallo <%= @trainer.first_name.presence || @trainer.user.email.split("@").first %>,
 
-du wurdest als Trainer im Anmeldungssystem erfasst. Bitte setze jetzt dein Passwort, um dich einzuloggen.
+du wurdest als Trainer im Anmeldungssystem erfasst. So geht es los:
+
+1. Setze über den folgenden Link dein persönliches Passwort und logge dich ein.
+2. Vervollständige danach dein Trainer-Profil (persönliche Angaben, Adresse, AHV-Nummer). Erst wenn dein Profil vollständig ist, kannst du die Plattform nutzen.
 
 Passwort setzen:
 <%= @reset_url %>

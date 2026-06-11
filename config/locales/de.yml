@@ -995,6 +995,9 @@ de:
       cancel: "Abbrechen"
 
   trainers:
+    profile_incomplete_alert: "Bitte vervollständige zuerst dein Trainer-Profil, bevor du fortfahren kannst."
+    profile_incomplete_banner_title: "Profil unvollständig"
+    profile_incomplete_banner_body: "Bitte fülle alle Pflichtfelder (*) aus. Erst danach kannst du die Plattform nutzen."
     my_profile:
       title: "Mein Profil"
       iban_label: "IBAN"

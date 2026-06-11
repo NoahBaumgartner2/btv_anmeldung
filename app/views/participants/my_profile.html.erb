@@ -5,6 +5,13 @@
   <p class="text-gray-500 text-sm mb-8"><%= t("participants.my_profile.subtitle") %></p>
 
   <% if @trainer %>
+    <% unless @trainer.profile_complete? %>
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 text-sm text-amber-800 mb-6">
+        <p class="font-semibold mb-1"><%= t("trainers.profile_incomplete_banner_title") %></p>
+        <p><%= t("trainers.profile_incomplete_banner_body") %></p>
+      </div>
+    <% end %>
+
     <%= form_with model: @trainer,
                   url: @trainer.new_record? ? trainers_path : update_profile_trainer_path(@trainer),
                   method: @trainer.new_record? ? :post : :patch,
@@ -39,12 +46,12 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <%= f.label :first_name, t("participants.my_profile.first_name_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.label :first_name, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.first_name_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :first_name, placeholder: "Laura",
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div>
-            <%= f.label :last_name, t("participants.my_profile.last_name_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.label :last_name, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.last_name_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :last_name, placeholder: "Müller",
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
@@ -52,12 +59,12 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <%= f.label :date_of_birth, t("participants.my_profile.dob_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.label :date_of_birth, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.dob_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.date_field :date_of_birth,
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div>
-            <%= f.label :gender, t("participants.my_profile.gender_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.label :gender, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.gender_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.select :gender,
                   [[t("participants.my_profile.gender_prompt"), ""], [t("participants.my_profile.gender_male"), "männlich"], [t("participants.my_profile.gender_female"), "weiblich"]],
                   {},
@@ -66,7 +73,7 @@
         </div>
 
         <div>
-          <%= f.label :phone, t("participants.my_profile.phone_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+          <%= f.label :phone, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.phone_label") %> <span class="text-red-500">*</span><% end %>
           <%= f.telephone_field :phone, placeholder: "+41 79 123 45 67", autocomplete: "tel",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
         </div>
@@ -78,12 +85,12 @@
 
         <div class="grid grid-cols-3 gap-4">
           <div class="col-span-2">
-            <%= f.label :street, t("participants.my_profile.street_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.label :street, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.street_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :street, placeholder: "Musterstrasse",
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div>
-            <%= f.label :house_number, t("participants.my_profile.house_number_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.label :house_number, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.house_number_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :house_number, placeholder: "12",
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
@@ -91,12 +98,12 @@
 
         <div class="grid grid-cols-3 gap-4">
           <div>
-            <%= f.label :zip_code, t("participants.my_profile.zip_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.label :zip_code, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.zip_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :zip_code, placeholder: "3000",
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div class="col-span-2">
-            <%= f.label :city, t("participants.my_profile.city_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.label :city, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.city_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :city, placeholder: "Bern",
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
@@ -104,12 +111,12 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <%= f.label :nationality, t("participants.my_profile.nationality_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.label :nationality, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.nationality_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.select :nationality, [["CH", "CH"], ["FL", "FL"], [t("participants.my_profile.other_option"), t("participants.my_profile.other_option")]], {},
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div>
-            <%= f.label :mother_tongue, t("participants.my_profile.mother_tongue_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
+            <%= f.label :mother_tongue, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.mother_tongue_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.select :mother_tongue, [["DE", "DE"], ["FR", "FR"], ["IT", "IT"], [t("participants.my_profile.other_option"), t("participants.my_profile.other_option")]], {},
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
@@ -121,7 +128,7 @@
         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider"><%= t("participants.my_profile.section_js_ahv") %></p>
 
         <div>
-          <%= f.label :ahv_number, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.ahv_label") %> <span class="font-normal text-gray-400"><%= t("participants.my_profile.optional") %></span><% end %>
+          <%= f.label :ahv_number, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.ahv_label") %> <span class="text-red-500">*</span><% end %>
           <p class="text-xs text-gray-400 mb-1.5"><%= t("participants.my_profile.ahv_format_hint") %></p>
           <%= f.text_field :ahv_number, placeholder: "756.1234.5678.90",
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500" %>

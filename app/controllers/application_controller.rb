@@ -4,6 +4,7 @@ class ApplicationController < ActionController::Base
 
   before_action :set_locale
   before_action :redirect_to_onboarding_if_needed
+  before_action :redirect_trainer_to_profile_if_incomplete
 
   def default_url_options
     { locale: nil }
@@ -19,6 +20,22 @@ class ApplicationController < ActionController::Base
     return if controller_path.start_with?("rails/")
     return unless current_user.needs_onboarding?
     redirect_to onboarding_path
+  end
+
+  def redirect_trainer_to_profile_if_incomplete
+    return unless user_signed_in?
+    return if current_user.admin?
+    return if devise_controller?
+    return if controller_path.start_with?("rails/")
+    return if controller_name.in?(%w[locales pages])
+    return if controller_name == "participants" && action_name == "my_profile"
+    return if controller_name == "trainers" && action_name == "update_profile"
+
+    trainer = Trainer.find_by(user: current_user)
+    return unless trainer
+    return if trainer.profile_complete?
+
+    redirect_to my_profile_path, alert: t("trainers.profile_incomplete_alert")
   end
 
   def set_locale
