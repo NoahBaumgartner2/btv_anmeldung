@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["participantSelect", "trialBanner", "trialField", "trialBtn", "submitBtn"]
+  static targets = ["participantSelect", "trialBanner", "trialField", "trialBtn", "submitBtn", "trialSession", "trialSelect", "trialEmpty"]
   static values  = { courseId: Number, allowsTrial: Boolean }
 
   #abortController = null
@@ -37,14 +37,31 @@ export default class extends Controller {
   }
 
   submitTrial() {
+    // Schnuppern nur möglich, wenn ein Training auswählbar ist.
+    if (this.hasTrialSelectTarget && !this.trialSelectTarget.value) {
+      this.trialSelectTarget.focus()
+      return
+    }
     this.trialFieldTarget.value = "true"
     this.trialFieldTarget.closest("form").requestSubmit()
   }
 
   #showTrial() {
     this.trialBannerTarget.classList.remove("hidden")
-    this.trialBtnTarget.classList.remove("hidden")
-    this.trialBtnTarget.classList.add("inline-flex")
+
+    if (this.hasTrialSessionTarget) {
+      this.trialSessionTarget.classList.remove("hidden")
+    }
+
+    // Ohne wählbare Sessions kann nicht geschnuppert werden → Button deaktivieren.
+    const noSessions = this.hasTrialEmptyTarget
+    if (noSessions) {
+      this.trialBtnTarget.classList.add("hidden")
+      this.trialBtnTarget.classList.remove("inline-flex")
+    } else {
+      this.trialBtnTarget.classList.remove("hidden")
+      this.trialBtnTarget.classList.add("inline-flex")
+    }
   }
 
   #hideTrial() {
@@ -52,5 +69,9 @@ export default class extends Controller {
     this.trialBtnTarget.classList.add("hidden")
     this.trialBtnTarget.classList.remove("inline-flex")
     this.trialFieldTarget.value = "false"
+
+    if (this.hasTrialSessionTarget) {
+      this.trialSessionTarget.classList.add("hidden")
+    }
   }
 }

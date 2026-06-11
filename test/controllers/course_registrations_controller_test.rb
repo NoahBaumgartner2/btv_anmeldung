@@ -23,6 +23,9 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       requires_ahv_number: true
     )
     @trial_course.save!(validate: false)
+    @trial_session = @trial_course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
   end
 
   # ── unsubscribe_from_session ─────────────────────────────────────────────
@@ -118,7 +121,8 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       post course_registrations_path, params: {
         course_registration: {
           course_id: @trial_course.id,
-          participant_id: @trial_participant.id
+          participant_id: @trial_participant.id,
+          trial_session_id: @trial_session.id
         },
         trial: "true"
       }
@@ -126,8 +130,9 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
     reg = CourseRegistration.last
     assert_equal "schnuppern", reg.status
+    assert_equal @trial_session.id, reg.trial_session_id
     assert_redirected_to course_registration_path(reg)
-    assert_match "Schnupperplatz", flash[:notice]
+    assert_match "schnuppert", flash[:notice]
   end
 
   test "rejects trial when course does not allow trial" do
@@ -138,7 +143,8 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       post course_registrations_path, params: {
         course_registration: {
           course_id: @trial_course.id,
-          participant_id: @trial_participant.id
+          participant_id: @trial_participant.id,
+          trial_session_id: @trial_session.id
         },
         trial: "true"
       }
@@ -160,7 +166,8 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       post course_registrations_path, params: {
         course_registration: {
           course_id: @trial_course.id,
-          participant_id: @trial_participant.id
+          participant_id: @trial_participant.id,
+          trial_session_id: @trial_session.id
         },
         trial: "true"
       }
@@ -177,7 +184,8 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       post course_registrations_path, params: {
         course_registration: {
           course_id: @trial_course.id,
-          participant_id: @trial_participant.id
+          participant_id: @trial_participant.id,
+          trial_session_id: @trial_session.id
         },
         trial: "true"
       }
@@ -186,6 +194,68 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     reg = CourseRegistration.last
     assert_equal "schnuppern", reg.status
     assert_redirected_to course_registration_path(reg)
+  end
+
+  test "rejects semester trial without trial_session_id" do
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id
+        },
+        trial: "true"
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "creates semester trial with trial_session and sets expiry to session start plus 7 days" do
+    sign_in @trial_parent
+
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id,
+          trial_session_id: @trial_session.id
+        },
+        trial: "true"
+      }
+    end
+
+    reg = CourseRegistration.last
+    assert_equal @trial_session.id, reg.trial_session_id
+    assert_in_delta (@trial_session.start_time + 7.days).to_f, reg.trial_expires_at.to_f, 1.0
+  end
+
+  test "rejects trial with session belonging to another course" do
+    other_course = Course.new(
+      title: "Anderer Kurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      allows_trial: true, requires_ahv_number: true
+    )
+    other_course.save!(validate: false)
+    foreign_session = other_course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
+
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id,
+          participant_id: @trial_participant.id,
+          trial_session_id: foreign_session.id
+        },
+        trial: "true"
+      }
+    end
+
+    assert_response :unprocessable_entity
   end
 
   # ── trial_eligible ────────────────────────────────────────────────────────

@@ -63,6 +63,8 @@ class CourseRegistrationsController < ApplicationController
       @training_session = TrainingSession.find_by(id: params[:training_session_id])
       @course_registration.training_session_id = @training_session&.id
     end
+
+    load_trial_sessions(@course)
   end
 
   def create
@@ -124,6 +126,28 @@ class CourseRegistrationsController < ApplicationController
         setup_new_form(course)
         return render :new, status: :unprocessable_entity
       end
+
+      # Bei Semesterkursen muss das konkrete Schnuppertraining gewählt werden.
+      # (Bei Drop-In ist die Session bereits via training_session_id gesetzt.)
+      if course.registration_mode != "single_session"
+        trial_session = course.training_sessions.find_by(id: @course_registration.trial_session_id)
+
+        if @course_registration.trial_session_id.blank? || trial_session.nil?
+          @course_registration.errors.add(:base, I18n.t("course_registrations.errors.trial_session_required"))
+          setup_new_form(course)
+          return render :new, status: :unprocessable_entity
+        elsif trial_session.is_canceled?
+          @course_registration.errors.add(:base, I18n.t("course_registrations.errors.session_cancelled"))
+          setup_new_form(course)
+          return render :new, status: :unprocessable_entity
+        elsif trial_session.start_time <= Time.current
+          @course_registration.errors.add(:base, I18n.t("course_registrations.errors.session_in_past"))
+          setup_new_form(course)
+          return render :new, status: :unprocessable_entity
+        end
+
+        @course_registration.trial_session = trial_session
+      end
     end
 
     # 2d. Duplikat-Check für Semesterkurse
@@ -148,7 +172,12 @@ class CourseRegistrationsController < ApplicationController
 
     if is_trial
       @course_registration.status = "schnuppern"
-      erfolgs_nachricht = "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+      trial_date_session = @course_registration.trial_session || @course_registration.training_session
+      erfolgs_nachricht = if trial_date_session
+        "Super! #{participant.first_name} schnuppert am #{I18n.l(trial_date_session.start_time.to_date)}. Der Platz ist bis 7 Tage nach dem Schnuppertraining gesichert."
+      else
+        "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+      end
       save_result = @course_registration.save
     elsif course.has_payment? && course.price_cents.to_i > 0
       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt; Kapazität wird in mark_paid! geprüft
@@ -602,10 +631,22 @@ class CourseRegistrationsController < ApplicationController
       Course.order(:title)
     end
     @training_session ||= TrainingSession.find_by(id: @course_registration.training_session_id)
+    load_trial_sessions(@course)
+  end
+
+  # Wählbare Schnuppertrainings für Semesterkurse (nicht für Drop-In).
+  def load_trial_sessions(course)
+    return unless course && course.registration_mode != "single_session" && course.allows_trial?
+
+    @trial_sessions = course.training_sessions
+                            .where(is_canceled: false)
+                            .where("start_time > ?", Time.current)
+                            .order(:start_time)
+                            .limit(10)
   end
 
   # Der Türsteher: Erlaubt jetzt auch Status und Bezahlung!
   def course_registration_params
-    params.require(:course_registration).permit(:course_id, :participant_id, :training_session_id, :status, :payment_cleared, :holiday_deduction_claimed, :abo_entries_total, :abo_entries_used)
+    params.require(:course_registration).permit(:course_id, :participant_id, :training_session_id, :trial_session_id, :status, :payment_cleared, :holiday_deduction_claimed, :abo_entries_total, :abo_entries_used)
   end
 end

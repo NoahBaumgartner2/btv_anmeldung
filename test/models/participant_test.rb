@@ -45,7 +45,8 @@ class ParticipantTest < ActiveSupport::TestCase
       status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
     )
     reg.save!(validate: false)
-    reg.update_column(:created_at, 8.days.ago)
+    # Frist beginnt jetzt nach dem Schnuppertraining → abgelaufenes Fenster über trial_expires_at simulieren
+    reg.update_column(:trial_expires_at, 1.day.ago)
 
     assert_not @participant.has_trialed_in_category?("Kids Gym")
   end

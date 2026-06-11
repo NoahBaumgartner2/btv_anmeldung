@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_05_133401) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_11_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -108,6 +108,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_05_133401) do
     t.boolean "talent_flag", default: false, null: false
     t.text "talent_note"
     t.bigint "training_session_id"
+    t.datetime "trial_expires_at"
+    t.bigint "trial_session_id"
     t.datetime "updated_at", null: false
     t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
     t.index ["course_id", "status"], name: "index_course_registrations_on_course_id_and_status"
@@ -120,6 +122,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_05_133401) do
     t.index ["sumup_checkout_id"], name: "index_course_registrations_on_sumup_checkout_id"
     t.index ["sumup_transaction_id"], name: "index_course_registrations_on_sumup_transaction_id"
     t.index ["training_session_id"], name: "index_course_registrations_on_training_session_id"
+    t.index ["trial_session_id"], name: "index_course_registrations_on_trial_session_id"
   end
 
   create_table "course_trainers", force: :cascade do |t|
@@ -372,6 +375,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_05_133401) do
   add_foreign_key "course_registrations", "participants"
   add_foreign_key "course_registrations", "trainers", column: "cancelled_by_trainer_id"
   add_foreign_key "course_registrations", "training_sessions"
+  add_foreign_key "course_registrations", "training_sessions", column: "trial_session_id"
   add_foreign_key "course_trainers", "courses"
   add_foreign_key "course_trainers", "trainers"
   add_foreign_key "participants", "users"
