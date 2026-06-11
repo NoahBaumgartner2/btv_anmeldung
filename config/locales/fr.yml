@@ -786,6 +786,9 @@ fr:
       course_prompt: "Choisir un cours..."
       participant_label: "Qui doit être inscrit ?"
       participant_prompt: "Sélectionner une personne..."
+      trial_session_label: "Choisir la séance d'essai *"
+      trial_session_prompt: "Sélectionner une séance..."
+      trial_no_sessions: "Aucune séance à venir n'est actuellement disponible – l'essai n'est pas possible pour le moment."
       no_participants: "Vous n'avez pas encore de participants dans votre profil."
       add_participant: "Ajouter une personne"
       error_count:
@@ -810,6 +813,8 @@ fr:
       duplicate_schnuppern: "Cette personne a déjà une place d'essai dans ce cours."
       session_cancelled: "Cette séance a malheureusement été annulée."
       session_in_past: "Cette séance est dans le passé et ne peut plus être réservée."
+      trial_session_required: "Veuillez choisir la séance lors de laquelle vous souhaitez faire l'essai."
+      trial_session_wrong_course: "La séance d'essai choisie n'appartient pas à ce cours."
       missing_field: "%{field} manque pour %{name}. Veuillez d'abord compléter le profil."
     new:
       title: "Inscription au cours"

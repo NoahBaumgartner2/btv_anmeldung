@@ -4,6 +4,7 @@ class CourseRegistration < ApplicationRecord
   belongs_to :course
   belongs_to :participant
   belongs_to :training_session, optional: true
+  belongs_to :trial_session, class_name: "TrainingSession", optional: true
   belongs_to :cancelled_by_trainer, class_name: "Trainer", optional: true
 
   has_many :attendances, dependent: :destroy
@@ -12,8 +13,11 @@ class CourseRegistration < ApplicationRecord
   validate :no_duplicate_single_session_registration, on: :create
   validate :no_duplicate_semester_registration, on: :create
   validate :training_session_bookable, on: :create
+  validate :trial_session_bookable, on: :create
 
   before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") && payment_expires_at.nil? }
+  before_save :set_trial_expiry,
+    if: -> { will_save_change_to_status?(to: TRIAL_STATUS) && trial_expires_at.nil? }
 
   def trial?
     status == TRIAL_STATUS
@@ -24,7 +28,7 @@ class CourseRegistration < ApplicationRecord
   end
 
   def trial_expired?
-    trial? && created_at < 7.days.ago
+    trial? && (trial_expires_at || created_at + 7.days) < Time.current
   end
 
   def status_label
@@ -45,6 +49,25 @@ class CourseRegistration < ApplicationRecord
 
   def set_payment_expiry
     self.payment_expires_at = 48.hours.from_now
+  end
+
+  # Die 7-Tage-Frist beginnt erst NACH dem Schnuppertraining.
+  # Bei Drop-In-Trials wird die bereits gesetzte training_session als Basis genutzt.
+  def set_trial_expiry
+    base = (trial_session || training_session)&.start_time
+    self.trial_expires_at = (base || Time.current) + 7.days
+  end
+
+  def trial_session_bookable
+    return if trial_session.blank?
+
+    if trial_session.course_id != course_id
+      errors.add(:base, I18n.t("course_registrations.errors.trial_session_wrong_course"))
+    elsif trial_session.is_canceled?
+      errors.add(:base, I18n.t("course_registrations.errors.session_cancelled"))
+    elsif trial_session.start_time <= Time.current
+      errors.add(:base, I18n.t("course_registrations.errors.session_in_past"))
+    end
   end
 
   def no_duplicate_single_session_registration

@@ -4,7 +4,11 @@ class ExpireTrialRegistrationsJob < ApplicationJob
   def perform
     scope = CourseRegistration
       .where(status: "schnuppern")
-      .where("created_at < ?", 7.days.ago)
+      .where(
+        "(trial_expires_at IS NOT NULL AND trial_expires_at < :now) OR " \
+        "(trial_expires_at IS NULL AND created_at < :cutoff)",
+        now: Time.current, cutoff: 7.days.ago
+      )
 
     total     = scope.count
     cancelled = 0
