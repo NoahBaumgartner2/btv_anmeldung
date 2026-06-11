@@ -115,6 +115,53 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     assert_no_match I18n.t("course_registrations.errors.duplicate_registration"), duplicate.errors.full_messages.join
   end
 
+  # ── fully_confirmed? ─────────────────────────────────────────────────────────
+
+  def paid_course
+    course = Course.new(title: "Paid", registration_type: "semester",
+      has_payment: true, has_ticketing: false, allows_holiday_deduction: false)
+    course.price_cents = 5000
+    course.save!(validate: false)
+    course
+  end
+
+  def free_course
+    course = Course.new(title: "Free", registration_type: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+    course
+  end
+
+  test "fully_confirmed? true für bestätigt + bezahlt bei zahlungspflichtigem Kurs" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false)
+    assert reg.fully_confirmed?
+  end
+
+  test "fully_confirmed? false für bestätigt + unbezahlt bei zahlungspflichtigem Kurs" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false)
+    assert_not reg.fully_confirmed?
+  end
+
+  test "fully_confirmed? true für bestätigt + unbezahlt bei Gratis-Kurs" do
+    reg = CourseRegistration.new(course: free_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false)
+    assert reg.fully_confirmed?
+  end
+
+  test "fully_confirmed? true für schnuppern + unbezahlt" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false)
+    assert reg.fully_confirmed?
+  end
+
+  test "fully_confirmed? false für ausstehend" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false)
+    assert_not reg.fully_confirmed?
+  end
+
   test "allows normal registration after schnuppern is storniert" do
     course = Course.new(title: "Schnupper-Storniert-Test", registration_type: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
