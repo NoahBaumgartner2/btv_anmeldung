@@ -828,6 +828,7 @@ fr:
     show:
       title_payment: "Inscription confirmée"
       subtitle_payment: "Veuillez compléter le paiement pour confirmer votre place."
+      subtitle_payment_confirmed: "Votre place est assurée – le paiement est encore en attente."
       title_success: "Inscription réussie"
       subtitle_single: "Votre séance est réservée."
       subtitle_course: "Votre place dans le cours est assurée."
@@ -850,6 +851,7 @@ fr:
         pending: "En attente"
       payment:
         reserved_html: "Votre place est <strong>provisoirement réservée</strong>. Veuillez payer <strong>%{price}</strong> maintenant pour confirmer votre inscription."
+        confirmed_unpaid_html: "Votre place est <strong>assurée</strong>. Veuillez encore payer <strong>%{price}</strong> pour régler les frais de cours."
         pay_now: "Payer maintenant – %{price}"
         secure: "Paiement sécurisé via SumUp · Carte de crédit / Débit"
       nav:

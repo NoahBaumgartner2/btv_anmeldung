@@ -834,6 +834,7 @@ en:
     show:
       title_payment: "Registration confirmed"
       subtitle_payment: "Please complete payment to secure your spot."
+      subtitle_payment_confirmed: "Your spot is secured – payment is still outstanding."
       title_success: "Registration successful"
       subtitle_single: "Your session is booked."
       subtitle_course: "Your spot in the course is secured."
@@ -856,6 +857,7 @@ en:
         pending: "Pending"
       payment:
         reserved_html: "Your spot is <strong>provisionally reserved</strong>. Please pay <strong>%{price}</strong> now to confirm your registration."
+        confirmed_unpaid_html: "Your spot is <strong>secured</strong>. Please pay <strong>%{price}</strong> to settle the course fee."
         pay_now: "Pay now – %{price}"
         secure: "Secure payment via SumUp · Credit card / Debit card"
       nav:
