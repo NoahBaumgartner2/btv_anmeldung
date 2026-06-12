@@ -27,6 +27,13 @@ class CourseRegistration < ApplicationRecord
     course.has_payment? && course.price_cents.to_i > 0
   end
 
+  # Zahlung ist möglich/nötig: Kurs kostenpflichtig, noch nicht bezahlt,
+  # und die Anmeldung ist aktiv (ausstehend ODER bereits bestätigt).
+  def payable?
+    course.has_payment? && course.price_cents.to_i > 0 &&
+      !payment_cleared? && status.in?(%w[ausstehend bestätigt])
+  end
+
   # In der Kursverwaltung als "echter" Teilnehmer sichtbar:
   # - Schnuppern ist gratis → immer sichtbar
   # - bestätigt nur, wenn keine Zahlung nötig ODER tatsächlich bezahlt

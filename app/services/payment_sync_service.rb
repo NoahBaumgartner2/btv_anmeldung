@@ -17,17 +17,23 @@ class PaymentSyncService
       return if registration.payment_cleared?
 
       course = registration.course
-      # "bestätigt" und "schnuppern" zählen als belegte Plätze — "ausstehend" zählt
-      # bewusst nicht, damit ein zahlender Teilnehmer nicht durch offene Reservierungen
-      # anderer auf die Warteliste gesetzt wird.
-      confirmed_count = course.course_registrations
-                              .where(status: %w[bestätigt schnuppern])
-                              .where.not(id: registration.id)
-                              .count
-      new_status = if course.max_participants.present? && confirmed_count >= course.max_participants
-                     "warteliste"
+      if registration.status == "bestätigt"
+        # Platz wurde bereits zugesichert (z.B. manuell durch Admin) und ist in der
+        # Bestätigt-Zählung enthalten — kein Kapazitätscheck, kein Warteliste-Downgrade.
+        new_status = "bestätigt"
       else
-                     "bestätigt"
+        # "bestätigt" und "schnuppern" zählen als belegte Plätze — "ausstehend" zählt
+        # bewusst nicht, damit ein zahlender Teilnehmer nicht durch offene Reservierungen
+        # anderer auf die Warteliste gesetzt wird.
+        confirmed_count = course.course_registrations
+                                .where(status: %w[bestätigt schnuppern])
+                                .where.not(id: registration.id)
+                                .count
+        new_status = if course.max_participants.present? && confirmed_count >= course.max_participants
+                       "warteliste"
+        else
+                       "bestätigt"
+        end
       end
 
       registration.update!(
