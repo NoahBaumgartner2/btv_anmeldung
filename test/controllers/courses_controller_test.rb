@@ -13,6 +13,16 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index zeigt Trainingszeit auf der Kurskarte" do
+    date = Date.current.next_occurring(:monday)
+    start_time = Time.zone.local(date.year, date.month, date.day, 17, 0)
+    @course.training_sessions.create!(start_time: start_time, end_time: start_time + 90.minutes, is_canceled: false)
+
+    get courses_url
+    assert_response :success
+    assert_includes @response.body, "Montag, 17:00–18:30"
+  end
+
   test "should get new" do
     get new_course_url
     assert_response :success
