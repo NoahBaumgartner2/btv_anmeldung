@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_11_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_12_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_120000) do
   create_table "course_registrations", force: :cascade do |t|
     t.integer "abo_entries_total"
     t.integer "abo_entries_used", default: 0
+    t.string "applied_discount"
+    t.integer "applied_price_cents"
     t.boolean "cancellation_notify_admin", default: false, null: false
     t.text "cancellation_reason"
     t.datetime "cancelled_at"
@@ -147,6 +149,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_120000) do
     t.integer "default_start_hour"
     t.integer "default_start_minute"
     t.text "description"
+    t.boolean "discounts_enabled", default: false, null: false
     t.boolean "enable_waitlist", default: true, null: false
     t.datetime "end_date"
     t.boolean "has_payment"
@@ -170,6 +173,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_11_120000) do
     t.boolean "requires_street", default: false, null: false
     t.boolean "requires_zip_code", default: false, null: false
     t.boolean "restricted", default: false, null: false
+    t.integer "second_course_price_cents"
+    t.integer "sibling_price_cents"
     t.datetime "start_date"
     t.string "title"
     t.integer "training_value_cents"

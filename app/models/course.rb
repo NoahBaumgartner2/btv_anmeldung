@@ -103,6 +103,39 @@ class Course < ApplicationRecord
     "CHF #{price_chf}"
   end
 
+  # ── Preisreduktion (Geschwister / Zweitkurs) ───────────────────────────────
+  validate :discount_prices_must_be_valid, if: :discounts_enabled?
+
+  def sibling_price_chf
+    cents = read_attribute(:sibling_price_cents)
+    return "" unless cents
+    format("%.2f", cents / 100.0)
+  end
+
+  def sibling_price_chf=(value)
+    self.sibling_price_cents = value.presence ? (value.to_f * 100).round : nil
+  end
+
+  def second_course_price_chf
+    cents = read_attribute(:second_course_price_cents)
+    return "" unless cents
+    format("%.2f", cents / 100.0)
+  end
+
+  def second_course_price_chf=(value)
+    self.second_course_price_cents = value.presence ? (value.to_f * 100).round : nil
+  end
+
+  def sibling_price_display
+    return nil unless sibling_price_cents
+    "CHF #{sibling_price_chf}"
+  end
+
+  def second_course_price_display
+    return nil unless second_course_price_cents
+    "CHF #{second_course_price_chf}"
+  end
+
   def registration_mode_label
     return nil unless registration_mode.present?
     I18n.t("courses.registration_modes.#{registration_mode}", default: registration_mode.humanize)
@@ -131,5 +164,20 @@ class Course < ApplicationRecord
   def max_age_must_be_greater_than_or_equal_to_min_age
     return if min_age.blank? || max_age.blank?
     errors.add(:max_age, "muss grösser oder gleich dem Mindestalter sein") if max_age < min_age
+  end
+
+  def discount_prices_must_be_valid
+    if sibling_price_cents.blank? && second_course_price_cents.blank?
+      errors.add(:base, "Bei aktivierter Preisreduktion muss mindestens ein reduzierter Preis angegeben werden")
+    end
+
+    { sibling_price_cents: sibling_price_cents, second_course_price_cents: second_course_price_cents }.each do |attr, cents|
+      next if cents.blank?
+      if cents.negative?
+        errors.add(attr, "darf nicht negativ sein")
+      elsif price_cents.present? && cents >= price_cents
+        errors.add(attr, "muss kleiner als der Kurspreis sein")
+      end
+    end
   end
 end

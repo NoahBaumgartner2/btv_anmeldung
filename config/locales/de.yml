@@ -215,6 +215,8 @@ de:
       semester_label: "Semester-Anmeldung (Einmalig)"
       paid_label: "Kostenpflichtiger Kurs"
       free_label: "Kostenlos"
+      discount_sibling: "Reduzierter Preis für Geschwister: %{price}"
+      discount_second_course: "Reduzierter Preis für Zweitkurs: %{price}"
       choose_date: "Wähle deinen Termin"
       fully_booked: "Ausgebucht"
       spots_free:
@@ -1069,6 +1071,8 @@ de:
       label_category: "Kategorie"
       label_participant: "Teilnehmer"
       label_amount: "Betrag"
+      discount_sibling: "Geschwister-Rabatt angewendet"
+      discount_second_course: "Zweitkurs-Rabatt angewendet"
       section_payment_methods: "Akzeptierte Zahlungsmethoden"
       credit_card: "Kreditkarte"
       secure_payment: "Sichere Zahlung via SumUp · SSL-verschlüsselt"
