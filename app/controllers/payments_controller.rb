@@ -8,16 +8,14 @@ class PaymentsController < ApplicationController
       return redirect_to root_path, alert: "Zugriff verweigert."
     end
 
-    course = @registration.course
-
-    unless course.has_payment? && course.price_cents.present?
-      return redirect_to course_registration_path(@registration),
-                         alert: "Dieser Kurs erfordert keine Zahlung."
-    end
-
     if @registration.payment_cleared?
       return redirect_to course_registration_path(@registration),
                          notice: "Dieser Kurs wurde bereits bezahlt."
+    end
+
+    unless @registration.payable?
+      return redirect_to course_registration_path(@registration),
+                         alert: "Für diese Anmeldung ist keine Zahlung möglich."
     end
 
     unless ::SumupConfig.configured?
@@ -35,14 +33,14 @@ class PaymentsController < ApplicationController
 
     course = @registration.course
 
-    unless course.has_payment? && course.price_cents.present?
-      return redirect_to course_registration_path(@registration),
-                         alert: "Dieser Kurs erfordert keine Zahlung."
-    end
-
     if @registration.payment_cleared?
       return redirect_to course_registration_path(@registration),
                          notice: "Dieser Kurs wurde bereits bezahlt."
+    end
+
+    unless @registration.payable?
+      return redirect_to course_registration_path(@registration),
+                         alert: "Für diese Anmeldung ist keine Zahlung möglich."
     end
 
     unless ::SumupConfig.configured?

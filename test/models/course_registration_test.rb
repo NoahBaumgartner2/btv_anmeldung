@@ -162,6 +162,40 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     assert_not reg.fully_confirmed?
   end
 
+  # ── payable? ─────────────────────────────────────────────────────────────────
+
+  test "payable? true für ausstehend + unbezahlt bei zahlungspflichtigem Kurs" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false)
+    assert reg.payable?
+  end
+
+  test "payable? true für bestätigt + unbezahlt bei zahlungspflichtigem Kurs" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false)
+    assert reg.payable?
+  end
+
+  test "payable? false für bestätigt + bereits bezahlt" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false)
+    assert_not reg.payable?
+  end
+
+  test "payable? false bei Gratis-Kurs" do
+    reg = CourseRegistration.new(course: free_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false)
+    assert_not reg.payable?
+  end
+
+  test "payable? false für storniert, warteliste und schnuppern" do
+    %w[storniert warteliste schnuppern].each do |status|
+      reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+        status: status, payment_cleared: false, holiday_deduction_claimed: false)
+      assert_not reg.payable?, "payable? muss für Status #{status} false sein"
+    end
+  end
+
   test "allows normal registration after schnuppern is storniert" do
     course = Course.new(title: "Schnupper-Storniert-Test", registration_type: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
