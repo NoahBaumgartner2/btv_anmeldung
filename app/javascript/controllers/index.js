@@ -20,6 +20,7 @@ import DropdownController from "controllers/dropdown_controller"
 import MailToggleController from "controllers/mail_toggle_controller"
 import ExtraHolidaysController from "controllers/extra_holidays_controller"
 import NewsletterOptInController from "controllers/newsletter_opt_in_controller"
+import DiscountToggleController from "controllers/discount_toggle_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -43,3 +44,4 @@ application.register("dropdown", DropdownController)
 application.register("mail-toggle", MailToggleController)
 application.register("extra-holidays", ExtraHolidaysController)
 application.register("newsletter-opt-in", NewsletterOptInController)
+application.register("discount-toggle", DiscountToggleController)

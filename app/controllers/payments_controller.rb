@@ -19,9 +19,11 @@ class PaymentsController < ApplicationController
     end
 
     unless ::SumupConfig.configured?
-      redirect_to course_registration_path(@registration),
+      return redirect_to course_registration_path(@registration),
                          alert: "Zahlung aktuell nicht verfügbar. Bitte kontaktiere uns."
     end
+
+    @pricing = DiscountCalculator.call(@registration)
   end
 
   def checkout
@@ -50,7 +52,8 @@ class PaymentsController < ApplicationController
 
     ::SumupConfig.ensure_valid_token!
 
-    amount = (course.price_cents / 100.0).round(2)
+    pricing = DiscountCalculator.call(@registration)
+    amount = (pricing[:price_cents] / 100.0).round(2)
 
     body = {
       amount:             amount,
@@ -88,7 +91,11 @@ class PaymentsController < ApplicationController
     end
 
     checkout = JSON.parse(response.body)
-    @registration.update!(sumup_checkout_id: checkout["id"])
+    @registration.update!(
+      sumup_checkout_id:   checkout["id"],
+      applied_price_cents: pricing[:price_cents],
+      applied_discount:    pricing[:discount]
+    )
 
     checkout_url = checkout.dig("hosted_checkout", "url") || checkout["hosted_checkout_url"]
     unless checkout_url.present?

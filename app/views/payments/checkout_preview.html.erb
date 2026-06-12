@@ -1,6 +1,8 @@
 <%
-  course      = @registration.course
-  participant = @registration.participant
+  course          = @registration.course
+  participant     = @registration.participant
+  pricing         = @pricing || { price_cents: course.price_cents.to_i, discount: nil }
+  effective_price = "CHF #{format('%.2f', pricing[:price_cents] / 100.0)}"
 %>
 
 <%# pb-32 = Platz für sticky-CTA auf Mobile, sm:pb-0 deaktiviert auf Desktop %>
@@ -39,8 +41,19 @@
       </div>
       <div class="px-5 py-4 flex items-baseline justify-between gap-3 bg-primary-50 border-t-2 border-primary-100">
         <dt class="text-sm font-bold text-gray-700 uppercase tracking-wide"><%= t('payments.checkout_preview.label_amount') %></dt>
-        <dd class="text-2xl sm:text-3xl font-extrabold text-primary-700 break-words text-right"><%= course.price_display %></dd>
+        <dd class="break-words text-right">
+          <% if pricing[:discount] %>
+            <span class="block text-sm font-semibold text-gray-400 line-through"><%= course.price_display %></span>
+          <% end %>
+          <span class="text-2xl sm:text-3xl font-extrabold text-primary-700"><%= effective_price %></span>
+        </dd>
       </div>
+      <% if pricing[:discount] %>
+        <div class="px-5 py-3 bg-green-50 border-t border-green-100 flex items-center gap-2">
+          <svg class="w-4 h-4 text-green-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          <span class="text-sm font-semibold text-green-700"><%= t("payments.checkout_preview.discount_#{pricing[:discount]}") %></span>
+        </div>
+      <% end %>
     </dl>
   </div>
 
@@ -60,7 +73,7 @@
       <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
       </svg>
-      <%= t('payments.checkout_preview.pay_now', price: course.price_display) %>
+      <%= t('payments.checkout_preview.pay_now', price: effective_price) %>
     <% end %>
 
     <%= link_to course_registration_path(@registration),
@@ -78,7 +91,7 @@
   <%= link_to checkout_registration_path(@registration),
         class: "w-full inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-extrabold py-4 px-5 rounded-xl shadow-sm transition text-base min-h-[52px]",
         data: { turbo: false } do %>
-    <%= t('payments.checkout_preview.pay_now', price: course.price_display) %>
+    <%= t('payments.checkout_preview.pay_now', price: effective_price) %>
     <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
       <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
     </svg>
