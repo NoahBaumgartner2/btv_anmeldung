@@ -5,7 +5,7 @@ class CoursesController < ApplicationController
   before_action :authorize_trainer!, only: [ :manage, :send_custom_email, :toggle_talent ]
   before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email toggle_talent ]
   def index
-    all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users)
+    all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users, :training_sessions)
     @restricted_courses = if current_user&.admin?
       all_restricted
     elsif current_user
@@ -13,7 +13,10 @@ class CoursesController < ApplicationController
     else
       []
     end
-    @public_courses = Course.where(restricted: false).includes(:course_registrations).order(:title)
+    @restricted_courses = @restricted_courses.sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
+    @public_courses = Course.where(restricted: false)
+                            .includes(:course_registrations, :training_sessions)
+                            .sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
   end
 
   # GET /courses/1 or /courses/1.json

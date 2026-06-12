@@ -23,7 +23,6 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
 
   def stub_singleton_method(mod, name, value, &block)
     original = mod.method(name)
-    mod.singleton_class.send(:remove_method, name)
     mod.define_singleton_method(name) { |*_args| value }
     block.call
   ensure
