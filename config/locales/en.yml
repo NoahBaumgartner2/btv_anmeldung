@@ -176,6 +176,8 @@ en:
       semester_label: "Semester registration (Once)"
       paid_label: "Paid course"
       free_label: "Free"
+      discount_sibling: "Reduced price for siblings: %{price}"
+      discount_second_course: "Reduced price for a second course: %{price}"
       choose_date: "Choose your date"
       fully_booked: "Fully booked"
       spots_free:
@@ -1030,6 +1032,8 @@ en:
       label_category: "Category"
       label_participant: "Participant"
       label_amount: "Amount"
+      discount_sibling: "Sibling discount applied"
+      discount_second_course: "Second-course discount applied"
       section_payment_methods: "Accepted payment methods"
       credit_card: "Credit card"
       secure_payment: "Secure payment via SumUp · SSL encrypted"

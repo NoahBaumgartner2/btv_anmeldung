@@ -325,6 +325,38 @@
             </div>
             <p class="text-xs text-gray-400 mt-1">Wird für automatische Rückerstattungen bei Abmeldung verwendet (z.B. 15.00)</p>
           </div>
+
+          <%# Preisreduktion (Geschwister / Zweitkurs) %>
+          <div class="pt-4 border-t border-gray-100" data-controller="discount-toggle">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <%= form.check_box :discounts_enabled,
+                    class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0",
+                    data: { "discount-toggle-target": "checkbox", action: "change->discount-toggle#toggle" } %>
+              <span class="text-sm font-medium text-gray-800">Preisreduktion aktivieren</span>
+            </label>
+            <div data-discount-toggle-target="fields"
+                 class="<%= course.discounts_enabled? ? "" : "hidden" %> mt-4 ml-8 space-y-4">
+              <div>
+                <p class="text-sm font-medium text-gray-700 mb-1">Reduzierter Preis für 2. Kind der Familie</p>
+                <div class="flex items-center gap-2 max-w-xs">
+                  <span class="text-sm font-semibold text-gray-500 shrink-0">CHF</span>
+                  <%= form.text_field :sibling_price_chf,
+                        placeholder: "0.00",
+                        class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+                </div>
+              </div>
+              <div>
+                <p class="text-sm font-medium text-gray-700 mb-1">Reduzierter Preis bei 2. Kurs derselben Person</p>
+                <div class="flex items-center gap-2 max-w-xs">
+                  <span class="text-sm font-semibold text-gray-500 shrink-0">CHF</span>
+                  <%= form.text_field :second_course_price_chf,
+                        placeholder: "0.00",
+                        class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+                </div>
+              </div>
+              <p class="text-xs text-gray-400">Die Reduktion gilt innerhalb derselben Trainingskategorie und nur für die neue Anmeldung. Treffen beide Fälle zu, wird automatisch der günstigere Preis angewendet.</p>
+            </div>
+          </div>
         </div>
 
       </div>

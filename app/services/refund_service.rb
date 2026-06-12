@@ -7,7 +7,11 @@ class RefundService
     return { refunded: false, reason: "no_payment" } unless course.has_payment? && registration.payment_cleared?
     return { refunded: false, reason: "no_transaction_id" } unless registration.sumup_transaction_id.present?
     return { refunded: false, reason: "no_training_value" } unless course.training_value_cents.present? && course.training_value_cents > 0
-    return { refunded: false, reason: "no_price" } unless course.price_cents.present? && course.price_cents > 0
+
+    # Basis ist der tatsächlich verrechnete Preis (inkl. Rabatt) — es darf nie
+    # mehr zurückerstattet werden, als bezahlt wurde.
+    paid_cents = registration.applied_price_cents || course.price_cents
+    return { refunded: false, reason: "no_price" } unless paid_cents.present? && paid_cents > 0
 
     sessions_count = course.training_sessions
       .where(is_canceled: false)
@@ -16,9 +20,9 @@ class RefundService
       .count
 
     abzug_cents = sessions_count * course.training_value_cents
-    refund_cents = course.price_cents - abzug_cents
+    refund_cents = paid_cents - abzug_cents
 
-    Rails.logger.info "[RefundService] Registration #{registration.id}: price=#{course.price_cents}¢, sessions=#{sessions_count}, abzug=#{abzug_cents}¢, refund=#{refund_cents}¢"
+    Rails.logger.info "[RefundService] Registration #{registration.id}: paid=#{paid_cents}¢, sessions=#{sessions_count}, abzug=#{abzug_cents}¢, refund=#{refund_cents}¢"
 
     if refund_cents <= 0
       return { refunded: false, reason: "no_amount_after_deduction", sessions_count: sessions_count, abzug_cents: abzug_cents }

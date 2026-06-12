@@ -128,6 +128,23 @@ class Participant < ApplicationRecord
     Course::CONFIGURABLE_REQUIRED_FIELDS[field] || field.to_s.humanize
   end
 
+  # IDs aller Participants mit derselben Identität (kontoübergreifend):
+  # AHV-Nummer falls vorhanden, sonst Vorname + Nachname + Geburtsdatum.
+  # Genutzt für Schnupper-Prüfungen und Rabatt-Ermittlung (DiscountCalculator).
+  def identity_sibling_ids
+    if ahv_number.present?
+      normalized = ahv_number.gsub(/[\s.]/, "")
+      Participant
+        .where("REPLACE(REPLACE(ahv_number, '.', ''), ' ', '') = ?", normalized)
+        .pluck(:id)
+    else
+      Participant
+        .where("LOWER(TRIM(first_name)) = ? AND LOWER(TRIM(last_name)) = ? AND date_of_birth = ?",
+               first_name.to_s.strip.downcase, last_name.to_s.strip.downcase, date_of_birth)
+        .pluck(:id)
+    end
+  end
+
   private
 
   def phone_number_format
@@ -146,16 +163,6 @@ class Participant < ApplicationRecord
   end
 
   def trial_sibling_ids
-    if ahv_number.present?
-      normalized = ahv_number.gsub(/[\s.]/, "")
-      Participant
-        .where("REPLACE(REPLACE(ahv_number, '.', ''), ' ', '') = ?", normalized)
-        .pluck(:id)
-    else
-      Participant
-        .where("LOWER(TRIM(first_name)) = ? AND LOWER(TRIM(last_name)) = ? AND date_of_birth = ?",
-               first_name.to_s.strip.downcase, last_name.to_s.strip.downcase, date_of_birth)
-        .pluck(:id)
-    end
+    identity_sibling_ids
   end
 end

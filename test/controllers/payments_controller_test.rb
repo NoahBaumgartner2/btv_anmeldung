@@ -131,4 +131,76 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert @registration.payment_cleared?
     assert_equal "warteliste", @registration.status
   end
+
+  # ── Preisreduktion ───────────────────────────────────────────────────────────
+
+  def fake_http(response)
+    obj = Object.new
+    obj.define_singleton_method(:use_ssl=) { |_| }
+    obj.define_singleton_method(:open_timeout=) { |_| }
+    obj.define_singleton_method(:read_timeout=) { |_| }
+    obj.define_singleton_method(:request) { |_req| response }
+    obj
+  end
+
+  def enable_sibling_discount
+    @course.update_columns(category: "polysport", discounts_enabled: true, sibling_price_cents: 3_000)
+    sibling = Participant.new(user: @parent, first_name: "Bruder", last_name: "Mustermann",
+      date_of_birth: Date.new(2013, 2, 2), gender: "männlich", phone_number: "+41790000001")
+    sibling.save!(validate: false)
+    CourseRegistration.new(course: @course, participant: sibling,
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false)
+      .save!(validate: false)
+  end
+
+  test "checkout_preview zeigt reduzierten Preis mit Rabatt-Hinweis" do
+    enable_sibling_discount
+
+    with_sumup_configured do
+      get checkout_preview_registration_path(@registration)
+    end
+
+    assert_response :success
+    assert_includes @response.body, "CHF 30.00"
+    assert_includes @response.body, I18n.t("payments.checkout_preview.discount_sibling")
+  end
+
+  test "checkout persistiert applied_price_cents und applied_discount" do
+    enable_sibling_discount
+
+    checkout_body = {
+      id: "co-discount-1",
+      hosted_checkout: { url: "https://pay.sumup.com/c/abc" }
+    }.to_json
+
+    with_sumup_configured do
+      stub_singleton_method(Net::HTTP, :new, fake_http(ok_response(checkout_body))) do
+        get checkout_registration_path(@registration)
+      end
+    end
+
+    assert_redirected_to "https://pay.sumup.com/c/abc"
+    @registration.reload
+    assert_equal "co-discount-1", @registration.sumup_checkout_id
+    assert_equal 3_000, @registration.applied_price_cents
+    assert_equal "sibling", @registration.applied_discount
+  end
+
+  test "checkout ohne Rabatt persistiert vollen Preis ohne Discount-Kennzeichnung" do
+    checkout_body = {
+      id: "co-full-1",
+      hosted_checkout: { url: "https://pay.sumup.com/c/def" }
+    }.to_json
+
+    with_sumup_configured do
+      stub_singleton_method(Net::HTTP, :new, fake_http(ok_response(checkout_body))) do
+        get checkout_registration_path(@registration)
+      end
+    end
+
+    assert_redirected_to "https://pay.sumup.com/c/def"
+    @registration.reload
+    assert_equal 5_000, @registration.applied_price_cents
+    assert_nil @registration.applied_discount
+  end
 end
