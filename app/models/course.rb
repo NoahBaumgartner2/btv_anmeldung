@@ -150,6 +150,24 @@ class Course < ApplicationRecord
     registration_mode == "abo"
   end
 
+  # Repräsentative Session für Wochentag/Uhrzeit: nächste kommende,
+  # nicht abgesagte Session; Fallback: erste Session überhaupt.
+  # Arbeitet Ruby-seitig auf den geladenen Sessions (kein N+1 mit includes).
+  def representative_session
+    @representative_session ||=
+      training_sessions.reject(&:is_canceled)
+                       .select { |s| s.start_time.present? }
+                       .then { |ss| ss.select { |s| s.start_time > Time.current }.min_by(&:start_time) || ss.min_by(&:start_time) }
+  end
+
+  # Sortierschlüssel: [Wochentag (Mo=0 … So=6), Sekunden seit Mitternacht].
+  # Kurse ohne Sessions ans Ende.
+  def weekly_sort_key
+    s = representative_session
+    return [ 7, 0 ] unless s
+    [ (s.start_time.wday - 1) % 7, s.start_time.seconds_since_midnight.to_i ]
+  end
+
   def accessible_by?(user)
     !restricted? || user&.admin? || permitted_users.include?(user)
   end

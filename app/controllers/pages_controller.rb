@@ -14,8 +14,8 @@ class PagesController < ApplicationController
       return
     end
 
-    @courses = Course.includes(:course_registrations)
+    @courses = Course.includes(:course_registrations, :training_sessions)
                      .where("end_date >= ? OR end_date IS NULL OR registration_mode = ?", Date.today, "single_session")
-                     .order(:title)
+                     .sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
   end
 end
