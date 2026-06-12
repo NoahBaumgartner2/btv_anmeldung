@@ -33,7 +33,16 @@
       </div>
     <% end %>
 
-    <%# Teilnehmer-Auswahl %>
+    <%# Teilnehmer-Auswahl — beim Bearbeiten steht der Teilnehmer bereits fest %>
+    <% if course_registration.persisted? %>
+      <div>
+        <%= form.label :participant_id, t("course_registrations.form.participant_label"), class: "block text-sm font-bold text-gray-700 mb-1.5" %>
+        <%= form.hidden_field :participant_id %>
+        <div class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-700">
+          <%= course_registration.participant.first_name %> <%= course_registration.participant.last_name %>
+        </div>
+      </div>
+    <% else %>
     <div>
       <%= form.label :participant_id, t("course_registrations.form.participant_label"), class: "block text-sm font-bold text-gray-700 mb-1.5" %>
       <% if my_participants.any? %>
@@ -104,6 +113,7 @@
         </div>
       <% end %>
     </div>
+    <% end %>
 
     <%# Schnupper-Banner + Hidden-Field (Stimulus-gesteuert) %>
     <div data-trial-check-target="trialBanner" class="hidden bg-amber-50 border border-amber-200 rounded-xl p-4">

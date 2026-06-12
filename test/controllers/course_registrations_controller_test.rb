@@ -426,4 +426,36 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 10, reg.abo_entries_total
     assert_equal 0, reg.abo_entries_used
   end
+
+  # ── edit/update durch Admin (fremde Anmeldung) ───────────────────────────
+
+  test "admin sieht im edit-Formular den Teilnehmer statt der Leer-Warnung" do
+    sign_in users(:admin)
+
+    get edit_course_registration_path(@registration)
+
+    assert_response :success
+    participant = @registration.participant
+    assert_includes @response.body, "#{participant.first_name} #{participant.last_name}"
+    assert_not_includes @response.body, I18n.t("course_registrations.form.no_participants")
+  end
+
+  test "admin-update mit Status-Änderung behält participant_id" do
+    sign_in users(:admin)
+    original_participant_id = @registration.participant_id
+
+    patch course_registration_path(@registration), params: {
+      course_registration: {
+        course_id: @registration.course_id,
+        participant_id: original_participant_id,
+        status: "warteliste",
+        payment_cleared: false
+      }
+    }
+
+    assert_redirected_to course_path(@registration.course)
+    @registration.reload
+    assert_equal "warteliste", @registration.status
+    assert_equal original_participant_id, @registration.participant_id
+  end
 end
