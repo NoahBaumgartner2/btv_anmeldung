@@ -27,7 +27,7 @@ module MailerHelper
     # 2x-Variant für Retina-Displays
     variant = logo.variant(resize_to_limit: [ width * 2, height * 2 ]).processed
     { url: rails_representation_url(variant), width: width, height: height }
-  rescue ActiveStorage::Error, StandardError => e
+  rescue ActiveStorage::Error, LoadError, StandardError => e
     Rails.logger.warn "[MailerHelper] email_logo Fehler: #{e.class}: #{e.message}"
     # Fallback: Original-URL mit fixen Dimensionen, damit die Mail nie crasht
     { url: rails_blob_url(logo), width: nil, height: EMAIL_LOGO_MAX_HEIGHT }
