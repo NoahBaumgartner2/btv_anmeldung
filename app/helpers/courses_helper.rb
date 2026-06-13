@@ -10,14 +10,15 @@ module CoursesHelper
       patterns = course.training_sessions
                        .reject(&:is_canceled)
                        .select { |s| s.start_time.present? }
-                       .map { |s| [ s.start_time.wday, s.start_time.strftime("%H:%M"), s.end_time&.strftime("%H:%M") ] }
+                       .map { |s| [ s.start_time.in_time_zone.wday, s.start_time.in_time_zone.strftime("%H:%M"), s.end_time&.in_time_zone&.strftime("%H:%M") ] }
                        .uniq
       return nil if patterns.size > 1
     end
 
-    day  = I18n.t("date.day_names")[session.start_time.wday]
-    time = session.start_time.strftime("%H:%M")
-    time += "–#{session.end_time.strftime('%H:%M')}" if session.end_time.present?
+    start = session.start_time.in_time_zone
+    day   = I18n.t("date.day_names")[start.wday]
+    time  = start.strftime("%H:%M")
+    time += "–#{session.end_time.in_time_zone.strftime('%H:%M')}" if session.end_time.present?
     "#{day}, #{time}"
   end
 end
