@@ -1,7 +1,7 @@
 class TrainingSessionsController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_trainer!
-  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance scanner cancel uncancel ]
+  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance confirm_attendance reopen_attendance scanner cancel uncancel ]
 
   # Gezielte CSP-Erweiterung nur für die Scanner-Seite, damit html5-qrcode
   # funktioniert – ohne 'unsafe-inline'/'unsafe-eval' für script-src:
@@ -156,6 +156,33 @@ class TrainingSessionsController < ApplicationController
     end
 
     redirect_to @training_session
+  end
+
+  # Präsenzkontrolle explizit abschliessen – alleiniges Kriterium für "erledigt".
+  def confirm_attendance
+    authorize_trainer!
+    return if performed?
+
+    if @training_session.is_canceled?
+      return redirect_to @training_session, alert: "Training ist abgesagt – Anwesenheit kann nicht erfasst werden."
+    end
+
+    if @training_session.start_time > Time.current
+      return redirect_to @training_session,
+                         alert: t("training_sessions.show.attendance_not_yet_possible")
+    end
+
+    @training_session.confirm_attendance!(current_user)
+    redirect_to @training_session, notice: t("training_sessions.show.attendance_confirmed_notice")
+  end
+
+  # Präsenzkontrolle wieder öffnen – Einträge bleiben editierbar.
+  def reopen_attendance
+    authorize_trainer!
+    return if performed?
+
+    @training_session.reopen_attendance!
+    redirect_to @training_session, notice: t("training_sessions.show.attendance_reopened_notice")
   end
 
   def scanner

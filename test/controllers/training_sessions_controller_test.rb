@@ -62,4 +62,32 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to course_path(@training_session.course)
   end
+
+  test "confirm_attendance marks past session as confirmed" do
+    @training_session.update!(attendance_confirmed_at: nil)
+
+    post confirm_attendance_training_session_url(@training_session)
+
+    assert_redirected_to training_session_url(@training_session)
+    assert @training_session.reload.attendance_confirmed?
+    assert_equal users(:admin), @training_session.attendance_confirmed_by
+  end
+
+  test "confirm_attendance is rejected for future session" do
+    future = training_sessions(:future)
+
+    post confirm_attendance_training_session_url(future)
+
+    assert_redirected_to training_session_url(future)
+    assert_not future.reload.attendance_confirmed?
+  end
+
+  test "reopen_attendance clears confirmation" do
+    @training_session.confirm_attendance!(users(:admin))
+
+    post reopen_attendance_training_session_url(@training_session)
+
+    assert_redirected_to training_session_url(@training_session)
+    assert_not @training_session.reload.attendance_confirmed?
+  end
 end
