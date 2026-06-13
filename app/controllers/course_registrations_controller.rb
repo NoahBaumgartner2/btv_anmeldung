@@ -1,7 +1,7 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry, :convert_trial ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry, :update_abo_entries, :convert_trial ]
   before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
 
   def show
@@ -549,6 +549,35 @@ class CourseRegistrationsController < ApplicationController
     remaining = @course_registration.abo_entries_remaining
     notice = "Eintritt für #{@course_registration.participant.first_name} eingelöst. Noch #{remaining} #{"Eintritt".pluralize(remaining)} übrig."
     redirect_to manage_course_path(course), notice: notice
+  end
+
+  # Admin oder zugewiesener Trainer passt das Rest-Guthaben (verbleibende Eintritte)
+  # eines Abo-Teilnehmers an. Eingabe = verbleibende Eintritte; bereits verbrauchte
+  # Eintritte (abo_entries_used) bleiben erhalten.
+  def update_abo_entries
+    course = @course_registration.course
+
+    unless current_user.admin? || trainer_assigned_to_course?(course)
+      redirect_to root_path, alert: "Zugriff verweigert."
+      return
+    end
+
+    unless course.abo?
+      redirect_to manage_course_path(course), alert: "Dieser Kurs ist kein Abo-Kurs."
+      return
+    end
+
+    remaining = params[:remaining_entries].to_i
+    if params[:remaining_entries].blank? || remaining < 0
+      redirect_to manage_course_path(course), alert: "Bitte eine gültige Anzahl verbleibender Eintritte (≥ 0) angeben."
+      return
+    end
+
+    used = @course_registration.abo_entries_used.to_i
+    @course_registration.update!(abo_entries_total: used + remaining)
+
+    redirect_to manage_course_path(course),
+      notice: "Guthaben aktualisiert: #{remaining} #{"Eintritt".pluralize(remaining)} verbleibend."
   end
 
   def convert_trial

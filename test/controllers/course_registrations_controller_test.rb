@@ -427,6 +427,88 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, reg.abo_entries_used
   end
 
+  # ── update_abo_entries (Rest-Guthaben anpassen) ──────────────────────────
+
+  def build_abo_registration(used: 3, total: 10)
+    course = Course.new(
+      title: "Acro4you", registration_type: "semester", registration_mode: "abo",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      allows_trial: false, abo_size: total
+    )
+    course.save!(validate: false)
+    CourseTrainer.create!(course: course, trainer: trainers(:one)) # user one = zugewiesener Trainer
+    reg = CourseRegistration.create!(
+      course: course, participant: participants(:one),
+      status: "bestätigt", abo_entries_total: total, abo_entries_used: used
+    )
+    [ course, reg ]
+  end
+
+  test "admin passt Rest-Guthaben an, abo_entries_used bleibt unverändert" do
+    _course, reg = build_abo_registration(used: 3, total: 10)
+    sign_in users(:admin)
+
+    post update_abo_entries_course_registration_path(reg), params: { remaining_entries: 5 }
+
+    reg.reload
+    assert_equal 3, reg.abo_entries_used          # unverändert
+    assert_equal 8, reg.abo_entries_total         # 3 verbraucht + 5 verbleibend
+    assert_equal 5, reg.abo_entries_remaining
+  end
+
+  test "zugewiesener Trainer darf Rest-Guthaben anpassen" do
+    _course, reg = build_abo_registration(used: 2, total: 10)
+    sign_in @parent # users(:one) == trainer one, zugewiesen
+
+    post update_abo_entries_course_registration_path(reg), params: { remaining_entries: 4 }
+
+    reg.reload
+    assert_equal 2, reg.abo_entries_used
+    assert_equal 6, reg.abo_entries_total
+  end
+
+  test "nicht zugewiesener Trainer wird abgewiesen" do
+    _course, reg = build_abo_registration(used: 2, total: 10)
+    sign_in @other_parent # users(:two) == trainer two, NICHT zugewiesen
+
+    post update_abo_entries_course_registration_path(reg), params: { remaining_entries: 1 }
+
+    assert_redirected_to root_path
+    assert_equal 10, reg.reload.abo_entries_total
+  end
+
+  test "Elternteil ohne Trainer-Rolle wird abgewiesen" do
+    _course, reg = build_abo_registration(used: 2, total: 10)
+    sign_in @trial_parent # parent_only, kein Trainer/Admin
+
+    post update_abo_entries_course_registration_path(reg), params: { remaining_entries: 1 }
+
+    assert_redirected_to root_path
+    assert_equal 10, reg.reload.abo_entries_total
+  end
+
+  test "negative Eingabe wird abgewiesen" do
+    course, reg = build_abo_registration(used: 2, total: 10)
+    sign_in users(:admin)
+
+    post update_abo_entries_course_registration_path(reg), params: { remaining_entries: -1 }
+
+    assert_redirected_to manage_course_path(course)
+    assert_equal 10, reg.reload.abo_entries_total
+  end
+
+  test "update_abo_entries bei Nicht-Abo-Kurs greift nicht" do
+    sign_in users(:admin)
+    course = @registration.course # kein Abo-Kurs
+    assert_not course.abo?
+    original_total = @registration.abo_entries_total
+
+    post update_abo_entries_course_registration_path(@registration), params: { remaining_entries: 5 }
+
+    assert_redirected_to manage_course_path(course)
+    assert_equal original_total.inspect, @registration.reload.abo_entries_total.inspect
+  end
+
   # ── edit/update durch Admin (fremde Anmeldung) ───────────────────────────
 
   test "admin sieht im edit-Formular den Teilnehmer statt der Leer-Warnung" do
