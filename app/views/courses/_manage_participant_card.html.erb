@@ -61,6 +61,18 @@
                       class: "text-xs bg-primary-50 active:bg-primary-100 text-primary-700 font-semibold border border-primary-200 px-2.5 py-1.5 rounded-lg transition cursor-pointer min-h-[36px] flex items-center disabled:opacity-50 disabled:cursor-not-allowed",
                       data: { turbo_confirm: t("courses.manage.use_abo_entry_confirm", name: p.first_name) } %>
               </div>
+              <% if current_user.admin? || @course.trainers.exists?(user_id: current_user.id) %>
+                <%= form_with url: update_abo_entries_course_registration_path(reg), method: :post, data: { turbo: true }, class: "mb-3 flex items-center gap-2 flex-wrap" do %>
+                  <label class="text-xs text-gray-500 shrink-0"><%= t("courses.manage.abo_adjust_label") %>:</label>
+                  <%= number_field_tag :remaining_entries, reg.abo_entries_remaining.to_i, min: 0,
+                        aria: { label: t("courses.manage.abo_remaining_input") },
+                        class: "w-16 text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+                  <button type="submit"
+                          class="text-xs bg-gray-100 active:bg-gray-200 text-gray-700 font-semibold px-2.5 py-1.5 rounded-lg transition cursor-pointer min-h-[36px] flex items-center">
+                    <%= t("courses.manage.abo_save") %>
+                  </button>
+                <% end %>
+              <% end %>
             <% end %>
 
             <%# Actions %>
