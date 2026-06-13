@@ -5,7 +5,7 @@
   weeks_total    = has_dates ? ((@course.end_date.to_date - @course.start_date.to_date) / 7.0).ceil : nil
 
   hours   = (6..22).map { |h| [format("%02d", h), h] }
-  minutes = [["00", 0], ["15", 15], ["30", 30], ["45", 45]]
+  minutes = (0..55).step(5).map { |m| [format("%02d", m), m] }
 %>
 
 <div class="max-w-2xl mx-auto mt-10 w-full mb-16 px-4">
