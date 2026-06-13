@@ -76,6 +76,23 @@ class User < ApplicationRecord
     self.devise_notification_error = e
   end
 
+  # Steuert, ob der Reset-/Einladungslink noch gültig ist.
+  def reset_password_period_valid?
+    case invitation_kind
+    when "trainer" then true                                   # nie ablaufend
+    when "course"  then invitation_expires_at.nil? || invitation_expires_at.future?
+    else super                                                 # normaler Reset: Devise-Default
+    end
+  end
+
+  # Beim erfolgreichen Passwortsetzen den Einladungs-Marker entfernen,
+  # damit spätere echte Resets wieder das normale (kurze) Fenster nutzen.
+  def clear_reset_password_token
+    self.invitation_kind = nil
+    self.invitation_expires_at = nil
+    super
+  end
+
   private
 
   def set_privacy_accepted_at

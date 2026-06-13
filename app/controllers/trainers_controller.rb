@@ -105,11 +105,18 @@ def index
         password: SecureRandom.hex(16),
         confirmed_at: Time.current,
         reset_password_token: enc_token,
-        reset_password_sent_at: Time.current
+        reset_password_sent_at: Time.current,
+        invitation_kind: "trainer",
+        invitation_expires_at: nil
       )
       user.save!(validate: false)
     else
-      user.update_columns(reset_password_token: enc_token, reset_password_sent_at: Time.current)
+      user.update_columns(
+        reset_password_token: enc_token,
+        reset_password_sent_at: Time.current,
+        invitation_kind: "trainer",
+        invitation_expires_at: nil
+      )
     end
 
     trainer = Trainer.create!(user: user, first_name: first_name, last_name: last_name, phone: phone)
