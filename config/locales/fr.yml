@@ -513,6 +513,8 @@ fr:
         trainers_desc: "Gérer et assigner les entraîneurs"
         holidays: "Jours fériés"
         holidays_desc: "Configurer les dates de blocage"
+        open_attendances: "Contrôles de présence ouverts"
+        open_attendances_desc: "Entraînements non terminés"
         newsletters: "Centre d'envoi"
         newsletters_desc: "Créer et envoyer des newsletters"
         stats: "Statistiques"
@@ -905,6 +907,14 @@ fr:
       mark_present_aria: "Marquer %{name} comme présent"
       status_present: "Présent"
       no_participants: "Aucun participant confirmé."
+      confirm_attendance_btn: "Terminer le contrôle de présence"
+      attendance_confirmed_title: "Contrôle de présence terminé"
+      attendance_confirmed_meta: "Terminé le %{date} par %{name}"
+      attendance_confirmed_unknown: "inconnu"
+      reopen_btn: "Rouvrir le contrôle"
+      reopen_confirm: "Vraiment rouvrir le contrôle de présence ?"
+      attendance_confirmed_notice: "Le contrôle de présence a été terminé."
+      attendance_reopened_notice: "Le contrôle de présence a été rouvert."
     form:
       errors:
         one: "Il y a 1 erreur :"

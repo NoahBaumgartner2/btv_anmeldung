@@ -87,6 +87,17 @@ class DashboardsController < ApplicationController
       .order("courses.title, participants.last_name, participants.first_name")
   end
 
+  def open_attendances
+    authorize_admin!
+
+    @open_sessions = TrainingSession
+      .where(is_canceled: false, attendance_confirmed_at: nil)
+      .where.not(end_time: nil)
+      .where("end_time < ?", Time.current)
+      .includes(course: { course_trainers: { trainer: :user } })
+      .order(:start_time)
+  end
+
   def trainer
     authorize_trainer!
     @trainer = Trainer.find_by(user: current_user)
