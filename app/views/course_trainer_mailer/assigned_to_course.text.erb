@@ -1,0 +1,19 @@
+Hallo <%= @trainer.full_name %>,
+
+du wurdest dem Kurs „<%= @course.title %>“ als Leiter zugeteilt.
+
+Kurs: <%= @course.title %>
+<% if @course.start_date.present? && @course.end_date.present? -%>
+Zeitraum: <%= @course.start_date.strftime("%-d. %b %Y") %> – <%= @course.end_date.strftime("%-d. %b %Y") %>
+<% end -%>
+<% if @course.location.present? -%>
+Ort: <%= @course.location %>
+<% end -%>
+
+Kurs ansehen:
+<%= manage_course_url(@course) %>
+
+Falls du diese E-Mail nicht erwartet hast, kannst du sie ignorieren.
+
+---
+Diese E-Mail wurde automatisch vom Anmeldungssystem versendet.
