@@ -4,6 +4,12 @@ class Trainer < ApplicationRecord
   has_many :course_trainers, dependent: :destroy
   has_many :courses, through: :course_trainers
 
+  has_many :cancelled_registrations,
+           class_name: "CourseRegistration",
+           foreign_key: :cancelled_by_trainer_id,
+           dependent: :nullify,
+           inverse_of: :cancelled_by_trainer
+
   GENDERS = %w[männlich weiblich].freeze
 
   REQUIRED_PROFILE_FIELDS = %i[
