@@ -513,6 +513,8 @@ en:
         trainers_desc: "Manage & assign trainers"
         holidays: "Holidays"
         holidays_desc: "Configure blackout dates"
+        open_attendances: "Open attendance checks"
+        open_attendances_desc: "Trainings not yet completed"
         newsletters: "Mailing Centre"
         newsletters_desc: "Create & send newsletters"
         stats: "Statistics"
@@ -911,6 +913,14 @@ en:
       mark_present_aria: "Mark %{name} as present"
       status_present: "Present"
       no_participants: "No confirmed participants."
+      confirm_attendance_btn: "Complete attendance check"
+      attendance_confirmed_title: "Attendance check completed"
+      attendance_confirmed_meta: "Completed on %{date} by %{name}"
+      attendance_confirmed_unknown: "unknown"
+      reopen_btn: "Reopen check"
+      reopen_confirm: "Really reopen the attendance check?"
+      attendance_confirmed_notice: "Attendance check has been completed."
+      attendance_reopened_notice: "Attendance check has been reopened."
     form:
       errors:
         one: "There is 1 error:"

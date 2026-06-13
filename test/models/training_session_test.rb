@@ -6,36 +6,47 @@ class TrainingSessionTest < ActiveSupport::TestCase
     @session.attendances.destroy_all
   end
 
-  # --- attendance_recorded? ---
+  # --- attendance_recorded? (jetzt bestätigungsbasiert) ---
 
-  test "attendance_recorded? returns false when no attendances exist" do
+  test "attendance_recorded? returns false when not confirmed" do
+    @session.update!(attendance_confirmed_at: nil)
     assert_not @session.attendance_recorded?
   end
 
-  test "attendance_recorded? returns false when all attendances are abgemeldet" do
-    @session.attendances.create!(course_registration: course_registrations(:one), status: "abgemeldet")
-    assert_not @session.attendance_recorded?
-  end
-
-  test "attendance_recorded? returns true when at least one attendance is anwesend" do
+  test "attendance_recorded? returns false even when attendances exist but not confirmed" do
     @session.attendances.create!(course_registration: course_registrations(:one), status: "anwesend")
+    @session.update!(attendance_confirmed_at: nil)
+    assert_not @session.attendance_recorded?
+  end
+
+  test "attendance_recorded? returns true when confirmed even without attendances" do
+    @session.update!(attendance_confirmed_at: Time.current)
     assert @session.attendance_recorded?
   end
 
-  test "attendance_recorded? returns true when at least one attendance is abwesend" do
-    @session.attendances.create!(course_registration: course_registrations(:one), status: "abwesend")
+  test "attendance_recorded? returns true for canceled session regardless of confirmation" do
+    @session.update!(is_canceled: true, attendance_confirmed_at: nil)
     assert @session.attendance_recorded?
   end
 
-  test "attendance_recorded? returns true when mix of abgemeldet and anwesend exists" do
-    @session.attendances.create!(course_registration: course_registrations(:one), status: "abgemeldet")
-    @session.attendances.create!(course_registration: course_registrations(:two), status: "anwesend")
-    assert @session.attendance_recorded?
+  # --- attendance_confirmed? / confirm_attendance! / reopen_attendance! ---
+
+  test "confirm_attendance! sets confirmed_at and confirmed_by, works with 0 attendances" do
+    @session.update!(attendance_confirmed_at: nil)
+    @session.confirm_attendance!(users(:admin))
+
+    assert @session.attendance_confirmed?
+    assert_equal users(:admin), @session.attendance_confirmed_by
+    assert_not_nil @session.attendance_confirmed_at
   end
 
-  test "attendance_recorded? returns true for canceled session regardless of attendances" do
-    @session.update!(is_canceled: true)
-    assert @session.attendance_recorded?
+  test "reopen_attendance! clears confirmation" do
+    @session.confirm_attendance!(users(:admin))
+    @session.reopen_attendance!
+
+    assert_not @session.attendance_confirmed?
+    assert_nil @session.attendance_confirmed_at
+    assert_nil @session.attendance_confirmed_by
   end
 
   # --- needs_trainer_reminder? ---

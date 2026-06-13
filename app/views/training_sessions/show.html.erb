@@ -225,6 +225,44 @@
       </div>
     <% end %>
   </div>
+
+  <%# ── Präsenzkontrolle abschliessen / wieder öffnen ────────────────────── %>
+  <% unless @training_session.is_canceled? %>
+    <% if @training_session.attendance_confirmed? %>
+      <div class="mt-6 bg-green-50 border border-green-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-3 min-w-0">
+          <div class="shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+            <svg class="w-5 h-5 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <p class="font-bold text-green-900"><%= t("training_sessions.show.attendance_confirmed_title") %></p>
+            <p class="text-sm text-green-800 mt-0.5 break-words">
+              <%= t("training_sessions.show.attendance_confirmed_meta",
+                    date: @training_session.attendance_confirmed_at.in_time_zone.strftime("%-d. %B %Y, %H:%M"),
+                    name: @training_session.attendance_confirmed_by&.email || t("training_sessions.show.attendance_confirmed_unknown")) %>
+            </p>
+          </div>
+        </div>
+        <%= button_to reopen_attendance_training_session_path(@training_session),
+              method: :post,
+              data: { turbo_confirm: t("training_sessions.show.reopen_confirm") },
+              class: "shrink-0 inline-flex items-center justify-center gap-2 bg-white border border-green-300 hover:bg-green-100 text-green-800 font-bold text-sm py-2.5 px-4 rounded-lg transition cursor-pointer min-h-11" do %>
+          <%= t("training_sessions.show.reopen_btn") %>
+        <% end %>
+      </div>
+    <% elsif @training_session.start_time && @training_session.start_time <= Time.current %>
+      <%= button_to confirm_attendance_training_session_path(@training_session),
+            method: :post,
+            class: "mt-6 w-full inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-extrabold text-base py-4 px-5 rounded-2xl transition shadow-sm cursor-pointer min-h-[56px]" do %>
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <%= t("training_sessions.show.confirm_attendance_btn") %>
+      <% end %>
+    <% end %>
+  <% end %>
   <% end %>
 
 </div>

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   get  "dashboards/trainer"
   get  "dashboards/stats"
   get  "dashboards/talents", as: "talents_dashboard"
+  get  "dashboards/open_attendances", as: "open_attendances_dashboard"
   get  "dashboards/export_participants", as: "export_participants_dashboard"
 
 
@@ -100,6 +101,8 @@ Rails.application.routes.draw do
   resources :training_sessions do
     member do
       post :toggle_attendance
+      post :confirm_attendance
+      post :reopen_attendance
       get :scanner # NEU: Die Route für den Kamera-Modus
       post :cancel
       post :uncancel
