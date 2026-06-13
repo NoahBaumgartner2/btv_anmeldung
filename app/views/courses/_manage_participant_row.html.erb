@@ -49,6 +49,18 @@
                         disabled: reg.abo_exhausted?,
                         class: "mr-2 text-xs text-primary-700 font-bold hover:text-primary-900 transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed",
                         data: { turbo_confirm: t("courses.manage.use_abo_entry_confirm", name: p.first_name) } %>
+                  <% if current_user.admin? || @course.trainers.exists?(user_id: current_user.id) %>
+                    <%= form_with url: update_abo_entries_course_registration_path(reg), method: :post, data: { turbo: true }, class: "inline-flex items-center gap-1.5 mr-2 align-middle" do %>
+                      <%= number_field_tag :remaining_entries, reg.abo_entries_remaining.to_i, min: 0,
+                            aria: { label: t("courses.manage.abo_remaining_input") },
+                            title: t("courses.manage.abo_adjust_label"),
+                            class: "w-14 text-xs border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+                      <button type="submit"
+                              class="text-xs text-gray-600 font-bold hover:text-gray-900 transition cursor-pointer">
+                        <%= t("courses.manage.abo_save") %>
+                      </button>
+                    <% end %>
+                  <% end %>
                 <% end %>
                 <%# Aktionen-Dropdown %>
                 <div class="inline-block text-left" data-controller="dropdown">
