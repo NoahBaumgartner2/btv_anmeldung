@@ -334,11 +334,13 @@ fr:
     free: "Gratuit"
     registration_modes:
       semester: "Par semestre"
+      jahreskurs: "Par année"
       quartal: "Par trimestre"
       abo: "Abonnement (contingent)"
       single_session: "Par séance (Drop-In)"
     registration_types:
       semester: "Cours semestriel"
+      jahreskurs: "Cours annuel"
       pro_training: "Par séance"
 
   participants:

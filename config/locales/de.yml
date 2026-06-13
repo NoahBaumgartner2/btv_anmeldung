@@ -373,11 +373,13 @@ de:
     free: "Kostenlos"
     registration_modes:
       semester: "Pro Semester"
+      jahreskurs: "Pro Jahr"
       quartal: "Pro Quartal"
       abo: "Abo (Kontingent)"
       single_session: "Pro Training (Drop-In)"
     registration_types:
       semester: "Semesterkurs"
+      jahreskurs: "Jahreskurs"
       pro_training: "Pro Training"
 
   participants:
