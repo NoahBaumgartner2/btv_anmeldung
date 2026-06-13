@@ -5,7 +5,8 @@ class CourseRegistration < ApplicationRecord
   belongs_to :participant
   belongs_to :training_session, optional: true
   belongs_to :trial_session, class_name: "TrainingSession", optional: true
-  belongs_to :cancelled_by_trainer, class_name: "Trainer", optional: true
+  belongs_to :cancelled_by_trainer, class_name: "Trainer", optional: true,
+             inverse_of: :cancelled_registrations
 
   has_many :attendances, dependent: :destroy
 
