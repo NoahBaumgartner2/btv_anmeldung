@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_13_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_13_143247) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -51,6 +51,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_120000) do
     t.index ["course_registration_id"], name: "index_attendances_on_course_registration_id"
     t.index ["training_session_id", "course_registration_id"], name: "index_attendances_unique_per_session", unique: true
     t.index ["training_session_id"], name: "index_attendances_on_training_session_id"
+  end
+
+  create_table "books", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "club_settings", force: :cascade do |t|
@@ -353,6 +358,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_120000) do
     t.integer "failed_attempts", default: 0, null: false
     t.boolean "family_data_completed", default: false, null: false
     t.string "house_number"
+    t.datetime "invitation_expires_at"
+    t.string "invitation_kind"
     t.datetime "locked_at"
     t.string "mother_tongue", default: "DE"
     t.string "nationality", default: "CH"
