@@ -334,11 +334,13 @@ en:
     free: "Free"
     registration_modes:
       semester: "Per semester"
+      jahreskurs: "Per year"
       quartal: "Per quarter"
       abo: "Subscription (block booking)"
       single_session: "Per session (Drop-In)"
     registration_types:
       semester: "Semester course"
+      jahreskurs: "Annual course"
       pro_training: "Per session"
 
   participants:

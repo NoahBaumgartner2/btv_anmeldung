@@ -357,7 +357,11 @@ class CoursesController < ApplicationController
     end
 
     def derive_registration_type(registration_mode)
-      registration_mode == "single_session" ? "pro_training" : "semester"
+      case registration_mode
+      when "single_session" then "pro_training"
+      when "jahreskurs"     then "jahreskurs"
+      else "semester"
+      end
     end
 
     def authorize_trainer_or_admin!
