@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_13_150255) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_14_113502) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -357,9 +357,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_13_150255) do
     t.string "encrypted_password", default: "", null: false
     t.integer "failed_attempts", default: 0, null: false
     t.boolean "family_data_completed", default: false, null: false
+    t.string "first_name"
     t.string "house_number"
     t.datetime "invitation_expires_at"
     t.string "invitation_kind"
+    t.string "last_name"
     t.datetime "locked_at"
     t.string "mother_tongue", default: "DE"
     t.string "nationality", default: "CH"

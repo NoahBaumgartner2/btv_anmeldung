@@ -1,4 +1,4 @@
-Hallo <%= @recipient.email.split("@").first %>,
+Hallo <%= greeting_name(@recipient) %>,
 
 <% if @course_registration.status == "schnuppern" %>
 <%= @participant.first_name %> hat einen Schnupperplatz für 7 Tage gesichert. Danach ist eine reguläre Anmeldung nötig.
@@ -10,7 +10,8 @@ der Kurs ist aktuell ausgebucht. Wir haben <%= @participant.first_name %> <%= @p
 
 Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
 Kurs:        <%= @course.title %>
-Status:      <%= @course_registration.status_label %>
+<% trainer_names = @course.trainers.map(&:full_name) %><% if trainer_names.any? %>Leiter*in:   <%= trainer_names.join(", ") %>
+<% end %>Status:      <%= @course_registration.status_label %>
 <% if @course.has_payment? && @course_registration.status != "schnuppern" %>
 Betrag:      <%= @course.price_display %>
 <% end %>
@@ -18,6 +19,8 @@ Betrag:      <%= @course.price_display %>
 <% if @qr_code_base64.present? %>
 Eintrittskarte: Dein QR-Code-Ticket findest du in der HTML-Version dieser E-Mail.
 <% end %>
+Bei einer Verhinderung bitten wir dich, dich von der Teilnahme am einzelnen Training auf der Plattform abzumelden. Für das Training sind Sportkleidung und ein Getränk mitzubringen. Das Training beginnt pünktlich zur angegebenen Zeit, bereits umgezogen am Kursort.
+
 Bei Fragen wende dich bitte direkt an uns.
 
 ---

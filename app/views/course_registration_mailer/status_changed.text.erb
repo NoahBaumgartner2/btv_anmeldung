@@ -1,4 +1,4 @@
-Hallo <%= @recipient.email.split("@").first %>,
+Hallo <%= greeting_name(@recipient) %>,
 
 der Anmeldestatus von <%= @participant.first_name %> <%= @participant.last_name %> für den Kurs "<%= @course.title %>" wurde geändert.
 
