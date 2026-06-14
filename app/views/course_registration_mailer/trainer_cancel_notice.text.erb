@@ -1,4 +1,4 @@
-Hallo <%= @recipient.email.split("@").first %>,
+Hallo <%= greeting_name(@recipient) %>,
 
 <%= @participant.first_name %> <%= @participant.last_name %> hat sich vom Kurs "<%= @course.title %>" abgemeldet.
 

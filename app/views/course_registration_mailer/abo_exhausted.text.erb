@@ -1,14 +1,16 @@
-Hallo <%= @recipient.email.split("@").first %>,
+Hallo <%= greeting_name(@recipient) %>,
 
 das Abo von <%= @participant.first_name %> <%= @participant.last_name %> für den Kurs
 "<%= @course.title %>" wurde vollständig aufgebraucht.
-Die Anmeldung wurde automatisch beendet.
+Für eine weitere Teilnahme ist die Bezahlung eines erneuten Abos notwendig.
 
 Teilnehmer:              <%= @participant.first_name %> <%= @participant.last_name %>
 Kurs:                    <%= @course.title %>
 Verbleibende Eintritte:  0
 
-Du kannst dich jederzeit erneut anmelden – sofern noch Plätze verfügbar sind.
+Zur Kursanmeldung: <%= course_url(@course) %>
+
+Bei Fragen kannst du dich an den Administrator wenden.
 
 ---
 Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

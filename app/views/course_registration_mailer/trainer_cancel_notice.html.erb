@@ -7,7 +7,7 @@
 </table>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
-  Hallo <%= @recipient.email.split("@").first %>,<br><br>
+  Hallo <%= greeting_name(@recipient) %>,<br><br>
   <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> hat sich vom Kurs
   <strong><%= @course.title %></strong> abgemeldet.
 </p>

@@ -9,7 +9,7 @@
 </table>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
-  Hallo <%= @recipient.email.split("@").first %>,<br><br>
+  Hallo <%= greeting_name(@recipient) %>,<br><br>
   wir möchten dich daran erinnern, dass für die Anmeldung von
   <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
   beim Kurs <strong><%= @course.title %></strong> noch eine ausstehende Zahlung vorliegt.

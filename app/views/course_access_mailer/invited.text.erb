@@ -1,11 +1,14 @@
-Hallo <%= @user.email.split("@").first %>,
+<% trainers = @course.trainers.to_a %><% lead_trainer = trainers.first %>Hallo <%= greeting_name(@user) %>,
 
 du hast Zugriff auf den eingeschränkten Kurs "<%= @course.title %>" erhalten. Du kannst dich jetzt anmelden.
 
-Kurs: <%= @course.title %>
-Link: <%= @course_url %>
-
-Bei Fragen wende dich bitte direkt an uns.
+Teilnehmer: <%= @user.full_name %>
+Kurs:        <%= @course.title %>
+<% if trainers.any? %>Leiter*in:   <%= trainers.map(&:full_name).join(", ") %>
+<% end %>Link:        <%= @course_url %>
+<% if lead_trainer && lead_trainer.user&.email.present? %>
+Bei spezifischen Fragen zum Kurs, die nicht bis zum ersten Training warten können, wende dich direkt an <%= lead_trainer.full_name %> (<%= lead_trainer.user.email %>).
+<% end %>
 
 ---
 Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.
