@@ -56,4 +56,43 @@ class CoursesHelperTest < ActionView::TestCase
 
     assert_equal "Freitag, 18:00–19:00", course_weekly_time(course)
   end
+
+  test "category_locations liefert eindeutige, nicht-leere Orte" do
+    a = make_course(title: "A")
+    a.update_column(:location, "ewb-Halle")
+    b = make_course(title: "B")
+    b.update_column(:location, "Turnhalle Brunnmatt")
+    c = make_course(title: "C")
+    c.update_column(:location, "ewb-Halle")
+    d = make_course(title: "D")
+    d.update_column(:location, "")
+
+    assert_equal [ "ewb-Halle", "Turnhalle Brunnmatt" ], category_locations([ a, b, c, d ])
+  end
+
+  test "course_weekday_index gibt Wochentag-Index der Session zurück" do
+    course = make_course
+    add_session(course, :monday, 17)
+
+    assert_equal 1, course_weekday_index(course)
+  end
+
+  test "course_weekday_index ist nil bei Drop-In mit gemischten Wochentagen" do
+    course = make_course(registration_mode: "single_session")
+    add_session(course, :monday, 17)
+    add_session(course, :thursday, 19)
+
+    assert_nil course_weekday_index(course)
+  end
+
+  test "category_weekday_names liefert sortierte, eindeutige Namen (Montag zuerst)" do
+    mon = make_course(title: "Mo")
+    add_session(mon, :monday, 17)
+    wed = make_course(title: "Mi")
+    add_session(wed, :wednesday, 18)
+    mon2 = make_course(title: "Mo2")
+    add_session(mon2, :monday, 19)
+
+    assert_equal [ "Montag", "Mittwoch" ], category_weekday_names([ wed, mon, mon2 ])
+  end
 end
