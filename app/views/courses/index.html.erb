@@ -37,6 +37,16 @@
                 </p>
               </div>
             </div>
+
+            <%# Schnell-Info: Wochentage + alle Orte (nur ≥ md – auf Mobile zu eng) %>
+            <div class="hidden md:flex flex-wrap items-center justify-end gap-1.5 shrink-0 max-w-[55%]">
+              <% category_weekday_names(courses_in_category).each do |day| %>
+                <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-primary-50 text-primary-700"><%= day %></span>
+              <% end %>
+              <% category_locations(courses_in_category).each do |loc| %>
+                <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2.5 py-1 rounded-full"><%= loc %></span>
+              <% end %>
+            </div>
           </summary>
           <div class="border-t border-red-100 bg-red-50/30 p-4 sm:p-5">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -142,14 +152,13 @@
             </div>
           </div>
 
-          <%# Schnell-Info: Orte (nur ≥ md – auf Mobile zu eng) %>
-          <div class="hidden md:flex items-center gap-2 shrink-0">
-            <% locations = courses_in_category.map(&:location).compact.uniq.first(2) %>
-            <% locations.each do |loc| %>
-              <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2.5 py-1 rounded-full"><%= loc %></span>
+          <%# Schnell-Info: Wochentage + alle Orte (nur ≥ md – auf Mobile zu eng) %>
+          <div class="hidden md:flex flex-wrap items-center justify-end gap-1.5 shrink-0 max-w-[55%]">
+            <% category_weekday_names(courses_in_category).each do |day| %>
+              <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-primary-50 text-primary-700"><%= day %></span>
             <% end %>
-            <% if courses_in_category.map(&:location).compact.uniq.size > 2 %>
-              <span class="text-xs text-gray-400">+<%= courses_in_category.map(&:location).compact.uniq.size - 2 %> <%= t("courses.index.more_locations") %></span>
+            <% category_locations(courses_in_category).each do |loc| %>
+              <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2.5 py-1 rounded-full"><%= loc %></span>
             <% end %>
           </div>
         </summary>

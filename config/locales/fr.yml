@@ -136,7 +136,6 @@ fr:
       slots_available:
         one: "1 date disponible"
         other: "%{count} dates disponibles"
-      more_locations: "de plus"
       status:
         drop_in: "Drop-In"
         full: "Complet"
