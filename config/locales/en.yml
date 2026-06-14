@@ -720,7 +720,7 @@ en:
       r8_purpose: "Proof of participation, J+S reporting"
       r8_basis: "Legal obligation / contract performance"
       r9_cat: "Email address (newsletter)"
-      r9_purpose: "Sending club news and course information"
+      r9_purpose: "Sending club news and course information. Subscription happens automatically on registration and can be cancelled at any time in your account settings."
       r9_basis: "Consent (Art. 6(1)(a) GDPR) – revocable at any time"
       s3: "3. Particularly Sensitive Data"
       ahv_title: "AHV Number (AHVN13)"
@@ -1449,7 +1449,7 @@ en:
         password_label: "Password"
         password_min_hint: "At least %{count} characters"
         password_confirm_label: "Confirm password"
-        newsletter_label_html: "Yes, I'd like to receive the <strong>BTV newsletter</strong> with info about new courses and offers. You can unsubscribe at any time in your account settings."
+        newsletter_info_html: "By registering you'll receive the <strong>BTV newsletter</strong> with info about courses and trainings. You can unsubscribe at any time in your account settings."
         photo_consent_label_html: "I agree that <strong>BTV Bern</strong> may take photos and videos of me / my child at courses and events and publish them on its social media channels and website. This consent can be withdrawn at any time in the account settings."
         submit: "Create account"
       edit:
