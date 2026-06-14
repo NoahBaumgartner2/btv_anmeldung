@@ -252,13 +252,14 @@ class CourseRegistrationsController < ApplicationController
       @course_registration.with_lock do
         @course_registration.reload
         break if @course_registration.refunded_at.present?
+        planned_cents = RefundService.calculate_amount_cents(@course_registration)
         begin
           result = RefundService.process(@course_registration)
           refund_cents = result[:amount_cents] if result[:refunded]
         rescue RuntimeError => e
           Rails.logger.error "[destroy] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
           User.where(admin: true).find_each do |admin_user|
-            CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message).deliver_later
+            CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message, planned_cents).deliver_later
           end
         end
       end
@@ -313,6 +314,7 @@ class CourseRegistrationsController < ApplicationController
     )
 
     if @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
+      planned_cents = RefundService.calculate_amount_cents(@course_registration)
       begin
         result = RefundService.process(@course_registration)
         if result[:refunded]
@@ -324,7 +326,7 @@ class CourseRegistrationsController < ApplicationController
       rescue RuntimeError => e
         Rails.logger.error "[cancel] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
         User.where(admin: true).find_each do |admin_user|
-          CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message).deliver_later
+          CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message, planned_cents).deliver_later
         end
         notice = "Die Anmeldung für \"#{course.title}\" wurde storniert. Die Rückerstattung konnte nicht automatisch ausgelöst werden — der Administrator wurde informiert."
       end
@@ -377,20 +379,32 @@ class CourseRegistrationsController < ApplicationController
     CourseRegistrationMailer.cancelled_by_trainer(@course_registration).deliver_later
 
     # Automatischer Refund (nur wenn Kurs bezahlt)
+    refund_amount_cents = nil
+    refund_failed = false
     if @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
+      planned_cents = RefundService.calculate_amount_cents(@course_registration)
       begin
         result = RefundService.process(@course_registration)
         if result[:refunded]
-          amount_chf = format("%.2f", result[:amount_cents] / 100.0)
+          refund_amount_cents = result[:amount_cents]
+          amount_chf = format("%.2f", refund_amount_cents / 100.0)
           Rails.logger.info "[trainer_cancel] Refund CHF #{amount_chf} für Registration #{@course_registration.id} ausgelöst"
         else
           Rails.logger.info "[trainer_cancel] Kein Refund für Registration #{@course_registration.id}: #{result[:reason]}"
         end
       rescue RuntimeError => e
+        refund_failed = true
         Rails.logger.error "[trainer_cancel] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
         User.where(admin: true).find_each do |admin_user|
-          CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message).deliver_later
+          CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message, planned_cents).deliver_later
         end
+      end
+    end
+
+    # Admins automatisch über die Abmeldung informieren (sofern kein Refund-Fehler gemeldet wurde)
+    unless refund_failed
+      User.where(admin: true).find_each do |admin_user|
+        CourseRegistrationMailer.admin_refund_done_notice(@course_registration, admin_user, refund_amount_cents).deliver_later
       end
     end
 

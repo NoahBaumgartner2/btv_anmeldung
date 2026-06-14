@@ -11,9 +11,10 @@
 </table>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
-  Hallo <%= @participant_user.email.split("@").first %>,<br><br>
+  Hallo <%= greeting_name(@participant_user) %>,<br><br>
   wir müssen dich leider darüber informieren, dass eine Trainingseinheit abgesagt wurde.
   Wir entschuldigen uns für die Unannehmlichkeiten.
+  Alle anderen Trainings finden wie geplant statt. Die Details dazu findest du auf der Kursplattform.
 </p>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
@@ -23,7 +24,7 @@
       <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
       <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Datum &amp; Zeit</p>
       <p style="margin:0;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;">
-        <%= I18n.l(@training_session.start_time, format: :long) %> – <%= I18n.l(@training_session.end_time, format: :short) %>
+        <%= format_session_range(@training_session.start_time, @training_session.end_time) %>
       </p>
     </td>
   </tr>

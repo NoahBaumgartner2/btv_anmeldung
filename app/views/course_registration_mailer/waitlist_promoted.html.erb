@@ -11,12 +11,12 @@
 </table>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
-  Hallo <%= @recipient.email.split("@").first %>,<br><br>
+  Hallo <%= greeting_name(@recipient) %>,<br><br>
   <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> stand bisher auf der Warteliste.
   Ein Platz ist nun frei geworden.<br><br>
   <% if @needs_payment %>
     Die Anmeldung wurde auf <strong>ausstehend</strong> gesetzt und wartet auf deine Zahlung.
-    Bitte schliesse die Zahlung innerhalb der nächsten Tage ab, damit der Platz gesichert bleibt.
+    Du hast nun eine Woche Zeit, um die Kurskosten online zu bezahlen. Danach kann sofort am Kurs teilgenommen werden.
   <% else %>
     Die Anmeldung wurde automatisch auf <strong>bestätigt</strong> gesetzt.
   <% end %>
@@ -39,7 +39,7 @@
     <td align="center">
       <a href="<%= @checkout_preview_url %>"
          style="display:inline-block;padding:14px 32px;background:<%= primary %>;color:#ffffff;font-size:16px;font-weight:600;text-decoration:none;border-radius:8px;font-family:Arial,Helvetica,sans-serif;">
-        Jetzt bezahlen
+        Anmeldung ansehen und Kurs bezahlen
       </a>
     </td>
   </tr>

@@ -1,4 +1,6 @@
 <% primary = @_club&.effective_primary_color || "#dc2626" %>
+<% trainers = @course.trainers.to_a %>
+<% lead_trainer = trainers.first %>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;margin-bottom:24px;">
   <tr>
@@ -9,9 +11,26 @@
 </table>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
-  Hallo <%= @user.email.split("@").first %>,<br><br>
+  Hallo <%= greeting_name(@user) %>,<br><br>
   du hast Zugriff auf den eingeschränkten Kurs <strong><%= @course.title %></strong> erhalten. Du kannst dich jetzt anmelden.
 </p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Teilnehmer</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @user.full_name %></p>
+
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
+      <p style="margin:0 <%= trainers.any? ? "0 12px 0" : "0" %>;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+
+      <% if trainers.any? %>
+        <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Leiter*in</p>
+        <p style="margin:0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= trainers.map(&:full_name).join(", ") %></p>
+      <% end %>
+    </td>
+  </tr>
+</table>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
   <tr>
@@ -30,6 +49,13 @@
 <p style="margin:0 0 24px 0;font-size:13px;color:#6b7280;word-break:break-all;font-family:Arial,Helvetica,sans-serif;">
   <%= @course_url %>
 </p>
+
+<% if lead_trainer && lead_trainer.user&.email.present? %>
+  <p style="margin:0 0 16px 0;font-size:13px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;">
+    Bei spezifischen Fragen zum Kurs, die nicht bis zum ersten Training warten können, wende dich direkt an
+    <%= lead_trainer.full_name %> (<%= lead_trainer.user.email %>).
+  </p>
+<% end %>
 
 <p style="margin:0;font-size:13px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
   Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

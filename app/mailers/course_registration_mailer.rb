@@ -77,12 +77,14 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
-  def refund_failed_notice(course_registration, admin_user, error_message)
+  def refund_failed_notice(course_registration, admin_user, error_message, refund_amount_cents = nil)
     @course_registration = course_registration
     @course       = course_registration.course
     @participant  = course_registration.participant
     @parent       = @participant.user
     @error_message = error_message
+    @refund_amount_cents = refund_amount_cents
+    @refund_amount_chf   = refund_amount_cents ? format("%.2f", refund_amount_cents / 100.0) : nil
     @recipient    = admin_user
 
     mail(
@@ -91,18 +93,20 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
-  def admin_refund_notice(course_registration, admin_user)
+  # Informiert den Admin automatisch, nachdem ein Trainer ein Kind ausgeschlossen hat.
+  def admin_refund_done_notice(course_registration, admin_user, refund_amount_cents)
     @course_registration = course_registration
     @course       = course_registration.course
     @participant  = course_registration.participant
     @parent       = @participant.user
-    @reason       = course_registration.cancellation_reason
-    @cancelled_by = course_registration.cancelled_by_trainer&.user&.email
+    @cancelled_by = course_registration.cancelled_by_trainer&.full_name
+    @refund_amount_cents = refund_amount_cents
+    @refund_amount_chf   = refund_amount_cents ? format("%.2f", refund_amount_cents / 100.0) : nil
     @recipient    = admin_user
 
     mail(
       to: admin_user.email,
-      subject: "Rückerstattung prüfen: #{@participant.first_name} #{@participant.last_name} (#{@course.title})"
+      subject: "Teilnehmer abgemeldet: #{@participant.first_name} #{@participant.last_name} – #{@course.title}"
     )
   end
 
@@ -165,7 +169,7 @@ class CourseRegistrationMailer < ApplicationMailer
 
     mail(
       to: @recipient.email,
-      subject: "Zahlungsquittung: #{@course.title}"
+      subject: "Zahlungsbeleg: #{@course.title}"
     )
   end
 
@@ -213,15 +217,18 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
-  def custom_message(course_registration, subject:, body:)
+  def custom_message(course_registration, subject:, body:, sender:)
     @course_registration = course_registration
     @course = course_registration.course
     @participant = course_registration.participant
     @recipient = @participant.user
+    @custom_subject = subject
     @custom_body = body
+    @sender_name  = sender.full_name
+    @sender_email = sender.is_a?(Trainer) ? sender.user&.email : sender.try(:email)
     return if @recipient.nil?
 
-    mail(to: @recipient.email, subject: subject)
+    mail(to: @recipient.email, subject: "Nachricht von #{@sender_name}")
   end
 
   def status_changed(course_registration)

@@ -1,16 +1,16 @@
-Hallo <%= @recipient.email.split("@").first %>,
+Hallo <%= greeting_name(@recipient) %>,
 
 <%= @participant.first_name %> <%= @participant.last_name %> wurde vom Kurs "<%= @course.title %>" durch einen Trainer abgemeldet.
 
 Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
 Kurs:        <%= @course.title %>
-<% if @reason.present? %>
+<% trainer_names = @course.trainers.map(&:full_name) %><% if trainer_names.any? %>Leiter*in:   <%= trainer_names.join(", ") %>
+<% end %><% if @reason.present? %>
 Begründung:
 <%= @reason %>
 <% end %>
-<% if @course_registration.cancellation_notify_admin? && @course.has_payment? && @course_registration.payment_cleared? %>
-
-Der Administrator wurde bezüglich einer möglichen Rückerstattung informiert und meldet sich in den nächsten Tagen bei dir.
+<% if @course.has_payment? %>
+Die anteilsmässige Rückerstattung der Kurskosten wird automatisch veranlasst.
 <% end %>
 
 Bei Fragen wende dich bitte direkt an uns.

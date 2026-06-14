@@ -303,9 +303,6 @@ de:
       reason_label: "Begründung"
       reason_optional: "(optional)"
       reason_placeholder: "z.B. Verletzung, Kurswechsel, ..."
-      notify_admin_title: "Administrator wegen Rückerstattung benachrichtigen"
-      notify_admin_body: "Ankreuzen, wenn die Eltern Geld zurückbekommen sollen."
-      notify_admin_body_detail: "Der Admin erhält dann eine E-Mail und kümmert sich um die Rückerstattung."
       unsubscribe_now: "Jetzt abmelden"
       cancel: "Abbrechen"
       edit_aria: "%{name} bearbeiten"
@@ -1483,6 +1480,8 @@ de:
         remember_me: "Angemeldet bleiben"
         submit: "Anmelden"
     registrations:
+      first_name: "Vorname"
+      last_name: "Nachname"
       new:
         title: "Konto erstellen"
         subtitle: "Registriere dich, um Kurse für den BTV zu buchen."
@@ -1551,6 +1550,7 @@ de:
   family_data:
     title: "Persönliche Angaben"
     subtitle: "Adresse, Telefonnummer und weitere Kontaktangaben deines Kontos."
+    section_name: "Name"
     section_contact: "Kontaktdaten"
     edit_btn: "Persönliche Angaben bearbeiten"
     submit_btn: "Änderungen speichern"

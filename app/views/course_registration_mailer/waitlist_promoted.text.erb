@@ -1,12 +1,12 @@
-Hallo <%= @recipient.email.split("@").first %>,
+Hallo <%= greeting_name(@recipient) %>,
 
 <%= @participant.first_name %> stand bisher auf der Warteliste. Ein Platz ist nun frei geworden.
 
 <% if @needs_payment %>
 Die Anmeldung wurde auf "ausstehend" gesetzt und wartet auf deine Zahlung.
-Bitte schliesse die Zahlung innerhalb der nächsten Tage ab, damit der Platz gesichert bleibt.
+Du hast nun eine Woche Zeit, um die Kurskosten online zu bezahlen. Danach kann sofort am Kurs teilgenommen werden.
 
-Jetzt bezahlen: <%= @checkout_preview_url %>
+Anmeldung ansehen und Kurs bezahlen: <%= @checkout_preview_url %>
 Anmeldung ansehen: <%= @registration_url %>
 <% else %>
 Die Anmeldung wurde automatisch auf "bestätigt" gesetzt.

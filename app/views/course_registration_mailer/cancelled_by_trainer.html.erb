@@ -7,7 +7,7 @@
 </table>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
-  Hallo <%= @recipient.email.split("@").first %>,<br><br>
+  Hallo <%= greeting_name(@recipient) %>,<br><br>
   <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> wurde vom Kurs
   <strong><%= @course.title %></strong> durch einen Trainer abgemeldet.
 </p>
@@ -21,6 +21,12 @@
       <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
       <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
 
+      <% trainer_names = @course.trainers.map(&:full_name) %>
+      <% if trainer_names.any? %>
+        <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Leiter*in</p>
+        <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= trainer_names.join(", ") %></p>
+      <% end %>
+
       <% if @reason.present? %>
         <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Begründung</p>
         <p style="margin:0;font-size:15px;color:#111827;font-family:Arial,Helvetica,sans-serif;white-space:pre-line;"><%= @reason %></p>
@@ -29,12 +35,12 @@
   </tr>
 </table>
 
-<% if @course_registration.cancellation_notify_admin? && @course.has_payment? && @course_registration.payment_cleared? %>
+<% if @course.has_payment? %>
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;margin-bottom:24px;">
     <tr>
       <td style="padding:16px 20px;">
         <p style="margin:0;font-size:14px;color:#1e40af;font-family:Arial,Helvetica,sans-serif;">
-          Der Administrator wurde bezüglich einer möglichen Rückerstattung informiert und meldet sich in den nächsten Tagen bei dir.
+          Die anteilsmässige Rückerstattung der Kurskosten wird automatisch veranlasst.
         </p>
       </td>
     </tr>

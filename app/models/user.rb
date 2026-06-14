@@ -35,6 +35,14 @@ class User < ApplicationRecord
     photo_consent_accepted_at.present?
   end
 
+  def display_name
+    first_name.presence || email.to_s.split("@").first
+  end
+
+  def full_name
+    [ first_name, last_name ].compact_blank.join(" ").presence || email.to_s.split("@").first
+  end
+
   def admin_notification_enabled?(type)
     # Gilt für alle Empfänger (Trainer wie Admins).
     # Default: alle aktiviert (leeres Hash = alles aktiv)

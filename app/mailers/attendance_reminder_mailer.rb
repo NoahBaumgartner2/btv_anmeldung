@@ -14,7 +14,7 @@ class AttendanceReminderMailer < ApplicationMailer
   def admin_notification(training_session)
     @training_session = training_session
     @course = training_session.course
-    @trainer_emails = training_session.course.course_trainers.map { |ct| ct.trainer.user.email }
+    @trainer_names = training_session.course.course_trainers.map { |ct| ct.trainer.full_name }
     @training_session_url = training_session_url(training_session)
 
     mail(
@@ -26,7 +26,7 @@ class AttendanceReminderMailer < ApplicationMailer
   def admin_notification_for(training_session, admin_user)
     @training_session = training_session
     @course = training_session.course
-    @trainer_emails = training_session.course.course_trainers.map { |ct| ct.trainer.user.email }
+    @trainer_names = training_session.course.course_trainers.map { |ct| ct.trainer.full_name }
     @training_session_url = training_session_url(training_session)
 
     mail(

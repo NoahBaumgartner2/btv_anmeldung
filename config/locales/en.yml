@@ -264,9 +264,6 @@ en:
       reason_label: "Reason"
       reason_optional: "(optional)"
       reason_placeholder: "e.g. injury, course change, ..."
-      notify_admin_title: "Notify administrator for refund"
-      notify_admin_body: "Check if parents should receive a refund."
-      notify_admin_body_detail: "The admin will receive an email and handle the refund."
       unsubscribe_now: "Unsubscribe now"
       cancel: "Cancel"
       edit_aria: "Edit %{name}"
@@ -1444,6 +1441,8 @@ en:
         remember_me: "Stay signed in"
         submit: "Sign in"
     registrations:
+      first_name: "First name"
+      last_name: "Last name"
       new:
         title: "Create account"
         subtitle: "Register to book courses with BTV."
@@ -1512,6 +1511,7 @@ en:
   family_data:
     title: "Personal details"
     subtitle: "Address, phone number and other contact details for your account."
+    section_name: "Name"
     section_contact: "Contact details"
     edit_btn: "Edit personal details"
     submit_btn: "Save changes"

@@ -1,4 +1,24 @@
 class RefundService
+  # Berechnet den geplanten Rückerstattungsbetrag (in Rappen), ohne den
+  # SumUp-Refund auszulösen. Gibt nil zurück, wenn keine Rückerstattung möglich/sinnvoll ist.
+  def self.calculate_amount_cents(registration)
+    course = registration.course
+    return nil unless course.has_payment? && registration.payment_cleared?
+    return nil unless course.training_value_cents.present? && course.training_value_cents > 0
+
+    paid_cents = registration.applied_price_cents || course.price_cents
+    return nil unless paid_cents.present? && paid_cents > 0
+
+    sessions_count = course.training_sessions
+      .where(is_canceled: false)
+      .where("start_time <= ?", Time.current)
+      .where("start_time >= ?", registration.created_at)
+      .count
+
+    refund_cents = paid_cents - (sessions_count * course.training_value_cents)
+    refund_cents.positive? ? refund_cents : nil
+  end
+
   def self.process(registration)
     return { refunded: false, reason: "already_refunded" } if registration.refund_already_processed?
 
