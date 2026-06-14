@@ -714,7 +714,7 @@ fr:
       r8_purpose: "Preuve de participation, rapportage J+S"
       r8_basis: "Obligation légale / exécution du contrat"
       r9_cat: "Adresse e-mail (newsletter)"
-      r9_purpose: "Envoi de nouvelles de l'association, informations sur les cours"
+      r9_purpose: "Envoi de nouvelles de l'association, informations sur les cours. L'abonnement se fait automatiquement lors de l'inscription et peut être annulé à tout moment dans les paramètres du compte."
       r9_basis: "Consentement (art. 6, al. 1, lit. a RGPD) – révocable à tout moment"
       s3: "3. Données particulièrement sensibles"
       ahv_title: "Numéro AVS (AHVN13)"
@@ -1443,7 +1443,7 @@ fr:
         password_label: "Mot de passe"
         password_min_hint: "Au moins %{count} caractères"
         password_confirm_label: "Confirmer le mot de passe"
-        newsletter_label_html: "Oui, je souhaite recevoir la <strong>newsletter BTV</strong> avec des infos sur les nouveaux cours et offres. Vous pouvez vous désabonner à tout moment dans les paramètres du compte."
+        newsletter_info_html: "En t'inscrivant, tu reçois la <strong>newsletter BTV</strong> avec des infos sur les cours et entraînements. Tu peux te désinscrire à tout moment dans les paramètres de ton compte."
         photo_consent_label_html: "J'accepte que le <strong>BTV Bern</strong> prenne des photos et vidéos de moi / mon enfant lors de cours et d'événements et les publie sur ses réseaux sociaux et son site web. Ce consentement peut être retiré à tout moment dans les paramètres du compte."
         submit: "Créer un compte"
       edit:

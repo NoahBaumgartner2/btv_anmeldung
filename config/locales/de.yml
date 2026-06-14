@@ -759,7 +759,7 @@ de:
       r8_purpose: "Nachweis der Kursteilnahme, J+S-Rapportierung"
       r8_basis: "Rechtliche Verpflichtung / Vertragserfüllung"
       r9_cat: "E-Mail-Adresse (Newsletter)"
-      r9_purpose: "Versand von Vereinsnews, Kursinfos"
+      r9_purpose: "Versand von Vereinsnews, Kursinfos. Das Abo erfolgt automatisch mit der Registrierung und ist jederzeit in den Kontoeinstellungen abbestellbar."
       r9_basis: "Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) – jederzeit widerrufbar"
       s3: "3. Besonders schützenswerte Daten"
       ahv_title: "AHV-Nummer (AHVN13)"
@@ -1488,7 +1488,7 @@ de:
         password_label: "Passwort"
         password_min_hint: "Mindestens %{count} Zeichen"
         password_confirm_label: "Passwort bestätigen"
-        newsletter_label_html: "Ja, ich möchte den <strong>BTV-Newsletter</strong> mit Infos zu neuen Kursen und Angeboten erhalten. Du kannst dich jederzeit in deinen Kontoeinstellungen wieder abmelden."
+        newsletter_info_html: "Mit der Registrierung erhältst du den <strong>BTV-Newsletter</strong> mit Infos zu Kursen und Trainings. Du kannst dich jederzeit in deinen Kontoeinstellungen abmelden."
         photo_consent_label_html: "Ich bin damit einverstanden, dass der <strong>BTV Bern</strong> Fotos und Videos meiner Person / meines Kindes bei Kursen und Veranstaltungen aufnehmen und auf seinen Social-Media-Kanälen sowie der Website veröffentlichen darf. Das Einverständnis kann jederzeit in den Kontoeinstellungen widerrufen werden."
         submit: "Konto erstellen"
       edit:
