@@ -58,18 +58,10 @@
           </span>
         </label>
 
-        <%# Optional: Newsletter %>
-        <label class="flex items-start gap-3 cursor-pointer group">
-          <input type="checkbox"
-                 name="user[newsletter_opt_in]"
-                 value="1"
-                 data-newsletter-opt-in-target="newsletter"
-                 class="mt-0.5 w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer shrink-0">
-          <span class="text-xs text-gray-600 leading-relaxed">
-            <%= t("devise.registrations.new.newsletter_label_html").html_safe %>
-            <span class="text-gray-400">(optional)</span>
-          </span>
-        </label>
+        <%# Hinweis: Newsletter automatisch (Trainings-/Kurs-Infos) %>
+        <p class="text-xs text-gray-500 leading-relaxed">
+          <%= t("devise.registrations.new.newsletter_info_html").html_safe %>
+        </p>
 
         <%# Optional: Foto-Einverständnis %>
         <label class="flex items-start gap-3 cursor-pointer group">

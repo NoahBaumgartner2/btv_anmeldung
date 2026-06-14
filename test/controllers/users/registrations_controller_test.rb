@@ -34,11 +34,14 @@ class Users::RegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "newsletter subscription created when opt_in is set" do
+  test "newsletter subscription created automatically on registration" do
     assert_difference "NewsletterSubscriber.count", 1 do
-      post user_registration_url, params: valid_params(newsletter_opt_in: "1")
+      post user_registration_url, params: valid_params
     end
-    assert NewsletterSubscriber.exists?(email: "new@example.com")
+    sub = NewsletterSubscriber.find_by(email: "new@example.com")
+    assert sub
+    assert_equal "subscribed", sub.status
+    assert_equal "registration", sub.source
   end
 
   test "newsletter error does not block registration" do
@@ -48,17 +51,11 @@ class Users::RegistrationsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_difference "User.count", 1 do
-      post user_registration_url, params: valid_params(newsletter_opt_in: "1")
+      post user_registration_url, params: valid_params
     end
     assert_response :redirect
   ensure
     NewsletterSubscriber.define_singleton_method(:find_or_initialize_by, original)
-  end
-
-  test "no newsletter subscriber created when opt_in is not set" do
-    assert_no_difference "NewsletterSubscriber.count" do
-      post user_registration_url, params: valid_params
-    end
   end
 
   test "SMTP error on confirmation mail does not crash registration" do
