@@ -264,9 +264,6 @@ fr:
       reason_label: "Motif"
       reason_optional: "(optionnel)"
       reason_placeholder: "p.ex. blessure, changement de cours, ..."
-      notify_admin_title: "Notifier l'administrateur pour le remboursement"
-      notify_admin_body: "Cocher si les parents doivent être remboursés."
-      notify_admin_body_detail: "L'admin recevra un e-mail et s'occupera du remboursement."
       unsubscribe_now: "Désinscrire maintenant"
       cancel: "Annuler"
       edit_aria: "Modifier %{name}"
@@ -1438,6 +1435,8 @@ fr:
         remember_me: "Rester connecté"
         submit: "Se connecter"
     registrations:
+      first_name: "Prénom"
+      last_name: "Nom"
       new:
         title: "Créer un compte"
         subtitle: "Inscrivez-vous pour réserver des cours BTV."
@@ -1506,6 +1505,7 @@ fr:
   family_data:
     title: "Informations personnelles"
     subtitle: "Adresse, numéro de téléphone et autres coordonnées de votre compte."
+    section_name: "Nom"
     section_contact: "Coordonnées"
     edit_btn: "Modifier les informations personnelles"
     submit_btn: "Enregistrer les modifications"

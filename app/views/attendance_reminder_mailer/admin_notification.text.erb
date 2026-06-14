@@ -3,12 +3,12 @@
 Für folgende Trainingseinheit wurde die Anwesenheit nicht erfasst (mehr als 7 Tage überfällig):
 
 Kurs:  <%= @course.title %>
-Datum: <%= I18n.l(@training_session.start_time, format: :long) %> – <%= I18n.l(@training_session.end_time, format: :short) %>
+Datum: <%= format_session_range(@training_session.start_time, @training_session.end_time) %>
 
 Zugewiesene Trainer:
-<% if @trainer_emails.any? %>
-<% @trainer_emails.each do |email| %>
-- <%= email %>
+<% if @trainer_names.any? %>
+<% @trainer_names.each do |name| %>
+- <%= name %>
 <% end %>
 <% else %>
   (keine Trainer zugewiesen)

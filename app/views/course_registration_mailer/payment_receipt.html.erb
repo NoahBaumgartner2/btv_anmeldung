@@ -9,13 +9,13 @@
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:24px;">
   <tr>
     <td style="padding:16px 20px;">
-      <p style="margin:0;font-size:15px;font-weight:600;color:#166534;font-family:Arial,Helvetica,sans-serif;">&#10003; Zahlung erfolgreich – Quittung</p>
+      <p style="margin:0;font-size:15px;font-weight:600;color:#166534;font-family:Arial,Helvetica,sans-serif;">&#10003; Zahlung erfolgreich – Beleg</p>
     </td>
   </tr>
 </table>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
-  Hallo <%= @recipient.email.split("@").first %>,<br><br>
+  Hallo <%= greeting_name(@recipient) %>,<br><br>
   die Zahlung für die Kursanmeldung von <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
   wurde erfolgreich verarbeitet. Diese E-Mail dient als Zahlungsbestätigung.
 </p>
@@ -36,7 +36,7 @@
       <% if @course.start_date.present? %>
         <p style="margin:0 0 4px 0;font-size:12px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurszeitraum</p>
         <p style="margin:0 0 16px 0;font-size:15px;color:#111827;font-family:Arial,Helvetica,sans-serif;">
-          <%= I18n.l(@course.start_date, format: :long) %><% if @course.end_date.present? %> – <%= I18n.l(@course.end_date, format: :long) %><% end %>
+          <%= I18n.l(@course.start_date.to_date, format: :long) %><% if @course.end_date.present? %> – <%= I18n.l(@course.end_date.to_date, format: :long) %><% end %>
         </p>
       <% end %>
 
@@ -99,5 +99,5 @@
 <p style="margin:0 0 32px 0;font-size:13px;color:#6b7280;font-family:Arial,Helvetica,sans-serif;">
   Diese E-Mail dient als offizielle Zahlungsbestätigung und kann bei Bedarf
   für Krankenkassen, Steuerunterlagen oder andere Stellen verwendet werden.
-  Bei Fragen wende dich an <%= club_email.present? ? club_email : club_name %>.
+  Bei Fragen wende dich an den Administrator.
 </p>

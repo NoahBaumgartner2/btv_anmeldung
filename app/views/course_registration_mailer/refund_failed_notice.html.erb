@@ -8,7 +8,7 @@
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
   Die automatische Rückerstattung für <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
-  (<%= @course.title %>) ist fehlgeschlagen. Bitte führe die Rückerstattung manuell im SumUp Dashboard durch.
+  (<%= @course.title %>) ist fehlgeschlagen. Bitte führe die Rückerstattung manuell <strong>per e-Banking</strong> durch.
 </p>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
@@ -22,6 +22,9 @@
 
       <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Elternkontakt</p>
       <p style="margin:0 0 12px 0;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @parent&.email || "—" %></p>
+
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Rückerstattungsbetrag</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @refund_amount_chf.present? ? "CHF #{@refund_amount_chf}" : "—" %></p>
 
       <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">SumUp Transaktions-ID</p>
       <p style="margin:0 0 12px 0;font-size:15px;font-family:monospace,Arial,Helvetica,sans-serif;color:#111827;"><%= @course_registration.sumup_transaction_id || "—" %></p>

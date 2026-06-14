@@ -1,0 +1,15 @@
+Teilnehmer abgemeldet
+
+Teilnehmer:      <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:            <%= @course.title %>
+Eltern-E-Mail:   <%= @parent&.email || "—" %>
+<% if @cancelled_by.present? %>Abgemeldet durch: <%= @cancelled_by %>
+<% end %>
+<% if @refund_amount_chf.present? %>
+Eine Rückerstattung von CHF <%= @refund_amount_chf %> wurde automatisch ausgelöst.
+<% else %>
+Keine Rückerstattung (Gratis-/unbezahlter Kurs).
+<% end %>
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

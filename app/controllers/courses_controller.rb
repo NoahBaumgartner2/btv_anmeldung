@@ -305,7 +305,8 @@ class CoursesController < ApplicationController
       return redirect_to manage_course_path(@course), alert: "Betreff und Nachricht dürfen nicht leer sein."
     end
 
-    CourseRegistrationMailer.custom_message(reg, subject: subject, body: body).deliver_later
+    sender = Trainer.find_by(user: current_user) || current_user
+    CourseRegistrationMailer.custom_message(reg, subject: subject, body: body, sender: sender).deliver_later
     redirect_to manage_course_path(@course), notice: "E-Mail an #{reg.participant.first_name} #{reg.participant.last_name} wurde gesendet."
   end
 

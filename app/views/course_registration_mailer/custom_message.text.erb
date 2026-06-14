@@ -1,9 +1,13 @@
-Hallo <%= @recipient.email.split("@").first %>,
+Hallo <%= greeting_name(@recipient) %>,
 
 <%= @custom_body %>
 
 ---
 Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
 Kurs:        <%= @course.title %>
-
-Diese E-Mail wurde vom Trainer versendet.
+Leiter*in:   <%= @sender_name %><% if @sender_email.present? %> (<%= @sender_email %>)<% end %>
+<% if @sender_email.present? %>
+Um auf diese Nachricht zu antworten, verwende bitte die E-Mail der Leitung (<%= @sender_email %>).
+<% else %>
+Diese E-Mail wurde von der Kursleitung versendet.
+<% end %>
