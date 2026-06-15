@@ -150,7 +150,13 @@ class CourseRegistrationsController < ApplicationController
       end
     end
 
-    # 2d. Duplikat-Check für Semesterkurse
+    # 2d. Duplikat- bzw. Weiterleitungs-Check für Semesterkurse
+    #
+    # - Bereits final abgeschlossen (bezahlt bzw. bestätigt auf Gratiskurs) ODER auf der
+    #   Warteliste ODER erneuter Schnupper-Versuch  → echte Doppelanmeldung → blockieren.
+    # - Bestehender Schnupperplatz ODER bestätigt-aber-noch-nicht-bezahlt auf einem
+    #   kostenpflichtigen Kurs  → KEINEN zweiten Datensatz anlegen, sondern den bestehenden
+    #   Datensatz weiterverwenden und zur Zahlung weiterleiten (Gratiskurs: regulär bestätigen).
     if course && participant && course.registration_mode != "single_session"
       existing_reg = CourseRegistration.where(
         participant_id: participant.id,
@@ -158,10 +164,28 @@ class CourseRegistrationsController < ApplicationController
       ).where.not(status: [ "storniert", "ausstehend" ]).first
 
       if existing_reg
-        error_key = existing_reg.status == CourseRegistration::TRIAL_STATUS ? "duplicate_schnuppern" : "duplicate_registration"
-        @course_registration.errors.add(:base, I18n.t("course_registrations.errors.#{error_key}"))
-        setup_new_form(course)
-        return render :new, status: :unprocessable_entity
+        # Hinweis: fully_confirmed? liefert für Schnupperplätze bewusst true (Sichtbarkeit
+        # in der Kursverwaltung). Für die Weiterleitung muss der Schnupperplatz aber
+        # konvertierbar bleiben, daher hier explizit per trial? ausgenommen.
+        if is_trial || (existing_reg.fully_confirmed? && !existing_reg.trial?) || existing_reg.status == "warteliste"
+          error_key = existing_reg.status == CourseRegistration::TRIAL_STATUS ? "duplicate_schnuppern" : "duplicate_registration"
+          @course_registration.errors.add(:base, I18n.t("course_registrations.errors.#{error_key}"))
+          setup_new_form(course)
+          return render :new, status: :unprocessable_entity
+        end
+
+        if course.has_payment? && course.price_cents.to_i > 0
+          # Schnupperplatz → auf "ausstehend" umstellen, damit er bezahlbar wird.
+          # Bestätigt-aber-unbezahlt bleibt "bestätigt" und geht direkt zur Zahlung.
+          existing_reg.update!(status: "ausstehend") if existing_reg.trial?
+          return redirect_to checkout_preview_registration_path(existing_reg)
+        else
+          # Gratiskurs: Schnupperplatz direkt regulär bestätigen.
+          existing_reg.update!(status: "bestätigt") if existing_reg.trial?
+          CourseRegistrationMailer.confirmation(existing_reg).deliver_later if existing_reg.saved_change_to_status?
+          return redirect_to course_registration_path(existing_reg),
+            notice: t("course_registrations.flash.trial_converted")
+        end
       end
     end
 
