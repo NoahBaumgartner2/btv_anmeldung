@@ -364,6 +364,7 @@ fr:
       unsubscribe_session_confirm: "Désinscrire %{name} de l'entraînement du %{date} ?"
       cancel: "Annuler"
       confirm_unsubscribe: "Oui, me désinscrire du cours"
+      confirm_unsubscribe_session: "Oui, me désinscrire de la séance"
       ticket_enlarge: "Agrandir le billet"
       ticket_modal_title: "Billet – %{name}"
       close: "Fermer"

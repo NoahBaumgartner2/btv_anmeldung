@@ -1,6 +1,6 @@
 <%
   now = Time.current
-  trainer_name = current_user.email.split("@").first.capitalize
+  trainer_name = current_user.trainer&.first_name.presence || current_user.email.split("@").first.capitalize
 %>
 
 <div class="max-w-5xl mx-auto mt-8 mb-16 px-4">

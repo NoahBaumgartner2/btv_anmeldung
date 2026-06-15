@@ -183,6 +183,9 @@ class CourseRegistrationMailer < ApplicationMailer
     @refund_amount_cents = refund_amount_cents
     @refund_amount_chf   = refund_amount_cents ? format("%.2f", refund_amount_cents / 100.0) : nil
     @cancelled_at        = course_registration.cancelled_at || Time.current
+    @trainer_contacts    = @course.trainers.includes(:user)
+                                  .map { |t| { name: t.full_name, email: t.user&.email } }
+                                  .select { |c| c[:email].present? }
 
     mail(
       to: @recipient.email,
