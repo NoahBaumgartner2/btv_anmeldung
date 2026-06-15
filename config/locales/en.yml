@@ -364,6 +364,7 @@ en:
       unsubscribe_session_confirm: "Unsubscribe %{name} from the training on %{date}?"
       cancel: "Cancel"
       confirm_unsubscribe: "Yes, unsubscribe from course"
+      confirm_unsubscribe_session: "Yes, unsubscribe from session"
       ticket_enlarge: "Enlarge ticket"
       ticket_modal_title: "Ticket – %{name}"
       close: "Close"

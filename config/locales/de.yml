@@ -403,6 +403,7 @@ de:
       unsubscribe_session_confirm: "%{name} vom Training am %{date} abmelden?"
       cancel: "Abbrechen"
       confirm_unsubscribe: "Ja, vom Kurs abmelden"
+      confirm_unsubscribe_session: "Ja, vom Training abmelden"
       ticket_enlarge: "Ticket vergrössern"
       ticket_modal_title: "Ticket – %{name}"
       close: "Schliessen"

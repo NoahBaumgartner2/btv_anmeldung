@@ -16,7 +16,11 @@ Die Rückerstattung wurde automatisch veranlasst und erscheint in den nächsten 
 Du hast für diesen Kurs bereits bezahlt. Da keine automatische Rückerstattung möglich war, wurde kein Betrag zurückgebucht.
 <% end %>
 
+<% if @trainer_contacts.present? -%>
+Bei Fragen wende dich bitte an deine Kursleitung: <%= @trainer_contacts.map { |c| "#{c[:name]} (#{c[:email]})" }.join(", ") %>
+<% else -%>
 Bei Fragen wende dich bitte direkt an uns.
+<% end -%>
 
 ---
 Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.
