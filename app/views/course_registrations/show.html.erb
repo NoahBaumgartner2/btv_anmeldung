@@ -43,8 +43,8 @@
         </p>
       <% end %>
       <p class="text-sm text-amber-700 mt-1">
-        Dein Schnupperplatz ist bis <%= I18n.l(trial_deadline.to_date) %> gesichert.
-        Danach musst du dich regulär anmelden, um weiterhin an den Trainings teilzunehmen.
+        Dein Kursplatz ist bis <%= I18n.l(trial_deadline.to_date) %> gesichert.
+        Bis dahin musst du dich regulär anmelden, um weiterhin an den Trainings teilzunehmen.
       </p>
       <%= button_to t("course_registrations.show.convert_trial.button"), convert_trial_course_registration_path(@course_registration),
             method: :post,
