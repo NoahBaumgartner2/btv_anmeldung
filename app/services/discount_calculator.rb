@@ -1,25 +1,41 @@
 # Ermittelt den zu zahlenden Preis für eine Registration unter Berücksichtigung
-# der pro Kurs konfigurierten Preisreduktionen (Geschwister / Zweitkurs).
-# Treffen beide Rabatte zu, gewinnt der günstigere Preis (kein Stacking).
-# Rückgabe: { price_cents:, discount: nil | "sibling" | "second_course" }
+# der pro Kurs konfigurierten Preisreduktionen (Jugendpreis / Geschwister / Zweitkurs).
+# Treffen mehrere Rabatte zu, gewinnt der günstigere Preis (kein Stacking).
+# Rückgabe: { price_cents:, discount: nil | "youth" | "sibling" | "second_course" }
 class DiscountCalculator
   def self.call(registration)
     course = registration.course
     full_price = { price_cents: course.price_cents.to_i, discount: nil }
-    return full_price unless course.discounts_enabled? && course.category.present?
 
     candidates = []
 
-    if course.sibling_price_cents.present? && sibling_registration_exists?(registration)
-      candidates << { price_cents: course.sibling_price_cents, discount: "sibling" }
+    # Jugendpreis: rein altersbasiert, unabhängig von discounts_enabled
+    if course.youth_price_cents.present? && youth_eligible?(registration)
+      candidates << { price_cents: course.youth_price_cents, discount: "youth" }
     end
 
-    if course.second_course_price_cents.present? && second_course_registration_exists?(registration)
-      candidates << { price_cents: course.second_course_price_cents, discount: "second_course" }
+    # Geschwister-/Zweitkurs-Rabatte nur bei aktivierten Rabatten + gesetzter Kategorie
+    if course.discounts_enabled? && course.category.present?
+      if course.sibling_price_cents.present? && sibling_registration_exists?(registration)
+        candidates << { price_cents: course.sibling_price_cents, discount: "sibling" }
+      end
+      if course.second_course_price_cents.present? && second_course_registration_exists?(registration)
+        candidates << { price_cents: course.second_course_price_cents, discount: "second_course" }
+      end
     end
 
     candidates.min_by { |c| c[:price_cents] } || full_price
   end
+
+  # Jugendpreis greift, wenn das Alter zum Kursstart <= youth_max_age ist.
+  def self.youth_eligible?(registration)
+    participant = registration.participant
+    return false unless participant&.date_of_birth
+    max_age = registration.course.youth_max_age || 20
+    age = participant.age_at(registration.course.age_reference_date)
+    age.present? && age <= max_age
+  end
+  private_class_method :youth_eligible?
 
   # Bestehende Anmeldungen derselben Kategorie zählen nur, wenn sie bestätigt
   # oder bezahlt sind — zwei gleichzeitig ausstehende Anmeldungen rabattieren

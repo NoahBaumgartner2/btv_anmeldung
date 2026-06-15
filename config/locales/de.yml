@@ -216,6 +216,7 @@ de:
       free_label: "Kostenlos"
       discount_sibling: "Reduzierter Preis für Geschwister: %{price}"
       discount_second_course: "Reduzierter Preis für Zweitkurs: %{price}"
+      discount_youth: "Jugendpreis: %{price}"
       choose_date: "Wähle deinen Termin"
       fully_booked: "Ausgebucht"
       spots_free:
@@ -1088,6 +1089,7 @@ de:
       label_amount: "Betrag"
       discount_sibling: "Geschwister-Rabatt angewendet"
       discount_second_course: "Zweitkurs-Rabatt angewendet"
+      discount_youth: "Jugendpreis angewendet"
       section_payment_methods: "Akzeptierte Zahlungsmethoden"
       credit_card: "Kreditkarte"
       secure_payment: "Sichere Zahlung via SumUp · SSL-verschlüsselt"
