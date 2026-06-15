@@ -9,7 +9,7 @@ module MailerHelper
     return nil unless logo&.attached?
     return nil if logo.content_type == "image/svg+xml"
 
-    logo.analyze unless logo.analyzed?
+    logo.analyze if !logo.analyzed? || logo.metadata[:width].blank? || logo.metadata[:height].blank?
     natural_w = logo.metadata[:width]
     natural_h = logo.metadata[:height]
 
@@ -21,11 +21,16 @@ module MailerHelper
         height = (natural_h * width / natural_w.to_f).round
       end
     else
-      width, height = EMAIL_LOGO_MAX_WIDTH, EMAIL_LOGO_MAX_HEIGHT
+      # Masse unbekannt: nur Höhe setzen, Breite überlässt das E-Mail-Programm
+      # dem natürlichen Seitenverhältnis (gedeckelt durch max-width:200px im Template).
+      width  = nil
+      height = EMAIL_LOGO_MAX_HEIGHT
     end
 
-    # 2x-Variant für Retina-Displays
-    variant = logo.variant(resize_to_limit: [ width * 2, height * 2 ]).processed
+    # 2x-Variant für Retina-Displays (resize_to_limit erhält das Seitenverhältnis)
+    limit_w = (width || EMAIL_LOGO_MAX_WIDTH) * 2
+    limit_h = height * 2
+    variant = logo.variant(resize_to_limit: [ limit_w, limit_h ]).processed
     { url: rails_representation_url(variant), width: width, height: height }
   rescue ActiveStorage::Error, LoadError, StandardError => e
     Rails.logger.warn "[MailerHelper] email_logo Fehler: #{e.class}: #{e.message}"
