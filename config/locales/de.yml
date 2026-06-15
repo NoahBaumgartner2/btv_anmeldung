@@ -929,6 +929,7 @@ de:
       cancelled_title: "Dieses Training ist abgesagt"
       cancelled_body: "Anwesenheit kann nicht erfasst werden. Alle Teilnehmenden wurden per E-Mail informiert."
       open_scanner: "QR-Scanner öffnen"
+      scanner_not_available: "Für diesen Kurs werden keine QR-Codes/Tickets verwendet – der Scanner ist nicht verfügbar."
       uncancel_confirm: "Absage wirklich rückgängig machen? Das Training wird wieder als aktiv markiert."
       uncancel_btn: "Absage rückgängig machen"
       delete_btn: "Training löschen"
@@ -1106,6 +1107,9 @@ de:
       to_home: "Zur Startseite"
 
   admin:
+    notification_preferences:
+      mandatory_badge: "Immer aktiv"
+      attendance_reminder_mandatory_hint: "Diese Erinnerung ist für alle Trainer verpflichtend aktiv."
     club_settings:
       show:
         title: "Vereinseinstellungen"

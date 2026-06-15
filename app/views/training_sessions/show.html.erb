@@ -56,8 +56,8 @@
     </div>
   <% end %>
 
-  <%# ── QR-Scanner CTA (nur wenn nicht abgesagt) ─────────────────────────── %>
-  <% unless @training_session.is_canceled? %>
+  <%# ── QR-Scanner CTA (nur bei Ticketing-Kursen und nicht abgesagt) ──────── %>
+  <% if @training_session.course.has_ticketing? && !@training_session.is_canceled? %>
     <%= link_to scanner_training_session_path(@training_session),
           class: "mb-5 sm:mb-6 w-full inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white font-extrabold text-base py-4 px-5 rounded-2xl transition shadow-sm min-h-[56px]" do %>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

@@ -90,4 +90,21 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to training_session_url(@training_session)
     assert_not @training_session.reload.attendance_confirmed?
   end
+
+  test "scanner leitet zurück, wenn der Kurs kein Ticketing nutzt" do
+    @training_session.course.update!(has_ticketing: false)
+
+    get scanner_training_session_url(@training_session)
+
+    assert_redirected_to training_session_url(@training_session)
+    assert_equal I18n.t("training_sessions.show.scanner_not_available"), flash[:alert]
+  end
+
+  test "scanner ist erreichbar, wenn der Kurs Ticketing nutzt" do
+    @training_session.course.update!(has_ticketing: true)
+
+    get scanner_training_session_url(@training_session)
+
+    assert_response :success
+  end
 end

@@ -884,6 +884,7 @@ fr:
       cancelled_title: "Cet entraînement est annulé"
       cancelled_body: "La présence ne peut pas être enregistrée. Tous les participants ont été informés par e-mail."
       open_scanner: "Ouvrir le scanner QR"
+      scanner_not_available: "Ce cours n'utilise pas de codes QR/billets – le scanner n'est pas disponible."
       uncancel_confirm: "Vraiment annuler l'annulation ? L'entraînement sera à nouveau marqué comme actif."
       uncancel_btn: "Annuler l'annulation"
       delete_btn: "Supprimer la séance"
@@ -1061,6 +1062,9 @@ fr:
       to_home: "Accueil"
 
   admin:
+    notification_preferences:
+      mandatory_badge: "Toujours actif"
+      attendance_reminder_mandatory_hint: "Ce rappel est obligatoire et actif pour tous les entraîneurs."
     club_settings:
       show:
         title: "Paramètres du club"
