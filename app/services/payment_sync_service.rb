@@ -43,8 +43,9 @@ class PaymentSyncService
         status:               new_status
       )
 
+      CourseRegistrationMailer.confirmation(registration).deliver_later
       CourseRegistrationMailer.payment_receipt(registration).deliver_later
-      Rails.logger.info "[PaymentSyncService] Quittung-Mail verschickt für Registration #{registration.id}"
+      Rails.logger.info "[PaymentSyncService] Bestätigungs- und Quittungs-Mail verschickt für Registration #{registration.id}"
     end
   end
 
