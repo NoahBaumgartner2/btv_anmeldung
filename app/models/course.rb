@@ -136,6 +136,22 @@ class Course < ApplicationRecord
     "CHF #{second_course_price_chf}"
   end
 
+  # ── Jugendpreis (altersbasierter Preis-Tier) ───────────────────────────────
+  def youth_price_chf
+    cents = read_attribute(:youth_price_cents)
+    return "" unless cents
+    format("%.2f", cents / 100.0)
+  end
+
+  def youth_price_chf=(value)
+    self.youth_price_cents = value.presence ? (value.to_f * 100).round : nil
+  end
+
+  def youth_price_display
+    return nil unless youth_price_cents
+    "CHF #{youth_price_chf}"
+  end
+
   def registration_mode_label
     return nil unless registration_mode.present?
     I18n.t("courses.registration_modes.#{registration_mode}", default: registration_mode.humanize)

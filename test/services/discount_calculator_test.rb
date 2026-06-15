@@ -4,7 +4,8 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
   # ── Setup-Helfer ─────────────────────────────────────────────────────────────
 
   def make_course(title: "Rabatt-Kurs", category: "polysport", price: 10_000,
-                  discounts: true, sibling: 6_000, second: 7_000)
+                  discounts: true, sibling: 6_000, second: 7_000,
+                  youth: nil, youth_max_age: 20)
     course = Course.new(title: title, registration_type: "semester",
       has_payment: true, has_ticketing: false, allows_holiday_deduction: false,
       category: category)
@@ -12,6 +13,8 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     course.discounts_enabled = discounts
     course.sibling_price_cents = sibling
     course.second_course_price_cents = second
+    course.youth_price_cents = youth
+    course.youth_max_age = youth_max_age
     course.save!(validate: false)
     course
   end
@@ -130,6 +133,56 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
 
     result = DiscountCalculator.call(make_registration(course_b, child))
     assert_equal 5_000, result[:price_cents]
+    assert_equal "second_course", result[:discount]
+  end
+
+  # ── Jugendpreis (altersbasiert) ──────────────────────────────────────────────
+
+  test "Jugendlicher erhält den Jugendpreis beim ersten Training" do
+    course = make_course(price: 30_000, youth: 25_000, youth_max_age: 20)
+    child  = make_participant(users(:one), first_name: "Jana", dob: Date.new(2010, 1, 1))
+
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 25_000, result[:price_cents]
+    assert_equal "youth", result[:discount]
+  end
+
+  test "Jugendpreis greift unabhängig von discounts_enabled" do
+    course = make_course(price: 30_000, youth: 25_000, discounts: false)
+    child  = make_participant(users(:one), first_name: "Jana", dob: Date.new(2010, 1, 1))
+
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 25_000, result[:price_cents]
+    assert_equal "youth", result[:discount]
+  end
+
+  test "Erwachsener (Alter über youth_max_age) erhält keinen Jugendpreis" do
+    course = make_course(price: 30_000, youth: 25_000, youth_max_age: 20)
+    adult  = make_participant(users(:one), first_name: "Petra", dob: Date.new(1980, 1, 1))
+
+    result = DiscountCalculator.call(make_registration(course, adult))
+    assert_equal 30_000, result[:price_cents]
+    assert_nil result[:discount]
+  end
+
+  test "Teilnehmer ohne Geburtsdatum erhält keinen Jugendpreis" do
+    course = make_course(price: 30_000, youth: 25_000)
+    child  = make_participant(users(:one), first_name: "Ohne", dob: nil)
+
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 30_000, result[:price_cents]
+    assert_nil result[:discount]
+  end
+
+  test "günstigerer Zweitkurs-Preis gewinnt für Jugendlichen über den Jugendpreis" do
+    # Jugendpreis 250, Zweitkurs 200 → der günstigere Zweitkurs gewinnt (kein Stacking)
+    course_a = make_course(title: "Pilates A", price: 30_000, youth: 25_000, second: 20_000)
+    course_b = make_course(title: "Pilates B", price: 30_000, youth: 25_000, second: 20_000)
+    child    = make_participant(users(:one), first_name: "Jana", dob: Date.new(2010, 1, 1))
+    make_registration(course_a, child, status: "bestätigt")
+
+    result = DiscountCalculator.call(make_registration(course_b, child))
+    assert_equal 20_000, result[:price_cents]
     assert_equal "second_course", result[:discount]
   end
 

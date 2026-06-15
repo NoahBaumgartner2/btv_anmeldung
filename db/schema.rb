@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_14_113502) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_15_170831) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -184,6 +184,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_14_113502) do
     t.string "title"
     t.integer "training_value_cents"
     t.datetime "updated_at", null: false
+    t.integer "youth_max_age", default: 20
+    t.integer "youth_price_cents"
   end
 
   create_table "export_profiles", force: :cascade do |t|
