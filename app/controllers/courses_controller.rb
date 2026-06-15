@@ -41,7 +41,7 @@ class CoursesController < ApplicationController
       if @course.save
         provision_new_trainer(@course)
         save_trainer_permissions(@course)
-        format.html { redirect_to @course, notice: "Kurs wurde erfolgreich erstellt." }
+        format.html { redirect_to manage_course_path(@course), notice: "Kurs wurde erfolgreich erstellt." }
         format.json { render :show, status: :created, location: @course }
       else
         format.html { render :new, status: :unprocessable_entity }
