@@ -33,7 +33,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       post courses_url, params: { course: { allows_holiday_deduction: @course.allows_holiday_deduction, description: @course.description, end_date: @course.end_date, has_payment: @course.has_payment, has_ticketing: @course.has_ticketing, location: @course.location, registration_type: @course.registration_type, start_date: @course.start_date, title: @course.title } }
     end
 
-    assert_redirected_to course_url(Course.last)
+    assert_redirected_to manage_course_path(Course.last)
   end
 
   test "should show course" do
