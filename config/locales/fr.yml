@@ -145,6 +145,9 @@ fr:
         spots_free:
           one: "1 place disponible"
           other: "%{count} places disponibles"
+        waitlist:
+          one: "1 sur liste d'attente"
+          other: "%{count} sur liste d'attente"
       date:
         single_session: "Sessions individuelles · rejoignez à tout moment"
         tba: "Date à confirmer"

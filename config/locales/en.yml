@@ -145,6 +145,9 @@ en:
         spots_free:
           one: "1 spot available"
           other: "%{count} spots available"
+        waitlist:
+          one: "1 on waitlist"
+          other: "%{count} on waitlist"
       date:
         single_session: "Single sessions · join anytime"
         tba: "Date to be announced"

@@ -184,6 +184,9 @@ de:
         spots_free:
           one: "1 Platz frei"
           other: "%{count} Plätze frei"
+        waitlist:
+          one: "1 auf Warteliste"
+          other: "%{count} auf Warteliste"
       date:
         single_session: "Einzeltermine · jederzeit einsteigen"
         tba: "Termin folgt"
