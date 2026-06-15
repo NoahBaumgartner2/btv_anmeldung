@@ -353,6 +353,8 @@ fr:
       edit: "Modifier"
       edit_aria: "Modifier %{name}"
       enrolled_section: "Cours inscrits & billets"
+      convert_trial_btn: "S'inscrire maintenant"
+      pay_now_btn: "Payer maintenant"
       confirmed: "Confirmé"
       waitlist: "Liste d'attente"
       upcoming_trainings: "Prochains entraînements"

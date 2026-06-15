@@ -258,6 +258,104 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  # ── Schnupperplatz / bestätigt-unbezahlt → zur Zahlung weiterleiten ─────────
+
+  test "reguläre Anmeldung bei bestehendem Schnupperplatz (kostenpflichtig) leitet zur Zahlung weiter ohne neuen Datensatz" do
+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+    existing = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    existing.save!(validate: false)
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: { course_id: @trial_course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    assert_equal "ausstehend", existing.reload.status
+    assert_redirected_to checkout_preview_registration_path(existing)
+  end
+
+  test "reguläre Anmeldung bei bestätigt-aber-unbezahlt (kostenpflichtig) leitet zur Zahlung weiter ohne neuen Datensatz" do
+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+    existing = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    existing.save!(validate: false)
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: { course_id: @trial_course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    assert_equal "bestätigt", existing.reload.status
+    assert_redirected_to checkout_preview_registration_path(existing)
+  end
+
+  test "reguläre Anmeldung bei bestätigt und bereits bezahlt bleibt blockiert" do
+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+    existing = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false
+    )
+    existing.save!(validate: false)
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: { course_id: @trial_course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_match I18n.t("course_registrations.errors.duplicate_registration"), response.body
+    assert_equal "bestätigt", existing.reload.status
+  end
+
+  test "reguläre Anmeldung bei bestehender Warteliste bleibt blockiert" do
+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+    existing = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "warteliste", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    existing.save!(validate: false)
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: { course_id: @trial_course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_equal "warteliste", existing.reload.status
+  end
+
+  test "reguläre Anmeldung bei bestehendem Schnupperplatz (Gratiskurs) bestätigt den bestehenden Datensatz" do
+    existing = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    existing.save!(validate: false)
+    sign_in @trial_parent
+
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: { course_id: @trial_course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    assert_equal "bestätigt", existing.reload.status
+    assert_redirected_to course_registration_path(existing)
+    assert_equal I18n.t("course_registrations.flash.trial_converted"), flash[:notice]
+  end
+
   # ── trial_eligible ────────────────────────────────────────────────────────
 
   test "trial_eligible returns eligible true for participant who never trialed" do

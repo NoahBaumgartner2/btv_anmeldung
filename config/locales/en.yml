@@ -353,6 +353,8 @@ en:
       edit: "Edit"
       edit_aria: "Edit %{name}"
       enrolled_section: "Enrolled courses & tickets"
+      convert_trial_btn: "Register now"
+      pay_now_btn: "Pay now"
       confirmed: "Confirmed"
       waitlist: "Waitlist"
       upcoming_trainings: "Upcoming trainings"
