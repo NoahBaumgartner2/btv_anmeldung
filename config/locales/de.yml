@@ -392,6 +392,8 @@ de:
       edit: "Bearbeiten"
       edit_aria: "%{name} bearbeiten"
       enrolled_section: "Angemeldete Kurse & Tickets"
+      convert_trial_btn: "Jetzt regulär anmelden"
+      pay_now_btn: "Jetzt bezahlen"
       confirmed: "Bestätigt"
       waitlist: "Warteliste"
       upcoming_trainings: "Nächste Trainings"
