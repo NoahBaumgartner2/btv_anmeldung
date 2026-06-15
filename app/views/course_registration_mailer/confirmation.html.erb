@@ -87,3 +87,14 @@
     </tr>
   </table>
 <% end %>
+
+<% if @course.email_note.present? %>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;margin-bottom:24px;">
+    <tr>
+      <td style="padding:16px 20px;">
+        <p style="margin:0 0 8px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Zusätzliche Informationen</p>
+        <p style="margin:0;font-size:15px;color:#374151;white-space:pre-line;font-family:Arial,Helvetica,sans-serif;"><%= @course.email_note %></p>
+      </td>
+    </tr>
+  </table>
+<% end %>

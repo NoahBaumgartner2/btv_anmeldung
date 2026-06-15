@@ -20,6 +20,11 @@ Betrag:      <%= @course.price_display %>
 Eintrittskarte: Dein QR-Code-Ticket findest du in der HTML-Version dieser E-Mail.
 <% end %>
 Bei einer Verhinderung bitten wir dich, dich von der Teilnahme am einzelnen Training auf der Plattform abzumelden. Für das Training sind Sportkleidung und ein Getränk mitzubringen. Das Training beginnt pünktlich zur angegebenen Zeit, bereits umgezogen am Kursort.
+<% if @course.email_note.present? %>
+
+Zusätzliche Informationen:
+<%= @course.email_note %>
+<% end %>
 
 Bei Fragen wende dich bitte direkt an uns.
 
