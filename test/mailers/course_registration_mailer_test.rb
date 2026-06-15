@@ -46,4 +46,33 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
     mail = CourseRegistrationMailer.self_cancelled(@registration, refund_amount_cents: 5000)
     assert_match "50.00", mail.body.encoded
   end
+
+  test "confirmation zeigt email_note in Text- und HTML-Version wenn gesetzt" do
+    @course.update!(email_note: "Türcode 1234")
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    [ mail.text_part, mail.html_part ].each do |part|
+      assert_match "Zusätzliche Informationen", part.body.decoded
+      assert_match "Türcode 1234", part.body.decoded
+    end
+  end
+
+  test "confirmation zeigt keinen Zusatzinfo-Block wenn email_note leer ist" do
+    @course.update!(email_note: nil)
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    assert_no_match "Zusätzliche Informationen", mail.text_part.body.decoded
+    assert_no_match "Zusätzliche Informationen", mail.html_part.body.decoded
+  end
+
+  test "confirmation escaped HTML im email_note (kein raw)" do
+    @course.update!(email_note: "<b>fett</b>")
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    assert_match "&lt;b&gt;fett&lt;/b&gt;", mail.html_part.body.decoded
+    assert_no_match "<b>fett</b>", mail.html_part.body.decoded
+  end
 end
