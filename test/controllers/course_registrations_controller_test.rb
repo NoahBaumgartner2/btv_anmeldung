@@ -309,6 +309,21 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal false, JSON.parse(response.body)["eligible"]
   end
 
+  # ── new (Schnupper-Setup) ───────────────────────────────────────────────────
+
+  test "new lädt @trial_sessions und rendert die Schnuppertraining-Auswahl für Trial-Semesterkurs" do
+    sign_in @trial_parent
+    get new_course_registration_path(course_id: @trial_course.id)
+    assert_response :ok
+    # Stimulus-Verdrahtung am Container vorhanden
+    assert_select "[data-controller='trial-check'][data-trial-check-allows-trial-value='true']"
+    # Teilnehmer-Select korrekt verdrahtet
+    assert_select "select[data-trial-check-target='participantSelect']"
+    # Schnuppertraining-Auswahl gerendert (kommende, nicht abgesagte Session vorhanden)
+    assert_select "select[data-trial-check-target='trialSelect']"
+    assert_select "[data-trial-check-target='trialEmpty']", false
+  end
+
   # ── mark_as_paid ──────────────────────────────────────────────────────────
 
   test "mark_as_paid markiert Registration als bezahlt (admin only)" do
