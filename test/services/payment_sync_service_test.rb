@@ -1,6 +1,8 @@
 require "test_helper"
 
 class PaymentSyncServiceTest < ActiveSupport::TestCase
+  include ActionMailer::TestHelper
+
   # ── HTTP-Stub-Helfer (analog zu InfomaniakNewsletterServiceTest) ────────────
 
   def ok_response(body = "{}")
@@ -148,5 +150,29 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     pending.reload
     assert pending.payment_cleared?
     assert_equal "warteliste", pending.status
+  end
+
+  # ── mark_paid! – Mailversand ────────────────────────────────────────────────
+
+  test "mark_paid! verschickt Bestätigung UND Quittung genau einmal" do
+    registration = course_registrations(:one)
+    registration.update_columns(payment_cleared: false, status: "ausstehend")
+    registration.course.update_columns(max_participants: 10)
+
+    assert_enqueued_emails 2 do
+      PaymentSyncService.mark_paid!(registration, transaction_id: "tx-1", checkout_id: "co-1")
+    end
+
+    assert_enqueued_email_with CourseRegistrationMailer, :confirmation, args: [ registration ]
+    assert_enqueued_email_with CourseRegistrationMailer, :payment_receipt, args: [ registration ]
+  end
+
+  test "zweiter mark_paid!-Aufruf verschickt keine weiteren Mails" do
+    registration = course_registrations(:one)
+    registration.update_columns(payment_cleared: true, status: "bestätigt")
+
+    assert_no_enqueued_emails do
+      PaymentSyncService.mark_paid!(registration, transaction_id: "tx-2")
+    end
   end
 end
