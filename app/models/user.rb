@@ -19,6 +19,9 @@ class User < ApplicationRecord
     attendance_reminder
   ].freeze
 
+  # Verpflichtende Benachrichtigungen können nicht abgeschaltet werden.
+  MANDATORY_NOTIFICATION_TYPES = %w[attendance_reminder].freeze
+
   validates :phone_number, :street, :zip_code, :city,
             presence: true,
             if: :family_data_completed?
@@ -44,6 +47,9 @@ class User < ApplicationRecord
   end
 
   def admin_notification_enabled?(type)
+    # Verpflichtende Typen sind immer aktiv – nicht abschaltbar.
+    return true if MANDATORY_NOTIFICATION_TYPES.include?(type.to_s)
+
     # Gilt für alle Empfänger (Trainer wie Admins).
     # Default: alle aktiviert (leeres Hash = alles aktiv)
     admin_notification_preferences.fetch(type.to_s, true)

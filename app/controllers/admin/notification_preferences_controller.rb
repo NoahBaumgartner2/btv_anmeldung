@@ -10,7 +10,11 @@ module Admin
     def update
       prefs = {}
       User::ADMIN_NOTIFICATION_TYPES.each do |type|
-        prefs[type] = params.dig(:preferences, type) == "1"
+        prefs[type] = if User::MANDATORY_NOTIFICATION_TYPES.include?(type)
+          true
+        else
+          params.dig(:preferences, type) == "1"
+        end
       end
 
       if current_user.update(admin_notification_preferences: prefs)
