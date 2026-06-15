@@ -83,5 +83,12 @@
 <% end %>
 
 <p style="margin:0 0 32px 0;font-size:13px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
-  Bei Fragen wende dich bitte an <%= club_email.present? ? club_email : club_name %>.
+  <% if @trainer_contacts.present? %>
+    Bei Fragen wende dich bitte an deine Kursleitung:
+    <%= safe_join(@trainer_contacts.map { |c|
+          link_to(c[:name], "mailto:#{c[:email]}", style: "color:#{primary};text-decoration:underline;")
+        }, ", ") %>.
+  <% else %>
+    Bei Fragen wende dich bitte an <%= club_email.present? ? club_email : club_name %>.
+  <% end %>
 </p>

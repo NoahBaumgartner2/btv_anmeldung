@@ -23,10 +23,23 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
     assert_match @course.title, mail.body.encoded
   end
 
-  test "self_cancelled does not mention trainer" do
+  test "self_cancelled nennt die Kursleitung als Kontakt, wenn Trainer zugewiesen sind" do
+    trainer = @course.trainers.first
+    assert trainer.present?, "Fixture-Kurs sollte mind. einen zugewiesenen Trainer haben"
+
     mail = CourseRegistrationMailer.self_cancelled(@registration)
 
-    assert_no_match "Trainer", mail.body.encoded
+    assert_match "Kursleitung", mail.body.encoded
+    assert_match trainer.full_name, mail.body.encoded
+  end
+
+  test "self_cancelled fällt auf Vereinskontakt zurück, wenn keine Trainer zugewiesen sind" do
+    @course.course_trainers.destroy_all
+
+    mail = CourseRegistrationMailer.self_cancelled(@registration)
+
+    assert_no_match "Kursleitung", mail.body.encoded
+    assert_match "Bei Fragen wende dich bitte", mail.body.encoded
   end
 
   test "self_cancelled with refund shows refund amount" do
