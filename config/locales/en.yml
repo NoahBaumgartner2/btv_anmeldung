@@ -890,6 +890,7 @@ en:
       cancelled_title: "This training is cancelled"
       cancelled_body: "Attendance cannot be recorded. All participants have been notified by email."
       open_scanner: "Open QR scanner"
+      scanner_not_available: "This course does not use QR codes/tickets – the scanner is not available."
       uncancel_confirm: "Really undo cancellation? The training will be marked as active again."
       uncancel_btn: "Undo cancellation"
       delete_btn: "Delete training"
@@ -1067,6 +1068,9 @@ en:
       to_home: "Home"
 
   admin:
+    notification_preferences:
+      mandatory_badge: "Always active"
+      attendance_reminder_mandatory_hint: "This reminder is mandatory and active for all trainers."
     club_settings:
       show:
         title: "Club settings"

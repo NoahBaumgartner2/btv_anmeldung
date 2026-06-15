@@ -186,8 +186,11 @@ class TrainingSessionsController < ApplicationController
   end
 
   def scanner
-    # Lädt einfach nur die Kamera-Ansicht für dieses Training
+    # QR-Scanner nur für Kurse mit Ticketing/QR-Codes; sonst zurück zur Übersicht.
+    # Bei Redirect überspringt Rails das implizite Rendern der Kamera-Ansicht.
+    redirect_to @training_session, alert: t("training_sessions.show.scanner_not_available") unless @training_session.course.has_ticketing?
   end
+
   private
 
   def set_training_session
