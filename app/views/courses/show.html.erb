@@ -80,13 +80,16 @@
           </li>
 
           <%# Preisreduktion %>
-          <% if @course.has_payment? && @course.discounts_enabled? && (@course.sibling_price_cents.present? || @course.second_course_price_cents.present?) %>
+          <% if @course.has_payment? && ((@course.discounts_enabled? && (@course.sibling_price_cents.present? || @course.second_course_price_cents.present?)) || @course.youth_price_cents.present?) %>
             <li class="flex items-center gap-2">
               <span class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
               <span class="text-gray-600">
                 <% discount_hints = [] %>
-                <% discount_hints << t("courses.show.discount_sibling", price: @course.sibling_price_display) if @course.sibling_price_cents.present? %>
-                <% discount_hints << t("courses.show.discount_second_course", price: @course.second_course_price_display) if @course.second_course_price_cents.present? %>
+                <% discount_hints << t("courses.show.discount_youth", price: @course.youth_price_display) if @course.youth_price_cents.present? %>
+                <% if @course.discounts_enabled? %>
+                  <% discount_hints << t("courses.show.discount_sibling", price: @course.sibling_price_display) if @course.sibling_price_cents.present? %>
+                  <% discount_hints << t("courses.show.discount_second_course", price: @course.second_course_price_display) if @course.second_course_price_cents.present? %>
+                <% end %>
                 <%= discount_hints.join(" · ") %>
               </span>
             </li>
