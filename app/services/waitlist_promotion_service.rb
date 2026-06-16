@@ -33,16 +33,15 @@ class WaitlistPromotionService
         waitlist_scope  = waitlist_scope.where(training_session_id: nil)
       end
 
-      new_status = paid_course ? "ausstehend" : "bestätigt"
-
       MAX_PROMOTIONS_PER_CALL.times do
         break if confirmed_scope.distinct.count(:participant_id) >= course.max_participants
 
         next_in_line = waitlist_scope.order(:created_at).first
         break unless next_in_line
 
-        update_attrs = { status: new_status }
-        next_in_line.update!(update_attrs)
+        # Abo-Buchungen sind immer vorausbezahlt – niemals auf "ausstehend" setzen.
+        new_status = (paid_course && !next_in_line.abo_booking?) ? "ausstehend" : "bestätigt"
+        next_in_line.update!(status: new_status)
         promoted << next_in_line
       end
     end

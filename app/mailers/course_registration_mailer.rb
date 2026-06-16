@@ -53,7 +53,7 @@ class CourseRegistrationMailer < ApplicationMailer
     return if setting && !setting.mail_waitlist_promoted_enabled
 
     @registration_url = course_registration_url(course_registration)
-    @needs_payment = @course.has_payment? && @course.price_cents.to_i > 0
+    @needs_payment = @course.has_payment? && @course.price_cents.to_i > 0 && !course_registration.abo_booking?
     @checkout_preview_url = checkout_preview_registration_url(course_registration) if @needs_payment
 
     mail(
