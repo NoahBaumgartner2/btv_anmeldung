@@ -26,6 +26,10 @@ Zusätzliche Informationen:
 <%= @course.email_note %>
 <% end %>
 
+<% if @course_registration.status == "schnuppern" && @trainer_contacts.present? -%>
+
+Kontakt zur Kursleitung: <%= @trainer_contacts.map { |c| "#{c[:name]} (#{c[:email]})" }.join(", ") %>
+<% end -%>
 Bei Fragen wende dich bitte direkt an uns.
 
 ---
