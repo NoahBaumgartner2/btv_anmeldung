@@ -420,6 +420,11 @@
                 </div>
               <% end %>
 
+              <div class="mt-5 sm:mt-6 text-center">
+                <%= link_to t("participants.index.to_courses"), courses_path,
+                      class: "inline-block text-primary-600 font-bold hover:underline min-h-11 leading-[44px]" %>
+              </div>
+
             <% else %>
               <div class="bg-gray-50 rounded-xl p-6 text-center border border-gray-100 border-dashed">
                 <p class="text-gray-500 text-sm font-medium"><%= t("participants.index.not_enrolled", name: participant.first_name) %></p>
