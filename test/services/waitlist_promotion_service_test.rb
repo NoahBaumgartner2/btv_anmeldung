@@ -91,6 +91,51 @@ class WaitlistPromotionServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "promotes abo waitlist booking to bestätigt even on paid course" do
+    course = make_course(max_participants: 1, has_payment: true, price_cents: 5000)
+
+    abo_source_course = Course.new(
+      title: "Abo-Quelle", registration_mode: "abo",
+      category: "Turnen", abo_size: 5,
+      start_date: Date.today, end_date: 1.year.from_now.to_date,
+      registration_type: "kurs"
+    )
+    abo_source_course.save!(validate: false)
+
+    abo_source = CourseRegistration.new(
+      course: abo_source_course, participant: participants(:one),
+      status: "bestätigt", abo_entries_total: 5, abo_entries_used: 1,
+      payment_cleared: true
+    )
+    abo_source.save!(validate: false)
+
+    confirmed = CourseRegistration.new(
+      course: course, participant: participants(:parent_only_child),
+      status: "bestätigt", payment_cleared: true
+    )
+    confirmed.save!(validate: false)
+
+    session = course.training_sessions.create!(
+      start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: false
+    )
+
+    waitlisted = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      training_session: session,
+      abo_source_registration_id: abo_source.id,
+      status: "warteliste", payment_cleared: true
+    )
+    waitlisted.save!(validate: false)
+
+    confirmed.destroy!
+
+    assert_enqueued_emails 1 do
+      WaitlistPromotionService.promote_next_from_waitlist(course.reload, training_session_id: session.id)
+    end
+
+    assert_equal "bestätigt", waitlisted.reload.status
+  end
+
   test "does nothing when waitlist is not enabled" do
     course = make_course(enable_waitlist: false, max_participants: 1)
 

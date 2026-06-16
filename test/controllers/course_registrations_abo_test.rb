@@ -199,6 +199,58 @@ class CourseRegistrationsAboTest < ActionDispatch::IntegrationTest
     assert_equal 3, @abo_reg.abo_entries_used
   end
 
+  # ── Kapazität & Warteliste ───────────────────────────────────────────────
+
+  test "book_abo_session setzt status warteliste wenn Session voll und Warteliste aktiv" do
+    @target_course.update_columns(max_participants: 1, enable_waitlist: true)
+    sign_in @parent
+
+    blocking = CourseRegistration.new(
+      course: @target_course,
+      participant: participants(:two),
+      training_session: @future_session,
+      status: "bestätigt",
+      payment_cleared: true
+    )
+    blocking.save!(validate: false)
+
+    assert_difference "CourseRegistration.count", 1 do
+      post book_abo_session_course_registration_path(@abo_reg),
+           params: { training_session_id: @future_session.id }
+    end
+
+    assert_redirected_to participants_path
+    booking = CourseRegistration.last
+    assert_equal "warteliste", booking.status
+    assert booking.abo_booking?
+    @abo_reg.reload
+    assert_equal 3, @abo_reg.abo_entries_used
+  end
+
+  test "book_abo_session blockt Buchung wenn Session voll und KEINE Warteliste" do
+    @target_course.update_columns(max_participants: 1, enable_waitlist: false)
+    sign_in @parent
+
+    blocking = CourseRegistration.new(
+      course: @target_course,
+      participant: participants(:two),
+      training_session: @future_session,
+      status: "bestätigt",
+      payment_cleared: true
+    )
+    blocking.save!(validate: false)
+
+    assert_no_difference "CourseRegistration.count" do
+      post book_abo_session_course_registration_path(@abo_reg),
+           params: { training_session_id: @future_session.id }
+    end
+
+    assert_redirected_to abo_sessions_course_registration_path(@abo_reg)
+    assert_match I18n.t("course_registrations.flash.abo_session_full"), flash[:alert]
+    @abo_reg.reload
+    assert_equal 2, @abo_reg.abo_entries_used
+  end
+
   # ── Duplikat-Validierung übersprungen für Abo-Buchungen ───────────────────
 
   test "abo_booking überspringt no_duplicate_semester_registration Validierung" do
