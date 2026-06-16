@@ -853,6 +853,8 @@ fr:
       full: "Complet"
       full_waitlist: "Complet · Liste d'attente"
       waitlist_btn: "Liste d'attente"
+      already_booked: "Déjà réservé"
+      show_more: "Afficher plus"
     errors:
       duplicate_session: "Cet enfant est déjà inscrit à cette séance."
       duplicate_registration: "Cette personne est déjà inscrite à ce cours."

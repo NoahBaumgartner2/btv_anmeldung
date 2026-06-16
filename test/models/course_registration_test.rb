@@ -245,6 +245,112 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     assert reg.valid?, "Anmeldung >20 ohne AHV soll gültig sein, got: #{reg.errors.full_messages.join(', ')}"
   end
 
+  # ── displayable_abo_sessions / abo_booked_session_ids ───────────────────────
+
+  def make_abo_setup
+    abo_course = Course.new(
+      title: "Abo-Kurs", registration_mode: "abo",
+      category: "Turnen", abo_size: 5,
+      start_date: Date.today, end_date: 1.year.from_now.to_date,
+      registration_type: "kurs"
+    )
+    abo_course.save!(validate: false)
+
+    target_course = Course.new(
+      title: "Zielkurs", registration_mode: "single_session",
+      category: "Turnen",
+      start_date: Date.today, end_date: 1.year.from_now.to_date,
+      registration_type: "kurs"
+    )
+    target_course.save!(validate: false)
+
+    abo_reg = CourseRegistration.new(
+      course: abo_course, participant: participants(:one),
+      status: "bestätigt", abo_entries_total: 5, abo_entries_used: 0,
+      payment_cleared: true
+    )
+    abo_reg.save!(validate: false)
+
+    { abo_reg: abo_reg, target_course: target_course }
+  end
+
+  test "displayable_abo_sessions enthält künftige Sessions inkl. bereits gebuchter" do
+    setup = make_abo_setup
+    abo_reg      = setup[:abo_reg]
+    target_course = setup[:target_course]
+
+    future_session = target_course.training_sessions.create!(
+      start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: false
+    )
+
+    booking = CourseRegistration.new(
+      course: target_course, participant: participants(:one),
+      training_session: future_session,
+      abo_source_registration_id: abo_reg.id,
+      status: "bestätigt", payment_cleared: true
+    )
+    booking.save!(validate: false)
+
+    sessions = abo_reg.displayable_abo_sessions
+    assert_includes sessions.map(&:id), future_session.id,
+                    "displayable_abo_sessions soll bereits gebuchte Sessions enthalten"
+  end
+
+  test "bookable_abo_sessions schliesst bereits gebuchte Sessions aus" do
+    setup = make_abo_setup
+    abo_reg      = setup[:abo_reg]
+    target_course = setup[:target_course]
+
+    future_session = target_course.training_sessions.create!(
+      start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: false
+    )
+
+    booking = CourseRegistration.new(
+      course: target_course, participant: participants(:one),
+      training_session: future_session,
+      abo_source_registration_id: abo_reg.id,
+      status: "bestätigt", payment_cleared: true
+    )
+    booking.save!(validate: false)
+
+    sessions = abo_reg.bookable_abo_sessions
+    assert_not_includes sessions.map(&:id), future_session.id,
+                        "bookable_abo_sessions soll bereits gebuchte Sessions NICHT enthalten"
+  end
+
+  test "abo_booked_session_ids liefert IDs nicht-stornierter Buchungen" do
+    setup = make_abo_setup
+    abo_reg      = setup[:abo_reg]
+    target_course = setup[:target_course]
+
+    session_a = target_course.training_sessions.create!(
+      start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: false
+    )
+    session_b = target_course.training_sessions.create!(
+      start_time: 3.days.from_now, end_time: 3.days.from_now + 1.hour, is_canceled: false
+    )
+
+    active_booking = CourseRegistration.new(
+      course: target_course, participant: participants(:one),
+      training_session: session_a,
+      abo_source_registration_id: abo_reg.id,
+      status: "bestätigt", payment_cleared: true
+    )
+    active_booking.save!(validate: false)
+
+    cancelled_booking = CourseRegistration.new(
+      course: target_course, participant: participants(:parent_only_child),
+      training_session: session_b,
+      abo_source_registration_id: abo_reg.id,
+      status: "storniert", payment_cleared: true
+    )
+    cancelled_booking.save!(validate: false)
+
+    ids = abo_reg.abo_booked_session_ids
+    assert_includes ids, session_a.id, "aktive Buchung muss in abo_booked_session_ids sein"
+    assert_not_includes ids, session_b.id, "stornierte Buchung darf NICHT in abo_booked_session_ids sein"
+  end
+
   test "allows normal registration after schnuppern is storniert" do
     course = Course.new(title: "Schnupper-Storniert-Test", registration_type: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
