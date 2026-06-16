@@ -108,9 +108,18 @@ class Participant < ApplicationRecord
       .none?
   end
 
+  # AHV-Nummer ist für Kinder/Jugendliche Pflicht.
+  # Optional nur für Erwachsene, die bei Kursstart älter als 20 Jahre sind.
+  def ahv_required_for?(course)
+    age = age_at(course.age_reference_date)
+    age.nil? || age <= 20
+  end
+
   # Gibt fehlende Pflichtfelder für einen bestimmten Kurs zurück (als Symbole)
   def missing_fields_for(course)
-    course.required_participant_fields.select { |field| self[field].blank? }
+    fields = course.required_participant_fields
+    fields |= [ :ahv_number ] if ahv_required_for?(course)
+    fields.select { |field| self[field].blank? }
   end
 
   # Alter am Referenzdatum (z.B. Kursstart). Gibt nil zurück, wenn kein Geburtsdatum vorhanden.

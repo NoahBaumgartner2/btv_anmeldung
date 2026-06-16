@@ -175,6 +175,56 @@ class ParticipantTest < ActiveSupport::TestCase
     assert_not subject.ever_trialed_in_category?("Kids Gym")
   end
 
+  # ── ahv_required_for? ────────────────────────────────────────────────────────
+
+  test "ahv_required_for? returns true for participant aged 20 at course start" do
+    course = Course.new(start_date: Date.new(2026, 9, 1))
+    participant = Participant.new(date_of_birth: Date.new(2006, 1, 1)) # turns 20 before Sep 1
+    assert participant.ahv_required_for?(course)
+  end
+
+  test "ahv_required_for? returns true for participant aged exactly 20 at course start" do
+    course = Course.new(start_date: Date.new(2026, 9, 1))
+    participant = Participant.new(date_of_birth: Date.new(2006, 9, 1)) # exactly 20 on start day
+    assert participant.ahv_required_for?(course)
+  end
+
+  test "ahv_required_for? returns false for participant aged 21 at course start" do
+    course = Course.new(start_date: Date.new(2026, 9, 1))
+    participant = Participant.new(date_of_birth: Date.new(2004, 12, 31)) # turns 21 before Sep 1
+    assert_not participant.ahv_required_for?(course)
+  end
+
+  test "ahv_required_for? returns true when date_of_birth is nil" do
+    course = Course.new(start_date: Date.new(2026, 9, 1))
+    participant = Participant.new(date_of_birth: nil)
+    assert participant.ahv_required_for?(course)
+  end
+
+  # ── missing_fields_for (AHV-Altersregel) ─────────────────────────────────────
+
+  test "missing_fields_for includes ahv_number for participant aged <=20 without AHV" do
+    course = Course.new(start_date: Date.new(2026, 9, 1))
+    course.save!(validate: false)
+    participant = Participant.new(
+      user: users(:one), first_name: "Jung", last_name: "Kind",
+      date_of_birth: Date.new(2006, 1, 1), gender: "weiblich",
+      phone_number: "0791000099", ahv_number: nil
+    )
+    assert_includes participant.missing_fields_for(course), :ahv_number
+  end
+
+  test "missing_fields_for excludes ahv_number for participant aged >20 without AHV (course has no required fields)" do
+    course = Course.new(start_date: Date.new(2026, 9, 1))
+    course.save!(validate: false)
+    participant = Participant.new(
+      user: users(:one), first_name: "Erwachsen", last_name: "Person",
+      date_of_birth: Date.new(2004, 12, 31), gender: "weiblich",
+      phone_number: "0791000098", ahv_number: nil
+    )
+    assert_not_includes participant.missing_fields_for(course), :ahv_number
+  end
+
   test "ever_trialed_in_category? returns false when other participant has different AHV" do
     subject = Participant.new(
       user: users(:one), first_name: "David", last_name: "Demo",
