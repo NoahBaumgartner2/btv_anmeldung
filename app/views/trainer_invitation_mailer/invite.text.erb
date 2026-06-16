@@ -1,4 +1,4 @@
-Hallo <%= @trainer.first_name.presence || @trainer.user.email.split("@").first %>,
+Hallo <%= greeting_name(@trainer.user) %>,
 
 du wurdest als Trainer im Anmeldungssystem erfasst. So geht es los:
 
