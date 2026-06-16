@@ -32,11 +32,14 @@ class CourseRegistration < ApplicationRecord
     course.has_payment? && course.price_cents.to_i > 0
   end
 
-  # Zahlung ist möglich/nötig: Kurs kostenpflichtig, noch nicht bezahlt,
-  # und die Anmeldung ist aktiv (ausstehend ODER bereits bestätigt).
+  # Zahlung ist möglich/nötig: Kurs kostenpflichtig, noch nicht bezahlt, und die
+  # Anmeldung ist aktiv. "schnuppern" ist bewusst zahlbar: Beim Umwandeln eines
+  # Schnupperplatzes in eine reguläre Anmeldung bleibt der Status "schnuppern"
+  # (Platz bleibt belegt, 7-Tage-Frist läuft weiter) bis die Zahlung bestätigt
+  # ist – wird die Zahlung abgebrochen, geht der Schnupperplatz nicht verloren.
   def payable?
     course.has_payment? && course.price_cents.to_i > 0 &&
-      !payment_cleared? && status.in?(%w[ausstehend bestätigt])
+      !payment_cleared? && status.in?(%w[ausstehend bestätigt schnuppern])
   end
 
   # In der Kursverwaltung als "echter" Teilnehmer sichtbar:

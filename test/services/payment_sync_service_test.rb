@@ -82,6 +82,26 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     assert_equal "bestätigt", registration.status
   end
 
+  test "mark_paid! wandelt Schnupperplatz nach Zahlung in bestätigt um" do
+    course = Course.new(
+      title: "Schnupper-Zahlkurs", registration_type: "semester", has_payment: true,
+      price_cents: 10_000, has_ticketing: false, allows_holiday_deduction: false, max_participants: 10
+    )
+    course.save!(validate: false)
+
+    trial = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    trial.save!(validate: false)
+
+    PaymentSyncService.mark_paid!(trial, transaction_id: "tx-trial", checkout_id: "co-trial")
+
+    trial.reload
+    assert trial.payment_cleared?
+    assert_equal "bestätigt", trial.status
+  end
+
   test "mark_paid! überspringt bereits bezahlte Registration" do
     registration = course_registrations(:one)
     registration.update_columns(payment_cleared: true, status: "bestätigt", sumup_transaction_id: "orig-tx")
@@ -174,5 +194,31 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     assert_no_enqueued_emails do
       PaymentSyncService.mark_paid!(registration, transaction_id: "tx-2")
     end
+  end
+
+  # ── sync_pending – Schnupperplatz mit gestartetem Checkout ──────────────────
+
+  test "sync_pending gleicht Schnupperplatz mit Checkout-ID ab und bestätigt bei PAID" do
+    course = Course.new(
+      title: "Schnupper-Sync-Kurs", registration_type: "semester", has_payment: true,
+      price_cents: 10_000, has_ticketing: false, allows_holiday_deduction: false, max_participants: 10
+    )
+    course.save!(validate: false)
+
+    trial = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false,
+      sumup_checkout_id: "co-trial-sync"
+    )
+    trial.save!(validate: false)
+
+    with_http_stub(fake_http(ok_response('{"id":"co-trial-sync","status":"PAID","transactions":[{"id":"tx-sync"}]}'))) do
+      result = PaymentSyncService.sync_pending
+      assert_equal 1, result.paid
+    end
+
+    trial.reload
+    assert trial.payment_cleared?
+    assert_equal "bestätigt", trial.status
   end
 end

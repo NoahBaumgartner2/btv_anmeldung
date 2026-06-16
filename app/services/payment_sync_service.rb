@@ -49,11 +49,15 @@ class PaymentSyncService
     end
   end
 
-  # Holt alle ausstehenden Registrierungen mit SumUp-Checkout-ID und prüft den
+  # Holt alle offenen Registrierungen mit SumUp-Checkout-ID und prüft den
   # Zahlungsstatus direkt bei SumUp. Gibt ein Result-Struct zurück.
+  # "schnuppern" ist eingeschlossen, weil ein Schnupperplatz beim Bezahlen
+  # erst nach bestätigter Zahlung in "bestätigt" wechselt (siehe mark_paid!);
+  # ein gestarteter Checkout (sumup_checkout_id gesetzt) muss daher auch für
+  # Schnupperplätze abgeglichen werden, falls der Webhook ausbleibt.
   def self.sync_pending
     pending = CourseRegistration.where(
-      status:          "ausstehend",
+      status:          %w[ausstehend schnuppern],
       payment_cleared: false
     ).where.not(sumup_checkout_id: [ nil, "" ])
 
