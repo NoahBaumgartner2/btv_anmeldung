@@ -678,12 +678,13 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
-    @bookable_sessions = @course_registration.bookable_abo_sessions
+    @all_sessions = @course_registration.displayable_abo_sessions
+    @booked_session_ids = @course_registration.abo_booked_session_ids.to_set
     @spots_taken_by_session = CourseRegistration
-      .where(training_session_id: @bookable_sessions.map(&:id), status: %w[bestätigt schnuppern])
+      .where(training_session_id: @all_sessions.map(&:id), status: %w[bestätigt schnuppern])
       .group(:training_session_id)
       .count
-    @sessions_by_weekday = @bookable_sessions.group_by { |s| s.start_time.in_time_zone.wday }
+    @available_weekdays = @all_sessions.map { |s| s.start_time.in_time_zone.wday }.uniq.sort
   end
 
   def book_abo_session

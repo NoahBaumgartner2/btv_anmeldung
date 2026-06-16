@@ -859,6 +859,8 @@ en:
       full: "Full"
       full_waitlist: "Full · Waitlist"
       waitlist_btn: "Join waitlist"
+      already_booked: "Already booked"
+      show_more: "Show more"
     errors:
       duplicate_session: "This child is already registered for this session."
       duplicate_registration: "This person is already registered for this course."

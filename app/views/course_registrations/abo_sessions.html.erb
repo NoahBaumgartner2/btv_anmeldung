@@ -17,10 +17,7 @@
           count: @course_registration.abo_entries_remaining.to_i) %>
   </p>
 
-  <% if @bookable_sessions.any? %>
-    <%# Wochentage in Mo..So Reihenfolge (1=Mo … 0=So → normalisiert) %>
-    <% weekdays_present = (1..7).map { |d| d % 7 }.select { |d| @sessions_by_weekday.key?(d) } %>
-
+  <% if @all_sessions.any? %>
     <div data-controller="abo-weekday-filter">
 
       <%# Filter-Leiste %>
@@ -31,7 +28,7 @@
                 class="px-4 py-2 rounded-xl text-sm font-bold border border-gray-200 transition cursor-pointer bg-primary-600 text-white">
           <%= t("course_registrations.abo_sessions.filter_all") %>
         </button>
-        <% weekdays_present.each do |wday| %>
+        <% @available_weekdays.each do |wday| %>
           <button data-action="click->abo-weekday-filter#select"
                   data-weekday="<%= wday %>"
                   data-abo-weekday-filter-target="button"
@@ -41,80 +38,96 @@
         <% end %>
       </div>
 
-      <%# Sektionen pro Wochentag %>
-      <% weekdays_present.each do |wday| %>
-        <% sessions = @sessions_by_weekday[wday].sort_by(&:start_time) %>
-        <div data-abo-weekday-filter-target="section"
-             data-weekday="<%= wday %>"
-             class="mb-6">
-          <h2 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
-            <%= t("date.day_names")[wday] %>
-          </h2>
-          <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="divide-y divide-gray-100">
-              <% sessions.each do |session| %>
-                <% course         = session.course %>
-                <% spots_taken    = @spots_taken_by_session[session.id].to_i %>
-                <% max_p          = course.max_participants %>
-                <% is_full        = max_p.present? && spots_taken >= max_p %>
-                <% has_waitlist   = course.enable_waitlist? %>
+      <%# Flache chronologische Liste %>
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4">
+        <div class="divide-y divide-gray-100">
+          <% @all_sessions.each do |session| %>
+            <% wday   = session.start_time.in_time_zone.wday %>
+            <% booked = @booked_session_ids.include?(session.id) %>
 
-                <div class="px-4 sm:px-5 py-4 flex items-center justify-between gap-4">
-                  <div class="min-w-0 flex-1">
-                    <p class="font-bold text-gray-900 truncate"><%= course.title %></p>
-                    <p class="text-sm text-gray-500 mt-0.5">
-                      <%= session.start_time.in_time_zone.strftime("%-d. %B %Y, %H:%M") %>
-                      <% if session.end_time.present? %>
-                        &ndash; <%= session.end_time.in_time_zone.strftime("%H:%M") %>
-                      <% end %>
-                      <%= t("misc.time_suffix") %>
-                    </p>
-                    <% if course.location.present? %>
-                      <p class="text-xs text-gray-400 mt-0.5"><%= course.location %></p>
-                    <% end %>
+            <div data-abo-weekday-filter-target="card"
+                 data-weekday="<%= wday %>"
+                 class="px-4 sm:px-5 py-4 flex items-center justify-between gap-4 <%= booked ? "opacity-60" : "" %>">
+              <div class="min-w-0 flex-1">
+                <p class="font-bold text-gray-900 truncate"><%= session.course.title %></p>
+                <p class="text-sm text-gray-500 mt-0.5">
+                  <%= session.start_time.in_time_zone.strftime("%-d. %B %Y, %H:%M") %>
+                  <% if session.end_time.present? %>
+                    &ndash; <%= session.end_time.in_time_zone.strftime("%H:%M") %>
+                  <% end %>
+                  <%= t("misc.time_suffix") %>
+                </p>
+                <% if session.course.location.present? %>
+                  <p class="text-xs text-gray-400 mt-0.5"><%= session.course.location %></p>
+                <% end %>
 
-                    <%# Kapazitäts-Badge %>
-                    <% if is_full && has_waitlist %>
-                      <span class="mt-1.5 inline-flex items-center bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                        <%= t("course_registrations.abo_sessions.full_waitlist") %>
-                      </span>
-                    <% elsif is_full %>
-                      <span class="mt-1.5 inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                        <%= t("course_registrations.abo_sessions.full") %>
-                      </span>
-                    <% elsif max_p.present? %>
-                      <span class="mt-1.5 inline-flex items-center bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                        <%= t("course_registrations.abo_sessions.spots_free", count: max_p - spots_taken) %>
-                      </span>
-                    <% end %>
-                  </div>
+                <% if booked %>
+                  <span class="mt-1.5 inline-flex items-center bg-gray-100 text-gray-500 text-xs font-bold px-2 py-0.5 rounded-full">
+                    <%= t("course_registrations.abo_sessions.already_booked") %>
+                  </span>
+                <% else %>
+                  <% spots_taken  = @spots_taken_by_session[session.id].to_i %>
+                  <% max_p        = session.course.max_participants %>
+                  <% is_full      = max_p.present? && spots_taken >= max_p %>
+                  <% has_waitlist = session.course.enable_waitlist? %>
 
-                  <%# Aktions-Button %>
-                  <div class="shrink-0">
-                    <% if is_full && !has_waitlist %>
-                      <span class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold bg-gray-100 text-gray-400 min-h-11">
-                        <%= t("course_registrations.abo_sessions.full") %>
-                      </span>
-                    <% elsif is_full %>
-                      <%= button_to t("course_registrations.abo_sessions.waitlist_btn"),
-                            book_abo_session_course_registration_path(@course_registration),
-                            params: { training_session_id: session.id },
-                            method: :post,
-                            class: "bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition min-h-11 cursor-pointer" %>
-                    <% else %>
-                      <%= button_to t("course_registrations.abo_sessions.book_btn"),
-                            book_abo_session_course_registration_path(@course_registration),
-                            params: { training_session_id: session.id },
-                            method: :post,
-                            class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition min-h-11 cursor-pointer" %>
-                    <% end %>
-                  </div>
-                </div>
-              <% end %>
+                  <% if is_full && has_waitlist %>
+                    <span class="mt-1.5 inline-flex items-center bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                      <%= t("course_registrations.abo_sessions.full_waitlist") %>
+                    </span>
+                  <% elsif is_full %>
+                    <span class="mt-1.5 inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                      <%= t("course_registrations.abo_sessions.full") %>
+                    </span>
+                  <% elsif max_p.present? %>
+                    <span class="mt-1.5 inline-flex items-center bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                      <%= t("course_registrations.abo_sessions.spots_free", count: max_p - spots_taken) %>
+                    </span>
+                  <% end %>
+                <% end %>
+              </div>
+
+              <%# Aktions-Button %>
+              <div class="shrink-0">
+                <% if booked %>
+                  <%# kein Button für bereits gebuchte Sessions %>
+                <% else %>
+                  <% spots_taken  = @spots_taken_by_session[session.id].to_i %>
+                  <% max_p        = session.course.max_participants %>
+                  <% is_full      = max_p.present? && spots_taken >= max_p %>
+                  <% has_waitlist = session.course.enable_waitlist? %>
+
+                  <% if is_full && !has_waitlist %>
+                    <span class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold bg-gray-100 text-gray-400 min-h-11">
+                      <%= t("course_registrations.abo_sessions.full") %>
+                    </span>
+                  <% elsif is_full %>
+                    <%= button_to t("course_registrations.abo_sessions.waitlist_btn"),
+                          book_abo_session_course_registration_path(@course_registration),
+                          params: { training_session_id: session.id },
+                          method: :post,
+                          class: "bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold py-2 px-4 rounded-xl text-sm transition min-h-11 cursor-pointer" %>
+                  <% else %>
+                    <%= button_to t("course_registrations.abo_sessions.book_btn"),
+                          book_abo_session_course_registration_path(@course_registration),
+                          params: { training_session_id: session.id },
+                          method: :post,
+                          class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition min-h-11 cursor-pointer" %>
+                  <% end %>
+                <% end %>
+              </div>
             </div>
-          </div>
+          <% end %>
         </div>
-      <% end %>
+      </div>
+
+      <%# Mehr anzeigen %>
+      <div data-abo-weekday-filter-target="loadMore" class="text-center hidden">
+        <button data-action="click->abo-weekday-filter#loadMore"
+                class="px-6 py-2.5 rounded-xl text-sm font-bold border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition cursor-pointer">
+          <%= t("course_registrations.abo_sessions.show_more") %>
+        </button>
+      </div>
 
     </div>
   <% else %>
