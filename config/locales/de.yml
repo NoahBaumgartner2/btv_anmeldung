@@ -438,6 +438,14 @@ de:
       no_participants_body: "Erfasse jetzt eine Person, um sie für Kurse anzumelden."
       add_first_child: "Teilnehmer erfassen"
       add_participant_aria: "Person erfassen"
+      abo_label: "Abo"
+      abo_entries_remaining:
+        one: "1 Eintritt übrig"
+        other: "%{count} Eintritte übrig"
+      abo_book_btn: "Training buchen"
+      abo_booked_sessions: "Gebuchte Trainings"
+      abo_no_sessions: "Noch keine Trainings gebucht."
+      abo_cancel_booking_btn: "Stornieren"
     new:
       title: "Person erfassen"
       subtitle: "Erfasse eine Person, um sie für Kurse anzumelden."
@@ -866,6 +874,12 @@ de:
       already_cancelled: "Diese Anmeldung ist bereits storniert."
       not_a_trial: "Diese Anmeldung ist kein Schnupperplatz."
       trial_converted: "Du wurdest erfolgreich regulär angemeldet."
+      not_an_abo: "Diese Anmeldung ist kein Abo."
+      abo_exhausted: "Das Abo hat keine Eintritte mehr übrig."
+      abo_session_not_found: "Training nicht gefunden."
+      abo_wrong_category: "Dieses Training gehört nicht zur Kategorie dieses Abos."
+      abo_already_booked: "Für dieses Training besteht bereits eine Buchung über dieses Abo."
+      abo_booked: "Training am %{date} wurde erfolgreich gebucht."
     errors:
       duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
       duplicate_registration: "Diese Person ist bereits für diesen Kurs angemeldet."
@@ -875,6 +889,18 @@ de:
       trial_session_required: "Bitte wähle das Training aus, in dem du schnuppern möchtest."
       trial_session_wrong_course: "Das gewählte Schnuppertraining gehört nicht zu diesem Kurs."
       missing_field: "%{field} fehlt für %{name}. Bitte zuerst im Profil ergänzen."
+    abo_sessions:
+      title: "Training buchen – %{course}"
+      subtitle: "Wähle ein Training in der Kategorie «%{category}», das du mit deinem Abo besuchen möchtest."
+      back: "← Zurück zum Profil"
+      entries_remaining:
+        one: "Noch 1 Eintritt übrig"
+        other: "Noch %{count} Eintritte übrig"
+      no_sessions: "Aktuell sind keine buchbaren Trainings in dieser Kategorie verfügbar."
+      book_btn: "Buchen"
+      course_column: "Kurs"
+      date_column: "Datum & Uhrzeit"
+      location_column: "Ort"
     new:
       title: "Kursanmeldung"
       back: "Zurück zum Kurs"
