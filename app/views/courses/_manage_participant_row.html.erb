@@ -2,6 +2,9 @@
             <tr class="hover:bg-gray-50 transition" data-participant-name="<%= "#{p.first_name} #{p.last_name}".downcase %>">
               <td class="py-4 px-6 text-sm">
                 <span class="font-semibold text-gray-900"><%= p.first_name %> <%= p.last_name %></span>
+                <% if reg.abo_booking? %>
+                  <span class="ml-1.5 inline-flex items-center bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-0.5 rounded-full" title="Über Abo gebucht (Abo-ID: <%= reg.abo_source_registration_id %>)">Abo</span>
+                <% end %>
                 <% if @course.allows_talent_marking? && reg.talent_flag? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
                   <span class="text-amber-400 ml-1" title="<%= reg.talent_note.presence || 'Talent' %>">⭐</span>
                 <% end %>

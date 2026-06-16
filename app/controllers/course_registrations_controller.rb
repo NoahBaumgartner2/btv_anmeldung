@@ -1,8 +1,8 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry, :update_abo_entries, :convert_trial ]
-  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry, :update_abo_entries, :convert_trial, :abo_sessions, :book_abo_session ]
+  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel, :abo_sessions, :book_abo_session ]
 
   def show
     if @course_registration.status == "ausstehend" && @course_registration.course.price_cents.to_i == 0
@@ -328,6 +328,13 @@ class CourseRegistrationsController < ApplicationController
     if already_cancelled_in_lock
       redirect_to participants_path, alert: t("course_registrations.flash.already_cancelled")
       return
+    end
+
+    # Abo-Eintrag zurückbuchen, wenn es sich um eine Abo-Buchung handelt
+    # und die zugehörige Session noch nicht begonnen hat
+    if @course_registration.abo_booking?
+      session = @course_registration.training_session
+      @course_registration.refund_abo_entry! if session.nil? || session.start_time > Time.current
     end
 
     course = @course_registration.course
@@ -663,6 +670,77 @@ class CourseRegistrationsController < ApplicationController
       redirect_to course_registration_path(@course_registration),
         notice: t("course_registrations.flash.trial_converted")
     end
+  end
+
+  def abo_sessions
+    unless @course_registration.course.abo?
+      redirect_to participants_path, alert: t("course_registrations.flash.not_an_abo")
+      return
+    end
+
+    @bookable_sessions = @course_registration.bookable_abo_sessions
+  end
+
+  def book_abo_session
+    unless @course_registration.course.abo?
+      redirect_to participants_path, alert: t("course_registrations.flash.not_an_abo")
+      return
+    end
+
+    if @course_registration.abo_exhausted?
+      redirect_to abo_sessions_course_registration_path(@course_registration),
+                  alert: t("course_registrations.flash.abo_exhausted")
+      return
+    end
+
+    session = TrainingSession.find_by(id: params[:training_session_id])
+    unless session
+      redirect_to abo_sessions_course_registration_path(@course_registration),
+                  alert: t("course_registrations.flash.abo_session_not_found")
+      return
+    end
+
+    unless session.course.category == @course_registration.course.category
+      redirect_to abo_sessions_course_registration_path(@course_registration),
+                  alert: t("course_registrations.flash.abo_wrong_category")
+      return
+    end
+
+    if session.start_time <= Time.current
+      redirect_to abo_sessions_course_registration_path(@course_registration),
+                  alert: t("course_registrations.errors.session_in_past")
+      return
+    end
+
+    already_booked = @course_registration.abo_bookings
+                                         .where(training_session_id: session.id)
+                                         .where.not(status: "storniert")
+                                         .exists?
+    if already_booked
+      redirect_to abo_sessions_course_registration_path(@course_registration),
+                  alert: t("course_registrations.flash.abo_already_booked")
+      return
+    end
+
+    booking = nil
+    ActiveRecord::Base.transaction do
+      @course_registration.increment!(:abo_entries_used)
+      booking = CourseRegistration.create!(
+        course: session.course,
+        participant: @course_registration.participant,
+        training_session: session,
+        abo_source_registration_id: @course_registration.id,
+        status: "bestätigt",
+        payment_cleared: true
+      )
+    end
+
+    redirect_to participants_path,
+                notice: t("course_registrations.flash.abo_booked",
+                          date: I18n.l(session.start_time.to_date))
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to abo_sessions_course_registration_path(@course_registration),
+                alert: e.message
   end
 
   def mark_as_paid
