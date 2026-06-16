@@ -9,6 +9,9 @@
                     <span class="text-amber-400" title="<%= reg.talent_note.presence || 'Talent' %>">⭐</span>
                   <% end %>
                 </p>
+                <% if @course.age_restricted? && reg.status != "storniert" && !@course.accepts_participant_age?(p) %>
+                  <span class="mt-1 inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">⚠ Alter passt nicht (<%= @course.age_range_label %>)</span>
+                <% end %>
                 <% if reg.status == "ausstehend" && reg.sumup_checkout_id.present? && !reg.payment_cleared? %>
                   <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full mt-1">
                     <%= t("courses.manage.payment_pending") %>
