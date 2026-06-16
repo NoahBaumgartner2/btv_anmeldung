@@ -196,6 +196,55 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     end
   end
 
+  # ── AHV-Pflicht nach Altersregel ─────────────────────────────────────────────
+
+  test "Anmeldung eines Teilnehmers <=20 ohne AHV-Nummer schlägt fehl" do
+    course = Course.new(
+      title: "AHV-Test-Kurs", registration_type: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      start_date: Date.new(2026, 9, 1)
+    )
+    course.save!(validate: false)
+
+    participant = Participant.new(
+      user: users(:one), first_name: "Jung", last_name: "Ohne AHV",
+      date_of_birth: Date.new(2006, 1, 1), gender: "weiblich",
+      phone_number: "0791000091", ahv_number: nil
+    )
+    participant.save!(validate: false)
+
+    reg = CourseRegistration.new(
+      course: course, participant: participant,
+      payment_cleared: false, holiday_deduction_claimed: false
+    )
+
+    assert_not reg.valid?
+    assert_match "AHV-Nummer", reg.errors.full_messages.join
+  end
+
+  test "Anmeldung eines Teilnehmers >20 ohne AHV-Nummer ist gültig" do
+    course = Course.new(
+      title: "AHV-Test-Erwachsene", registration_type: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      start_date: Date.new(2026, 9, 1)
+    )
+    course.save!(validate: false)
+
+    participant = Participant.new(
+      user: users(:one), first_name: "Erwachsen", last_name: "Ohne AHV",
+      date_of_birth: Date.new(2004, 12, 31), gender: "weiblich",
+      phone_number: "0791000092", ahv_number: nil
+    )
+    participant.save!(validate: false)
+
+    reg = CourseRegistration.new(
+      course: course, participant: participant,
+      payment_cleared: false, holiday_deduction_claimed: false
+    )
+
+    assert reg.valid?, "Anmeldung >20 ohne AHV soll gültig sein, got: #{reg.errors.full_messages.join(', ')}"
+  end
+
   test "allows normal registration after schnuppern is storniert" do
     course = Course.new(title: "Schnupper-Storniert-Test", registration_type: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false)

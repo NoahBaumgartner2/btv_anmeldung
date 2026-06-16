@@ -52,8 +52,8 @@
               class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]",
               data: { "trial-check-target": "participantSelect", action: "change->trial-check#participantChanged" } %>
 
-        <%# Vorab-Prüfung: fehlende Pflichtfelder pro Teilnehmer %>
-        <% if course&.required_participant_fields.present? %>
+        <%# Vorab-Prüfung: fehlende Pflichtfelder pro Teilnehmer (inkl. AHV-Altersregel) %>
+        <% if course %>
           <% warnings = my_participants.filter_map do |p|
                missing = p.missing_fields_for(course)
                [p, missing] if missing.any?
