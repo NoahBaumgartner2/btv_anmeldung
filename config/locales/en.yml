@@ -344,6 +344,8 @@ en:
     registration_types:
       semester: "Semester course"
       jahreskurs: "Annual course"
+      quartal: "Quarterly course"
+      abo: "Subscription"
       pro_training: "Per session"
 
   participants:

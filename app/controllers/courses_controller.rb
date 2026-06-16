@@ -361,6 +361,8 @@ class CoursesController < ApplicationController
       case registration_mode
       when "single_session" then "pro_training"
       when "jahreskurs"     then "jahreskurs"
+      when "quartal"        then "quartal"
+      when "abo"            then "abo"
       else "semester"
       end
     end
