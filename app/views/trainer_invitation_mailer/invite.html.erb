@@ -9,7 +9,7 @@
 </table>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
-  Hallo <%= @trainer.first_name.presence || @trainer.user.email.split("@").first %>,<br><br>
+  Hallo <%= greeting_name(@trainer.user) %>,<br><br>
   du wurdest als Trainer im Anmeldungssystem erfasst. So geht es los:
 </p>
 

@@ -1,7 +1,7 @@
 <% primary = defined?(@_club) && @_club ? @_club.effective_primary_color : "#dc2626" %>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
-  Hallo <%= @email %>,<br><br>
+  Hallo <%= greeting_name(@resource) %>,<br><br>
   willkommen! Bitte bestätige deine E-Mail-Adresse, um dein Konto zu aktivieren.
 </p>
 
