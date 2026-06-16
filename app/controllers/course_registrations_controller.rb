@@ -175,9 +175,11 @@ class CourseRegistrationsController < ApplicationController
         end
 
         if course.has_payment? && course.price_cents.to_i > 0
-          # Schnupperplatz → auf "ausstehend" umstellen, damit er bezahlbar wird.
+          # Schnupperplatz bleibt "schnuppern", bis die Zahlung bestätigt ist –
+          # so bleibt der Platz reserviert (und die 7-Tage-Frist läuft weiter),
+          # falls die Zahlung abgebrochen wird. payable? lässt "schnuppern" zu;
+          # mark_paid! wandelt den Status nach erfolgreicher Zahlung in "bestätigt".
           # Bestätigt-aber-unbezahlt bleibt "bestätigt" und geht direkt zur Zahlung.
-          existing_reg.update!(status: "ausstehend") if existing_reg.trial?
           return redirect_to checkout_preview_registration_path(existing_reg)
         else
           # Gratiskurs: Schnupperplatz direkt regulär bestätigen.
@@ -662,7 +664,8 @@ class CourseRegistrationsController < ApplicationController
     course = @course_registration.course
 
     if course.has_payment? && course.price_cents.to_i > 0
-      @course_registration.update!(status: "ausstehend")
+      # Status bleibt "schnuppern", bis die Zahlung bestätigt ist – der
+      # Schnupperplatz bleibt damit reserviert, falls die Zahlung abgebrochen wird.
       redirect_to checkout_preview_registration_path(@course_registration)
     else
       @course_registration.update!(status: "bestätigt")

@@ -68,15 +68,26 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "storniert, warteliste und schnuppern werden umgeleitet" do
+  test "storniert und warteliste werden umgeleitet" do
     with_sumup_configured do
-      %w[storniert warteliste schnuppern].each do |status|
+      %w[storniert warteliste].each do |status|
         @registration.update_columns(status: status)
 
         get checkout_preview_registration_path(@registration)
         assert_redirected_to course_registration_path(@registration),
           "Status #{status} darf keinen Checkout erreichen"
       end
+    end
+  end
+
+  test "schnuppern erreicht checkout_preview (Umwandlung in reguläre Anmeldung)" do
+    # Beim Umwandeln eines Schnupperplatzes bleibt der Status "schnuppern" bis zur
+    # bestätigten Zahlung – der Checkout muss daher erreichbar sein.
+    @registration.update_columns(status: "schnuppern")
+
+    with_sumup_configured do
+      get checkout_preview_registration_path(@registration)
+      assert_response :success
     end
   end
 

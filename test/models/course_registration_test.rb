@@ -188,12 +188,26 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     assert_not reg.payable?
   end
 
-  test "payable? false für storniert, warteliste und schnuppern" do
-    %w[storniert warteliste schnuppern].each do |status|
+  test "payable? false für storniert und warteliste" do
+    %w[storniert warteliste].each do |status|
       reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
         status: status, payment_cleared: false, holiday_deduction_claimed: false)
       assert_not reg.payable?, "payable? muss für Status #{status} false sein"
     end
+  end
+
+  test "payable? true für schnuppern + unbezahlt bei zahlungspflichtigem Kurs" do
+    # Beim Umwandeln eines Schnupperplatzes bleibt der Status "schnuppern" bis zur
+    # bestätigten Zahlung – er muss daher zahlbar sein.
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false)
+    assert reg.payable?
+  end
+
+  test "payable? false für schnuppern bei Gratis-Kurs" do
+    reg = CourseRegistration.new(course: free_course, participant: participants(:one),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false)
+    assert_not reg.payable?
   end
 
   # ── AHV-Pflicht nach Altersregel ─────────────────────────────────────────────

@@ -2,6 +2,7 @@ require "test_helper"
 
 class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include ActionMailer::TestHelper
 
   setup do
     @parent = users(:one)
@@ -306,7 +307,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   # ── Schnupperplatz / bestätigt-unbezahlt → zur Zahlung weiterleiten ─────────
 
-  test "reguläre Anmeldung bei bestehendem Schnupperplatz (kostenpflichtig) leitet zur Zahlung weiter ohne neuen Datensatz" do
+  test "reguläre Anmeldung bei bestehendem Schnupperplatz (kostenpflichtig) leitet zur Zahlung weiter und behält Schnupperstatus bis zur Zahlung" do
     @trial_course.update_columns(has_payment: true, price_cents: 10_000)
     existing = CourseRegistration.new(
       course: @trial_course, participant: @trial_participant,
@@ -321,7 +322,9 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_equal "ausstehend", existing.reload.status
+    # Der Schnupperplatz bleibt erhalten (Platz reserviert, 7-Tage-Frist läuft weiter),
+    # bis die Zahlung bestätigt ist – nicht "ausstehend".
+    assert_equal "schnuppern", existing.reload.status
     assert_redirected_to checkout_preview_registration_path(existing)
   end
 
@@ -400,6 +403,60 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "bestätigt", existing.reload.status
     assert_redirected_to course_registration_path(existing)
     assert_equal I18n.t("course_registrations.flash.trial_converted"), flash[:notice]
+  end
+
+  # ── convert_trial ──────────────────────────────────────────────────────────
+
+  test "convert_trial (kostenpflichtig) behält Schnupperstatus und leitet zur Zahlung weiter" do
+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+    trial = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    trial.save!(validate: false)
+    sign_in @trial_parent
+
+    # Status bleibt "schnuppern", bis die Zahlung bestätigt ist – Platz bleibt
+    # reserviert; es darf noch keine Bestätigungs-Mail verschickt werden.
+    assert_no_enqueued_emails do
+      post convert_trial_course_registration_path(trial)
+    end
+
+    assert_equal "schnuppern", trial.reload.status
+    assert_redirected_to checkout_preview_registration_path(trial)
+  end
+
+  test "convert_trial (Gratiskurs) bestätigt direkt und verschickt Bestätigung" do
+    trial = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    trial.save!(validate: false)
+    sign_in @trial_parent
+
+    assert_enqueued_email_with CourseRegistrationMailer, :confirmation, args: [ trial ] do
+      post convert_trial_course_registration_path(trial)
+    end
+
+    assert_equal "bestätigt", trial.reload.status
+    assert_redirected_to course_registration_path(trial)
+    assert_equal I18n.t("course_registrations.flash.trial_converted"), flash[:notice]
+  end
+
+  test "convert_trial lehnt Nicht-Schnupper-Anmeldung ab" do
+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+    reg = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+    sign_in @trial_parent
+
+    post convert_trial_course_registration_path(reg)
+
+    assert_equal "ausstehend", reg.reload.status
+    assert_redirected_to course_registration_path(reg)
+    assert_equal I18n.t("course_registrations.flash.not_a_trial"), flash[:alert]
   end
 
   # ── trial_eligible ────────────────────────────────────────────────────────

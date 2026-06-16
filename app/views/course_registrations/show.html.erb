@@ -3,7 +3,7 @@
   participant      = @course_registration.participant
   session          = @course_registration.training_session
   is_single        = course.registration_mode == "single_session" && session.present?
-  needs_payment    = @course_registration.payable?
+  needs_payment    = @course_registration.payable? && !@course_registration.trial?
   confirmed_unpaid = needs_payment && @course_registration.status == "bestätigt"
   can_pay_online   = needs_payment && ::SumupConfig.configured?
   pricing          = can_pay_online ? DiscountCalculator.call(@course_registration) : nil
