@@ -845,6 +845,7 @@ en:
       subtitle: "Adjust the status and payment for this registration."
     show:
       title_payment: "Registration confirmed"
+      title_payment_pending: "Registration not yet complete"
       subtitle_payment: "Please complete payment to secure your spot."
       subtitle_payment_confirmed: "Your spot is secured – payment is still outstanding."
       title_success: "Registration successful"

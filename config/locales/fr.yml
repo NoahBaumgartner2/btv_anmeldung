@@ -839,6 +839,7 @@ fr:
       subtitle: "Ajuster le statut et le paiement de cette inscription."
     show:
       title_payment: "Inscription confirmée"
+      title_payment_pending: "Inscription pas encore finalisée"
       subtitle_payment: "Veuillez compléter le paiement pour confirmer votre place."
       subtitle_payment_confirmed: "Votre place est assurée – le paiement est encore en attente."
       title_success: "Inscription réussie"

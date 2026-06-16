@@ -550,10 +550,11 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     )
     course.save!(validate: false)
     CourseTrainer.create!(course: course, trainer: trainers(:one)) # user one = zugewiesener Trainer
-    reg = CourseRegistration.create!(
+    reg = CourseRegistration.new(
       course: course, participant: participants(:one),
       status: "bestätigt", abo_entries_total: total, abo_entries_used: used
     )
+    reg.save!(validate: false)
     [ course, reg ]
   end
 
@@ -620,6 +621,60 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to manage_course_path(course)
     assert_equal original_total.inspect, @registration.reload.abo_entries_total.inspect
+  end
+
+  # ── show / Zahlungs-Header ──────────────────────────────────────────────────
+
+  test "show zeigt title_payment_pending wenn Zahlung offen und Status ausstehend" do
+    paid_course = Course.new(
+      title: "Zahlungskurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, price_cents: 10_000,
+      has_ticketing: false, allows_holiday_deduction: false
+    )
+    paid_course.save!(validate: false)
+
+    reg = CourseRegistration.new(
+      course: paid_course, participant: @trial_participant,
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+
+    sign_in @trial_parent
+
+    old_token = ENV["SUMUP_ACCESS_TOKEN"]
+    ENV["SUMUP_ACCESS_TOKEN"] = "test-token"
+    get course_registration_path(reg)
+    ENV["SUMUP_ACCESS_TOKEN"] = old_token
+
+    assert_response :success
+    assert_includes response.body, I18n.t("course_registrations.show.title_payment_pending")
+    assert_not_includes response.body, I18n.t("course_registrations.show.title_payment")
+  end
+
+  test "show zeigt title_payment wenn Status bestätigt und Zahlung noch offen (confirmed_unpaid)" do
+    paid_course = Course.new(
+      title: "Zahlungskurs bestätigt", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, price_cents: 10_000,
+      has_ticketing: false, allows_holiday_deduction: false
+    )
+    paid_course.save!(validate: false)
+
+    reg = CourseRegistration.new(
+      course: paid_course, participant: @trial_participant,
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+
+    sign_in @trial_parent
+
+    old_token = ENV["SUMUP_ACCESS_TOKEN"]
+    ENV["SUMUP_ACCESS_TOKEN"] = "test-token"
+    get course_registration_path(reg)
+    ENV["SUMUP_ACCESS_TOKEN"] = old_token
+
+    assert_response :success
+    assert_includes response.body, I18n.t("course_registrations.show.title_payment")
+    assert_not_includes response.body, I18n.t("course_registrations.show.title_payment_pending")
   end
 
   # ── edit/update durch Admin (fremde Anmeldung) ───────────────────────────
