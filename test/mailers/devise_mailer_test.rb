@@ -13,6 +13,7 @@ class DeviseMailerTest < ActionMailer::TestCase
   test "confirmation_instructions zeigt Vereins-Kontakt-E-Mail wenn vorhanden" do
     user = users(:one)
     club = ClubSetting.current
+    club.save! if club.new_record?
     original_email = club.contact_email
     original_name  = club.club_name
     club.update_columns(contact_email: "info@verein.ch", club_name: "Testverein")
@@ -27,6 +28,7 @@ class DeviseMailerTest < ActionMailer::TestCase
   test "confirmation_instructions fällt auf club_name zurück wenn keine Kontakt-E-Mail" do
     user = users(:one)
     club = ClubSetting.current
+    club.save! if club.new_record?
     original_email = club.contact_email
     original_name  = club.club_name
     club.update_columns(contact_email: nil, club_name: "Mein Verein")

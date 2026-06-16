@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_15_172330) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_16_135023) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -95,6 +95,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_172330) do
   create_table "course_registrations", force: :cascade do |t|
     t.integer "abo_entries_total"
     t.integer "abo_entries_used", default: 0
+    t.bigint "abo_source_registration_id"
     t.string "applied_discount"
     t.integer "applied_price_cents"
     t.boolean "cancellation_notify_admin", default: false, null: false
@@ -118,6 +119,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_172330) do
     t.datetime "trial_expires_at"
     t.bigint "trial_session_id"
     t.datetime "updated_at", null: false
+    t.index ["abo_source_registration_id"], name: "index_course_registrations_on_abo_source_registration_id"
     t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
     t.index ["course_id", "status"], name: "index_course_registrations_on_course_id_and_status"
     t.index ["course_id"], name: "index_course_registrations_on_course_id"
@@ -391,6 +393,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_15_172330) do
   add_foreign_key "attendances", "training_sessions"
   add_foreign_key "course_access_grants", "courses"
   add_foreign_key "course_access_grants", "users"
+  add_foreign_key "course_registrations", "course_registrations", column: "abo_source_registration_id", on_delete: :nullify
   add_foreign_key "course_registrations", "courses"
   add_foreign_key "course_registrations", "participants"
   add_foreign_key "course_registrations", "trainers", column: "cancelled_by_trainer_id", on_delete: :nullify

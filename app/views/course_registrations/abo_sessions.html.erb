@@ -1,0 +1,55 @@
+<div class="max-w-3xl mx-auto w-full px-4 sm:px-6 mt-6 sm:mt-10 mb-16">
+
+  <div class="mb-6 sm:mb-8">
+    <%= link_to t("course_registrations.abo_sessions.back"), participants_path,
+          class: "text-sm text-gray-500 hover:text-gray-700 font-medium transition" %>
+  </div>
+
+  <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900 tracking-tight mb-1">
+    <%= t("course_registrations.abo_sessions.title", course: @course_registration.course.title) %>
+  </h1>
+  <p class="text-gray-500 text-sm sm:text-base mb-2">
+    <%= t("course_registrations.abo_sessions.subtitle",
+          category: @course_registration.course.category) %>
+  </p>
+  <p class="text-sm font-bold text-primary-600 mb-6 sm:mb-8">
+    <%= t("course_registrations.abo_sessions.entries_remaining",
+          count: @course_registration.abo_entries_remaining.to_i) %>
+  </p>
+
+  <% if @bookable_sessions.any? %>
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      <div class="divide-y divide-gray-100">
+        <% @bookable_sessions.each do |session| %>
+          <div class="px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <p class="font-bold text-gray-900 truncate"><%= session.course.title %></p>
+              <p class="text-sm text-gray-500 mt-0.5">
+                <%= session.start_time.in_time_zone.strftime("%-d. %B %Y, %H:%M") %>
+                <% if session.end_time.present? %>
+                  &ndash; <%= session.end_time.in_time_zone.strftime("%H:%M") %>
+                <% end %>
+                <%= t("misc.time_suffix") %>
+              </p>
+              <% if session.course.location.present? %>
+                <p class="text-xs text-gray-400 mt-0.5"><%= session.course.location %></p>
+              <% end %>
+            </div>
+            <%= button_to t("course_registrations.abo_sessions.book_btn"),
+                  book_abo_session_course_registration_path(@course_registration),
+                  params: { training_session_id: session.id },
+                  method: :post,
+                  class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2 px-4 rounded-xl text-sm transition min-h-11 cursor-pointer" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="bg-gray-50 rounded-2xl border border-gray-200 border-dashed p-8 text-center">
+      <p class="text-gray-500 text-sm font-medium">
+        <%= t("course_registrations.abo_sessions.no_sessions") %>
+      </p>
+    </div>
+  <% end %>
+
+</div>

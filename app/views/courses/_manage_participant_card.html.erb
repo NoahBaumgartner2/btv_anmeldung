@@ -5,6 +5,9 @@
               <div class="min-w-0">
                 <p class="font-semibold text-gray-900 text-sm truncate">
                   <%= p.first_name %> <%= p.last_name %>
+                  <% if reg.abo_booking? %>
+                    <span class="ml-1 inline-flex items-center bg-indigo-100 text-indigo-700 text-xs font-bold px-1.5 py-0.5 rounded-full">Abo</span>
+                  <% end %>
                   <% if @course.allows_talent_marking? && reg.talent_flag? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
                     <span class="text-amber-400" title="<%= reg.talent_note.presence || 'Talent' %>">⭐</span>
                   <% end %>

@@ -7,12 +7,16 @@ class CourseRegistration < ApplicationRecord
   belongs_to :trial_session, class_name: "TrainingSession", optional: true
   belongs_to :cancelled_by_trainer, class_name: "Trainer", optional: true,
              inverse_of: :cancelled_registrations
+  belongs_to :abo_source, class_name: "CourseRegistration",
+             foreign_key: :abo_source_registration_id, optional: true
 
   has_many :attendances, dependent: :destroy
+  has_many :abo_bookings, class_name: "CourseRegistration",
+           foreign_key: :abo_source_registration_id, dependent: :nullify
 
-  validate :participant_has_required_fields, on: :create
-  validate :no_duplicate_single_session_registration, on: :create
-  validate :no_duplicate_semester_registration, on: :create
+  validate :participant_has_required_fields, on: :create, unless: :abo_booking?
+  validate :no_duplicate_single_session_registration, on: :create, unless: :abo_booking?
+  validate :no_duplicate_semester_registration, on: :create, unless: :abo_booking?
   validate :training_session_bookable, on: :create
   validate :trial_session_bookable, on: :create
 
@@ -63,6 +67,38 @@ class CourseRegistration < ApplicationRecord
   def abo_exhausted?
     return false unless abo_entries_total.present?
     abo_entries_used.to_i >= abo_entries_total
+  end
+
+  def abo_booking?
+    abo_source_registration_id.present?
+  end
+
+  def refund_abo_entry!
+    return unless abo_source.present?
+    abo_source.with_lock do
+      abo_source.reload
+      new_used = [ abo_source.abo_entries_used.to_i - 1, 0 ].max
+      abo_source.update_columns(abo_entries_used: new_used, updated_at: Time.current)
+    end
+  end
+
+  def bookable_abo_sessions
+    return [] unless course.abo? && course.category.present?
+    return [] if abo_exhausted?
+
+    already_booked_ids = abo_bookings
+      .where.not(status: "storniert")
+      .pluck(:training_session_id)
+      .compact
+
+    TrainingSession
+      .joins(:course)
+      .where(courses: { category: course.category })
+      .where(is_canceled: false)
+      .where("training_sessions.start_time > ?", Time.current)
+      .where.not(id: already_booked_ids)
+      .includes(:course)
+      .order("training_sessions.start_time")
   end
 
   private
