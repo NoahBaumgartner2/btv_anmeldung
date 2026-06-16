@@ -1,14 +1,40 @@
 <% primary = defined?(@_club) && @_club ? @_club.effective_primary_color : "#dc2626" %>
 <%
-  club = @_club || ClubSetting.current
-  club_name  = club&.club_name.presence || "BTV Anmeldung"
-  club_email = club&.contact_email
+  club         = @_club || ClubSetting.current
+  club_name    = club&.club_name.presence || "BTV Anmeldung"
+  club_email   = club&.contact_email
+  club_phone   = club&.contact_phone
+  full_name    = [ @resource.first_name, @resource.last_name ].compact.join(" ").presence
+  user_phone   = @resource.phone_number
 %>
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
   Hallo <%= greeting_name(@resource) %>,<br><br>
   willkommen! Bitte bestätige deine E-Mail-Adresse, um dein Konto zu aktivieren.
 </p>
+
+<% if full_name.present? || user_phone.present? %>
+<table cellpadding="0" cellspacing="0" style="margin-bottom:24px;width:100%;background:#f9fafb;border-radius:8px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 8px 0;font-size:13px;font-weight:600;color:#6b7280;font-family:Arial,Helvetica,sans-serif;text-transform:uppercase;letter-spacing:0.05em;">Deine Angaben</p>
+      <% if full_name.present? %>
+      <p style="margin:0 0 4px 0;font-size:14px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+        <strong>Name:</strong> <%= full_name %>
+      </p>
+      <% end %>
+      <p style="margin:0 0 4px 0;font-size:14px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+        <strong>E-Mail:</strong> <%= @resource.email %>
+      </p>
+      <% if user_phone.present? %>
+      <p style="margin:0;font-size:14px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+        <strong>Telefon:</strong> <%= user_phone %>
+      </p>
+      <% end %>
+    </td>
+  </tr>
+</table>
+<% end %>
 
 <table cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
   <tr>
@@ -26,8 +52,11 @@
 
 <p style="margin:0 0 16px 0;font-size:13px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
   Bei Fragen erreichst du uns
-  <% if club_email.present? %>
-    unter <a href="mailto:<%= club_email %>" style="color:<%= primary %>;text-decoration:underline;"><%= club_email %></a>.
+  <% if club_email.present? || club_phone.present? %>
+    <% contacts = [] %>
+    <% contacts << "per E-Mail unter <a href=\"mailto:#{club_email}\" style=\"color:#{primary};text-decoration:underline;\">#{club_email}</a>" if club_email.present? %>
+    <% contacts << "telefonisch unter <a href=\"tel:#{club_phone}\" style=\"color:#{primary};text-decoration:underline;\">#{club_phone}</a>" if club_phone.present? %>
+    <%= contacts.join(" oder ").html_safe %>.
   <% else %>
     jederzeit über <%= club_name %>.
   <% end %>
