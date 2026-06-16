@@ -383,6 +383,8 @@ de:
     registration_types:
       semester: "Semesterkurs"
       jahreskurs: "Jahreskurs"
+      quartal: "Quartalskurs"
+      abo: "Abo"
       pro_training: "Pro Training"
 
   participants:

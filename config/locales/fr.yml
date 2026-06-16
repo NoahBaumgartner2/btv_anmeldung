@@ -344,6 +344,8 @@ fr:
     registration_types:
       semester: "Cours semestriel"
       jahreskurs: "Cours annuel"
+      quartal: "Cours trimestriel"
+      abo: "Abonnement"
       pro_training: "Par séance"
 
   participants:
