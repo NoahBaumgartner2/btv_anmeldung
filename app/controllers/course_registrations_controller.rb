@@ -455,6 +455,30 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
+    # Schnupper-Anmeldung: Das Schnuppern besteht nur aus diesem einen Training.
+    # Eine Abmeldung davon gibt den Schnupperplatz komplett auf → Anmeldung stornieren,
+    # damit sie auch bei der Kursleitung nicht mehr als "schnuppern" erscheint und der Platz frei wird.
+    if @course_registration.trial?
+      @course_registration.update!(status: "storniert", cancelled_at: Time.current)
+
+      WaitlistPromotionService.promote_next_from_waitlist(
+        @course_registration.course,
+        training_session_id: @training_session.id
+      )
+
+      @course_registration.course.trainers.includes(:user).each do |trainer|
+        next unless trainer.user&.email.present?
+        next unless trainer.user.admin_notification_enabled?("session_unsubscription")
+        TrainingSessionMailer.session_unsubscription_notice(
+          @training_session, @course_registration, trainer.user
+        ).deliver_later
+      end
+
+      redirect_to participants_path,
+                  notice: "#{@course_registration.participant.first_name} wurde vom Schnuppertraining abgemeldet."
+      return
+    end
+
     attendance = @training_session.attendances.find_or_initialize_by(
       course_registration_id: @course_registration.id
     )
