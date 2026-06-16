@@ -74,4 +74,75 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     end
     assert_redirected_to course_url(@course)
   end
+
+  # ── Schnupper-Button: category statt registration_type ─────────────────────
+
+  test "Schnupper-Button erscheint bei Kurs anderer Kategorie" do
+    parent = users(:parent_only)
+    participant = participants(:parent_only_child)  # hat AHV-Nummer gesetzt
+
+    course_a = Course.new(
+      title: "Kunstturnen Plus A", category: "Kunstturnen Plus",
+      registration_type: "semester", registration_mode: "semester",
+      allows_trial: true, requires_ahv_number: true,
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course_a.save!(validate: false)
+    course_a.training_sessions.create!(
+      start_time: 10.days.from_now, end_time: 10.days.from_now + 1.hour, is_canceled: false
+    )
+
+    course_b = Course.new(
+      title: "Tanzen B", category: "Tanzen",
+      registration_type: "semester", registration_mode: "semester",
+      allows_trial: true, requires_ahv_number: true,
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course_b.save!(validate: false)
+    course_b.training_sessions.create!(
+      start_time: 10.days.from_now, end_time: 10.days.from_now + 1.hour, is_canceled: false
+    )
+
+    # Participant hat in Kurs A (Kategorie "Kunstturnen Plus") geschnuppert
+    CourseRegistration.new(
+      course: course_a, participant: participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    sign_in parent
+    get course_url(course_b)
+
+    assert_response :success
+    assert_includes response.body, "trial=true",
+      "Schnupper-Button soll bei anderer Kategorie erscheinen"
+  end
+
+  test "Schnupper-Button fehlt bei Kurs derselben Kategorie" do
+    parent = users(:parent_only)
+    participant = participants(:parent_only_child)
+
+    course_a = Course.new(
+      title: "Kunstturnen Plus A", category: "Kunstturnen Plus",
+      registration_type: "semester", registration_mode: "semester",
+      allows_trial: true, requires_ahv_number: true,
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course_a.save!(validate: false)
+    course_a.training_sessions.create!(
+      start_time: 10.days.from_now, end_time: 10.days.from_now + 1.hour, is_canceled: false
+    )
+
+    # Participant hat in dieser Kategorie geschnuppert
+    CourseRegistration.new(
+      course: course_a, participant: participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    sign_in parent
+    get course_url(course_a)
+
+    assert_response :success
+    assert_not_includes response.body, "trial=true",
+      "Schnupper-Button soll in derselben Kategorie nicht erscheinen"
+  end
 end
