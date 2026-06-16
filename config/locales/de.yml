@@ -884,6 +884,7 @@ de:
       subtitle: "Status und Bezahlung für diese Kursanmeldung anpassen."
     show:
       title_payment: "Anmeldung bestätigt"
+      title_payment_pending: "Anmeldung noch nicht abgeschlossen"
       subtitle_payment: "Bitte schliesse die Zahlung ab, um deinen Platz zu sichern."
       subtitle_payment_confirmed: "Dein Platz ist gesichert – die Zahlung steht noch aus."
       title_success: "Anmeldung erfolgreich"
