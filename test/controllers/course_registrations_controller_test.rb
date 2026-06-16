@@ -88,6 +88,52 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_user_session_path
   end
 
+  test "unsubscribe_from_session storniert Schnupper-Anmeldung vollständig" do
+    sign_in @trial_parent
+
+    schnupper_course = Course.new(
+      title: "Schnupper-Abmelde-Test", registration_type: "semester",
+      registration_mode: "semester", has_payment: false, has_ticketing: false,
+      allows_holiday_deduction: false
+    )
+    schnupper_course.save!(validate: false)
+
+    future_session = schnupper_course.training_sessions.create!(
+      start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: false
+    )
+
+    reg = CourseRegistration.new(
+      course: schnupper_course, participant: @trial_participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+
+    assert_no_difference "Attendance.count" do
+      post unsubscribe_from_session_course_registration_path(reg),
+           params: { training_session_id: future_session.id }
+    end
+
+    assert_redirected_to participants_path
+    reg.reload
+    assert_equal "storniert", reg.status
+    assert_not reg.trial?
+    assert reg.cancelled_at.present?
+  end
+
+  test "unsubscribe_from_session legt Attendance an und belässt Status bei nicht-Schnupper-Anmeldung" do
+    sign_in @parent
+
+    assert_difference "Attendance.count", 1 do
+      post unsubscribe_from_session_course_registration_path(@registration),
+           params: { training_session_id: @future_session.id }
+    end
+
+    assert_redirected_to participants_path
+    assert_equal "abgemeldet", Attendance.last.status
+    @registration.reload
+    assert_not_equal "storniert", @registration.status
+  end
+
   # ── scan ────────────────────────────────────────────────────────────────────
 
   test "scan redirects with alert when session_id not found" do
