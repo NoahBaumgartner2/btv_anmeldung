@@ -153,13 +153,18 @@ class PaymentsController < ApplicationController
     end
 
     @registration.reload
-    redirect_to course_registration_path(@registration),
-                notice: "Deine Zahlung wurde erfolgreich verarbeitet."
+    if @registration.payment_cleared?
+      redirect_to course_registration_path(@registration),
+                  notice: "Deine Zahlung wurde erfolgreich verarbeitet."
+    else
+      redirect_to course_registration_path(@registration),
+                  alert: "Die Zahlung wurde nicht abgeschlossen. Bitte versuche es erneut."
+    end
   rescue StandardError => e
     Rails.logger.error "[SumUp] success callback error: #{e.class}: #{e.message}"
     if @registration
       redirect_to course_registration_path(@registration),
-                  notice: "Deine Zahlung wird möglicherweise noch verarbeitet."
+                  alert: "Beim Verarbeiten der Zahlung ist ein Fehler aufgetreten. Bitte überprüfe deinen Anmeldestatus."
     else
       redirect_to root_path, alert: "Ein Fehler ist aufgetreten."
     end
