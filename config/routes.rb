@@ -89,6 +89,8 @@ Rails.application.routes.draw do
       post :update_abo_entries
       post :mark_as_paid
       post :convert_trial
+      get  :abo_sessions
+      post :book_abo_session
     end
   end
 
