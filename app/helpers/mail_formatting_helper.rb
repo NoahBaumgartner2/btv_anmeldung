@@ -1,8 +1,11 @@
 module MailFormattingHelper
-  # Persönliche Anrede; Fallback auf E-Mail-Präfix, falls kein Vorname gesetzt.
+  # Persönliche Anrede: User#first_name → Trainer#first_name → E-Mail-Präfix
   def greeting_name(user)
     return "" if user.nil?
-    user.respond_to?(:display_name) ? user.display_name : user.email.to_s.split("@").first
+    name = user.try(:first_name).presence
+    name ||= user.try(:trainer)&.first_name.presence
+    name ||= user.email.to_s.split("@").first
+    name
   end
 
   # "Donnerstag, 4. Juni 2026, 19:00 – 20:30 Uhr" bei gleichem Tag,

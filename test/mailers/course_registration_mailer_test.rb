@@ -98,4 +98,35 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
     assert_match "&lt;b&gt;fett&lt;/b&gt;", mail.html_part.body.decoded
     assert_no_match "<b>fett</b>", mail.html_part.body.decoded
   end
+
+  test "greeting_name nutzt first_name des Empfängers" do
+    @recipient.update!(first_name: "Lena")
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    assert_match "Hallo Lena", mail.body.encoded
+  end
+
+  test "greeting_name fällt auf Trainer-Vorname zurück wenn first_name leer" do
+    assert_nil @recipient.first_name
+    assert_equal "Anna", @recipient.trainer.first_name
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    assert_match "Hallo Anna", mail.body.encoded
+  end
+
+  test "greeting_name fällt auf E-Mail-Präfix zurück wenn kein Name und kein Trainer" do
+    user = users(:parent_only)
+    assert_nil user.first_name
+    assert_nil user.trainer
+
+    participant = participants(:parent_only_child)
+    reg = CourseRegistration.new(course: @course, participant: participant, status: "bestätigt")
+    reg.save!(validate: false)
+
+    mail = CourseRegistrationMailer.confirmation(reg)
+
+    assert_match "Hallo parent_only", mail.body.encoded
+  end
 end

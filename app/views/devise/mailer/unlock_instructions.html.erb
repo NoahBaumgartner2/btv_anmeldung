@@ -1,7 +1,7 @@
 <% primary = defined?(@_club) && @_club ? @_club.effective_primary_color : "#dc2626" %>
 
 <p style="margin:0 0 16px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
-  Hallo <%= @resource.email %>,
+  Hallo <%= greeting_name(@resource) %>,
 </p>
 
 <p style="margin:0 0 24px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
