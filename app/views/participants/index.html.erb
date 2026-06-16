@@ -142,12 +142,12 @@
                             <% upcoming_sessions.each do |session| %>
                               <% is_unsubscribed = @unsubscribed_pairs.include?([reg.id, session.id]) %>
                               <% can_unsubscribe = !is_unsubscribed && session.start_time > 1.hour.from_now %>
-                              <li class="flex items-center justify-between gap-2 text-sm">
-                                <span class="text-gray-700 font-medium"><%= session.start_time.in_time_zone.strftime("%-d. %b, %H:%M") %> <%= t("misc.time_suffix") %></span>
+                              <li class="flex items-center justify-between gap-3 text-sm">
+                                <span class="text-gray-700 font-medium min-w-0 flex-1"><%= session.start_time.in_time_zone.strftime("%-d. %b, %H:%M") %> <%= t("misc.time_suffix") %></span>
                                 <% if is_unsubscribed %>
                                 <% can_resubscribe = session.start_time > Time.current %>
                                 <% if can_resubscribe %>
-                                  <%= form_with url: resubscribe_to_session_course_registration_path(reg), method: :post do %>
+                                  <%= form_with url: resubscribe_to_session_course_registration_path(reg), method: :post, class: "shrink-0 m-0 flex items-center" do %>
                                     <%= hidden_field_tag :training_session_id, session.id %>
                                     <button type="submit"
                                             class="text-xs font-bold px-2.5 py-1.5 min-h-11 min-w-[44px] flex items-center justify-center rounded-md bg-green-50 text-green-700 hover:bg-green-100 active:bg-green-200 transition cursor-pointer">
@@ -155,12 +155,13 @@
                                     </button>
                                   <% end %>
                                 <% else %>
-                                  <span class="text-xs font-bold px-2 py-1 rounded-md bg-red-100 text-red-600"><%= t("participants.index.unsubscribed") %></span>
+                                  <span class="shrink-0 inline-flex items-center justify-center text-xs font-bold px-2.5 py-1.5 min-h-11 rounded-md bg-red-100 text-red-600"><%= t("participants.index.unsubscribed") %></span>
                                 <% end %>
                                 <% elsif can_unsubscribe %>
                                   <div data-controller="confirm-unsubscribe" class="contents">
                                     <%= form_with url: unsubscribe_from_session_course_registration_path(reg),
                                                   method: :post,
+                                                  class: "shrink-0 m-0 flex items-center",
                                                   data: { "unsubscribe-form": "" } do %>
                                       <%= hidden_field_tag :training_session_id, session.id %>
                                       <button type="submit"
@@ -197,7 +198,7 @@
                                     </div>
                                   </div>
                                 <% else %>
-                                  <span class="text-xs text-gray-400">&ndash;</span>
+                                  <span class="shrink-0 inline-flex items-center justify-center text-xs text-gray-400 min-h-11">&ndash;</span>
                                 <% end %>
                               </li>
                             <% end %>
@@ -225,22 +226,23 @@
                           <% if abo_bookings.any? %>
                             <ul class="space-y-1.5 mb-3">
                               <% abo_bookings.each do |booking| %>
-                                <li class="flex items-center justify-between gap-2 text-xs">
-                                  <span class="text-gray-700 min-w-0">
-                                    <%= booking.training_session.start_time.in_time_zone.strftime("%-d. %b %Y, %H:%M") %>
-                                    – <%= booking.course.title %>
+                                <li class="flex items-center justify-between gap-3 text-xs">
+                                  <span class="min-w-0 flex-1">
+                                    <span class="block font-medium text-gray-700 truncate"><%= booking.training_session.start_time.in_time_zone.strftime("%-d. %b %Y, %H:%M") %></span>
+                                    <span class="block text-gray-400 truncate"><%= booking.course.title %></span>
                                     <% if booking.status == "warteliste" %>
-                                      <span class="ml-1 inline-flex items-center bg-orange-100 text-orange-700 font-bold px-1.5 py-0.5 rounded-full"><%= t("participants.index.waitlist") %></span>
+                                      <span class="inline-flex items-center bg-orange-100 text-orange-700 font-bold px-1.5 py-0.5 rounded-full"><%= t("participants.index.waitlist") %></span>
                                     <% end %>
                                   </span>
                                   <% if booking.training_session.start_time > 1.hour.from_now %>
                                     <div data-controller="confirm-unsubscribe" class="contents">
                                       <%= form_with url: cancel_course_registration_path(booking),
                                                     method: :post,
+                                                    class: "shrink-0 m-0 flex items-center",
                                                     data: { "unsubscribe-form": "" } do %>
                                         <button type="submit"
                                                 data-action="confirm-unsubscribe#open"
-                                                class="text-xs font-bold px-2 py-1 min-h-11 min-w-[44px] flex items-center justify-center rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition cursor-pointer shrink-0">
+                                                class="text-xs font-bold px-2.5 py-1.5 min-h-11 min-w-[44px] flex items-center justify-center rounded-md bg-red-50 text-red-600 hover:bg-red-100 active:bg-red-200 transition cursor-pointer">
                                           <%= t("participants.index.abo_cancel_booking_btn") %>
                                         </button>
                                       <% end %>
@@ -404,7 +406,7 @@
                       <% is_storniert = reg.status == "storniert" %>
                       <% can_cancel   = !is_storniert && !is_past && session.start_time > 1.hour.from_now %>
                       <div class="flex items-center justify-between gap-2 sm:gap-3 px-4 sm:px-5 py-3 <%= is_past || is_storniert ? 'opacity-50' : '' %>">
-                        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                        <div class="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
                           <div class="shrink-0 w-2 h-2 rounded-full <%= is_past || is_storniert ? 'bg-gray-300' : 'bg-blue-400' %>"></div>
                           <span class="text-sm font-medium text-gray-800 truncate <%= is_storniert ? 'line-through' : '' %>">
                             <%= session.start_time.in_time_zone.strftime("%-d. %b %Y, %H:%M") %> <%= t("misc.time_suffix") %>
@@ -412,13 +414,14 @@
                         </div>
                         <div class="shrink-0">
                           <% if is_storniert %>
-                            <span class="text-xs font-bold px-2 py-1 rounded-md bg-red-100 text-red-600"><%= t("participants.index.unsubscribed") %></span>
+                            <span class="inline-flex items-center justify-center text-xs font-bold px-2.5 py-1.5 min-h-11 rounded-md bg-red-100 text-red-600"><%= t("participants.index.unsubscribed") %></span>
                           <% elsif is_past %>
-                            <span class="text-xs font-bold px-2 py-1 rounded-md bg-gray-100 text-gray-400"><%= t("participants.index.past") %></span>
+                            <span class="inline-flex items-center justify-center text-xs font-bold px-2.5 py-1.5 min-h-11 rounded-md bg-gray-100 text-gray-400"><%= t("participants.index.past") %></span>
                           <% elsif can_cancel %>
                             <div data-controller="confirm-unsubscribe" class="contents">
                               <%= form_with url: cancel_course_registration_path(reg),
                                             method: :post,
+                                            class: "m-0 flex items-center",
                                             data: { "unsubscribe-form": "" } do %>
                                 <button type="submit"
                                         data-action="confirm-unsubscribe#open"
@@ -455,7 +458,7 @@
                               </div>
                             </div>
                           <% else %>
-                            <span class="text-xs text-gray-400">&ndash;</span>
+                            <span class="inline-flex items-center justify-center text-xs text-gray-400 min-h-11">&ndash;</span>
                           <% end %>
                         </div>
                       </div>
