@@ -82,6 +82,22 @@ class CourseRegistration < ApplicationRecord
     end
   end
 
+  def abo_booked_session_ids
+    abo_bookings.where.not(status: "storniert").pluck(:training_session_id).compact
+  end
+
+  def displayable_abo_sessions
+    return [] unless course.abo? && course.category.present?
+
+    TrainingSession
+      .joins(:course)
+      .where(courses: { category: course.category })
+      .where(is_canceled: false)
+      .where("training_sessions.start_time > ?", Time.current)
+      .includes(:course)
+      .order("training_sessions.start_time")
+  end
+
   def bookable_abo_sessions
     return [] unless course.abo? && course.category.present?
     return [] if abo_exhausted?

@@ -910,6 +910,8 @@ de:
       full: "Voll"
       full_waitlist: "Voll · Warteliste"
       waitlist_btn: "Auf Warteliste"
+      already_booked: "Bereits gebucht"
+      show_more: "Mehr anzeigen"
     new:
       title: "Kursanmeldung"
       back: "Zurück zum Kurs"
