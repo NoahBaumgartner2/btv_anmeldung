@@ -225,6 +225,33 @@ class ParticipantTest < ActiveSupport::TestCase
     assert_not_includes participant.missing_fields_for(course), :ahv_number
   end
 
+  # ── AHV-Löschschutz ───────────────────────────────────────────────────────
+
+  test "ahv_number cannot be cleared once set" do
+    p = participants(:parent_only_child)
+    p.ahv_number = ""
+    assert_not p.valid?
+    assert_includes p.errors[:ahv_number], "kann nicht gelöscht werden"
+  end
+
+  test "ahv_number can be changed to another valid value" do
+    p = participants(:parent_only_child)
+    p.ahv_number = "756.1234.5678.97"
+    assert p.valid?, p.errors.full_messages.to_s
+  end
+
+  test "ahv_number can remain the same on update" do
+    p = participants(:parent_only_child)
+    p.first_name = "Updated"
+    assert p.valid?, p.errors.full_messages.to_s
+  end
+
+  test "ahv_number can be set for the first time on update" do
+    p = participants(:one)
+    p.ahv_number = "756.1234.5678.97"
+    assert p.valid?, p.errors.full_messages.to_s
+  end
+
   test "ever_trialed_in_category? returns false when other participant has different AHV" do
     subject = Participant.new(
       user: users(:one), first_name: "David", last_name: "Demo",
