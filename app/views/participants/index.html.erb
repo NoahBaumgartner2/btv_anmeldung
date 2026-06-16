@@ -226,9 +226,12 @@
                             <ul class="space-y-1.5 mb-3">
                               <% abo_bookings.each do |booking| %>
                                 <li class="flex items-center justify-between gap-2 text-xs">
-                                  <span class="text-gray-700">
+                                  <span class="text-gray-700 min-w-0">
                                     <%= booking.training_session.start_time.in_time_zone.strftime("%-d. %b %Y, %H:%M") %>
                                     – <%= booking.course.title %>
+                                    <% if booking.status == "warteliste" %>
+                                      <span class="ml-1 inline-flex items-center bg-orange-100 text-orange-700 font-bold px-1.5 py-0.5 rounded-full"><%= t("participants.index.waitlist") %></span>
+                                    <% end %>
                                   </span>
                                   <% if booking.training_session.start_time > 1.hour.from_now %>
                                     <div data-controller="confirm-unsubscribe" class="contents">

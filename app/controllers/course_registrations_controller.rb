@@ -679,6 +679,11 @@ class CourseRegistrationsController < ApplicationController
     end
 
     @bookable_sessions = @course_registration.bookable_abo_sessions
+    @spots_taken_by_session = CourseRegistration
+      .where(training_session_id: @bookable_sessions.map(&:id), status: %w[bestätigt schnuppern])
+      .group(:training_session_id)
+      .count
+    @sessions_by_weekday = @bookable_sessions.group_by { |s| s.start_time.in_time_zone.wday }
   end
 
   def book_abo_session
@@ -722,21 +727,41 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
+    full_no_waitlist = false
     booking = nil
-    ActiveRecord::Base.transaction do
+
+    session.course.with_lock do
+      spots_taken = session.course.course_registrations
+                           .where(status: %w[bestätigt schnuppern], training_session_id: session.id)
+                           .count
+      is_full = session.course.max_participants.present? && spots_taken >= session.course.max_participants
+
+      if is_full && !session.course.enable_waitlist?
+        full_no_waitlist = true
+        next
+      end
+
+      new_status = is_full ? "warteliste" : "bestätigt"
       @course_registration.increment!(:abo_entries_used)
       booking = CourseRegistration.create!(
         course: session.course,
         participant: @course_registration.participant,
         training_session: session,
         abo_source_registration_id: @course_registration.id,
-        status: "bestätigt",
+        status: new_status,
         payment_cleared: true
       )
     end
 
+    if full_no_waitlist
+      redirect_to abo_sessions_course_registration_path(@course_registration),
+                  alert: t("course_registrations.flash.abo_session_full")
+      return
+    end
+
+    flash_key = booking.status == "warteliste" ? :abo_waitlisted : :abo_booked
     redirect_to participants_path,
-                notice: t("course_registrations.flash.abo_booked",
+                notice: t("course_registrations.flash.#{flash_key}",
                           date: I18n.l(session.start_time.to_date))
   rescue ActiveRecord::RecordInvalid => e
     redirect_to abo_sessions_course_registration_path(@course_registration),

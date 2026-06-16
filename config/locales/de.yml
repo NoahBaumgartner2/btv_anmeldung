@@ -880,6 +880,8 @@ de:
       abo_wrong_category: "Dieses Training gehört nicht zur Kategorie dieses Abos."
       abo_already_booked: "Für dieses Training besteht bereits eine Buchung über dieses Abo."
       abo_booked: "Training am %{date} wurde erfolgreich gebucht."
+      abo_waitlisted: "Das Training am %{date} ist voll – du wurdest auf die Warteliste gesetzt."
+      abo_session_full: "Dieses Training ist voll und führt keine Warteliste."
     errors:
       duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
       duplicate_registration: "Diese Person ist bereits für diesen Kurs angemeldet."
@@ -901,6 +903,13 @@ de:
       course_column: "Kurs"
       date_column: "Datum & Uhrzeit"
       location_column: "Ort"
+      filter_all: "Alle"
+      spots_free:
+        one: "1 Platz frei"
+        other: "%{count} Plätze frei"
+      full: "Voll"
+      full_waitlist: "Voll · Warteliste"
+      waitlist_btn: "Auf Warteliste"
     new:
       title: "Kursanmeldung"
       back: "Zurück zum Kurs"
