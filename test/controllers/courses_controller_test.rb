@@ -41,6 +41,37 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  # ── registration_type wird aus registration_mode abgeleitet ────────────────
+
+  test "create mit registration_mode quartal setzt registration_type quartal" do
+    post courses_url, params: { course: {
+      title: "Quartalskurs", registration_mode: "quartal",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    } }
+    assert_equal "quartal", Course.last.registration_type
+    assert_equal "Quartalskurs", Course.last.registration_type_label
+  end
+
+  test "create mit registration_mode abo setzt registration_type abo" do
+    post courses_url, params: { course: {
+      title: "Abo-Kurs", registration_mode: "abo",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    } }
+    assert_equal "abo", Course.last.registration_type
+  end
+
+  test "update auf registration_mode quartal aktualisiert registration_type" do
+    @course.update_columns(registration_mode: "semester", registration_type: "semester")
+    patch course_url(@course), params: { course: { registration_mode: "quartal" } }
+    assert_equal "quartal", @course.reload.registration_type
+  end
+
+  test "registration_type_label übersetzt quartal nicht mehr als Semesterkurs" do
+    @course.update_columns(registration_mode: "quartal", registration_type: "quartal")
+    assert_equal "Quartalskurs", @course.registration_type_label
+    assert_not_equal "Semesterkurs", @course.registration_type_label
+  end
+
   test "should get edit" do
     get edit_course_url(@course)
     assert_response :success
