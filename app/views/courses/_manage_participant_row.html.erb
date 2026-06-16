@@ -5,6 +5,9 @@
                 <% if @course.allows_talent_marking? && reg.talent_flag? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
                   <span class="text-amber-400 ml-1" title="<%= reg.talent_note.presence || 'Talent' %>">⭐</span>
                 <% end %>
+                <% if @course.age_restricted? && reg.status != "storniert" && !@course.accepts_participant_age?(p) %>
+                  <span class="ml-1.5 inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full" title="Alter passt nicht zur Kursbeschränkung: <%= @course.age_range_label %>">⚠ Alter</span>
+                <% end %>
                 <% if reg.status == "ausstehend" && reg.sumup_checkout_id.present? && !reg.payment_cleared? %>
                   <span class="ml-1.5 inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full">
                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
