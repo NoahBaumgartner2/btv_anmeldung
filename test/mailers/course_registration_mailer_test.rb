@@ -47,6 +47,29 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
     assert_match "50.00", mail.body.encoded
   end
 
+  test "confirmation Schnupper-Mail nennt Kursleitung mit Name und E-Mail" do
+    trainer = @course.trainers.first
+    assert trainer.present?, "Fixture-Kurs sollte mind. einen zugewiesenen Trainer haben"
+    @registration.update_column(:status, "schnuppern")
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    [ mail.text_part, mail.html_part ].each do |part|
+      assert_match "Kontakt zur Kursleitung", part.body.decoded
+      assert_match trainer.full_name, part.body.decoded
+      assert_match trainer.user.email, part.body.decoded
+    end
+  end
+
+  test "confirmation zeigt Kursleitungs-Kontakt NICHT bei bestätigter Anmeldung" do
+    @registration.update_column(:status, "bestätigt")
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    assert_no_match "Kontakt zur Kursleitung", mail.text_part.body.decoded
+    assert_no_match "Kontakt zur Kursleitung", mail.html_part.body.decoded
+  end
+
   test "confirmation zeigt email_note in Text- und HTML-Version wenn gesetzt" do
     @course.update!(email_note: "Türcode 1234")
 
