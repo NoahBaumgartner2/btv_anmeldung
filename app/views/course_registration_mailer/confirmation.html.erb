@@ -92,12 +92,18 @@
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
     <tr>
       <td style="padding:16px 20px;">
-        <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kontakt zur Kursleitung</p>
-        <p style="margin:0;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;">
-          <%= safe_join(@trainer_contacts.map { |c|
-                link_to("#{c[:name]} (#{c[:email]})", "mailto:#{c[:email]}", style: "color:#{primary};text-decoration:underline;")
-              }, ", ") %>
-        </p>
+        <p style="margin:0 0 10px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kontakt zur Kursleitung</p>
+        <% @trainer_contacts.each_with_index do |c, i| %>
+          <% contact_links = [] %>
+          <% contact_links << link_to(c[:email], "mailto:#{c[:email]}", style: "color:#{primary};text-decoration:underline;font-family:Arial,Helvetica,sans-serif;") if c[:email].present? %>
+          <% contact_links << link_to(c[:phone], "tel:#{c[:phone]}", style: "color:#{primary};text-decoration:underline;font-family:Arial,Helvetica,sans-serif;") if c[:phone].present? %>
+          <p style="margin:0 <%= i < @trainer_contacts.size - 1 ? '0 10px 0' : '0' %>;font-size:15px;color:#111827;font-family:Arial,Helvetica,sans-serif;">
+            <strong><%= c[:name] %></strong>
+            <% if contact_links.any? %>
+              &nbsp;–&nbsp;<%= safe_join(contact_links, " &nbsp;·&nbsp; ".html_safe) %>
+            <% end %>
+          </p>
+        <% end %>
       </td>
     </tr>
   </table>

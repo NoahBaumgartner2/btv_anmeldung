@@ -12,8 +12,8 @@ class CourseRegistrationMailer < ApplicationMailer
     return if setting && !setting.mail_registration_confirmation_enabled
 
     @trainer_contacts = @course.trainers.includes(:user)
-                               .map { |t| { name: t.full_name, email: t.user&.email } }
-                               .select { |c| c[:email].present? }
+                               .map { |t| { name: t.full_name, email: t.user&.email, phone: t.phone } }
+                               .select { |c| c[:email].present? || c[:phone].present? }
 
     if [ "bestätigt", "schnuppern" ].include?(course_registration.status) && @course.has_ticketing?
       qr = RQRCode::QRCode.new(scan_course_registration_url(course_registration))
