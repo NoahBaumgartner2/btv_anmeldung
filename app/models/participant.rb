@@ -32,6 +32,8 @@ class Participant < ApplicationRecord
               message: "muss im Format 756.XXXX.XXXX.XX angegeben werden"
             },
             allow_blank: true
+  validate :ahv_required_for_minors, if: -> { date_of_birth.present? }
+  validate :ahv_number_cannot_be_cleared, on: :update
 
   validate :phone_number_format, if: -> { phone_number.present? }
   validate :date_of_birth_plausible, if: -> { date_of_birth.present? }
@@ -122,6 +124,10 @@ class Participant < ApplicationRecord
     fields.select { |field| self[field].blank? }
   end
 
+  def minor?
+    date_of_birth.present? && age_at(Date.today) < 18
+  end
+
   # Alter am Referenzdatum (z.B. Kursstart). Gibt nil zurück, wenn kein Geburtsdatum vorhanden.
   def age_at(reference_date)
     return nil unless date_of_birth
@@ -161,6 +167,15 @@ class Participant < ApplicationRecord
     unless stripped.match?(/\A[+\d]\d{6,}\z/)
       errors.add(:phone_number, "muss mindestens 7 Ziffern haben (erlaubt: +, Ziffern, Leerzeichen, -)")
     end
+  end
+
+  def ahv_required_for_minors
+    errors.add(:ahv_number, "ist für Personen unter 18 Jahren Pflicht") if minor? && ahv_number.blank?
+  end
+
+  def ahv_number_cannot_be_cleared
+    return unless ahv_number_was.present? && ahv_number.blank?
+    errors.add(:ahv_number, "kann nicht gelöscht werden")
   end
 
   def date_of_birth_plausible
