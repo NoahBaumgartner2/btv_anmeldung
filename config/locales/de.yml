@@ -884,6 +884,7 @@ de:
       abo_booked: "Training am %{date} wurde erfolgreich gebucht."
       abo_waitlisted: "Das Training am %{date} ist voll – du wurdest auf die Warteliste gesetzt."
       abo_session_full: "Dieses Training ist voll und führt keine Warteliste."
+      mark_paid_duplicate: "Diese Person hat bereits eine aktive Anmeldung in diesem Kurs. Die ausstehende Anmeldung kann nicht als bezahlt markiert werden – bitte storniere sie."
     errors:
       duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
       duplicate_registration: "Diese Person ist bereits für diesen Kurs angemeldet."

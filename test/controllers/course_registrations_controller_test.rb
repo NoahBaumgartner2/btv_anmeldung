@@ -811,4 +811,51 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "warteliste", @registration.status
     assert_equal original_participant_id, @registration.participant_id
   end
+
+  # ── mark_as_paid ──────────────────────────────────────────────────────────
+
+  test "mark_as_paid markiert ausstehend-Anmeldung als bezahlt und bestätigt" do
+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+    reg = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+
+    sign_in users(:admin)
+    post mark_as_paid_course_registration_path(reg)
+
+    reg.reload
+    assert reg.payment_cleared?
+    assert_equal "bestätigt", reg.status
+    assert_redirected_to manage_course_path(@trial_course)
+  end
+
+  test "mark_as_paid fängt Unique-Index-Konflikt ab, statt 500 zu werfen" do
+    @trial_course.update_columns(has_payment: true, price_cents: 10_000)
+
+    # Bereits aktive (bestätigte) Anmeldung desselben Teilnehmers im selben Kurs
+    confirmed = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false
+    )
+    confirmed.save!(validate: false)
+
+    # Parallele ausstehend-Anmeldung (vom partiellen Unique-Index ausgenommen)
+    pending = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    pending.save!(validate: false)
+
+    sign_in users(:admin)
+    post mark_as_paid_course_registration_path(pending)
+
+    assert_redirected_to manage_course_path(@trial_course)
+    assert_equal I18n.t("course_registrations.flash.mark_paid_duplicate"), flash[:alert]
+
+    pending.reload
+    assert_not pending.payment_cleared?
+    assert_equal "ausstehend", pending.status
+  end
 end

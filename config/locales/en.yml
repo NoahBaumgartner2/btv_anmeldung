@@ -845,6 +845,7 @@ en:
       abo_booked: "Session on %{date} successfully booked."
       abo_waitlisted: "The session on %{date} is full – you have been added to the waitlist."
       abo_session_full: "This session is full and has no waitlist."
+      mark_paid_duplicate: "This person already has an active registration in this course. The pending registration cannot be marked as paid – please cancel it."
     abo_sessions:
       title: "Book session – %{course}"
       subtitle: "Choose a session in the category «%{category}» to attend with your subscription."

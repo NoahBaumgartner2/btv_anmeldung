@@ -43,8 +43,16 @@
                     <%= t("courses.manage.paid") %>
                   </span>
                 <% else %>
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 flex-wrap">
                     <span class="text-yellow-600 font-medium"><%= t("courses.manage.payment_outstanding") %></span>
+                    <% if current_user.admin? %>
+                      <%= button_to mark_as_paid_course_registration_path(reg),
+                            method: :post,
+                            class: "text-xs bg-green-50 hover:bg-green-100 active:bg-green-200 text-green-700 font-semibold border border-green-200 px-2.5 py-1.5 rounded-lg transition cursor-pointer flex items-center",
+                            data: { turbo_confirm: t("courses.manage.mark_paid_confirm", name: "#{p.first_name} #{p.last_name}") } do %>
+                        <%= t("courses.manage.cash_received") %>
+                      <% end %>
+                    <% end %>
                   </div>
                 <% end %>
               </td>
