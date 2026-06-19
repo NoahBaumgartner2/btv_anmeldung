@@ -839,6 +839,7 @@ fr:
       abo_booked: "Séance du %{date} réservée avec succès."
       abo_waitlisted: "La séance du %{date} est complète – vous avez été ajouté(e) à la liste d'attente."
       abo_session_full: "Cette séance est complète et ne gère pas de liste d'attente."
+      mark_paid_duplicate: "Cette personne a déjà une inscription active à ce cours. L'inscription en attente ne peut pas être marquée comme payée – veuillez l'annuler."
     abo_sessions:
       title: "Réserver une séance – %{course}"
       subtitle: "Choisissez une séance dans la catégorie «%{category}» à laquelle vous souhaitez assister avec votre abonnement."

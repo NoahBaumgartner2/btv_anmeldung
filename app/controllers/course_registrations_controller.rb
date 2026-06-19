@@ -797,6 +797,12 @@ class CourseRegistrationsController < ApplicationController
     end
 
     redirect_to manage_course_path(course), notice: "#{@course_registration.reload.participant.first_name} als bezahlt markiert."
+  rescue ActiveRecord::RecordNotUnique
+    # Der partielle Unique-Index (participant_id, course_id) greift, wenn der
+    # Teilnehmer bereits eine andere aktive Anmeldung im selben Kurs hat. Die
+    # ausstehend-Anmeldung bleibt dadurch unbezahlt – sie sollte storniert werden.
+    redirect_to manage_course_path(course),
+      alert: t("course_registrations.flash.mark_paid_duplicate")
   end
 
   private
