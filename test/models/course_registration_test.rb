@@ -381,4 +381,38 @@ class CourseRegistrationTest < ActiveSupport::TestCase
 
     assert new_reg.valid?, "Registration after cancelled schnuppern should be valid, got: #{new_reg.errors.full_messages.join(', ')}"
   end
+
+  # ── set_payment_expiry ───────────────────────────────────────────────────────
+
+  test "set_payment_expiry übernimmt trial_expires_at bei Schnupper-Konversion" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false,
+      trial_expires_at: 5.days.from_now)
+    reg.save!(validate: false)
+
+    reg.status = "ausstehend"
+    reg.save!(validate: false)
+
+    assert_in_delta 5.days.from_now.to_i, reg.payment_expires_at.to_i, 60
+  end
+
+  test "set_payment_expiry nutzt 48h ohne Schnupperhintergrund" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+
+    assert_in_delta 48.hours.from_now.to_i, reg.payment_expires_at.to_i, 60
+  end
+
+  test "set_payment_expiry hält 48h-Untergrenze ein" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false,
+      trial_expires_at: 1.hour.from_now)
+    reg.save!(validate: false)
+
+    reg.status = "ausstehend"
+    reg.save!(validate: false)
+
+    assert_in_delta 48.hours.from_now.to_i, reg.payment_expires_at.to_i, 60
+  end
 end

@@ -122,8 +122,18 @@ class CourseRegistration < ApplicationRecord
 
   private
 
+  # Zahlungsfrist beim Statuswechsel zu "ausstehend":
+  # - Stammt die Anmeldung aus einem Schnupperplatz (trial_expires_at gesetzt),
+  #   gilt die zugesicherte Frist "Schnuppertraining + 7 Tage". Eine 48h-Untergrenze
+  #   verhindert eine sofortige Stornierung, falls die Konversion erst spät erfolgt.
+  # - Reguläre Anmeldungen ohne Schnupperhintergrund erhalten die übliche 48h-Frist.
   def set_payment_expiry
-    self.payment_expires_at = 48.hours.from_now
+    self.payment_expires_at =
+      if trial_expires_at.present?
+        [ trial_expires_at, 48.hours.from_now ].max
+      else
+        48.hours.from_now
+      end
   end
 
   # Die 7-Tage-Frist beginnt erst NACH dem Schnuppertraining.
