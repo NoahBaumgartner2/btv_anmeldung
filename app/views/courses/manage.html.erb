@@ -28,19 +28,19 @@
   sorted_registrations = @course.course_registrations
     .includes(:participant)
     .to_a
-    .reject { |r| r.status == "ausstehend" }
     .sort_by { |r| -(r.created_at&.to_i || 0) }
     .uniq(&:participant_id)
     .sort_by { |r| [status_order.fetch(r.status, 99), r.participant&.last_name.to_s] }
   active_registrations    = sorted_registrations.reject { |r| r.status == "storniert" }
   cancelled_registrations = sorted_registrations.select { |r| r.status == "storniert" }
 
-  # Anzeige-Aufteilung: nur bestätigte, aber noch nicht bezahlte Anmeldungen
-  # wandern aus der Hauptliste in die zugeklappte Sektion "Zahlung ausstehend".
-  # Reine "ausstehend"-Anmeldungen (gestarteter, aber nie abgeschlossener Checkout)
-  # werden gar nicht mehr angezeigt.
+  # Anzeige-Aufteilung: bestätigte, aber noch nicht bezahlte Anmeldungen sowie reine
+  # "ausstehend"-Anmeldungen (gestarteter, aber nie abgeschlossener Checkout) wandern
+  # aus der Hauptliste in die zugeklappte Sektion "Zahlung ausstehend" – dort sind sie
+  # sichtbar und können über "Bar erhalten" als bezahlt markiert werden.
   pending_payment_registrations = active_registrations.select { |r|
-    r.status == "bestätigt" && r.payment_required? && !r.payment_cleared?
+    r.status == "ausstehend" ||
+    (r.status == "bestätigt" && r.payment_required? && !r.payment_cleared?)
   }
   main_registrations = active_registrations - pending_payment_registrations
 
