@@ -44,7 +44,13 @@ namespace :payments do
 
       next unless did_cancel
 
-      CourseRegistrationMailer.payment_expired(registration).deliver_later
+      # Mail nur bei Schnupper-Herkunft (trial_expires_at gesetzt); reguläre
+      # Anmeldungen werden still storniert. Konsistent mit ExpirePendingPaymentsJob.
+      if registration.trial_expires_at.present?
+        CourseRegistrationMailer.payment_expired(registration).deliver_later
+      else
+        puts "  (regulär – keine Mail)"
+      end
       puts "  Storniert: Registration #{registration.id} " \
            "(#{registration.participant.first_name} #{registration.participant.last_name}, " \
            "Kurs: #{registration.course.title})"

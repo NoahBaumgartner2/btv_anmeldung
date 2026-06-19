@@ -41,9 +41,16 @@ class ExpirePendingPaymentsJob < ApplicationJob
 
       next unless did_cancel
 
-      # Mailer nach der Transaktion versenden, damit er nur bei erfolgreichem
-      # Commit ausgeführt wird.
-      CourseRegistrationMailer.payment_expired(registration).deliver_later
+      # Mail nur, wenn die Anmeldung aus einem Schnupperplatz stammt (trial_expires_at
+      # gesetzt) – dafür gilt die zugesicherte Frist "Schnuppertraining + 7 Tage".
+      # Reguläre Anmeldungen (trial_expires_at nil) werden still storniert.
+      # Mailer nach der Transaktion versenden, damit er nur bei erfolgreichem Commit läuft.
+      if registration.trial_expires_at.present?
+        CourseRegistrationMailer.payment_expired(registration).deliver_later
+      else
+        Rails.logger.info "[ExpirePendingPaymentsJob] Registration #{registration.id} regulär – " \
+                          "still storniert ohne Mail."
+      end
 
       Rails.logger.info "[ExpirePendingPaymentsJob] Registration #{registration.id} storniert " \
                         "(#{registration.participant.first_name} #{registration.participant.last_name}, " \

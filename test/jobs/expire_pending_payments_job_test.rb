@@ -1,6 +1,8 @@
 require "test_helper"
 
 class ExpirePendingPaymentsJobTest < ActiveJob::TestCase
+  include ActionMailer::TestHelper
+
   def make_course
     course = Course.new(
       title: "Test Kurs", registration_type: "semester",
@@ -69,5 +71,39 @@ class ExpirePendingPaymentsJobTest < ActiveJob::TestCase
     ExpirePendingPaymentsJob.new.perform
 
     assert_equal "ausstehend", paid.reload.status, "Bezahlte Anmeldung darf nicht storniert werden"
+  end
+
+  test "verschickt payment_expired-Mail nur bei Schnupper-Herkunft" do
+    course = make_course
+
+    expired = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false,
+      trial_expires_at: 1.day.ago, payment_expires_at: 1.hour.ago
+    )
+    expired.save!(validate: false)
+
+    assert_enqueued_email_with CourseRegistrationMailer, :payment_expired, args: [ expired ] do
+      ExpirePendingPaymentsJob.new.perform
+    end
+
+    assert_equal "storniert", expired.reload.status
+  end
+
+  test "verschickt KEINE Mail bei regulärer Anmeldung ohne Schnupperhintergrund" do
+    course = make_course
+
+    expired = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false,
+      trial_expires_at: nil, payment_expires_at: 1.hour.ago
+    )
+    expired.save!(validate: false)
+
+    assert_no_enqueued_emails do
+      ExpirePendingPaymentsJob.new.perform
+    end
+
+    assert_equal "storniert", expired.reload.status
   end
 end
