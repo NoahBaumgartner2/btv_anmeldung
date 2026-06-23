@@ -271,4 +271,30 @@ class ParticipantTest < ActiveSupport::TestCase
 
     assert_not subject.ever_trialed_in_category?("Kids Gym")
   end
+
+  # Telefon-Validierung: gültige Nummern dürfen nicht an Trennzeichen scheitern.
+  test "phone_number akzeptiert gängige Schreibweisen mit Trennzeichen" do
+    [
+      "+41 78 911 29 00",             # normale Leerzeichen
+      "+41 78 911 29 00", # geschützte Leerzeichen (NBSP, Copy-Paste)
+      "+41 (0)78 911 29 00",          # Klammern
+      "+41.78.911.29.00",             # Punkte
+      "078 911 29 00"                 # ohne Ländervorwahl
+    ].each do |number|
+      @participant.phone_number = number
+      @participant.valid?
+      assert_empty @participant.errors[:phone_number],
+        "#{number.inspect} sollte als gültige Telefonnummer akzeptiert werden"
+    end
+  end
+
+  test "phone_number lehnt Nummern mit weniger als 7 Ziffern ab" do
+    [ "123", "12 34 5", "+41 0" ].each do |number|
+      @participant.phone_number = number
+      @participant.valid?
+      assert_includes @participant.errors[:phone_number],
+        "muss mindestens 7 Ziffern haben (erlaubt: +, Ziffern, Leerzeichen, -)",
+        "#{number.inspect} sollte abgelehnt werden"
+    end
+  end
 end

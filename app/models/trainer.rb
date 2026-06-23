@@ -51,8 +51,10 @@ class Trainer < ApplicationRecord
   private
 
   def phone_format
-    stripped = phone.gsub(/[\s\-\/]/, "")
-    unless stripped.match?(/\A[+\d]\d{6,}\z/)
+    # Nur die Ziffern zählen. Trenner wie Leerzeichen (auch geschützte/Unicode),
+    # Bindestriche, Klammern, Punkte oder Schrägstriche werden ignoriert, damit
+    # gültige Nummern wie "+41 78 911 29 00" nicht fälschlich abgelehnt werden.
+    unless phone.count("0-9") >= 7
       errors.add(:phone, "muss mindestens 7 Ziffern haben (erlaubt: +, Ziffern, Leerzeichen, -)")
     end
   end
