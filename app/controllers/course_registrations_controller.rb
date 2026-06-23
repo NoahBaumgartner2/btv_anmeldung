@@ -206,9 +206,28 @@ class CourseRegistrationsController < ApplicationController
       end
       save_result = @course_registration.save
     elsif course.has_payment? && course.price_cents.to_i > 0
-      # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt; Kapazität wird in mark_paid! geprüft
-      @course_registration.status = "ausstehend"
-      save_result = @course_registration.save
+      # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt.
+      # Vorher unter Lock prüfen, ob der Kurs bereits voll ist: Ist die Warteliste aktiv
+      # und kein Platz mehr frei, kommt die Anmeldung OHNE Zahlung direkt auf die
+      # Warteliste (keine Zahlungsaufforderung). Belegte Plätze inkl. "ausstehend",
+      # konsistent mit WaitlistPromotionService. Erst beim Hochstufen wird bezahlt.
+      Course.find(course.id).with_lock do
+        belegte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
+          course.course_registrations
+                .where(status: [ "bestätigt", "ausstehend", "schnuppern" ], training_session_id: @course_registration.training_session_id)
+                .count
+        else
+          course.course_registrations.where(status: [ "bestätigt", "ausstehend", "schnuppern" ]).count
+        end
+
+        if course.enable_waitlist? && course.max_participants.present? && belegte_plaetze >= course.max_participants
+          @course_registration.status = "warteliste"
+          erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
+        else
+          @course_registration.status = "ausstehend"
+        end
+        save_result = @course_registration.save
+      end
     else
       # Kostenlos → Kapazitätsprüfung + Speichern atomar unter Lock (Race-Condition-Schutz)
       Course.find(course.id).with_lock do
@@ -235,7 +254,9 @@ class CourseRegistrationsController < ApplicationController
       unless @course_registration.status == "ausstehend"
         CourseRegistrationMailer.confirmation(@course_registration).deliver_later
       end
-      if !is_trial && course.has_payment? && course.price_cents.to_i > 0 && ::SumupConfig.configured? && !@course_registration.payment_cleared?
+      # payable? ist für "warteliste" false → Wartelisten-Anmeldungen werden NICHT
+      # zur Zahlung weitergeleitet, sondern landen direkt auf der Bestätigungsseite.
+      if !is_trial && @course_registration.payable? && ::SumupConfig.configured?
         redirect_to checkout_preview_registration_path(@course_registration)
       else
         redirect_to course_registration_path(@course_registration), notice: erfolgs_nachricht

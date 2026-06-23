@@ -66,12 +66,19 @@ class RefundService
     response = http.request(request)
 
     unless response.code.to_i == 204
-      error_msg = begin
-        JSON.parse(response.body)["message"]
-      rescue
-        response.body.to_s.truncate(200)
-      end
-      raise RuntimeError, "SumUp Refund API Fehler #{response.code}: #{error_msg}"
+      parsed     = (JSON.parse(response.body) rescue {})
+      parsed     = {} unless parsed.is_a?(Hash)
+      error_code = parsed["error_code"].presence
+      message    = parsed["message"].presence || response.body.to_s.truncate(200)
+      status     = response.code
+
+      hint = refund_error_hint(status.to_i, error_code.to_s, message.to_s)
+
+      details = "SumUp Refund API Fehler #{status}"
+      details += " (error_code: #{error_code})" if error_code.present?
+      details += ": #{message}"
+
+      raise RuntimeError, "Mögliche Ursache: #{hint}\n\n#{details}"
     end
 
     registration.update_column(:refunded_at, Time.current) if registration.persisted?
@@ -80,5 +87,27 @@ class RefundService
 
   rescue SocketError, Timeout::Error, Errno::ECONNREFUSED, Net::OpenTimeout, Net::ReadTimeout => e
     raise RuntimeError, "SumUp API nicht erreichbar: #{e.message}"
+  end
+
+  # Übersetzt eine SumUp-Refund-Fehlerantwort in einen verständlichen Hinweis
+  # für den Admin. Deckt die häufigsten 4xx-Ursachen ab; alles andere fällt
+  # auf einen generischen Hinweis zurück. Die rohe Original-Meldung bleibt
+  # zusätzlich erhalten (siehe process).
+  def self.refund_error_hint(status, error_code, message)
+    haystack = "#{error_code} #{message}".downcase
+
+    if status == 404
+      "Transaktion bei SumUp nicht gefunden – die Transaktions-ID ist evtl. ungültig oder gehört zu einem anderen Konto."
+    elsif haystack.include?("balance") || haystack.include?("funds") || haystack.include?("guthaben")
+      "Zu wenig Guthaben auf dem SumUp-Konto, um die Rückerstattung zu decken. Bitte Konto-Saldo prüfen oder manuell per e-Banking erstatten."
+    elsif haystack.include?("already") && haystack.include?("refund")
+      "Diese Transaktion wurde bereits (ganz oder teilweise) zurückerstattet."
+    elsif status == 409 || haystack.include?("not refundable") || haystack.include?("not_refundable")
+      "Die Transaktion ist im aktuellen Zustand nicht erstattbar (z. B. noch nicht abgerechnet, zu alt oder bereits erstattet). Bitte im SumUp-Dashboard prüfen und ggf. manuell per e-Banking erstatten."
+    elsif status == 400
+      "SumUp hat die Anfrage abgelehnt (ungültige Parameter, z. B. Betrag grösser als die ursprüngliche Transaktion)."
+    else
+      "Unbekannte Ursache – bitte die Transaktion im SumUp-Dashboard prüfen und manuell per e-Banking erstatten."
+    end
   end
 end

@@ -8,9 +8,11 @@ class RefundServiceTest < ActiveSupport::TestCase
     r
   end
 
-  def error_response(code, message)
+  def error_response(code, message, error_code = nil)
     r = Net::HTTPBadRequest.new("1.1", code.to_s, "Error")
-    r.instance_variable_set(:@body, { "message" => message }.to_json)
+    body = { "message" => message }
+    body["error_code"] = error_code if error_code
+    r.instance_variable_set(:@body, body.to_json)
     r.instance_variable_set(:@read, true)
     r
   end
@@ -168,6 +170,50 @@ class RefundServiceTest < ActiveSupport::TestCase
       err = assert_raises(RuntimeError) { RefundService.process(reg) }
       assert_match "SumUp Refund API Fehler 400", err.message
       assert_match "Transaction not refundable", err.message
+    end
+  end
+
+  test "error message includes a hint for insufficient balance" do
+    reg = build_registration(price_cents: 10000, training_value_cents: 1500)
+    stub_sessions_count(reg, 0)
+
+    with_http_stub(fake_http(error_response(409, "Not enough balance to perform the operation", "NOT_ENOUGH_BALANCE"))) do
+      err = assert_raises(RuntimeError) { RefundService.process(reg) }
+      assert_match "Mögliche Ursache", err.message
+      assert_match "Guthaben", err.message
+      assert_match "SumUp Refund API Fehler 409", err.message
+      assert_match "error_code: NOT_ENOUGH_BALANCE", err.message
+    end
+  end
+
+  test "error message includes a hint for already refunded transaction" do
+    reg = build_registration(price_cents: 10000, training_value_cents: 1500)
+    stub_sessions_count(reg, 0)
+
+    with_http_stub(fake_http(error_response(409, "Transaction already refunded", "TRANSACTION_ALREADY_REFUNDED"))) do
+      err = assert_raises(RuntimeError) { RefundService.process(reg) }
+      assert_match "bereits", err.message
+    end
+  end
+
+  test "error message includes a generic not-refundable hint on 409" do
+    reg = build_registration(price_cents: 10000, training_value_cents: 1500)
+    stub_sessions_count(reg, 0)
+
+    with_http_stub(fake_http(error_response(409, "The transaction is not refundable"))) do
+      err = assert_raises(RuntimeError) { RefundService.process(reg) }
+      assert_match "nicht erstattbar", err.message
+      assert_match "SumUp Refund API Fehler 409", err.message
+    end
+  end
+
+  test "error message includes a not-found hint on 404" do
+    reg = build_registration(price_cents: 10000, training_value_cents: 1500)
+    stub_sessions_count(reg, 0)
+
+    with_http_stub(fake_http(error_response(404, "Resource not found", "NOT_FOUND"))) do
+      err = assert_raises(RuntimeError) { RefundService.process(reg) }
+      assert_match "nicht gefunden", err.message
     end
   end
 
