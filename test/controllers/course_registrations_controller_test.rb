@@ -596,6 +596,35 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       "Zweite Anmeldung muss auf Warteliste da Kurs voll (Overbooking-Schutz)"
   end
 
+  test "Anmeldung für vollen kostenpflichtigen Kurs landet ohne Zahlung auf Warteliste" do
+    course = Course.new(
+      title: "Voller Bezahlkurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, price_cents: 10_000, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 1, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    # Platz bereits belegt (bezahlt + bestätigt)
+    CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    sign_in @trial_parent
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: { course_id: course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    reg = CourseRegistration.last
+    assert_equal "warteliste", reg.status,
+      "Bei vollem Bezahlkurs muss die Anmeldung auf die Warteliste – nicht zur Zahlung"
+    assert_redirected_to course_registration_path(reg)
+    # Keine Weiterleitung zur Zahlungsaufforderung
+    assert_no_match %r{/checkout}, @response.redirect_url.to_s
+  end
+
   test "erste Anmeldung für freien Kurs bekommt Status bestätigt" do
     course = Course.new(
       title: "Freier Kurs", registration_type: "semester", registration_mode: "semester",
