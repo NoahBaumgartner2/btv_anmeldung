@@ -17,7 +17,7 @@ Kategorie:     <%= @course.registration_type_label %>
 <% if @course.start_date.present? %>
 Kurszeitraum:  <%= I18n.l(@course.start_date.to_date, format: :long) %><% if @course.end_date.present? %> – <%= I18n.l(@course.end_date.to_date, format: :long) %><% end %>
 <% end %>
-Betrag:        <%= @course.price_display %>
+Betrag:        <%= @course_registration.paid_amount_display %>
 Zahlungsdatum: <%= I18n.l(@paid_at, format: :long) %>
 <% if @transaction_id.present? %>
 Transaktions-ID: <%= @transaction_id %>
