@@ -163,8 +163,10 @@ class Participant < ApplicationRecord
   private
 
   def phone_number_format
-    stripped = phone_number.gsub(/[\s\-\/]/, "")
-    unless stripped.match?(/\A[+\d]\d{6,}\z/)
+    # Nur die Ziffern zählen. Trenner wie Leerzeichen (auch geschützte/Unicode),
+    # Bindestriche, Klammern, Punkte oder Schrägstriche werden ignoriert, damit
+    # gültige Nummern wie "+41 78 911 29 00" nicht fälschlich abgelehnt werden.
+    unless phone_number.count("0-9") >= 7
       errors.add(:phone_number, "muss mindestens 7 Ziffern haben (erlaubt: +, Ziffern, Leerzeichen, -)")
     end
   end
