@@ -176,4 +176,11 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_not_includes response.body, "trial=true",
       "Schnupper-Button soll in derselben Kategorie nicht erscheinen"
   end
+
+  test "manage rendert für Admin inkl. Verschieben-Funktion" do
+    # course_registrations(:one) liegt auf courses(:one) → Teilnehmer wird gelistet
+    get manage_course_url(@course)
+    assert_response :success
+    assert_includes response.body, I18n.t("courses.manage.move_button")
+  end
 end

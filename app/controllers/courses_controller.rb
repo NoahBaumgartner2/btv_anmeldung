@@ -196,6 +196,8 @@ class CoursesController < ApplicationController
 
   def manage
     @manual_participant = Participant.new(country: "CH", nationality: "CH", mother_tongue: "DE")
+    # Zielkurse für die Admin-Verschiebe-Funktion (alle Kurse, kategorienübergreifend).
+    @move_target_courses = Course.order(:category, :title).to_a if current_user&.admin?
   end
 
   # GET /courses/:id/participant_search?q=...

@@ -97,6 +97,12 @@
                     <% if current_user.admin? %>
                       <%= link_to t("courses.manage.edit_link"), edit_course_registration_path(reg),
                             class: "block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition" %>
+                      <button type="button"
+                              data-action="click->dropdown#openDialog"
+                              data-dialog-id="dialog-move-<%= reg.id %>"
+                              class="block w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition cursor-pointer">
+                        <%= t("courses.manage.move_button") %>
+                      </button>
                     <% end %>
                     <button type="button"
                             data-action="click->dropdown#openDialog"
@@ -242,6 +248,50 @@
                     </div>
                   </div>
                 </div>
+                <% if current_user.admin? %>
+                  <%# Verschieben modal (kategorienübergreifend) %>
+                  <% move_targets = (@move_target_courses || []).reject { |c| c.id == reg.course_id } %>
+                  <% move_grouped = move_targets.group_by { |c| c.category.presence || t("courses.manage.move_no_category") } %>
+                  <div data-controller="modal">
+                    <div id="dialog-move-<%= reg.id %>"
+                         data-modal-target="dialog"
+                         data-action="click->modal#backdropClose"
+                         class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+                      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 text-left">
+                        <div class="flex items-center gap-3 mb-5">
+                          <div class="w-10 h-10 bg-primary-100 rounded-xl flex items-center justify-center shrink-0">
+                            <svg class="w-5 h-5 text-primary-700" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m4 6H4m0 0l4 4m-4-4l4-4"/>
+                            </svg>
+                          </div>
+                          <h3 class="text-lg font-extrabold text-gray-900"><%= t("courses.manage.move_modal_title", name: p.first_name) %></h3>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-4"><%= t("courses.manage.move_modal_hint") %></p>
+                        <%= form_with url: move_course_registration_path(reg), method: :post, data: { turbo: false }, class: "space-y-4" do %>
+                          <div>
+                            <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t("courses.manage.move_target_label") %></label>
+                            <%= select_tag :target_course_id,
+                                  grouped_options_for_select(move_grouped.transform_values { |cs| cs.map { |c| [ c.title, c.id ] } }),
+                                  prompt: t("courses.manage.move_target_prompt"),
+                                  required: true,
+                                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+                          </div>
+                          <div class="flex gap-3 pt-2">
+                            <button type="submit"
+                                    class="flex-1 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11">
+                              <%= t("courses.manage.move_submit") %>
+                            </button>
+                            <button type="button"
+                                    data-action="click->modal#close"
+                                    class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
+                              <%= t("courses.manage.move_cancel") %>
+                            </button>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
                 <% if @course.allows_talent_marking? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
                   <%# Talent modal %>
                   <div data-controller="modal">

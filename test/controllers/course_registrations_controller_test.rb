@@ -858,4 +858,33 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_not pending.payment_cleared?
     assert_equal "ausstehend", pending.status
   end
+
+  # ── move (kategorienübergreifend, admin-only) ────────────────────────────
+
+  test "admin verschiebt Anmeldung in einen Kurs anderer Kategorie" do
+    target = Course.new(title: "KutuPlus Jr.", category: "KutuPlus Jr.",
+      registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    target.save!(validate: false)
+
+    sign_in users(:admin)
+    post move_course_registration_path(@registration), params: { target_course_id: target.id }
+
+    assert_redirected_to manage_course_path(target)
+    assert_equal target.id, @registration.reload.course_id
+  end
+
+  test "nicht-admin darf nicht verschieben" do
+    target = Course.new(title: "KutuPlus Jr.", category: "KutuPlus Jr.",
+      registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    target.save!(validate: false)
+    original_course_id = @registration.course_id
+
+    sign_in @parent
+    post move_course_registration_path(@registration), params: { target_course_id: target.id }
+
+    assert_redirected_to root_path
+    assert_equal original_course_id, @registration.reload.course_id
+  end
 end
