@@ -32,6 +32,20 @@ class CourseRegistration < ApplicationRecord
     course.has_payment? && course.price_cents.to_i > 0
   end
 
+  # Tatsächlich berechneter Betrag inkl. angewandter Preisreduktion. Wird beim
+  # Checkout in applied_price_cents festgehalten; ohne Rabatt gilt der Kurspreis.
+  # Maßgeblich für Quittung/Beleg — der Kurspreis allein wäre falsch, sobald ein
+  # Jugend-/Geschwister-/Zweitkursrabatt griff (siehe DiscountCalculator).
+  def paid_amount_cents
+    applied_price_cents || course.price_cents
+  end
+
+  def paid_amount_display
+    cents = paid_amount_cents
+    return I18n.t("courses.free") unless course.has_payment? && cents
+    "CHF #{format('%.2f', cents / 100.0)}"
+  end
+
   # Zahlung ist möglich/nötig: Kurs kostenpflichtig, noch nicht bezahlt, und die
   # Anmeldung ist aktiv. "schnuppern" ist bewusst zahlbar: Beim Umwandeln eines
   # Schnupperplatzes in eine reguläre Anmeldung bleibt der Status "schnuppern"

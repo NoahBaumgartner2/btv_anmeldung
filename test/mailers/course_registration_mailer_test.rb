@@ -129,4 +129,24 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
 
     assert_match "Hallo parent_only", mail.body.encoded
   end
+
+  test "payment_receipt zeigt den tatsächlich gezahlten Betrag (mit Rabatt), nicht den Kurspreis" do
+    @course.update!(has_payment: true, price_cents: 15000)
+    # Kind hat dank Rabatt nur CHF 120 gezahlt (applied_price_cents)
+    @registration.update_columns(applied_price_cents: 12000, applied_discount: "sibling")
+
+    mail = CourseRegistrationMailer.payment_receipt(@registration)
+
+    assert_match "CHF 120.00", mail.body.encoded
+    assert_no_match(/CHF 150\.00/, mail.body.encoded)
+  end
+
+  test "payment_receipt fällt auf den Kurspreis zurück, wenn kein Rabatt angewandt wurde" do
+    @course.update!(has_payment: true, price_cents: 15000)
+    @registration.update_columns(applied_price_cents: nil, applied_discount: nil)
+
+    mail = CourseRegistrationMailer.payment_receipt(@registration)
+
+    assert_match "CHF 150.00", mail.body.encoded
+  end
 end
