@@ -805,6 +805,43 @@ class CourseRegistrationsController < ApplicationController
       alert: t("course_registrations.flash.mark_paid_duplicate")
   end
 
+  # Verschiebt eine Anmeldung in einen anderen Kurs — auch kategorienübergreifend.
+  # Nur für Admins (Trainer dürfen nicht beliebig umbuchen).
+  def move
+    authorize_admin!
+    return if performed?
+
+    @course_registration = CourseRegistration.find(params[:id])
+    source_course = @course_registration.course
+    target_course = Course.find_by(id: params[:target_course_id])
+
+    if target_course.nil?
+      redirect_to manage_course_path(source_course),
+                  alert: t("course_registrations.flash.move_no_target") and return
+    end
+
+    result = RegistrationMoveService.call(@course_registration, target_course, actor: current_user)
+
+    unless result.moved
+      redirect_to manage_course_path(source_course),
+                  alert: t("course_registrations.flash.move_same_course") and return
+    end
+
+    notice = t("course_registrations.flash.moved",
+               name: @course_registration.participant.first_name,
+               course: target_course.title)
+    if result.price_diff_cents != 0
+      amount = format("%.2f", result.price_diff_cents.abs / 100.0)
+      key = result.price_diff_cents.positive? ? "move_price_higher" : "move_price_lower"
+      notice = "#{notice} #{t("course_registrations.flash.#{key}", amount: amount)}"
+    end
+
+    redirect_to manage_course_path(target_course), notice: notice
+  rescue ActiveRecord::RecordNotUnique
+    redirect_to manage_course_path(@course_registration.course),
+                alert: t("course_registrations.flash.move_duplicate")
+  end
+
   private
 
   def set_course_registration
