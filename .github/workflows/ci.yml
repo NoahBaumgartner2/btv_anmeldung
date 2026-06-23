@@ -21,10 +21,29 @@ jobs:
 
       - name: Scan for common Rails security vulnerabilities using static analysis
         run: bin/brakeman --no-pager
-      
+
+  # Gem-Advisory-Audit (bundler-audit) läuft bewusst als EIGENER Job und ist
+  # NICHT in den Deploy-needs eingetragen. Grund: Die ruby-advisory-db
+  # aktualisiert sich laufend, sodass eine neu veröffentlichte CVE gegen ein
+  # bestehendes Gem den Job rot färbt, ohne dass am Code etwas geändert wurde.
+  # Würde der Deploy daran hängen, blockierte das jeden Merge/Deploy bis zum
+  # Gem-Bump. So bleibt die Lücke sichtbar (roter Check), stoppt aber nicht den
+  # Deploy. Brakeman (eigener Code) bleibt dagegen im Deploy-Gate scan_ruby.
+  gem_audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
-      
+
   lint:
     runs-on: ubuntu-latest
     env:
