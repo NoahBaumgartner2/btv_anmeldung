@@ -85,7 +85,9 @@
       <% @assigned_courses.each do |course| %>
         <%
           confirmed   = course.course_registrations.where(status: "bestätigt").count
-          waitlisted  = course.course_registrations.where.not(status: "bestätigt").count
+          # Nur echte Wartelisten-Einträge zählen – NICHT storniert/ausstehend/schnuppern/platz_frei
+          # (where.not(status: "bestätigt") zählte all das fälschlich als "Warteliste").
+          waitlisted  = course.course_registrations.where(status: "warteliste").count
           next_s      = @next_session_per_course[course.id]
           has_dates   = course.start_date.present? && course.end_date.present?
         %>
