@@ -227,7 +227,13 @@ Devise.setup do |config|
   # Time interval you can reset your password with a reset password key.
   # Don't put a too small interval or your users won't have the time to
   # change their passwords.
-  config.reset_password_within = 6.hours
+  #
+  # Bewusst grosszügig (1 Monat): Derselbe Reset-Link-Mechanismus dient auch als
+  # Einrichtungs-Link für manuell erfasste Familien-Konten (siehe
+  # CoursesController#manual_enroll → send_reset_password_instructions). Bis Eltern
+  # ihr Konto einrichten, kann es einige Zeit dauern – ein kurzes Fenster (6 h) führte
+  # dazu, dass der Link beim Anklicken bereits "abgelaufen" war.
+  config.reset_password_within = 1.month
 
   # When set to false, does not sign a user in automatically after their password is
   # reset. Defaults to true, so a user is signed in automatically after a reset.
