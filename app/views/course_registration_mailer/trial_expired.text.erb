@@ -1,0 +1,16 @@
+Hallo <%= greeting_name(@recipient) %>,
+
+der Schnupperplatz von <%= @participant.first_name %> <%= @participant.last_name %> für den Kurs
+"<%= @course.title %>" wurde automatisch storniert, da innerhalb von einer Woche nach dem
+Schnuppertraining keine definitive Anmeldung erfolgt ist. Der Kursplatz wurde wieder freigegeben.
+Wenn eine Teilnahme trotzdem noch gewünscht ist, kann die definitive Anmeldung bei verfügbaren
+Plätzen selbstverständlich noch vorgenommen werden.
+
+Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:        <%= @course.title %>
+<% if @trial_session&.start_time %>Schnuppertraining: <%= I18n.l(@trial_session.start_time.to_date) %>
+<% end %>
+Zur Kursanmeldung: <%= course_url(@course) %>
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

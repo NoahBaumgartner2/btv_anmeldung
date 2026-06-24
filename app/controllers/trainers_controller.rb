@@ -98,6 +98,21 @@ def index
       return render :new, status: :unprocessable_entity
     end
 
+    # Ein Eltern-Account (mit angemeldeten Kindern) darf nicht zugleich Trainer werden.
+    # Vor jeglicher Mutation des Users prüfen, damit kein Reset-Token/Invite-Marker hängenbleibt.
+    if user.persisted? && user.participants.exists?
+      @invite_errors     = [ "#{email} ist bereits ein Eltern-Account mit angemeldeten Kindern " \
+                             "und kann nicht als Trainer erfasst werden. Bitte eine separate " \
+                             "E-Mail-Adresse verwenden." ]
+      @invite_tab        = true
+      @invite_first_name = first_name
+      @invite_last_name  = last_name
+      @invite_email      = email
+      @invite_phone      = phone
+      @trainer = Trainer.new
+      return render :new, status: :unprocessable_entity
+    end
+
     raw_token, enc_token = Devise.token_generator.generate(User, :reset_password_token)
 
     if user.new_record?

@@ -17,6 +17,8 @@ class ExpireTrialRegistrationsJob < ApplicationJob
     Rails.logger.info "[ExpireTrialRegistrationsJob] #{total} abgelaufene Schnupper-Anmeldung(en) gefunden."
 
     scope.includes(:course, participant: :user).find_each do |registration|
+      did_cancel = false
+
       registration.with_lock do
         next if registration.status != "schnuppern"
 
@@ -26,7 +28,15 @@ class ExpireTrialRegistrationsJob < ApplicationJob
           registration.course,
           training_session_id: registration.training_session_id
         )
+
+        did_cancel = true
       end
+
+      next unless did_cancel
+
+      # Mailer nach der Transaktion versenden, damit er nur bei erfolgreichem
+      # Commit ausgeführt wird.
+      CourseRegistrationMailer.trial_expired(registration).deliver_later
 
       Rails.logger.info "[ExpireTrialRegistrationsJob] Registration #{registration.id} storniert."
       cancelled += 1

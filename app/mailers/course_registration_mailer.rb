@@ -139,8 +139,32 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
+    # Schutz-Guard: Schnupperplätze laufen nie über die 48h-Zahlungsfrist ab –
+    # für sie ist trial_expired (Schnuppertraining + 7 Tage) zuständig.
+    return if course_registration.trial?
+
     setting = MailSetting.first
     return if setting && !setting.mail_payment_expired_enabled
+
+    mail(
+      to: @recipient.email,
+      subject: "Reservierung abgelaufen: #{@course.title}"
+    )
+  end
+
+  # Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Frist
+  # (Schnuppertraining + 7 Tage) automatisch storniert wurde.
+  def trial_expired(course_registration)
+    @course_registration = course_registration
+    @course = course_registration.course
+    @participant = course_registration.participant
+    @recipient = @participant.user
+    return if @recipient.nil?
+
+    setting = MailSetting.first
+    return if setting && !setting.mail_payment_expired_enabled
+
+    @trial_session = course_registration.trial_session || course_registration.training_session
 
     mail(
       to: @recipient.email,

@@ -1,6 +1,8 @@
 require "test_helper"
 
 class ExpireTrialRegistrationsJobTest < ActiveJob::TestCase
+  include ActionMailer::TestHelper
+
   def make_course
     course = Course.new(
       title: "Schnupper-Kurs", registration_type: "semester", registration_mode: "semester",
@@ -55,5 +57,35 @@ class ExpireTrialRegistrationsJobTest < ActiveJob::TestCase
     ExpireTrialRegistrationsJob.new.perform
 
     assert_equal "storniert", legacy.reload.status
+  end
+
+  test "verschickt trial_expired-Mail beim Stornieren eines abgelaufenen Schnupperplatzes" do
+    course = make_course
+
+    expired = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false,
+      trial_expires_at: 1.day.ago
+    )
+    expired.save!(validate: false)
+
+    assert_enqueued_email_with CourseRegistrationMailer, :trial_expired, args: [ expired ] do
+      ExpireTrialRegistrationsJob.new.perform
+    end
+  end
+
+  test "verschickt keine Mail, wenn kein Schnupperplatz abläuft" do
+    course = make_course
+
+    valid_reg = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false,
+      trial_expires_at: 5.days.from_now
+    )
+    valid_reg.save!(validate: false)
+
+    assert_no_enqueued_emails do
+      ExpireTrialRegistrationsJob.new.perform
+    end
   end
 end
