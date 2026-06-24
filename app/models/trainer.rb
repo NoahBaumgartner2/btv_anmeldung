@@ -40,6 +40,10 @@ class Trainer < ApplicationRecord
                       message: "muss mit CH beginnen (Format: CH56 0483 5012 3456 7800 9)" },
             allow_blank: true
 
+  # Ein Eltern-Account (mit angemeldeten Kindern) darf nicht zugleich Trainer sein.
+  # Nur auf :create – bestehende Trainer bleiben editierbar.
+  validate :user_must_not_have_participants, on: :create
+
   def full_name
     [ first_name, last_name ].compact.join(" ").presence || user.email
   end
@@ -64,6 +68,16 @@ class Trainer < ApplicationRecord
       errors.add(:date_of_birth, "muss in der Vergangenheit liegen")
     elsif date_of_birth < 120.years.ago.to_date
       errors.add(:date_of_birth, "ist nicht plausibel (mehr als 120 Jahre zurück)")
+    end
+  end
+
+  def user_must_not_have_participants
+    return if user.blank?
+
+    if user.participants.exists?
+      errors.add(:base, "Dieser Account ist ein Eltern-Account mit angemeldeten Kindern " \
+                        "und kann nicht zugleich als Trainer erfasst werden. Bitte ein separates " \
+                        "Konto mit einer anderen E-Mail-Adresse verwenden.")
     end
   end
 end

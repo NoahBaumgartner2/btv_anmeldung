@@ -4,7 +4,7 @@
   <tr>
     <td style="padding:16px 20px;">
       <p style="margin:0;font-size:15px;font-weight:600;color:#991b1b;font-family:Arial,Helvetica,sans-serif;">
-        Deine Reservierung ist abgelaufen
+        Deine Schnupper-Reservierung ist abgelaufen
       </p>
     </td>
   </tr>
@@ -12,11 +12,11 @@
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
   Hallo <%= greeting_name(@recipient) %>,<br><br>
-  die Reservierung von <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
-  für den Kurs <strong><%= @course.title %></strong> wurde automatisch storniert, da die Zahlung nicht
-  innerhalb von 48 Stunden eingegangen ist. Der Kursplatz wurde wieder freigegeben. Wenn eine Teilnahme
-  trotzdem noch gewünscht ist, kann die definitive Anmeldung bei verfügbaren Plätzen selbstverständlich
-  noch vorgenommen werden.
+  der Schnupperplatz von <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
+  für den Kurs <strong><%= @course.title %></strong> wurde automatisch storniert, da innerhalb von einer
+  Woche nach dem Schnuppertraining keine definitive Anmeldung erfolgt ist. Der Kursplatz wurde wieder
+  freigegeben. Wenn eine Teilnahme trotzdem noch gewünscht ist, kann die definitive Anmeldung bei
+  verfügbaren Plätzen selbstverständlich noch vorgenommen werden.
 </p>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:32px;">
@@ -25,7 +25,11 @@
       <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Teilnehmer</p>
       <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @participant.first_name %> <%= @participant.last_name %></p>
       <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
-      <p style="margin:0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+      <p style="margin:<%= @trial_session ? "0 0 12px 0" : "0" %>;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+      <% if @trial_session&.start_time %>
+        <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Schnuppertraining</p>
+        <p style="margin:0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= I18n.l(@trial_session.start_time.to_date) %></p>
+      <% end %>
     </td>
   </tr>
 </table>

@@ -149,4 +149,26 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
 
     assert_match "CHF 150.00", mail.body.encoded
   end
+
+  test "trial_expired rendert und nennt Teilnehmer, Kurs und Schnupper-Bezug" do
+    @registration.update_columns(status: "schnuppern")
+
+    mail = CourseRegistrationMailer.trial_expired(@registration)
+
+    assert_equal [ @recipient.email ], mail.to
+    assert_match "Reservierung abgelaufen", mail.subject
+    assert_match @course.title, mail.subject
+    body = mail.body.encoded
+    assert_match @participant.first_name, body
+    assert_match @course.title, body
+    assert_match(/Schnupper/, body, "trial_expired-Mail muss den Schnupper-Bezug erwähnen")
+  end
+
+  test "payment_expired wird für Schnupperplätze nicht verschickt (trial_expired ist zuständig)" do
+    @registration.update_columns(status: "schnuppern")
+
+    assert_no_emails do
+      CourseRegistrationMailer.payment_expired(@registration).deliver_now
+    end
+  end
 end
