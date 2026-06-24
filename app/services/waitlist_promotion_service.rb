@@ -20,11 +20,9 @@ class WaitlistPromotionService
       return if course.max_participants.blank?
 
       paid_course = course.has_payment? && course.price_cents.to_i > 0
-      # "platz_frei" hält einen reservierten Platz (Entscheidung Schnuppern/Anmelden offen)
-      # und zählt daher immer als belegt, sonst würde derselbe Platz doppelt vergeben.
-      occupied_statuses = paid_course ? %w[bestätigt ausstehend schnuppern platz_frei] : %w[bestätigt schnuppern platz_frei]
-
-      confirmed_scope = course.course_registrations.where(status: occupied_statuses)
+      # Belegte Plätze: einheitliche Definition über CourseRegistration::OCCUPYING_STATUSES
+      # (bestätigt/schnuppern/platz_frei – bewusst OHNE "ausstehend", siehe Konstante).
+      confirmed_scope = course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES)
       waitlist_scope  = course.course_registrations.where(status: "warteliste")
 
       if training_session_id.present?

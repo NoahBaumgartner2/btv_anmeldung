@@ -220,10 +220,10 @@ class CourseRegistrationsController < ApplicationController
       Course.find(course.id).with_lock do
         belegte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
           course.course_registrations
-                .where(status: [ "bestätigt", "schnuppern", "platz_frei" ], training_session_id: @course_registration.training_session_id)
+                .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: @course_registration.training_session_id)
                 .count
         else
-          course.course_registrations.where(status: [ "bestätigt", "schnuppern", "platz_frei" ]).count
+          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
         end
 
         if course.enable_waitlist? && course.max_participants.present? && belegte_plaetze >= course.max_participants
@@ -244,15 +244,16 @@ class CourseRegistrationsController < ApplicationController
       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt.
       # Vorher unter Lock prüfen, ob der Kurs bereits voll ist: Ist die Warteliste aktiv
       # und kein Platz mehr frei, kommt die Anmeldung OHNE Zahlung direkt auf die
-      # Warteliste (keine Zahlungsaufforderung). Belegte Plätze inkl. "ausstehend",
-      # konsistent mit WaitlistPromotionService. Erst beim Hochstufen wird bezahlt.
+      # Warteliste (keine Zahlungsaufforderung). Belegte Plätze = OCCUPYING_STATUSES
+      # (ohne "ausstehend"), konsistent mit WaitlistPromotionService und mark_paid! –
+      # abgebrochene Checkouts blockieren keinen Platz. Erst beim Hochstufen wird bezahlt.
       Course.find(course.id).with_lock do
         belegte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
           course.course_registrations
-                .where(status: [ "bestätigt", "ausstehend", "schnuppern", "platz_frei" ], training_session_id: @course_registration.training_session_id)
+                .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: @course_registration.training_session_id)
                 .count
         else
-          course.course_registrations.where(status: [ "bestätigt", "ausstehend", "schnuppern", "platz_frei" ]).count
+          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
         end
 
         if course.enable_waitlist? && course.max_participants.present? && belegte_plaetze >= course.max_participants
@@ -268,10 +269,10 @@ class CourseRegistrationsController < ApplicationController
       Course.find(course.id).with_lock do
         bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
           course.course_registrations
-                .where(status: [ "bestätigt", "schnuppern", "platz_frei" ], training_session_id: @course_registration.training_session_id)
+                .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: @course_registration.training_session_id)
                 .count
         else
-          course.course_registrations.where(status: [ "bestätigt", "schnuppern", "platz_frei" ]).count
+          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
         end
 
         if course.enable_waitlist? && course.max_participants.present? && bestaetigte_plaetze >= course.max_participants

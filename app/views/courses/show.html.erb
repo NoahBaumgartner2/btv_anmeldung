@@ -97,11 +97,9 @@
 
           <%# Kapazität %>
           <% if @course.max_participants.present? %>
-            <%# Belegt-Zählung identisch zur Anmelde-/Warteliste-Logik: bei Bezahlkursen
-                belegt auch "ausstehend" (laufender Checkout) einen Platz, sonst zeigt die
-                Anzeige fälschlich "frei", obwohl niemand nachrücken kann. %>
-            <% occupied_statuses = (@course.has_payment? && @course.price_cents.to_i > 0) ? %w[bestätigt ausstehend schnuppern platz_frei] : %w[bestätigt schnuppern platz_frei] %>
-            <% confirmed = @course.course_registrations.where(status: occupied_statuses).count %>
+            <%# Belegt-Zählung identisch zur Anmelde-/Warteliste-Logik (OCCUPYING_STATUSES,
+                ohne "ausstehend" – abgebrochene Checkouts belegen keinen Platz). %>
+            <% confirmed = @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count %>
             <% spots_left = @course.max_participants - confirmed %>
             <li class="flex items-center gap-2">
               <span class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
@@ -152,8 +150,7 @@
         <%= t("courses.show.select_date") %>
       </a>
     <% else %>
-      <% occupied_statuses = (@course.has_payment? && @course.price_cents.to_i > 0) ? %w[bestätigt ausstehend schnuppern platz_frei] : %w[bestätigt schnuppern platz_frei] %>
-      <% bestaetigte_plaetze = @course.course_registrations.where(status: occupied_statuses).count %>
+      <% bestaetigte_plaetze = @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count %>
       <% is_full = @course.max_participants.present? && bestaetigte_plaetze >= @course.max_participants %>
       <%
         show_semester_trial_button = false
@@ -203,9 +200,8 @@
           <ul class="divide-y divide-gray-100">
             <% bookable_sessions.each do |session| %>
               <%
-                occupied_statuses = (@course.has_payment? && @course.price_cents.to_i > 0) ? %w[bestätigt ausstehend schnuppern platz_frei] : %w[bestätigt schnuppern platz_frei]
                 spots_taken = @course.course_registrations
-                  .where(status: occupied_statuses, training_session_id: session.id).count
+                  .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: session.id).count
                 is_full = @course.max_participants.present? && spots_taken >= @course.max_participants
               %>
               <li class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-secondary-50/50 transition">

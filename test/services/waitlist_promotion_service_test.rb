@@ -61,9 +61,10 @@ class WaitlistPromotionServiceTest < ActiveSupport::TestCase
     assert_equal "ausstehend", waitlisted.reload.status
   end
 
-  test "does nothing when course is full (ausstehend occupies slot for paid course)" do
+  test "ausstehend belegt KEINEN Platz: Wartender wird trotz offenem Checkout hochgestuft" do
     course = make_course(max_participants: 1, has_payment: true, price_cents: 5000)
 
+    # Offener/abgebrochener Checkout eines anderen Teilnehmers – darf den Platz NICHT blockieren.
     pending_reg = CourseRegistration.new(
       course: course, participant: participants(:one),
       status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
@@ -76,11 +77,12 @@ class WaitlistPromotionServiceTest < ActiveSupport::TestCase
     )
     waitlisted.save!(validate: false)
 
-    assert_enqueued_emails 0 do
+    assert_enqueued_emails 1 do
       WaitlistPromotionService.promote_next_from_waitlist(course.reload)
     end
 
-    assert_equal "warteliste", waitlisted.reload.status
+    # Bezahlkurs → Hochstufung auf "ausstehend" (Zahlung folgt), nicht mehr "warteliste".
+    assert_equal "ausstehend", waitlisted.reload.status
   end
 
   test "does nothing when no waitlisted registrations exist" do

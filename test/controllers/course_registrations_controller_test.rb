@@ -1072,4 +1072,37 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to checkout_preview_registration_path(pending)
   end
+
+  test "offene ausstehend-Anmeldungen blockieren Kapazität nicht (Anmeldung trotzdem möglich)" do
+    course = Course.new(
+      title: "Bezahlkurs Kapazität", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, price_cents: 10_000, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 3, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    # 3 verwaiste offene Checkouts anderer Teilnehmer (dürfen die 3 Plätze NICHT belegen)
+    3.times do |i|
+      p = Participant.new(
+        user: @other_parent, first_name: "Zombie#{i}", last_name: "Test",
+        date_of_birth: 10.years.ago.to_date, ahv_number: "756.#{i}000.0000.0#{i}"
+      )
+      p.save!(validate: false)
+      CourseRegistration.new(
+        course: course, participant: p, status: "ausstehend",
+        payment_cleared: false, holiday_deduction_claimed: false,
+        payment_expires_at: 48.hours.from_now
+      ).save!(validate: false)
+    end
+
+    sign_in @trial_parent
+    post course_registrations_path, params: {
+      course_registration: { course_id: course.id, participant_id: @trial_participant.id }
+    }
+
+    reg = CourseRegistration.where(participant: @trial_participant, course: course).first
+    assert_equal "ausstehend", reg.status,
+      "Bei freier Kapazität muss die Anmeldung zur Zahlung (ausstehend) – nicht auf die Warteliste"
+    assert_not_equal "warteliste", reg.status
+  end
 end
