@@ -39,14 +39,14 @@
   active_registrations    = sorted_registrations.reject { |r| r.status == "storniert" }
   cancelled_registrations = sorted_registrations.select { |r| r.status == "storniert" }
 
-  # Anzeige-Aufteilung: bestätigte, aber noch nicht bezahlte Anmeldungen sowie reine
-  # "ausstehend"-Anmeldungen (gestarteter, aber nie abgeschlossener Checkout) wandern
-  # aus der Hauptliste in die zugeklappte Sektion "Zahlung ausstehend" – dort sind sie
-  # sichtbar und können über "Bar erhalten" als bezahlt markiert werden.
-  pending_payment_registrations = active_registrations.select { |r|
-    r.status == "ausstehend" ||
-    (r.status == "bestätigt" && r.payment_required? && !r.payment_cleared?)
-  }
+  # Anzeige-Aufteilung: NUR reine "ausstehend"-Anmeldungen (gestarteter, aber nie
+  # abgeschlossener Checkout) wandern in die zugeklappte Sektion "Zahlung ausstehend".
+  # Bestätigte-aber-noch-nicht-bezahlte Teilnehmer (z.B. manuell erfasst, Barzahlung
+  # offen) sind vollwertige Teilnehmer: Sie belegen einen Platz (siehe
+  # OCCUPYING_STATUSES / Warteliste-Logik) und bleiben daher in der Hauptliste und in
+  # der bestätigt-Zählung. Der offene Zahlungsstatus inkl. "Bar erhalten"-Button wird
+  # direkt auf ihrer Teilnehmer-Karte angezeigt.
+  pending_payment_registrations = active_registrations.select { |r| r.status == "ausstehend" }
   main_registrations = active_registrations - pending_payment_registrations
 
   confirmed_count = main_registrations.count { |r| r.status == "bestätigt" }

@@ -886,6 +886,7 @@ en:
       already_booked: "Already booked"
       show_more: "Show more"
     errors:
+      course_full: "This course is fully booked and has no waiting list."
       duplicate_session: "This child is already registered for this session."
       duplicate_registration: "This person is already registered for this course."
       duplicate_schnuppern: "This person already has a trial spot in this course."

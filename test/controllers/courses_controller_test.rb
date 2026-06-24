@@ -74,6 +74,28 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       "Offene ausstehend-Anmeldung muss trotz neuerer Stornierung sichtbar bleiben"
   end
 
+  test "manage zählt bestätigt-aber-unbezahlt als vollwertigen Teilnehmer" do
+    course = Course.new(
+      title: "Bezahlkurs Barzahlung", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, price_cents: 10_000, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 12, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    # Manuell erfasst: bestätigt, Zahlung offen → soll als Teilnehmer zählen
+    CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    get manage_course_path(course)
+
+    assert_response :success
+    # bestätigt-Zählung enthält die unbezahlte Anmeldung (1 bestätigt, nicht 0)
+    assert_includes @response.body, "1 #{I18n.t('courses.manage.confirmed_label')}",
+      "Bestätigt-aber-unbezahlt muss als bestätigter Teilnehmer gezählt werden"
+  end
+
   # ── registration_type wird aus registration_mode abgeleitet ────────────────
 
   test "create mit registration_mode quartal setzt registration_type quartal" do

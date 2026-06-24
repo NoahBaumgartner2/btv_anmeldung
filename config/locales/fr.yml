@@ -880,6 +880,7 @@ fr:
       already_booked: "Déjà réservé"
       show_more: "Afficher plus"
     errors:
+      course_full: "Ce cours est complet et ne dispose pas de liste d'attente."
       duplicate_session: "Cet enfant est déjà inscrit à cette séance."
       duplicate_registration: "Cette personne est déjà inscrite à ce cours."
       duplicate_schnuppern: "Cette personne a déjà une place d'essai dans ce cours."

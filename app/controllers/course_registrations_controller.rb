@@ -212,6 +212,9 @@ class CourseRegistrationsController < ApplicationController
     # with_lock-Blöcken heraus sichtbar bleiben (Block-Variablen sonst nicht im Methodenscope).
     save_result = nil
     erfolgs_nachricht = nil
+    # Voller Kurs OHNE Warteliste → Anmeldung ablehnen statt bestätigen/zur Zahlung leiten
+    # (verhindert Überbuchung, wenn die Warteliste deaktiviert ist).
+    full_no_waitlist = false
 
     if is_trial
       # Kapazitätsprüfung unter Lock: Ist der Kurs voll und Warteliste aktiv, kommt auch
@@ -226,9 +229,13 @@ class CourseRegistrationsController < ApplicationController
           course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
         end
 
-        if course.enable_waitlist? && course.max_participants.present? && belegte_plaetze >= course.max_participants
-          @course_registration.status = "warteliste"
-          erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
+        if course.max_participants.present? && belegte_plaetze >= course.max_participants
+          if course.enable_waitlist?
+            @course_registration.status = "warteliste"
+            erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
+          else
+            full_no_waitlist = true
+          end
         else
           @course_registration.status = "schnuppern"
           trial_date_session = @course_registration.trial_session || @course_registration.training_session
@@ -238,7 +245,7 @@ class CourseRegistrationsController < ApplicationController
             "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
           end
         end
-        save_result = @course_registration.save
+        save_result = @course_registration.save unless full_no_waitlist
       end
     elsif course.has_payment? && course.price_cents.to_i > 0
       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt.
@@ -256,13 +263,17 @@ class CourseRegistrationsController < ApplicationController
           course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
         end
 
-        if course.enable_waitlist? && course.max_participants.present? && belegte_plaetze >= course.max_participants
-          @course_registration.status = "warteliste"
-          erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
+        if course.max_participants.present? && belegte_plaetze >= course.max_participants
+          if course.enable_waitlist?
+            @course_registration.status = "warteliste"
+            erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
+          else
+            full_no_waitlist = true
+          end
         else
           @course_registration.status = "ausstehend"
         end
-        save_result = @course_registration.save
+        save_result = @course_registration.save unless full_no_waitlist
       end
     else
       # Kostenlos → Kapazitätsprüfung + Speichern atomar unter Lock (Race-Condition-Schutz)
@@ -275,15 +286,25 @@ class CourseRegistrationsController < ApplicationController
           course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
         end
 
-        if course.enable_waitlist? && course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
-          @course_registration.status = "warteliste"
-          erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
+        if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
+          if course.enable_waitlist?
+            @course_registration.status = "warteliste"
+            erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
+          else
+            full_no_waitlist = true
+          end
         else
           @course_registration.status = "bestätigt"
           erfolgs_nachricht = t("course_registrations.flash.confirmed", name: participant.first_name)
         end
-        save_result = @course_registration.save
+        save_result = @course_registration.save unless full_no_waitlist
       end
+    end
+
+    if full_no_waitlist
+      @course_registration.errors.add(:base, t("course_registrations.errors.course_full"))
+      setup_new_form(course)
+      return render :new, status: :unprocessable_entity
     end
 
     if save_result
