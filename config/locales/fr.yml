@@ -814,6 +814,7 @@ fr:
       storniert: "Annulé"
       ausstehend: "En attente"
       schnuppern: "Essai"
+      platz_frei: "Place libre – à vous de décider"
     form:
       course_label: "Cours"
       course_prompt: "Choisir un cours..."
@@ -840,6 +841,11 @@ fr:
       already_cancelled: "Cette inscription est déjà annulée."
       not_a_trial: "Cette inscription n'est pas une place d'essai."
       trial_converted: "Vous avez été inscrit(e) avec succès en tant que participant(e) régulier(ère)."
+      spot_not_offered: "Aucune offre de place ouverte pour cette inscription."
+      spot_offer_expired: "Le délai pour cette offre de place est malheureusement dépassé. La place a été transmise à la personne suivante."
+      spot_not_eligible: "Un essai n'est plus possible pour cette personne dans cette catégorie. Veuillez vous inscrire normalement."
+      spot_accepted_registered: "Parfait, votre place est garantie !"
+      spot_accepted_trial: "Parfait ! Votre séance d'essai est réservée."
       not_an_abo: "Cette inscription n'est pas un abonnement."
       abo_exhausted: "L'abonnement n'a plus d'entrées disponibles."
       abo_session_not_found: "Séance introuvable."
@@ -914,6 +920,7 @@ fr:
         payment_pending: "Paiement en attente"
         paid: "Payé"
         pending: "En attente"
+        spot_offer: "Place libre – à vous de décider"
       payment:
         reserved_html: "Votre place est <strong>provisoirement réservée</strong>. Veuillez payer <strong>%{price}</strong> maintenant pour confirmer votre inscription."
         confirmed_unpaid_html: "Votre place est <strong>assurée</strong>. Veuillez encore payer <strong>%{price}</strong> pour régler les frais de cours."
@@ -936,6 +943,20 @@ fr:
       convert_trial:
         button: "S'inscrire maintenant comme participant(e) régulier(ère)"
         confirm: "Souhaitez-vous convertir votre place d'essai en inscription régulière ?"
+      spot_offer:
+        heading: "Une place s'est libérée !"
+        body: "Vous étiez sur la liste d'attente – une place est maintenant libre. Vous pouvez faire un essai gratuit ou vous inscrire normalement tout de suite."
+        deadline_html: "Veuillez décider d'ici le <strong>%{date}</strong>, sinon la place ira à la personne suivante."
+        register_btn: "S'inscrire maintenant"
+        register_confirm: "Voulez-vous vous inscrire définitivement à ce cours ?"
+        trial_btn: "Essai gratuit"
+        trial_btn_subtitle: "Une séance d'essai · sans engagement"
+    choose_trial_session:
+      title: "Choisir la séance d'essai"
+      subtitle: "Choisissez la séance lors de laquelle %{name} fera son essai."
+      no_sessions: "Aucune séance à venir n'est actuellement disponible. Veuillez réessayer plus tard ou vous inscrire normalement."
+      book_btn: "Faire l'essai à cette séance"
+      back: "Retour"
 
   training_sessions:
     show:

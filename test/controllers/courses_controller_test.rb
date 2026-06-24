@@ -41,6 +41,39 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "manage zeigt offene ausstehend-Anmeldung trotz neuerer Stornierung desselben Kindes" do
+    course = Course.new(
+      title: "Bezahlkurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, price_cents: 10_000, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 1, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    # Älterer, noch offener Checkout (belegt den Platz, blockiert die Warteliste)
+    pending = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false,
+      payment_expires_at: 48.hours.from_now
+    )
+    pending.save!(validate: false)
+    pending.update_column(:created_at, 2.hours.ago)
+
+    # Neuere Stornierung desselben Kindes (würde die offene Anmeldung sonst verdecken)
+    cancelled = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "storniert", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    cancelled.save!(validate: false)
+    cancelled.update_column(:created_at, 1.hour.ago)
+
+    get manage_course_path(course)
+
+    assert_response :success
+    # Die offene (aktive) Anmeldung muss sichtbar sein – nicht von der Stornierung verdeckt.
+    assert_includes @response.body, I18n.t("courses.manage.status_open"),
+      "Offene ausstehend-Anmeldung muss trotz neuerer Stornierung sichtbar bleiben"
+  end
+
   # ── registration_type wird aus registration_mode abgeleitet ────────────────
 
   test "create mit registration_mode quartal setzt registration_type quartal" do

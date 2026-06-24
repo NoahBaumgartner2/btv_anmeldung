@@ -106,4 +106,36 @@ class ExpirePendingPaymentsJobTest < ActiveJob::TestCase
 
     assert_equal "storniert", expired.reload.status
   end
+
+  test "storniert abgelaufenes Platzangebot (platz_frei) und verschickt Mail" do
+    course = make_course
+
+    expired = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "platz_frei", payment_cleared: false, holiday_deduction_claimed: false,
+      trial_expires_at: nil, payment_expires_at: 1.hour.ago
+    )
+    expired.save!(validate: false)
+
+    assert_enqueued_email_with CourseRegistrationMailer, :payment_expired, args: [ expired ] do
+      ExpirePendingPaymentsJob.new.perform
+    end
+
+    assert_equal "storniert", expired.reload.status
+  end
+
+  test "lässt nicht-abgelaufenes Platzangebot (platz_frei) unberührt" do
+    course = make_course
+
+    valid_reg = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "platz_frei", payment_cleared: false, holiday_deduction_claimed: false,
+      payment_expires_at: 2.days.from_now
+    )
+    valid_reg.save!(validate: false)
+
+    ExpirePendingPaymentsJob.new.perform
+
+    assert_equal "platz_frei", valid_reg.reload.status
+  end
 end

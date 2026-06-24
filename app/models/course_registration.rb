@@ -1,6 +1,14 @@
 class CourseRegistration < ApplicationRecord
   TRIAL_STATUS = "schnuppern"
 
+  # Stati, die einen Platz belegen (maßgeblich für Kapazitäts- und Warteliste-Prüfungen).
+  # Bewusst OHNE "ausstehend": ein offener/abgebrochener Checkout darf keinen Platz
+  # blockieren – sonst landen echte Teilnehmer fälschlich auf der Warteliste, obwohl der
+  # Kurs nicht voll ist. Beim Bezahlen ist ohnehin nur "bestätigt"/"schnuppern" maßgeblich
+  # (siehe PaymentSyncService.mark_paid!). "platz_frei" zählt mit, weil ein angebotener
+  # Wartelistenplatz reserviert bleiben muss (kein Doppelvergeben).
+  OCCUPYING_STATUSES = %w[bestätigt schnuppern platz_frei].freeze
+
   belongs_to :course
   belongs_to :participant
   belongs_to :training_session, optional: true

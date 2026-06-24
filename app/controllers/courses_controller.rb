@@ -406,7 +406,7 @@ class CoursesController < ApplicationController
           alert: "#{participant.first_name} ist bereits für diesen Kurs angemeldet."
       end
 
-      bestaetigte = @course.course_registrations.where(status: %w[bestätigt schnuppern]).count
+      bestaetigte = @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
       status = if @course.max_participants.present? && bestaetigte >= @course.max_participants
         "warteliste"
       else

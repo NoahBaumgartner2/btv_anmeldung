@@ -24,11 +24,16 @@
   waitlist_count  = @course.course_registrations.where(status: 'warteliste').count
   trial_count     = @course.course_registrations.where(status: 'schnuppern').count
 
-  status_order = { 'bestätigt' => 0, 'schnuppern' => 1, 'warteliste' => 2, 'ausstehend' => 3 }.freeze
+  status_order = { 'bestätigt' => 0, 'platz_frei' => 1, 'schnuppern' => 2, 'warteliste' => 3, 'ausstehend' => 4 }.freeze
+  # Pro Teilnehmer nur EINE Anmeldung anzeigen. Dabei eine aktive (nicht stornierte)
+  # Anmeldung bevorzugen, sonst würde z.B. ein noch offener "ausstehend"-Datensatz von
+  # einer neueren Stornierung verdeckt – er bliebe unsichtbar, obwohl er den Platz
+  # belegt (und damit die Warteliste-Hochstufung blockiert). Innerhalb gleicher
+  # Aktivität gewinnt die neueste Anmeldung.
   sorted_registrations = @course.course_registrations
     .includes(:participant)
     .to_a
-    .sort_by { |r| -(r.created_at&.to_i || 0) }
+    .sort_by { |r| [r.status == "storniert" ? 1 : 0, -(r.created_at&.to_i || 0)] }
     .uniq(&:participant_id)
     .sort_by { |r| [status_order.fetch(r.status, 99), r.participant&.last_name.to_s] }
   active_registrations    = sorted_registrations.reject { |r| r.status == "storniert" }

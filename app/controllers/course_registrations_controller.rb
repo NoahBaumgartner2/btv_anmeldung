@@ -1,8 +1,8 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry, :update_abo_entries, :convert_trial, :abo_sessions, :book_abo_session ]
-  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel, :abo_sessions, :book_abo_session ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry, :update_abo_entries, :convert_trial, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
+  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
 
   def show
     if @course_registration.status == "ausstehend" && @course_registration.course.price_cents.to_i == 0
@@ -150,6 +150,20 @@ class CourseRegistrationsController < ApplicationController
       end
     end
 
+    # 2c2. Offene, noch nicht bezahlte Anmeldung wiederverwenden statt duplizieren.
+    # Jeder Klick auf "Anmelden" bei einem Bezahlkurs würde sonst einen weiteren
+    # "ausstehend"-Datensatz anlegen (der Duplikat-Check unten ignoriert "ausstehend").
+    # Mehrere "ausstehend"-Einträge belegen je einen Platz und blockieren die Warteliste-
+    # Hochstufung, obwohl der Kurs frei aussieht (sie zählen nicht in der Kapazitäts-
+    # anzeige). Daher: bestehenden offenen Checkout wiederverwenden.
+    if !is_trial && course && participant && course.registration_mode != "single_session" &&
+       course.has_payment? && course.price_cents.to_i > 0
+      open_pending = CourseRegistration.where(
+        participant_id: participant.id, course_id: course.id, status: "ausstehend"
+      ).order(:created_at).first
+      return redirect_to checkout_preview_registration_path(open_pending) if open_pending
+    end
+
     # 2d. Duplikat- bzw. Weiterleitungs-Check für Semesterkurse
     #
     # - Bereits final abgeschlossen (bezahlt bzw. bestätigt auf Gratiskurs) ODER auf der
@@ -194,30 +208,52 @@ class CourseRegistrationsController < ApplicationController
     # 3. Status bestimmen und Anmeldung speichern.
     # Für kostenlose Kurse: pessimistischer Lock auf Course verhindert Race Condition
     # bei gleichzeitigen Requests (zwei Anfragen sehen sonst beide einen freien Platz).
+    # save_result/erfolgs_nachricht vor dem if deklarieren, damit sie auch aus den
+    # with_lock-Blöcken heraus sichtbar bleiben (Block-Variablen sonst nicht im Methodenscope).
     save_result = nil
+    erfolgs_nachricht = nil
 
     if is_trial
-      @course_registration.status = "schnuppern"
-      trial_date_session = @course_registration.trial_session || @course_registration.training_session
-      erfolgs_nachricht = if trial_date_session
-        "Super! #{participant.first_name} schnuppert am #{I18n.l(trial_date_session.start_time.to_date)}. Der Platz ist bis 7 Tage nach dem Schnuppertraining gesichert."
-      else
-        "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+      # Kapazitätsprüfung unter Lock: Ist der Kurs voll und Warteliste aktiv, kommt auch
+      # ein Schnupper-Versuch auf die Warteliste (verhindert Überbuchung via Schnupper-Pfad).
+      # Beim Hochstufen darf der Wartende dann zwischen Schnuppern und Anmelden wählen.
+      Course.find(course.id).with_lock do
+        belegte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
+          course.course_registrations
+                .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: @course_registration.training_session_id)
+                .count
+        else
+          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
+        end
+
+        if course.enable_waitlist? && course.max_participants.present? && belegte_plaetze >= course.max_participants
+          @course_registration.status = "warteliste"
+          erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
+        else
+          @course_registration.status = "schnuppern"
+          trial_date_session = @course_registration.trial_session || @course_registration.training_session
+          erfolgs_nachricht = if trial_date_session
+            "Super! #{participant.first_name} schnuppert am #{I18n.l(trial_date_session.start_time.to_date)}. Der Platz ist bis 7 Tage nach dem Schnuppertraining gesichert."
+          else
+            "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+          end
+        end
+        save_result = @course_registration.save
       end
-      save_result = @course_registration.save
     elsif course.has_payment? && course.price_cents.to_i > 0
       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt.
       # Vorher unter Lock prüfen, ob der Kurs bereits voll ist: Ist die Warteliste aktiv
       # und kein Platz mehr frei, kommt die Anmeldung OHNE Zahlung direkt auf die
-      # Warteliste (keine Zahlungsaufforderung). Belegte Plätze inkl. "ausstehend",
-      # konsistent mit WaitlistPromotionService. Erst beim Hochstufen wird bezahlt.
+      # Warteliste (keine Zahlungsaufforderung). Belegte Plätze = OCCUPYING_STATUSES
+      # (ohne "ausstehend"), konsistent mit WaitlistPromotionService und mark_paid! –
+      # abgebrochene Checkouts blockieren keinen Platz. Erst beim Hochstufen wird bezahlt.
       Course.find(course.id).with_lock do
         belegte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
           course.course_registrations
-                .where(status: [ "bestätigt", "ausstehend", "schnuppern" ], training_session_id: @course_registration.training_session_id)
+                .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: @course_registration.training_session_id)
                 .count
         else
-          course.course_registrations.where(status: [ "bestätigt", "ausstehend", "schnuppern" ]).count
+          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
         end
 
         if course.enable_waitlist? && course.max_participants.present? && belegte_plaetze >= course.max_participants
@@ -233,10 +269,10 @@ class CourseRegistrationsController < ApplicationController
       Course.find(course.id).with_lock do
         bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
           course.course_registrations
-                .where(status: [ "bestätigt", "schnuppern" ], training_session_id: @course_registration.training_session_id)
+                .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: @course_registration.training_session_id)
                 .count
         else
-          course.course_registrations.where(status: [ "bestätigt", "schnuppern" ]).count
+          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
         end
 
         if course.enable_waitlist? && course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
@@ -696,6 +732,48 @@ class CourseRegistrationsController < ApplicationController
     end
   end
 
+  # Der Wartende hat einen frei gewordenen Platz erhalten (Status "platz_frei") und
+  # entscheidet sich: "register" → regulär anmelden/zahlen, "trial" → schnuppern.
+  def accept_spot
+    course = @course_registration.course
+
+    unless @course_registration.status == "platz_frei"
+      redirect_to course_registration_path(@course_registration),
+        alert: t("course_registrations.flash.spot_not_offered")
+      return
+    end
+
+    deadline = @course_registration.payment_expires_at
+    if deadline.present? && deadline < Time.current
+      redirect_to course_registration_path(@course_registration),
+        alert: t("course_registrations.flash.spot_offer_expired")
+      return
+    end
+
+    if params[:decision] == "trial"
+      accept_spot_as_trial(course)
+    else
+      accept_spot_as_registration(course)
+    end
+  end
+
+  # Terminauswahl für den Schnupper-Pfad nach Platzangebot (nur Semesterkurse).
+  def choose_trial_session
+    @course = @course_registration.course
+
+    unless @course_registration.status == "platz_frei"
+      redirect_to course_registration_path(@course_registration),
+        alert: t("course_registrations.flash.spot_not_offered")
+      return
+    end
+
+    @trial_sessions = @course.training_sessions
+                             .where(is_canceled: false)
+                             .where("start_time > ?", Time.current)
+                             .order(:start_time)
+                             .limit(20)
+  end
+
   def abo_sessions
     unless @course_registration.course.abo?
       redirect_to participants_path, alert: t("course_registrations.flash.not_an_abo")
@@ -864,6 +942,64 @@ class CourseRegistrationsController < ApplicationController
   end
 
   private
+
+  # accept_spot: Wartender wählt "regulär anmelden". Gratiskurs → direkt bestätigt;
+  # Bezahlkurs → ausstehend (payment_expires_at via set_payment_expiry neu auf 48h) und
+  # weiter zur Zahlung.
+  def accept_spot_as_registration(course)
+    if course.has_payment? && course.price_cents.to_i > 0
+      @course_registration.update!(status: "ausstehend", payment_expires_at: nil)
+      if ::SumupConfig.configured?
+        redirect_to checkout_preview_registration_path(@course_registration)
+      else
+        redirect_to course_registration_path(@course_registration),
+          notice: t("course_registrations.flash.spot_accepted_registered")
+      end
+    else
+      @course_registration.update!(status: "bestätigt")
+      CourseRegistrationMailer.confirmation(@course_registration).deliver_later
+      redirect_to course_registration_path(@course_registration),
+        notice: t("course_registrations.flash.spot_accepted_registered")
+    end
+  end
+
+  # accept_spot: Wartender wählt "schnuppern". Eligibility erneut prüfen; bei Semesterkursen
+  # muss ein konkretes Schnuppertraining gewählt sein. trial_expires_at zurücksetzen, damit
+  # set_trial_expiry die 7-Tage-Frist (ab Schnuppertraining) neu setzt.
+  def accept_spot_as_trial(course)
+    participant = @course_registration.participant
+
+    # ever_trialed_in_category? statt schnupper_eligible_for_category?, da die eigene
+    # "platz_frei"-Anmeldung sich sonst selbst als "bereits registriert" blockieren würde.
+    unless course.allows_trial? && !participant.ever_trialed_in_category?(course.category)
+      redirect_to course_registration_path(@course_registration),
+        alert: t("course_registrations.flash.spot_not_eligible")
+      return
+    end
+
+    if course.registration_mode != "single_session"
+      session = course.training_sessions.find_by(id: params[:training_session_id])
+      if session.nil?
+        redirect_to choose_trial_session_course_registration_path(@course_registration),
+          alert: t("course_registrations.errors.trial_session_required")
+        return
+      elsif session.is_canceled?
+        redirect_to choose_trial_session_course_registration_path(@course_registration),
+          alert: t("course_registrations.errors.session_cancelled")
+        return
+      elsif session.start_time <= Time.current
+        redirect_to choose_trial_session_course_registration_path(@course_registration),
+          alert: t("course_registrations.errors.session_in_past")
+        return
+      end
+      @course_registration.trial_session = session
+    end
+
+    @course_registration.update!(status: "schnuppern", trial_expires_at: nil, payment_expires_at: nil)
+    CourseRegistrationMailer.confirmation(@course_registration).deliver_later
+    redirect_to course_registration_path(@course_registration),
+      notice: t("course_registrations.flash.spot_accepted_trial")
+  end
 
   def set_course_registration
     @course_registration = CourseRegistration.find(params[:id])

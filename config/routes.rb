@@ -90,6 +90,8 @@ Rails.application.routes.draw do
       post :mark_as_paid
       post :move
       post :convert_trial
+      post :accept_spot
+      get  :choose_trial_session
       get  :abo_sessions
       post :book_abo_session
     end

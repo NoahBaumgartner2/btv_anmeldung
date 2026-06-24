@@ -2,7 +2,12 @@ Hallo <%= greeting_name(@recipient) %>,
 
 <%= @participant.first_name %> stand bisher auf der Warteliste. Ein Platz ist nun frei geworden.
 
-<% if @needs_payment %>
+<% if @decision_pending %>
+Du kannst nun selbst entscheiden: kostenlos schnuppern (ein Schnuppertraining deiner Wahl) oder jetzt regulär anmelden.
+Bitte triff deine Wahl innerhalb von 7 Tagen – andernfalls geht der Platz an die nächste Person auf der Warteliste.
+
+Jetzt entscheiden (Schnuppern oder Anmelden): <%= @registration_url %>
+<% elsif @needs_payment %>
 Die Anmeldung wurde auf "ausstehend" gesetzt und wartet auf deine Zahlung.
 Du hast nun eine Woche Zeit, um die Kurskosten online zu bezahlen. Danach kann sofort am Kurs teilgenommen werden.
 
