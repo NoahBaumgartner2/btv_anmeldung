@@ -150,6 +150,20 @@ class CourseRegistrationsController < ApplicationController
       end
     end
 
+    # 2c2. Offene, noch nicht bezahlte Anmeldung wiederverwenden statt duplizieren.
+    # Jeder Klick auf "Anmelden" bei einem Bezahlkurs würde sonst einen weiteren
+    # "ausstehend"-Datensatz anlegen (der Duplikat-Check unten ignoriert "ausstehend").
+    # Mehrere "ausstehend"-Einträge belegen je einen Platz und blockieren die Warteliste-
+    # Hochstufung, obwohl der Kurs frei aussieht (sie zählen nicht in der Kapazitäts-
+    # anzeige). Daher: bestehenden offenen Checkout wiederverwenden.
+    if !is_trial && course && participant && course.registration_mode != "single_session" &&
+       course.has_payment? && course.price_cents.to_i > 0
+      open_pending = CourseRegistration.where(
+        participant_id: participant.id, course_id: course.id, status: "ausstehend"
+      ).order(:created_at).first
+      return redirect_to checkout_preview_registration_path(open_pending) if open_pending
+    end
+
     # 2d. Duplikat- bzw. Weiterleitungs-Check für Semesterkurse
     #
     # - Bereits final abgeschlossen (bezahlt bzw. bestätigt auf Gratiskurs) ODER auf der

@@ -1022,4 +1022,54 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "form[action=?]", accept_spot_course_registration_path(reg, decision: "register")
   end
+
+  test "voller Gratiskurs: cancel stuft schnupper-berechtigten Wartenden auf platz_frei hoch" do
+    @trial_course.update_columns(max_participants: 1, enable_waitlist: true)
+
+    # Bestätigter Teilnehmer A belegt den einzigen Platz
+    confirmed = CourseRegistration.new(
+      course: @trial_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    confirmed.save!(validate: false)
+
+    # Wartender B (darf in Kategorie noch schnuppern)
+    waiting = CourseRegistration.new(
+      course: @trial_course, participant: @trial_participant,
+      status: "warteliste", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    waiting.save!(validate: false)
+
+    sign_in @parent
+    post cancel_course_registration_path(confirmed)
+
+    assert_equal "platz_frei", waiting.reload.status,
+      "Wartender muss nach Stornierung auf platz_frei hochgestuft werden"
+  end
+
+  test "wiederholtes Anmelden auf Bezahlkurs legt keinen zweiten ausstehend-Datensatz an" do
+    course = Course.new(
+      title: "Bezahlkurs Reuse", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, price_cents: 10_000, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 5, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    # Bestehender, noch nicht bezahlter Checkout
+    pending = CourseRegistration.new(
+      course: course, participant: @trial_participant,
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false,
+      payment_expires_at: 48.hours.from_now
+    )
+    pending.save!(validate: false)
+
+    sign_in @trial_parent
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: { course_id: course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    assert_redirected_to checkout_preview_registration_path(pending)
+  end
 end
