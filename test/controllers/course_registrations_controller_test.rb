@@ -596,6 +596,54 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       "Zweite Anmeldung muss auf Warteliste da Kurs voll (Overbooking-Schutz)"
   end
 
+  test "voller Kurs OHNE Warteliste lehnt weitere Anmeldung ab (kein Overbooking)" do
+    course = Course.new(
+      title: "Voll ohne Warteliste", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 1, enable_waitlist: false
+    )
+    course.save!(validate: false)
+
+    CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    sign_in @trial_parent
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: { course_id: course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_match I18n.t("course_registrations.errors.course_full"), @response.body
+  end
+
+  test "voller Bezahlkurs OHNE Warteliste lehnt weitere Anmeldung ab (kein ausstehend)" do
+    course = Course.new(
+      title: "Voller Bezahlkurs ohne Warteliste", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, price_cents: 5000, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 1, enable_waitlist: false
+    )
+    course.save!(validate: false)
+
+    # Platz belegt durch manuell erfasste, NOCH NICHT bezahlte Anmeldung
+    CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    sign_in @trial_parent
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: { course_id: course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
   test "Anmeldung für vollen kostenpflichtigen Kurs landet ohne Zahlung auf Warteliste" do
     course = Course.new(
       title: "Voller Bezahlkurs", registration_type: "semester", registration_mode: "semester",

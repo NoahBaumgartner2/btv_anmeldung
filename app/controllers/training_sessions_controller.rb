@@ -33,6 +33,7 @@ class TrainingSessionsController < ApplicationController
       .where(status: %w[bestätigt schnuppern])
       .order(id: :desc)
       .to_a
+      .select { |reg| reg.status != "schnuppern" || trial_for_this_session?(reg) }
       .uniq(&:participant_id)
     @attendances_by_reg_id = @training_session.attendances.index_by(&:course_registration_id)
   end
@@ -192,6 +193,14 @@ class TrainingSessionsController < ApplicationController
   end
 
   private
+
+  # Eine Schnupper-Anmeldung gehört nur zu IHREM gewählten Training und darf nur dort
+  # in der Präsenzkontrolle erscheinen – nicht bei jeder Session des Kurses.
+  # Semesterkurs: trial_session_id; Drop-In: training_session_id.
+  def trial_for_this_session?(reg)
+    reg.trial_session_id == @training_session.id ||
+      reg.training_session_id == @training_session.id
+  end
 
   def set_training_session
     @training_session = TrainingSession.find(params[:id])

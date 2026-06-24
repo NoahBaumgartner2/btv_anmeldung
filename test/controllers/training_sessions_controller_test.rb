@@ -38,6 +38,41 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "Schnupper-Anmeldung erscheint nur beim gewählten Training in der Präsenzkontrolle" do
+    course = Course.new(
+      title: "Schnupper-Präsenz", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false, allows_trial: true
+    )
+    course.save!(validate: false)
+    session_a = course.training_sessions.create!(start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: false)
+    session_b = course.training_sessions.create!(start_time: 9.days.from_now, end_time: 9.days.from_now + 1.hour, is_canceled: false)
+
+    # Schnupper-Anmeldung für Session A
+    trial = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "schnuppern", trial_session_id: session_a.id, payment_cleared: false
+    )
+    trial.save!(validate: false)
+
+    # Regulär bestätigt (ohne Session-Bindung) – erscheint in beiden
+    confirmed = CourseRegistration.new(
+      course: course, participant: participants(:two),
+      status: "bestätigt", payment_cleared: false
+    )
+    confirmed.save!(validate: false)
+
+    get training_session_url(session_a)
+    assert_response :success
+    assert_match participants(:one).first_name, @response.body, "Schnupperer muss bei gewähltem Training (A) erscheinen"
+    assert_match participants(:two).first_name, @response.body
+
+    get training_session_url(session_b)
+    assert_response :success
+    assert_no_match(/#{Regexp.escape(participants(:one).first_name)}/, @response.body,
+      "Schnupperer darf NICHT bei anderem Training (B) erscheinen")
+    assert_match participants(:two).first_name, @response.body, "Bestätigter erscheint weiterhin bei jedem Training"
+  end
+
   test "should get edit" do
     get edit_training_session_url(@training_session)
     assert_response :success
