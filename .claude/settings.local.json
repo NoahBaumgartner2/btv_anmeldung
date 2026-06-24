@@ -67,7 +67,11 @@
       "Bash(bundle install *)",
       "Bash(RAILS_ENV=test bin/rails db:schema:load *)",
       "Bash(git push *)",
-      "Bash(git *)"
+      "Bash(git *)",
+      "Bash(gh auth *)",
+      "Bash(gh run *)",
+      "Bash(gh pr create --base main --head staging --title 'Warteliste: volle Bezahlkurse ohne Zahlungsaufforderung' --body ' *)",
+      "Bash(gh pr *)"
     ]
   }
 }
