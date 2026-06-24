@@ -53,13 +53,18 @@ class CourseRegistrationMailer < ApplicationMailer
     return if setting && !setting.mail_waitlist_promoted_enabled
 
     @registration_url = course_registration_url(course_registration)
-    @needs_payment = @course.has_payment? && @course.price_cents.to_i > 0 && !course_registration.abo_booking?
+    # "platz_frei": der Wartende darf zwischen Schnuppern und regulärer Anmeldung wählen.
+    @decision_pending = course_registration.status == "platz_frei"
+    @needs_payment = !@decision_pending && @course.has_payment? && @course.price_cents.to_i > 0 && !course_registration.abo_booking?
     @checkout_preview_url = checkout_preview_registration_url(course_registration) if @needs_payment
 
-    mail(
-      to: @recipient.email,
-      subject: "Du hast einen Platz erhalten: #{@course.title}"
-    )
+    subject = if @decision_pending
+      "Du hast einen Platz – jetzt entscheiden: #{@course.title}"
+    else
+      "Du hast einen Platz erhalten: #{@course.title}"
+    end
+
+    mail(to: @recipient.email, subject: subject)
   end
 
   def cancelled_by_trainer(course_registration)

@@ -14,7 +14,11 @@
   Hallo <%= greeting_name(@recipient) %>,<br><br>
   <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> stand bisher auf der Warteliste.
   Ein Platz ist nun frei geworden.<br><br>
-  <% if @needs_payment %>
+  <% if @decision_pending %>
+    Du kannst nun selbst entscheiden: <strong>kostenlos schnuppern</strong> (ein Schnuppertraining
+    deiner Wahl) oder <strong>jetzt regulär anmelden</strong>. Bitte triff deine Wahl innerhalb von
+    <strong>7 Tagen</strong> – andernfalls geht der Platz an die nächste Person auf der Warteliste.
+  <% elsif @needs_payment %>
     Die Anmeldung wurde auf <strong>ausstehend</strong> gesetzt und wartet auf deine Zahlung.
     Du hast nun eine Woche Zeit, um die Kurskosten online zu bezahlen. Danach kann sofort am Kurs teilgenommen werden.
   <% else %>
@@ -60,7 +64,7 @@
     <td align="center">
       <a href="<%= @registration_url %>"
          style="display:inline-block;padding:14px 32px;background:<%= primary %>;color:#ffffff;font-size:16px;font-weight:600;text-decoration:none;border-radius:8px;font-family:Arial,Helvetica,sans-serif;">
-        Anmeldung ansehen
+        <%= @decision_pending ? "Jetzt entscheiden: Schnuppern oder Anmelden" : "Anmeldung ansehen" %>
       </a>
     </td>
   </tr>

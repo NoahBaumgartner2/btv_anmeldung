@@ -136,6 +136,81 @@ class WaitlistPromotionServiceTest < ActiveSupport::TestCase
     assert_equal "bestätigt", waitlisted.reload.status
   end
 
+  test "promotes to platz_frei (Entscheidung offen) when participant may still trial" do
+    course = make_course(max_participants: 1, has_payment: false, price_cents: 0,
+                         allows_trial: true, category: "Probier-Kategorie")
+
+    confirmed = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    confirmed.save!(validate: false)
+
+    waitlisted = CourseRegistration.new(
+      course: course, participant: participants(:two),
+      status: "warteliste", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    waitlisted.save!(validate: false)
+
+    confirmed.destroy!
+
+    assert_enqueued_emails 1 do
+      WaitlistPromotionService.promote_next_from_waitlist(course.reload)
+    end
+
+    waitlisted.reload
+    assert_equal "platz_frei", waitlisted.status
+    assert waitlisted.payment_expires_at.present?, "7-Tage-Entscheidfrist muss gesetzt sein"
+  end
+
+  test "promotes to bestätigt (no choice) when participant already trialed in category" do
+    course = make_course(max_participants: 1, has_payment: false, price_cents: 0,
+                         allows_trial: true, category: "Schon-Geschnuppert")
+
+    # Teilnehmer hat in dieser Kategorie bereits (in einem anderen Kurs) geschnuppert
+    other = Course.new(title: "Anderer Kurs", registration_type: "semester",
+                       category: "Schon-Geschnuppert", has_payment: false,
+                       has_ticketing: false, allows_holiday_deduction: false)
+    other.save!(validate: false)
+    CourseRegistration.new(course: other, participant: participants(:two),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false)
+      .save!(validate: false)
+
+    confirmed = CourseRegistration.new(course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false)
+    confirmed.save!(validate: false)
+
+    waitlisted = CourseRegistration.new(course: course, participant: participants(:two),
+      status: "warteliste", payment_cleared: false, holiday_deduction_claimed: false)
+    waitlisted.save!(validate: false)
+
+    confirmed.destroy!
+
+    WaitlistPromotionService.promote_next_from_waitlist(course.reload)
+
+    assert_equal "bestätigt", waitlisted.reload.status
+  end
+
+  test "platz_frei occupies a slot and is not double-assigned" do
+    course = make_course(max_participants: 1, has_payment: false, price_cents: 0,
+                         allows_trial: true, category: "Belegt-Test")
+
+    offered = CourseRegistration.new(course: course, participant: participants(:one),
+      status: "platz_frei", payment_expires_at: 7.days.from_now,
+      payment_cleared: false, holiday_deduction_claimed: false)
+    offered.save!(validate: false)
+
+    waitlisted = CourseRegistration.new(course: course, participant: participants(:two),
+      status: "warteliste", payment_cleared: false, holiday_deduction_claimed: false)
+    waitlisted.save!(validate: false)
+
+    assert_enqueued_emails 0 do
+      WaitlistPromotionService.promote_next_from_waitlist(course.reload)
+    end
+
+    assert_equal "warteliste", waitlisted.reload.status
+  end
+
   test "does nothing when waitlist is not enabled" do
     course = make_course(enable_waitlist: false, max_participants: 1)
 

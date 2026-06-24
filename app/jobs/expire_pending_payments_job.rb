@@ -2,8 +2,12 @@ class ExpirePendingPaymentsJob < ApplicationJob
   queue_as :default
 
   def perform
+    # "platz_frei" = frei gewordener Wartelistenplatz mit offener Entscheidung
+    # (Schnuppern/Anmelden). Verfällt die 7-Tage-Frist, wird der Platz freigegeben.
+    expirable_statuses = [ "ausstehend", "platz_frei" ]
+
     scope = CourseRegistration
-      .where(status: "ausstehend", payment_cleared: false)
+      .where(status: expirable_statuses, payment_cleared: false)
       .where("payment_expires_at < ?", Time.current)
 
     total     = scope.count
@@ -12,7 +16,7 @@ class ExpirePendingPaymentsJob < ApplicationJob
 
     Rails.logger.info "[ExpirePendingPaymentsJob] #{total} abgelaufene Reservierung(en) gefunden."
 
-    stuck = CourseRegistration.where(status: "ausstehend", payment_cleared: false)
+    stuck = CourseRegistration.where(status: expirable_statuses, payment_cleared: false)
                                .where(payment_expires_at: nil).count
     if stuck > 0
       Rails.logger.warn "[ExpirePendingPaymentsJob] WARNUNG: #{stuck} ausstehende Registrierung(en) ohne payment_expires_at gefunden – diese werden nie automatisch storniert!"
@@ -20,13 +24,15 @@ class ExpirePendingPaymentsJob < ApplicationJob
 
     scope.includes(:course, participant: :user).find_each do |registration|
       did_cancel = false
+      was_spot_offer = false
 
       # with_lock re-loads the row with an exclusive lock inside a transaction,
       # preventing a concurrent PaymentSyncJob from clearing the payment between
       # our query and the status update.
       registration.with_lock do
-        next if registration.status != "ausstehend" || registration.payment_cleared?
+        next if expirable_statuses.exclude?(registration.status) || registration.payment_cleared?
 
+        was_spot_offer = registration.status == "platz_frei"
         registration.update!(status: "storniert")
 
         # promote_from_waitlist wurde zu WaitlistPromotionService extrahiert –
@@ -41,11 +47,11 @@ class ExpirePendingPaymentsJob < ApplicationJob
 
       next unless did_cancel
 
-      # Mail nur, wenn die Anmeldung aus einem Schnupperplatz stammt (trial_expires_at
-      # gesetzt) – dafür gilt die zugesicherte Frist "Schnuppertraining + 7 Tage".
-      # Reguläre Anmeldungen (trial_expires_at nil) werden still storniert.
-      # Mailer nach der Transaktion versenden, damit er nur bei erfolgreichem Commit läuft.
-      if registration.trial_expires_at.present?
+      # Mail versenden bei: abgelaufenem Platzangebot ("platz_frei") ODER wenn die Anmeldung
+      # aus einem Schnupperplatz stammt (trial_expires_at gesetzt, zugesicherte Frist).
+      # Reguläre, still verfallene Reservierungen (ausstehend ohne Schnupperhintergrund)
+      # werden ohne Mail storniert. Mailer nach der Transaktion versenden.
+      if was_spot_offer || registration.trial_expires_at.present?
         CourseRegistrationMailer.payment_expired(registration).deliver_later
       else
         Rails.logger.info "[ExpirePendingPaymentsJob] Registration #{registration.id} regulär – " \

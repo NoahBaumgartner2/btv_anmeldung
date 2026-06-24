@@ -820,6 +820,7 @@ en:
       storniert: "Cancelled"
       ausstehend: "Pending"
       schnuppern: "Trial"
+      platz_frei: "Spot available – please decide"
     form:
       course_label: "Course"
       course_prompt: "Choose course..."
@@ -846,6 +847,11 @@ en:
       already_cancelled: "This registration is already cancelled."
       not_a_trial: "This registration is not a trial spot."
       trial_converted: "You have been successfully registered as a regular participant."
+      spot_not_offered: "There is no open spot offer for this registration."
+      spot_offer_expired: "The deadline for this spot offer has unfortunately passed. The spot has been passed on to the next person."
+      spot_not_eligible: "A trial is no longer possible for this person in this category. Please register regularly."
+      spot_accepted_registered: "Great, your spot is secured!"
+      spot_accepted_trial: "Great! Your trial session is booked."
       not_an_abo: "This registration is not a subscription."
       abo_exhausted: "The subscription has no remaining entries."
       abo_session_not_found: "Session not found."
@@ -920,6 +926,7 @@ en:
         payment_pending: "Payment pending"
         paid: "Paid"
         pending: "Pending"
+        spot_offer: "Spot available – please decide"
       payment:
         reserved_html: "Your spot is <strong>provisionally reserved</strong>. Please pay <strong>%{price}</strong> now to confirm your registration."
         confirmed_unpaid_html: "Your spot is <strong>secured</strong>. Please pay <strong>%{price}</strong> to settle the course fee."
@@ -942,6 +949,20 @@ en:
       convert_trial:
         button: "Register now as regular participant"
         confirm: "Do you want to convert your trial spot into a regular registration?"
+      spot_offer:
+        heading: "A spot has opened up!"
+        body: "You were on the waitlist – now a spot is free. You can try out for free or register regularly right away."
+        deadline_html: "Please decide by <strong>%{date}</strong>, otherwise the spot goes to the next person."
+        register_btn: "Register now"
+        register_confirm: "Do you want to register definitively for this course?"
+        trial_btn: "Try out for free"
+        trial_btn_subtitle: "One trial session · no obligation"
+    choose_trial_session:
+      title: "Choose trial session"
+      subtitle: "Choose the session in which %{name} should try out."
+      no_sessions: "No upcoming sessions are currently available. Please try again later or register regularly."
+      book_btn: "Try out this session"
+      back: "Back"
 
   training_sessions:
     show:

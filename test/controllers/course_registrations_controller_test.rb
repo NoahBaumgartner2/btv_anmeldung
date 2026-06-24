@@ -916,4 +916,110 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     assert_equal original_course_id, @registration.reload.course_id
   end
+
+  # ── Warteliste → Platz frei → Entscheidung (Schnuppern / Anmelden) ──────────
+
+  def make_offered_registration(course)
+    reg = CourseRegistration.new(
+      course: course, participant: @trial_participant,
+      status: "platz_frei", payment_expires_at: 7.days.from_now,
+      payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+    reg
+  end
+
+  test "Schnupper-Versuch auf vollem Kurs landet auf Warteliste statt sofort schnuppern" do
+    @trial_course.update_columns(max_participants: 1, enable_waitlist: true)
+    CourseRegistration.new(
+      course: @trial_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    sign_in @trial_parent
+    assert_difference "CourseRegistration.count", 1 do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id, participant_id: @trial_participant.id,
+          trial_session_id: @trial_session.id
+        },
+        trial: "true"
+      }
+    end
+
+    assert_equal "warteliste", CourseRegistration.last.status
+  end
+
+  test "accept_spot register bestätigt Gratiskurs-Platz" do
+    reg = make_offered_registration(@trial_course)
+    sign_in @trial_parent
+
+    post accept_spot_course_registration_path(reg), params: { decision: "register" }
+
+    assert_equal "bestätigt", reg.reload.status
+    assert_redirected_to course_registration_path(reg)
+  end
+
+  test "accept_spot register setzt Bezahlkurs auf ausstehend" do
+    @trial_course.update_columns(has_payment: true, price_cents: 8000)
+    reg = make_offered_registration(@trial_course)
+    sign_in @trial_parent
+
+    post accept_spot_course_registration_path(reg), params: { decision: "register" }
+
+    assert_equal "ausstehend", reg.reload.status
+  end
+
+  test "accept_spot trial bucht Schnuppertraining bei Semesterkurs" do
+    reg = make_offered_registration(@trial_course)
+    sign_in @trial_parent
+
+    post accept_spot_course_registration_path(reg),
+         params: { decision: "trial", training_session_id: @trial_session.id }
+
+    reg.reload
+    assert_equal "schnuppern", reg.status
+    assert_equal @trial_session.id, reg.trial_session_id
+    assert_redirected_to course_registration_path(reg)
+  end
+
+  test "accept_spot lehnt ab wenn Frist abgelaufen" do
+    reg = make_offered_registration(@trial_course)
+    reg.update_columns(payment_expires_at: 1.hour.ago)
+    sign_in @trial_parent
+
+    post accept_spot_course_registration_path(reg), params: { decision: "register" }
+
+    assert_equal "platz_frei", reg.reload.status
+    assert_match I18n.t("course_registrations.flash.spot_offer_expired"), flash[:alert]
+  end
+
+  test "accept_spot ist für fremde Anmeldung gesperrt" do
+    reg = make_offered_registration(@trial_course)
+    sign_in @other_parent
+
+    post accept_spot_course_registration_path(reg), params: { decision: "register" }
+
+    assert_redirected_to root_path
+    assert_equal "platz_frei", reg.reload.status
+  end
+
+  test "choose_trial_session rendert Terminauswahl" do
+    reg = make_offered_registration(@trial_course)
+    sign_in @trial_parent
+
+    get choose_trial_session_course_registration_path(reg)
+
+    assert_response :success
+  end
+
+  test "show rendert Entscheidungs-Card bei platz_frei" do
+    reg = make_offered_registration(@trial_course)
+    sign_in @trial_parent
+
+    get course_registration_path(reg)
+
+    assert_response :success
+    assert_select "form[action=?]", accept_spot_course_registration_path(reg, decision: "register")
+  end
 end

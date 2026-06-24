@@ -97,7 +97,7 @@
 
           <%# Kapazität %>
           <% if @course.max_participants.present? %>
-            <% confirmed = @course.course_registrations.where(status: %w[bestätigt schnuppern]).count %>
+            <% confirmed = @course.course_registrations.where(status: %w[bestätigt schnuppern platz_frei]).count %>
             <% spots_left = @course.max_participants - confirmed %>
             <li class="flex items-center gap-2">
               <span class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
@@ -148,7 +148,7 @@
         <%= t("courses.show.select_date") %>
       </a>
     <% else %>
-      <% bestaetigte_plaetze = @course.course_registrations.where(status: [ 'bestätigt', 'schnuppern' ]).count %>
+      <% bestaetigte_plaetze = @course.course_registrations.where(status: [ 'bestätigt', 'schnuppern', 'platz_frei' ]).count %>
       <% is_full = @course.max_participants.present? && bestaetigte_plaetze >= @course.max_participants %>
       <%
         show_semester_trial_button = false
@@ -199,7 +199,7 @@
             <% bookable_sessions.each do |session| %>
               <%
                 spots_taken = @course.course_registrations
-                  .where(status: [ "bestätigt", "schnuppern" ], training_session_id: session.id).count
+                  .where(status: [ "bestätigt", "schnuppern", "platz_frei" ], training_session_id: session.id).count
                 is_full = @course.max_participants.present? && spots_taken >= @course.max_participants
               %>
               <li class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-secondary-50/50 transition">

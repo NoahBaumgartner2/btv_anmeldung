@@ -1,0 +1,40 @@
+<div class="max-w-lg mx-auto mt-6 sm:mt-10 mb-16">
+  <div class="mb-6 text-center">
+    <h1 class="text-2xl font-extrabold text-gray-900"><%= t("course_registrations.choose_trial_session.title") %></h1>
+    <p class="text-gray-500 mt-1 text-sm">
+      <%= t("course_registrations.choose_trial_session.subtitle", name: @course_registration.participant.first_name) %>
+    </p>
+  </div>
+
+  <% if @trial_sessions.present? %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm divide-y divide-gray-100 mb-5">
+      <% @trial_sessions.each do |ts| %>
+        <div class="px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p class="font-semibold text-gray-900">
+              <%= I18n.l(ts.start_time, format: "%A, %-d. %B %Y") %>
+            </p>
+            <p class="text-sm text-gray-500">
+              <%= ts.start_time.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
+              <% if @course.location.present? %>
+                <span class="text-gray-300 mx-1">·</span><%= @course.location %>
+              <% end %>
+            </p>
+          </div>
+          <%= button_to t("course_registrations.choose_trial_session.book_btn"),
+                accept_spot_course_registration_path(@course_registration, decision: "trial", training_session_id: ts.id),
+                method: :post,
+                class: "shrink-0 inline-flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-[44px]" %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 text-sm text-gray-600 mb-5">
+      <%= t("course_registrations.choose_trial_session.no_sessions") %>
+    </div>
+  <% end %>
+
+  <%= link_to t("course_registrations.choose_trial_session.back"),
+        course_registration_path(@course_registration),
+        class: "inline-flex items-center justify-center text-sm font-semibold text-gray-600 hover:text-gray-900" %>
+</div>

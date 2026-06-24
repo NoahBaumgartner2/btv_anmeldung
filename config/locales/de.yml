@@ -859,6 +859,7 @@ de:
       storniert: "Storniert"
       ausstehend: "Ausstehend"
       schnuppern: "Schnuppern"
+      platz_frei: "Platz frei – bitte entscheiden"
     form:
       course_label: "Kurs"
       course_prompt: "Kurs wählen..."
@@ -885,6 +886,11 @@ de:
       already_cancelled: "Diese Anmeldung ist bereits storniert."
       not_a_trial: "Diese Anmeldung ist kein Schnupperplatz."
       trial_converted: "Du wurdest erfolgreich regulär angemeldet."
+      spot_not_offered: "Für diese Anmeldung liegt kein offenes Platzangebot vor."
+      spot_offer_expired: "Die Frist für dieses Platzangebot ist leider abgelaufen. Der Platz wurde an die nächste Person weitergegeben."
+      spot_not_eligible: "Schnuppern ist für diese Person in dieser Kategorie nicht (mehr) möglich. Bitte melde dich regulär an."
+      spot_accepted_registered: "Super, dein Platz ist gesichert!"
+      spot_accepted_trial: "Super! Dein Schnuppertraining ist gebucht."
       not_an_abo: "Diese Anmeldung ist kein Abo."
       abo_exhausted: "Das Abo hat keine Eintritte mehr übrig."
       abo_session_not_found: "Training nicht gefunden."
@@ -962,6 +968,7 @@ de:
         payment_pending: "Zahlung ausstehend"
         paid: "Bezahlt"
         pending: "Ausstehend"
+        spot_offer: "Platz frei – bitte entscheiden"
       payment:
         reserved_html: "Dein Platz ist <strong>vorläufig reserviert</strong>. Bitte bezahle jetzt <strong>%{price}</strong>, um die Anmeldung definitiv zu bestätigen."
         confirmed_unpaid_html: "Dein Platz ist <strong>gesichert</strong>. Bitte bezahle noch <strong>%{price}</strong>, um die Kursgebühr zu begleichen."
@@ -984,6 +991,20 @@ de:
       convert_trial:
         button: "Jetzt regulär anmelden"
         confirm: "Möchtest du deinen Schnupperplatz in eine reguläre Anmeldung umwandeln?"
+      spot_offer:
+        heading: "Ein Platz ist frei geworden!"
+        body: "Du standest auf der Warteliste – jetzt ist ein Platz frei. Du kannst kostenlos schnuppern oder dich direkt regulär anmelden."
+        deadline_html: "Bitte entscheide dich bis <strong>%{date}</strong>, sonst geht der Platz an die nächste Person."
+        register_btn: "Jetzt regulär anmelden"
+        register_confirm: "Möchtest du dich definitiv für diesen Kurs anmelden?"
+        trial_btn: "Kostenlos schnuppern"
+        trial_btn_subtitle: "Ein Schnuppertraining · unverbindlich"
+    choose_trial_session:
+      title: "Schnuppertraining wählen"
+      subtitle: "Wähle das Training aus, in dem %{name} schnuppern soll."
+      no_sessions: "Aktuell sind keine kommenden Trainings verfügbar. Bitte versuche es später erneut oder melde dich regulär an."
+      book_btn: "Dieses Training schnuppern"
+      back: "Zurück"
 
   training_sessions:
     show:
