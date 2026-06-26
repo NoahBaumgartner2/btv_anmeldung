@@ -127,6 +127,56 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_not_equal "Semesterkurs", @course.registration_type_label
   end
 
+  test "Kapazitätserhöhung stuft Wartelisten-Anmeldungen hoch" do
+    course = Course.new(
+      title: "Montagskurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, price_cents: 0, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 1, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    confirmed = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    confirmed.save!(validate: false)
+
+    waitlisted = CourseRegistration.new(
+      course: course, participant: participants(:two),
+      status: "warteliste", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    waitlisted.save!(validate: false)
+
+    patch course_url(course), params: { course: { max_participants: 2 } }
+
+    assert_equal "bestätigt", waitlisted.reload.status,
+      "Wartelisten-Anmeldung muss nach Erhöhung der Teilnehmerzahl nachrücken"
+  end
+
+  test "unveränderte Teilnehmerzahl stuft Warteliste nicht hoch" do
+    course = Course.new(
+      title: "Montagskurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, price_cents: 0, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 1, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    waitlisted = CourseRegistration.new(
+      course: course, participant: participants(:two),
+      status: "warteliste", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    waitlisted.save!(validate: false)
+
+    patch course_url(course), params: { course: { title: "Montagskurs neu" } }
+
+    assert_equal "warteliste", waitlisted.reload.status
+  end
+
   test "should get edit" do
     get edit_course_url(@course)
     assert_response :success

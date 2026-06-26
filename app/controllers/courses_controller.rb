@@ -60,10 +60,15 @@ class CoursesController < ApplicationController
       old_start_minute = @course.default_start_minute
       old_end_hour     = @course.default_end_hour
       old_end_minute   = @course.default_end_minute
+      old_max          = @course.max_participants
 
       if @course.update(p)
         provision_new_trainer(@course)
         save_trainer_permissions(@course)
+
+        # Wurde die Teilnehmerzahl erhöht, können freigewordene Plätze sofort
+        # mit Wartelisten-Einträgen aufgefüllt werden (vorher nur bei Storno/Ablauf).
+        promote_waitlist_after_capacity_increase(old_max)
 
         time_changed = old_start_hour   != @course.default_start_hour   ||
                        old_start_minute != @course.default_start_minute ||
@@ -357,6 +362,30 @@ class CoursesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def course_params
       params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, :allows_talent_marking, :email_note, trainer_ids: [], payment_methods: [])
+    end
+
+    # Stuft nach einer Kapazitätserhöhung Wartelisten-Anmeldungen hoch.
+    # Wird nur aktiv, wenn eine Warteliste geführt wird und die neue (höhere)
+    # max_participants gesetzt ist. Im Single-Session-Modus ("pro_training")
+    # wird die Warteliste pro Termin geführt – daher pro betroffene Session
+    # einzeln hochstufen; sonst Semester-Modus mit training_session_id: nil.
+    def promote_waitlist_after_capacity_increase(old_max)
+      return unless @course.enable_waitlist?
+      return if @course.max_participants.blank?
+      return unless old_max.blank? || @course.max_participants > old_max
+
+      if @course.registration_type == "pro_training"
+        session_ids = @course.course_registrations
+                             .where(status: "warteliste")
+                             .where.not(training_session_id: nil)
+                             .distinct
+                             .pluck(:training_session_id)
+        session_ids.each do |sid|
+          WaitlistPromotionService.promote_next_from_waitlist(@course, training_session_id: sid)
+        end
+      else
+        WaitlistPromotionService.promote_next_from_waitlist(@course)
+      end
     end
 
     def derive_registration_type(registration_mode)
