@@ -1047,6 +1047,10 @@ de:
       reopen_confirm: "Präsenzkontrolle wirklich wieder öffnen?"
       attendance_confirmed_notice: "Präsenzkontrolle wurde abgeschlossen."
       attendance_reopened_notice: "Präsenzkontrolle wurde wieder geöffnet."
+      reminder_aria: "Abmelde-Erinnerung an %{name} senden"
+      reminder_confirm: "Erinnerung an %{name} senden, sich in der App unter «Mein Profil» abzumelden?"
+      reminder_sent: "Erinnerung an %{name} wurde gesendet."
+      reminder_invalid: "Erinnerung konnte nicht gesendet werden – keine gültige E-Mail-Adresse hinterlegt."
     form:
       errors:
         one: "Es gibt 1 Fehler:"

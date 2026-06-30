@@ -1,7 +1,7 @@
 class TrainingSessionsController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_trainer!
-  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance confirm_attendance reopen_attendance scanner cancel uncancel ]
+  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance confirm_attendance reopen_attendance scanner cancel uncancel send_unsubscribe_reminder ]
 
   # Gezielte CSP-Erweiterung nur für die Scanner-Seite, damit html5-qrcode
   # funktioniert – ohne 'unsafe-inline'/'unsafe-eval' für script-src:
@@ -190,6 +190,23 @@ class TrainingSessionsController < ApplicationController
     # QR-Scanner nur für Kurse mit Ticketing/QR-Codes; sonst zurück zur Übersicht.
     # Bei Redirect überspringt Rails das implizite Rendern der Kamera-Ansicht.
     redirect_to @training_session, alert: t("training_sessions.show.scanner_not_available") unless @training_session.course.has_ticketing?
+  end
+
+  def send_unsubscribe_reminder
+    registration = @training_session.course.course_registrations
+      .where(status: "bestätigt")
+      .includes(participant: :user)
+      .find_by(id: params[:course_registration_id])
+
+    unless registration&.participant&.user.present?
+      return redirect_to @training_session,
+        alert: t("training_sessions.show.reminder_invalid")
+    end
+
+    TrainingSessionMailer.unsubscribe_reminder(@training_session, registration).deliver_later
+
+    redirect_to @training_session,
+      notice: t("training_sessions.show.reminder_sent", name: registration.participant.first_name)
   end
 
   private

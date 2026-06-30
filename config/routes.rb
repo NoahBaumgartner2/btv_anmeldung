@@ -112,6 +112,7 @@ Rails.application.routes.draw do
       get :scanner # NEU: Die Route für den Kamera-Modus
       post :cancel
       post :uncancel
+      post :send_unsubscribe_reminder
     end
   end
 

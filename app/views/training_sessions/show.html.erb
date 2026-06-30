@@ -187,6 +187,19 @@
               </div>
             </div>
 
+            <div class="flex items-center gap-2 shrink-0">
+            <% unless is_unsubscribed %>
+              <%= button_to send_unsubscribe_reminder_training_session_path(@training_session, course_registration_id: reg.id),
+                    method: :post,
+                    form: { data: { turbo_confirm: t("training_sessions.show.reminder_confirm", name: participant.first_name) } },
+                    "aria-label": t("training_sessions.show.reminder_aria", name: participant.first_name),
+                    class: "shrink-0 cursor-pointer inline-flex items-center justify-center text-gray-400 hover:text-primary-600 hover:bg-gray-100 rounded-full transition min-h-[44px] min-w-[44px]" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                </svg>
+              <% end %>
+            <% end %>
+
             <% if is_unsubscribed %>
               <span class="shrink-0 inline-flex items-center text-xs font-bold px-3 py-2 rounded-full bg-red-100 text-red-600 min-h-[36px]">
                 <%= t("training_sessions.show.status_unsubscribed") %>
@@ -216,6 +229,7 @@
                 <% end %>
               <% end %>
             <% end %>
+            </div>
           </li>
         <% end %>
       </ul>

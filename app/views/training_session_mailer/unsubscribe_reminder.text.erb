@@ -1,0 +1,10 @@
+Hallo <%= greeting_name(@participant_user) %>,
+
+gemäss unseren Unterlagen ist <%= @participant.first_name %> <%= @participant.last_name %> weiterhin für den Kurs "<%= @course.title %>" angemeldet.
+Falls eine Teilnahme nicht mehr möglich ist, bitte die Abmeldung direkt in der App unter "Mein Profil" vornehmen:
+
+<%= @my_profile_url %>
+<% if @trainer_emails.any? %>
+Kontakt Trainer:innen:
+<% @trainer_emails.each do |mail_addr| %><%= mail_addr %>
+<% end %><% end %>

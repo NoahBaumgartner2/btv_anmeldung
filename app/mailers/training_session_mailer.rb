@@ -23,6 +23,20 @@ class TrainingSessionMailer < ApplicationMailer
     )
   end
 
+  def unsubscribe_reminder(training_session, course_registration)
+    @training_session = training_session
+    @course           = training_session.course
+    @participant      = course_registration.participant
+    @participant_user = @participant.user
+    @trainer_emails   = @course.trainers.map { |t| t.user&.email }.compact.uniq
+    @my_profile_url   = my_profile_url
+
+    mail(
+      to: @participant_user.email,
+      subject: "Erinnerung: Bitte abmelden – #{@participant.first_name} #{@participant.last_name} (#{@course.title})"
+    )
+  end
+
   def training_cancelled_admin_notice(training_session, admin_user)
     @training_session = training_session
     @course = training_session.course
