@@ -338,7 +338,23 @@ class CourseRegistrationsController < ApplicationController
 
   # NEU: Die Änderungen in der Datenbank speichern
   def update
+    # Eine Status-Änderung im Bearbeiten-Formular kann einen belegten Platz freigeben
+    # (z.B. Status auf "storniert" setzen). Dann muss – wie bei cancel/trainer_cancel –
+    # die Warteliste nachrücken. Zustand VOR dem Update festhalten.
+    was_occupying       = CourseRegistration::OCCUPYING_STATUSES.include?(@course_registration.status)
+    course              = @course_registration.course
+    training_session_id = @course_registration.training_session_id
+
     if @course_registration.update(course_registration_params)
+      # cancelled_at konsistent setzen (analog cancel/trainer_cancel), falls hier storniert wurde.
+      if @course_registration.status == "storniert" && @course_registration.cancelled_at.blank?
+        @course_registration.update_columns(cancelled_at: Time.current)
+      end
+
+      if was_occupying && !CourseRegistration::OCCUPYING_STATUSES.include?(@course_registration.status)
+        WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
+      end
+
       redirect_to course_path(@course_registration.course), notice: t("course_registrations.flash.updated")
     else
       render :edit, status: :unprocessable_entity

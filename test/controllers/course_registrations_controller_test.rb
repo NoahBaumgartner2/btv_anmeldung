@@ -1153,4 +1153,70 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       "Bei freier Kapazität muss die Anmeldung zur Zahlung (ausstehend) – nicht auf die Warteliste"
     assert_not_equal "warteliste", reg.status
   end
+
+  # ── update: Storno via Bearbeiten-Formular rückt die Warteliste nach ───────
+  test "update auf storniert gibt den Platz frei und stuft die Warteliste hoch" do
+    course = Course.new(
+      title: "Voller Semesterkurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, price_cents: 5_000, has_ticketing: false, allows_holiday_deduction: false,
+      allows_trial: false, max_participants: 1, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    occupying = CourseRegistration.new(
+      course: course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false
+    )
+    occupying.save!(validate: false)
+
+    waiting = CourseRegistration.new(
+      course: course, participant: participants(:two), status: "warteliste",
+      payment_cleared: false, holiday_deduction_claimed: false
+    )
+    waiting.save!(validate: false)
+
+    sign_in users(:admin)
+
+    assert_enqueued_email_with CourseRegistrationMailer, :waitlist_promoted, args: [ waiting ] do
+      patch course_registration_path(occupying),
+            params: { course_registration: { status: "storniert" } }
+    end
+
+    occupying.reload
+    waiting.reload
+    assert_equal "storniert", occupying.status
+    assert occupying.cancelled_at.present?, "cancelled_at muss beim Storno via Bearbeiten gesetzt werden"
+    assert_not_equal "warteliste", waiting.status,
+      "Der/die Wartende muss nach Freigabe des Platzes hochgestuft werden"
+  end
+
+  test "update ohne Freigabe eines Platzes stuft die Warteliste nicht hoch" do
+    course = Course.new(
+      title: "Semesterkurs ohne Freigabe", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, price_cents: 5_000, has_ticketing: false, allows_holiday_deduction: false,
+      allows_trial: false, max_participants: 1, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    occupying = CourseRegistration.new(
+      course: course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false
+    )
+    occupying.save!(validate: false)
+    waiting = CourseRegistration.new(
+      course: course, participant: participants(:two), status: "warteliste",
+      payment_cleared: false, holiday_deduction_claimed: false
+    )
+    waiting.save!(validate: false)
+
+    sign_in users(:admin)
+
+    # Harmlose Änderung (kein Platz wird frei) → keine Hochstufung
+    assert_no_enqueued_emails do
+      patch course_registration_path(occupying),
+            params: { course_registration: { holiday_deduction_claimed: true } }
+    end
+
+    assert_equal "warteliste", waiting.reload.status
+  end
 end
