@@ -224,9 +224,9 @@ class CourseRegistrationsController < ApplicationController
         belegte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
           course.course_registrations
                 .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: @course_registration.training_session_id)
-                .count
+                .distinct.count(:participant_id)
         else
-          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
+          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
         end
 
         if course.max_participants.present? && belegte_plaetze >= course.max_participants
@@ -258,9 +258,9 @@ class CourseRegistrationsController < ApplicationController
         belegte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
           course.course_registrations
                 .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: @course_registration.training_session_id)
-                .count
+                .distinct.count(:participant_id)
         else
-          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
+          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
         end
 
         if course.max_participants.present? && belegte_plaetze >= course.max_participants
@@ -281,9 +281,9 @@ class CourseRegistrationsController < ApplicationController
         bestaetigte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
           course.course_registrations
                 .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: @course_registration.training_session_id)
-                .count
+                .distinct.count(:participant_id)
         else
-          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count
+          course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
         end
 
         if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
