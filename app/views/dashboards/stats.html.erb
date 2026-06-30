@@ -122,7 +122,6 @@
       all_course_attendances = sessions.reject(&:is_canceled?).flat_map(&:attendances)
       course_rate = attendance_rate(all_course_attendances)
       sessions_without_record = past_sessions.reject { |s| s.is_canceled? || s.attendances.reject { |a| a.status.nil? }.any? }
-      registrations = course.course_registrations
     %>
 
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm mb-8 overflow-hidden">
@@ -162,7 +161,7 @@
         </div>
         <div class="px-3 sm:px-5 py-3 border-r border-gray-100 sm:border-r-0">
           <p class="text-xs font-semibold text-gray-400 mb-0.5"><%= t('dashboards.stats.metric_registered') %></p>
-          <p class="text-lg sm:text-xl font-extrabold text-gray-900"><%= registrations.size %></p>
+          <p class="text-lg sm:text-xl font-extrabold text-gray-900"><%= course.occupied_spots %></p>
         </div>
         <div class="px-3 sm:px-5 py-3">
           <p class="text-xs font-semibold text-gray-400 mb-0.5"><%= t('dashboards.stats.metric_avg_short') %></p>

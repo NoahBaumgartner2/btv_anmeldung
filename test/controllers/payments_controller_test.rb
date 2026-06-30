@@ -124,7 +124,7 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "tx-confirmed", @registration.sumup_transaction_id
   end
 
-  test "success setzt ausstehende Registration bei vollem Kurs auf warteliste (bestehende Logik)" do
+  test "success bestätigt eine bezahlte Registration auch bei vollem Kurs (Überbuchung, nie Warteliste)" do
     @course.update_columns(max_participants: 1)
     other = CourseRegistration.new(course: @course, participant: participants(:one),
       status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false)
@@ -139,7 +139,8 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
 
     @registration.reload
     assert @registration.payment_cleared?
-    assert_equal "warteliste", @registration.status
+    assert_equal "bestätigt", @registration.status,
+      "Wer bezahlt hat, darf nie auf die Warteliste – im vollen Kurs wird überbucht"
   end
 
   # ── Preisreduktion ───────────────────────────────────────────────────────────

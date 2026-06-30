@@ -17,22 +17,22 @@ class PaymentSyncService
       return if registration.payment_cleared?
 
       course = registration.course
-      if registration.status == "bestätigt"
-        # Platz wurde bereits zugesichert (z.B. manuell durch Admin) und ist in der
-        # Bestätigt-Zählung enthalten — kein Kapazitätscheck, kein Warteliste-Downgrade.
-        new_status = "bestätigt"
-      else
-        # "bestätigt" und "schnuppern" zählen als belegte Plätze — "ausstehend" zählt
-        # bewusst nicht, damit ein zahlender Teilnehmer nicht durch offene Reservierungen
-        # anderer auf die Warteliste gesetzt wird.
-        confirmed_count = course.course_registrations
-                                .where(status: %w[bestätigt schnuppern])
-                                .where.not(id: registration.id)
-                                .count
-        new_status = if course.max_participants.present? && confirmed_count >= course.max_participants
-                       "warteliste"
-        else
-                       "bestätigt"
+      # Wer bezahlt hat, erhält IMMER einen bestätigten Platz – niemals nachträglich
+      # Warteliste. Andernfalls bekäme eine zahlende Person eine "Du stehst auf der
+      # Warteliste"-Mail trotz erfolgter Zahlung (siehe Bug-Report). Im seltenen Race-Fall
+      # (Kurs füllte sich während des offenen Checkouts) wird bewusst leicht überbucht und
+      # das für die Admin-Sichtbarkeit geloggt – die Zahlung gewinnt.
+      new_status = "bestätigt"
+
+      if registration.status != "bestätigt" && course.max_participants.present?
+        occupied = course.course_registrations
+                         .where(status: CourseRegistration::OCCUPYING_STATUSES)
+                         .where.not(id: registration.id)
+                         .distinct.count(:participant_id)
+        if occupied >= course.max_participants
+          Rails.logger.warn "[PaymentSyncService] Überbuchung: Registration #{registration.id} " \
+            "(#{course.title}) trotz vollem Kurs bestätigt (#{occupied}/#{course.max_participants}) — " \
+            "Zahlung bereits erfolgt, Platz wird gewährt."
         end
       end
 

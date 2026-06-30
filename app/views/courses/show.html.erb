@@ -99,7 +99,7 @@
           <% if @course.max_participants.present? %>
             <%# Belegt-Zählung identisch zur Anmelde-/Warteliste-Logik (OCCUPYING_STATUSES,
                 ohne "ausstehend" – abgebrochene Checkouts belegen keinen Platz). %>
-            <% confirmed = @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count %>
+            <% confirmed = @course.occupied_spots %>
             <% spots_left = @course.max_participants - confirmed %>
             <li class="flex items-center gap-2">
               <span class="w-1.5 h-1.5 rounded-full bg-gray-400 shrink-0"></span>
@@ -150,8 +150,7 @@
         <%= t("courses.show.select_date") %>
       </a>
     <% else %>
-      <% bestaetigte_plaetze = @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).count %>
-      <% is_full = @course.max_participants.present? && bestaetigte_plaetze >= @course.max_participants %>
+      <% is_full = @course.full? %>
       <%
         show_semester_trial_button = false
         if user_signed_in? && !current_user.admin? && @course.allows_trial? && @course.requires_ahv_number? && current_user.participants.any?

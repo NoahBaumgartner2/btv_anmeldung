@@ -84,10 +84,10 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
       <% @assigned_courses.each do |course| %>
         <%
-          confirmed   = course.course_registrations.where(status: "bestätigt").count
-          # Nur echte Wartelisten-Einträge zählen – NICHT storniert/ausstehend/schnuppern/platz_frei
-          # (where.not(status: "bestätigt") zählte all das fälschlich als "Warteliste").
-          waitlisted  = course.course_registrations.where(status: "warteliste").count
+          # Zentrale Zählung (belegte Plätze = bestätigt + schnuppern + platz_frei, eindeutig
+          # pro Teilnehmer:in) – deckt sich mit Admin-Dashboard, Statistik und Kapazitätsprüfung.
+          confirmed   = course.occupied_spots
+          waitlisted  = course.waitlist_count
           next_s      = @next_session_per_course[course.id]
           has_dates   = course.start_date.present? && course.end_date.present?
         %>

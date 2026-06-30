@@ -166,6 +166,33 @@ class Course < ApplicationRecord
     registration_mode == "abo"
   end
 
+  # ── Teilnehmerzählung (zentral, für ALLE Übersichten) ──────────────────────
+  # Belegte Plätze = bestätigt + schnuppern + platz_frei (CourseRegistration::OCCUPYING_STATUSES),
+  # eindeutig pro Teilnehmer:in. Maßgeblich für jede Teilnehmer-/Kapazitätsanzeige und deckt sich
+  # mit der Anmelde-Kapazitätsprüfung. Arbeitet Ruby-seitig auf der (ggf. vorgeladenen) Association,
+  # damit kein N+1 entsteht, wenn der Controller course_registrations included.
+  def occupied_spots
+    course_registrations
+      .select { |r| CourseRegistration::OCCUPYING_STATUSES.include?(r.status) }
+      .map(&:participant_id).uniq.size
+  end
+
+  # Echte Wartelisten-Einträge, eindeutig pro Teilnehmer:in.
+  def waitlist_count
+    course_registrations
+      .select { |r| r.status == "warteliste" }
+      .map(&:participant_id).uniq.size
+  end
+
+  def full?
+    max_participants.present? && occupied_spots >= max_participants
+  end
+
+  def spots_remaining
+    return nil if max_participants.blank?
+    [ max_participants - occupied_spots, 0 ].max
+  end
+
   # Repräsentative Session für Wochentag/Uhrzeit: nächste kommende,
   # nicht abgesagte Session; Fallback: erste Session überhaupt.
   # Arbeitet Ruby-seitig auf den geladenen Sessions (kein N+1 mit includes).

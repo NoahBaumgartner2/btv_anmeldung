@@ -141,7 +141,7 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
       "Ausstehende Anmeldungen anderer Teilnehmer dürfen nicht als belegt zählen"
   end
 
-  test "mark_paid! setzt warteliste wenn Kurs voll – zählt aktuelle Registration nicht doppelt" do
+  test "mark_paid! bestätigt eine bezahlte Anmeldung auch bei vollem Kurs (Überbuchung statt Warteliste)" do
     course = Course.new(
       title: "Voller Kurs", registration_type: "semester", has_payment: true,
       has_ticketing: false, allows_holiday_deduction: false, max_participants: 1
@@ -158,18 +158,48 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     )
     confirmed.save!(validate: false)
 
-    # Neue ausstehende Anmeldung
+    # Neue ausstehende Anmeldung – Kurs füllte sich während des offenen Checkouts
     pending = CourseRegistration.new(
       course: course, participant: participant_b,
       status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
     )
     pending.save!(validate: false)
 
-    PaymentSyncService.mark_paid!(pending, transaction_id: "tx-waitlist")
+    PaymentSyncService.mark_paid!(pending, transaction_id: "tx-overbook")
 
     pending.reload
     assert pending.payment_cleared?
-    assert_equal "warteliste", pending.status
+    assert_equal "bestätigt", pending.status,
+      "Wer bezahlt hat, darf nie auf die Warteliste gesetzt werden – im vollen Kurs wird überbucht"
+  end
+
+  test "mark_paid! verschickt bei vollem Kurs KEINE Warteliste-Mail – Status bleibt bestätigt" do
+    course = Course.new(
+      title: "Voller Zahlkurs", registration_type: "semester", has_payment: true,
+      price_cents: 18_000, has_ticketing: false, allows_holiday_deduction: false, max_participants: 1
+    )
+    course.save!(validate: false)
+
+    CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    pending = CourseRegistration.new(
+      course: course, participant: participants(:two),
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    pending.save!(validate: false)
+
+    assert_enqueued_emails 2 do
+      PaymentSyncService.mark_paid!(pending, transaction_id: "tx-full")
+    end
+
+    pending.reload
+    assert_equal "bestätigt", pending.status
+    # confirmation rendert bei Status "bestätigt" die Bestätigungs-Mail (kein Warteliste-Wortlaut)
+    assert_enqueued_email_with CourseRegistrationMailer, :confirmation, args: [ pending ]
+    assert_enqueued_email_with CourseRegistrationMailer, :payment_receipt, args: [ pending ]
   end
 
   # ── mark_paid! – Mailversand ────────────────────────────────────────────────

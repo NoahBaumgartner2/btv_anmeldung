@@ -120,4 +120,83 @@ class CourseTest < ActiveSupport::TestCase
     assert_equal upcoming, course.representative_session
     assert_not_equal past, course.representative_session
   end
+
+  # ── Teilnehmerzählung ──────────────────────────────────────────────────────
+  # Eine aktive Anmeldung pro (Teilnehmer:in, Kurs) wegen partiellem Unique-Index
+  # (training_session_id IS NULL). Deshalb je Status ein:e eigene:r Teilnehmer:in.
+  def reg(course, participant, status, training_session: nil)
+    CourseRegistration.new(
+      course: course, participant: participant, status: status,
+      training_session: training_session,
+      payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+  end
+
+  test "occupied_spots zählt bestätigt, schnuppern und platz_frei" do
+    course = Course.new(base_attrs.merge(title: "Zählkurs", max_participants: 10))
+    course.save!(validate: false)
+
+    reg(course, participants(:one), "bestätigt")
+    reg(course, participants(:two), "schnuppern")
+    reg(course, participants(:parent_only_child), "platz_frei")
+
+    assert_equal 3, course.reload.occupied_spots
+  end
+
+  test "occupied_spots ignoriert warteliste, storniert und ausstehend" do
+    course = Course.new(base_attrs.merge(title: "Ignorierkurs", max_participants: 10))
+    course.save!(validate: false)
+
+    reg(course, participants(:one), "warteliste")
+    reg(course, participants(:two), "storniert")
+    reg(course, participants(:parent_only_child), "ausstehend")
+
+    assert_equal 0, course.reload.occupied_spots
+    assert_equal 1, course.waitlist_count
+  end
+
+  test "occupied_spots zählt eine Person über mehrere Session-Anmeldungen nur einmal" do
+    course = Course.new(base_attrs.merge(title: "Drop-In", registration_mode: "single_session", max_participants: 10))
+    course.save!(validate: false)
+    s1 = course.training_sessions.create!(start_time: 1.week.from_now, end_time: 1.week.from_now + 1.hour)
+    s2 = course.training_sessions.create!(start_time: 2.weeks.from_now, end_time: 2.weeks.from_now + 1.hour)
+
+    reg(course, participants(:one), "bestätigt", training_session: s1)
+    reg(course, participants(:one), "bestätigt", training_session: s2)
+
+    assert_equal 1, course.reload.occupied_spots
+  end
+
+  test "waitlist_count zählt nur echte Wartelisten-Einträge, eindeutig pro Person" do
+    course = Course.new(base_attrs.merge(title: "Wartekurs", max_participants: 1))
+    course.save!(validate: false)
+
+    reg(course, participants(:one), "warteliste")
+    reg(course, participants(:two), "warteliste")
+
+    assert_equal 2, course.reload.waitlist_count
+    assert_equal 0, course.occupied_spots
+  end
+
+  test "full? und spots_remaining basieren auf occupied_spots" do
+    course = Course.new(base_attrs.merge(title: "Kapazitätskurs", max_participants: 2))
+    course.save!(validate: false)
+
+    reg(course, participants(:one), "bestätigt")
+    assert_not course.reload.full?
+    assert_equal 1, course.spots_remaining
+
+    reg(course, participants(:two), "schnuppern")
+    assert course.reload.full?
+    assert_equal 0, course.spots_remaining
+  end
+
+  test "full? ist false und spots_remaining nil ohne max_participants" do
+    course = Course.new(base_attrs.merge(title: "Ohne Limit", max_participants: nil))
+    course.save!(validate: false)
+
+    reg(course, participants(:one), "bestätigt")
+    assert_not course.reload.full?
+    assert_nil course.spots_remaining
+  end
 end

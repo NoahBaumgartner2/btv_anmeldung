@@ -52,11 +52,10 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               <% courses_in_category.each do |course| %>
                 <%
-                  confirmed_count = course.course_registrations.count { |r| r.status == "bestätigt" }
-                  is_full         = course.max_participants.present? && confirmed_count >= course.max_participants
+                  is_full         = course.full?
                   is_single       = course.registration_mode == "single_session"
-                  remaining       = course.max_participants.present? ? (course.max_participants - confirmed_count) : nil
-                  waitlist_count  = course.course_registrations.count { |r| r.status == "warteliste" }
+                  remaining       = course.spots_remaining
+                  waitlist_count  = course.waitlist_count
                 %>
                 <article class="flex flex-col bg-white rounded-2xl border border-red-200 shadow-sm hover:shadow-md hover:border-red-300 transition overflow-hidden">
                   <div class="p-5 flex-1 flex flex-col">
@@ -174,11 +173,10 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <% courses_in_category.each do |course| %>
               <%
-                confirmed_count = course.course_registrations.count { |r| r.status == "bestätigt" }
-                is_full         = course.max_participants.present? && confirmed_count >= course.max_participants
+                is_full         = course.full?
                 is_single       = course.registration_mode == "single_session"
-                remaining       = course.max_participants.present? ? (course.max_participants - confirmed_count) : nil
-                waitlist_count  = course.course_registrations.count { |r| r.status == "warteliste" }
+                remaining       = course.spots_remaining
+                waitlist_count  = course.waitlist_count
               %>
 
               <article class="flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition overflow-hidden">
