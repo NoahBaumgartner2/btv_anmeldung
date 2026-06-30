@@ -1,14 +1,17 @@
 module Admin
   class InfomaniakSettingsController < ApplicationController
+    include SettingsLoadable
+
     before_action :authenticate_user!
     before_action :authorize_admin!
 
+    # Infomaniak-Einstellungen leben jetzt im Kommunikation-Tab des Einstellungs-Hubs.
     def show
-      @infomaniak_setting = InfomaniakSetting.current
+      redirect_to admin_settings_communication_path
     end
 
     def edit
-      @infomaniak_setting = InfomaniakSetting.current
+      redirect_to admin_settings_communication_path
     end
 
     def update
@@ -16,15 +19,16 @@ module Admin
 
       if @infomaniak_setting.update(infomaniak_setting_params)
         InfomaniakConfig.reload!
-        redirect_to admin_infomaniak_setting_path, notice: "Infomaniak-Einstellungen wurden gespeichert."
+        redirect_to admin_settings_communication_path, notice: "Infomaniak-Einstellungen wurden gespeichert."
       else
-        render :edit, status: :unprocessable_entity
+        load_communication_settings
+        render "admin/settings/communication", status: :unprocessable_entity
       end
     end
 
     def test_connection
       unless InfomaniakConfig.configured?
-        return redirect_to admin_infomaniak_setting_path,
+        return redirect_to admin_settings_communication_path,
                            alert: "Kein API-Token konfiguriert."
       end
 
@@ -46,18 +50,18 @@ module Admin
 
       case response.code.to_i
       when 200
-        redirect_to admin_infomaniak_setting_path,
+        redirect_to admin_settings_communication_path,
                     notice: "Verbindung erfolgreich! Infomaniak API antwortet korrekt."
       when 401, 403
-        redirect_to admin_infomaniak_setting_path,
+        redirect_to admin_settings_communication_path,
                     alert: "Authentifizierungsfehler: Der API-Token ist ungültig oder abgelaufen."
       else
-        redirect_to admin_infomaniak_setting_path,
+        redirect_to admin_settings_communication_path,
                     alert: "Infomaniak API antwortete mit Status #{response.code}."
       end
     rescue => e
       Rails.logger.error "[Admin::InfomaniakSettings] test_connection Fehler: #{e.class}: #{e.message}"
-      redirect_to admin_infomaniak_setting_path,
+      redirect_to admin_settings_communication_path,
                   alert: "Es ist ein Verbindungsfehler aufgetreten. Bitte versuche es später erneut."
     end
 

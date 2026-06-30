@@ -535,7 +535,17 @@ en:
         management: "Management"
         communication: "Communication"
         configuration: "Configuration"
+        analysis: "Analysis"
+        settings: "Settings"
       links:
+        settings_communication: "Communication"
+        settings_communication_desc: "Email, system mails & newsletter"
+        settings_club: "Club"
+        settings_club_desc: "Design, contact & legal"
+        settings_payments: "Payments"
+        settings_payments_desc: "SumUp & payment setup"
+        settings_data: "Data & Exports"
+        settings_data_desc: "Export profiles, reports & NDS"
         trainers: "Trainers"
         trainers_desc: "Manage & assign trainers"
         holidays: "Holidays"
@@ -1005,6 +1015,10 @@ en:
       reopen_confirm: "Really reopen the attendance check?"
       attendance_confirmed_notice: "Attendance check has been completed."
       attendance_reopened_notice: "Attendance check has been reopened."
+      reminder_aria: "Send unsubscribe reminder to %{name}"
+      reminder_confirm: "Send %{name} a reminder to unsubscribe via «My Profile» in the app?"
+      reminder_sent: "Reminder sent to %{name}."
+      reminder_invalid: "Reminder could not be sent – no valid email address on file."
     form:
       errors:
         one: "There is 1 error:"
@@ -1150,6 +1164,45 @@ en:
       to_home: "Home"
 
   admin:
+    settings:
+      title: "Settings"
+      subtitle: "Central configuration for the club."
+      back: "← Command center"
+      tabs:
+        communication: "Communication"
+        club: "Club"
+        payments: "Payments"
+        data: "Data & Exports"
+      communication:
+        smtp_title: "Email delivery (SMTP)"
+        smtp_desc: "SMTP credentials, sender and app URL for outgoing emails."
+        system_mails_title: "System notifications"
+        system_mails_desc: "Choose which automatic emails the club sends."
+        infomaniak_title: "Newsletter API (Infomaniak)"
+        infomaniak_desc: "API credentials for sending newsletters via Infomaniak."
+        links_title: "More communication"
+        newsletter_label: "Mailing center"
+        newsletter_desc: "Create & send newsletters"
+        subscribers_label: "Subscribers"
+        subscribers_desc: "Manage newsletter subscribers"
+        notifications_label: "My notifications"
+        notifications_desc: "Set your personal email notifications"
+      club:
+        title: "Club settings"
+        desc: "Name, design, contact and privacy/imprint details."
+      payments:
+        title: "Payment settings"
+        desc: "SumUp credentials and currency for online payments."
+        actions_title: "Connection & sync"
+      data:
+        title: "Data & Exports"
+        desc: "Export profiles, reports and the NDS/J+S data exchange."
+        export_profiles_label: "Export profiles"
+        export_profiles_desc: "Manage export templates"
+        reports_label: "Reports"
+        reports_desc: "Analyses & statistics"
+        nds_label: "NDS / J+S"
+        nds_desc: "Data exchange with J+S"
     notification_preferences:
       mandatory_badge: "Always active"
       attendance_reminder_mandatory_hint: "This reminder is mandatory and active for all trainers."

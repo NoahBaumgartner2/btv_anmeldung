@@ -11,6 +11,12 @@ class CourseRegistrationMailer < ApplicationMailer
     setting = MailSetting.first
     return if setting && !setting.mail_registration_confirmation_enabled
 
+    # "ausstehend" (offener Checkout) und "platz_frei" (angebotener Platz) haben eigene Mails
+    # (waitlist_promoted) bzw. brauchen keine Bestätigung. Da deliver_later den Datensatz beim
+    # Job-Lauf neu lädt, kann confirmation sonst mit so einem Status rendern und der else-Zweig
+    # der Vorlage zeigt fälschlich "Du stehst auf der Warteliste".
+    return if %w[ausstehend platz_frei].include?(course_registration.status)
+
     @trainer_contacts = @course.trainers.includes(:user)
                                .map { |t| { name: t.full_name, email: t.user&.email, phone: t.phone } }
                                .select { |c| c[:email].present? || c[:phone].present? }

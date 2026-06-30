@@ -1,30 +1,34 @@
 module Admin
   class ClubSettingsController < ApplicationController
+    include SettingsLoadable
+
     before_action :authenticate_user!
     before_action :authorize_admin!
 
+    # Vereinseinstellungen leben jetzt im Verein-Tab des Einstellungs-Hubs.
     def show
-      @club_setting = ClubSetting.current
+      redirect_to admin_settings_club_path
     end
 
     def edit
-      @club_setting = ClubSetting.current
+      redirect_to admin_settings_club_path
     end
 
     def update
       @club_setting = ClubSetting.current
 
       if @club_setting.update(club_setting_params)
-        redirect_to admin_club_setting_path, notice: "Vereinseinstellungen wurden gespeichert."
+        redirect_to admin_settings_club_path, notice: "Vereinseinstellungen wurden gespeichert."
       else
-        render :edit, status: :unprocessable_entity
+        load_club_settings
+        render "admin/settings/club", status: :unprocessable_entity
       end
     end
 
     def destroy_logo
       @club_setting = ClubSetting.current
       @club_setting.logo.purge
-      redirect_to edit_admin_club_setting_path, notice: "Logo wurde entfernt."
+      redirect_to admin_settings_club_path, notice: "Logo wurde entfernt."
     end
 
     private

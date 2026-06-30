@@ -171,4 +171,41 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
       CourseRegistrationMailer.payment_expired(@registration).deliver_now
     end
   end
+
+  # ── confirmation: kein falscher Warteliste-Text für ausstehend/platz_frei ───
+  test "confirmation wird für ausstehend NICHT verschickt (kein falscher Warteliste-Text)" do
+    @registration.update_column(:status, "ausstehend")
+
+    assert_no_emails do
+      CourseRegistrationMailer.confirmation(@registration).deliver_now
+    end
+  end
+
+  test "confirmation wird für platz_frei NICHT verschickt (waitlist_promoted ist zuständig)" do
+    @registration.update_column(:status, "platz_frei")
+
+    assert_no_emails do
+      CourseRegistrationMailer.confirmation(@registration).deliver_now
+    end
+  end
+
+  test "confirmation zeigt den Warteliste-Text nur bei Status warteliste" do
+    @registration.update_column(:status, "warteliste")
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    assert_match "Auf der Warteliste", mail.subject
+    assert_match "Warteliste", mail.html_part.body.decoded
+    assert_match "Warteliste", mail.text_part.body.decoded
+  end
+
+  test "confirmation bei bestätigt enthält keinen Warteliste-Text" do
+    @registration.update_column(:status, "bestätigt")
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    assert_match "Anmeldung bestätigt", mail.subject
+    assert_no_match "Warteliste", mail.html_part.body.decoded
+    assert_no_match "Warteliste", mail.text_part.body.decoded
+  end
 end

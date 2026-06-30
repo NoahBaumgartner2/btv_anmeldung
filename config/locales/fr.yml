@@ -535,7 +535,17 @@ fr:
         management: "Gestion"
         communication: "Communication"
         configuration: "Configuration"
+        analysis: "Analyse"
+        settings: "Paramètres"
       links:
+        settings_communication: "Communication"
+        settings_communication_desc: "E-mail, mails système & newsletter"
+        settings_club: "Club"
+        settings_club_desc: "Design, contact & mentions légales"
+        settings_payments: "Paiements"
+        settings_payments_desc: "Configuration SumUp & paiement"
+        settings_data: "Données & exports"
+        settings_data_desc: "Profils d'export, rapports & NDS"
         trainers: "Entraîneurs"
         trainers_desc: "Gérer et assigner les entraîneurs"
         holidays: "Jours fériés"
@@ -999,6 +1009,10 @@ fr:
       reopen_confirm: "Vraiment rouvrir le contrôle de présence ?"
       attendance_confirmed_notice: "Le contrôle de présence a été terminé."
       attendance_reopened_notice: "Le contrôle de présence a été rouvert."
+      reminder_aria: "Envoyer un rappel de désinscription à %{name}"
+      reminder_confirm: "Envoyer à %{name} un rappel pour se désinscrire via « Mon profil » dans l'app ?"
+      reminder_sent: "Rappel envoyé à %{name}."
+      reminder_invalid: "Le rappel n'a pas pu être envoyé – aucune adresse e-mail valide enregistrée."
     form:
       errors:
         one: "Il y a 1 erreur :"
@@ -1144,6 +1158,45 @@ fr:
       to_home: "Accueil"
 
   admin:
+    settings:
+      title: "Paramètres"
+      subtitle: "Configuration centrale du club."
+      back: "← Centre de commande"
+      tabs:
+        communication: "Communication"
+        club: "Club"
+        payments: "Paiements"
+        data: "Données & exports"
+      communication:
+        smtp_title: "Envoi d'e-mails (SMTP)"
+        smtp_desc: "Identifiants SMTP, expéditeur et URL de l'app pour les e-mails sortants."
+        system_mails_title: "Notifications système"
+        system_mails_desc: "Choisissez quels e-mails automatiques le club envoie."
+        infomaniak_title: "API Newsletter (Infomaniak)"
+        infomaniak_desc: "Identifiants API pour l'envoi de newsletters via Infomaniak."
+        links_title: "Autres communications"
+        newsletter_label: "Centre d'envoi"
+        newsletter_desc: "Créer & envoyer des newsletters"
+        subscribers_label: "Abonnés"
+        subscribers_desc: "Gérer les abonnés à la newsletter"
+        notifications_label: "Mes notifications"
+        notifications_desc: "Configurer vos notifications e-mail personnelles"
+      club:
+        title: "Paramètres du club"
+        desc: "Nom, design, contact ainsi que mentions légales et protection des données."
+      payments:
+        title: "Paramètres de paiement"
+        desc: "Identifiants SumUp et devise pour les paiements en ligne."
+        actions_title: "Connexion & synchronisation"
+      data:
+        title: "Données & exports"
+        desc: "Profils d'export, rapports et l'échange de données NDS/J+S."
+        export_profiles_label: "Profils d'export"
+        export_profiles_desc: "Gérer les modèles d'export"
+        reports_label: "Rapports"
+        reports_desc: "Analyses & statistiques"
+        nds_label: "NDS / J+S"
+        nds_desc: "Échange de données avec J+S"
     notification_preferences:
       mandatory_badge: "Toujours actif"
       attendance_reminder_mandatory_hint: "Ce rappel est obligatoire et actif pour tous les entraîneurs."

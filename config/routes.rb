@@ -43,6 +43,13 @@ Rails.application.routes.draw do
       post :krabbel_gym_statistik
     end
     resource :notification_preferences, only: [ :edit, :update ]
+
+    # Zentraler Einstellungs-Hub (4 Tabs). Bündelt die obigen Settings-Seiten.
+    get "einstellungen",               to: "settings#communication", as: :settings
+    get "einstellungen/kommunikation", to: "settings#communication", as: :settings_communication
+    get "einstellungen/verein",        to: "settings#club",          as: :settings_club
+    get "einstellungen/zahlungen",     to: "settings#payments",      as: :settings_payments
+    get "einstellungen/daten",         to: "settings#data",          as: :settings_data
   end
 
   resources :trainers do
@@ -112,6 +119,7 @@ Rails.application.routes.draw do
       get :scanner # NEU: Die Route für den Kamera-Modus
       post :cancel
       post :uncancel
+      post :send_unsubscribe_reminder
     end
   end
 

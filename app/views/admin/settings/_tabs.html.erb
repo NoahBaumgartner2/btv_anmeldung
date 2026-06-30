@@ -1,0 +1,17 @@
+<%# Tab-Navigation des Einstellungs-Hubs. Local: active (:communication|:club|:payments|:data) %>
+<% tabs = [
+     [ :communication, t("admin.settings.tabs.communication"), admin_settings_communication_path ],
+     [ :club,          t("admin.settings.tabs.club"),          admin_settings_club_path ],
+     [ :payments,      t("admin.settings.tabs.payments"),      admin_settings_payments_path ],
+     [ :data,          t("admin.settings.tabs.data"),          admin_settings_data_path ],
+   ] %>
+<div class="border-b border-gray-200 mb-8">
+  <nav class="-mb-px flex gap-1 sm:gap-2 overflow-x-auto" aria-label="Tabs">
+    <% tabs.each do |key, label, path| %>
+      <% is_active = key == active %>
+      <%= link_to label, path,
+            "aria-current": (is_active ? "page" : nil),
+            class: "shrink-0 whitespace-nowrap px-3 sm:px-4 py-3 text-sm font-bold border-b-2 transition min-h-11 #{is_active ? 'border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}" %>
+    <% end %>
+  </nav>
+</div>

@@ -1,0 +1,31 @@
+<% primary = @_club&.effective_primary_color || "#7c3aed" %>
+
+<p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Hallo <%= greeting_name(@participant_user) %>,<br><br>
+  gemäss unseren Unterlagen ist <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
+  weiterhin für den Kurs <strong><%= @course.title %></strong> angemeldet.
+  Falls eine Teilnahme nicht mehr möglich ist, bitten wir dich, die Abmeldung
+  <strong>direkt in der App unter «Mein Profil»</strong> vorzunehmen. So bleibt der Platz
+  nicht blockiert und kann an Wartelisten-Teilnehmende weitergegeben werden.
+</p>
+
+<table cellpadding="0" cellspacing="0" style="margin:0 0 24px 0;">
+  <tr>
+    <td style="background:<%= primary %>;border-radius:10px;padding:14px 24px;">
+      <a href="<%= @my_profile_url %>" style="color:#ffffff;text-decoration:none;font-size:15px;font-weight:700;font-family:Arial,Helvetica,sans-serif;">Zu «Mein Profil»</a>
+    </td>
+  </tr>
+</table>
+
+<% if @trainer_emails.any? %>
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
+    <tr>
+      <td style="padding:16px 20px;">
+        <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kontakt Trainer:innen</p>
+        <% @trainer_emails.each do |mail_addr| %>
+          <p style="margin:0 0 4px 0;font-size:15px;color:#111827;font-family:Arial,Helvetica,sans-serif;"><a href="mailto:<%= mail_addr %>" style="color:<%= primary %>;text-decoration:none;"><%= mail_addr %></a></p>
+        <% end %>
+      </td>
+    </tr>
+  </table>
+<% end %>

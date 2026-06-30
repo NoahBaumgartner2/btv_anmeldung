@@ -4,7 +4,7 @@
 <%
   session     = @training_session
   course      = session.course
-  confirmed   = course.course_registrations.where(status: "bestätigt").count
+  confirmed   = course.occupied_spots
   attended    = session.attendances.count
 %>
 

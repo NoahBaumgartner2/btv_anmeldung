@@ -142,4 +142,27 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
   end
+
+  test "send_unsubscribe_reminder verschickt genau eine Mail und meldet Erfolg" do
+    registration = course_registrations(:one)
+
+    assert_enqueued_email_with TrainingSessionMailer, :unsubscribe_reminder,
+      args: [ @training_session, registration ] do
+      post send_unsubscribe_reminder_training_session_url(@training_session),
+        params: { course_registration_id: registration.id }
+    end
+
+    assert_redirected_to training_session_url(@training_session)
+    assert_equal I18n.t("training_sessions.show.reminder_sent", name: registration.participant.first_name), flash[:notice]
+  end
+
+  test "send_unsubscribe_reminder meldet Fehler bei ungültiger Anmeldung" do
+    assert_no_enqueued_emails do
+      post send_unsubscribe_reminder_training_session_url(@training_session),
+        params: { course_registration_id: 0 }
+    end
+
+    assert_redirected_to training_session_url(@training_session)
+    assert_equal I18n.t("training_sessions.show.reminder_invalid"), flash[:alert]
+  end
 end
