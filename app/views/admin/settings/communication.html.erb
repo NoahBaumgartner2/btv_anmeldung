@@ -1,0 +1,55 @@
+<div class="max-w-3xl mx-auto mt-8 sm:mt-10 mb-16 px-4">
+
+  <div class="mb-6">
+    <%= link_to t("admin.settings.back"), dashboards_admin_path,
+          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2"><%= t("admin.settings.title") %></h1>
+    <p class="text-gray-500 mt-1 text-sm"><%= t("admin.settings.subtitle") %></p>
+  </div>
+
+  <%= render "admin/settings/tabs", active: :communication %>
+
+  <%# ── E-Mail-Versand (SMTP) ──────────────────────────────────────────── %>
+  <section class="mb-10">
+    <h2 class="text-lg font-bold text-gray-900 mb-1"><%= t("admin.settings.communication.smtp_title") %></h2>
+    <p class="text-sm text-gray-500 mb-4"><%= t("admin.settings.communication.smtp_desc") %></p>
+    <%= render "mail_settings/form" %>
+    <%= render "mail_settings/test_email" %>
+  </section>
+
+  <%# ── System-Benachrichtigungen ──────────────────────────────────────── %>
+  <section class="mb-10">
+    <h2 class="text-lg font-bold text-gray-900 mb-1"><%= t("admin.settings.communication.system_mails_title") %></h2>
+    <p class="text-sm text-gray-500 mb-4"><%= t("admin.settings.communication.system_mails_desc") %></p>
+    <%= render "mail_settings/automated_mails" %>
+  </section>
+
+  <%# ── Newsletter-API (Infomaniak) ────────────────────────────────────── %>
+  <section class="mb-10">
+    <h2 class="text-lg font-bold text-gray-900 mb-1"><%= t("admin.settings.communication.infomaniak_title") %></h2>
+    <p class="text-sm text-gray-500 mb-4"><%= t("admin.settings.communication.infomaniak_desc") %></p>
+    <%= render "admin/infomaniak_settings/form" %>
+  </section>
+
+  <%# ── Verwaltungs-Links ──────────────────────────────────────────────── %>
+  <section>
+    <h2 class="text-lg font-bold text-gray-900 mb-4"><%= t("admin.settings.communication.links_title") %></h2>
+    <div class="space-y-3">
+      <%= render "admin/settings/link_card",
+            url: newsletters_path,
+            title: t("admin.settings.communication.newsletter_label"),
+            desc: t("admin.settings.communication.newsletter_desc"),
+            badge: (@newsletter_drafts_count.to_i.positive? ? @newsletter_drafts_count : nil) %>
+      <%= render "admin/settings/link_card",
+            url: newsletter_subscribers_path,
+            title: t("admin.settings.communication.subscribers_label"),
+            desc: t("admin.settings.communication.subscribers_desc"),
+            badge: (@subscriber_count.to_i.positive? ? @subscriber_count : nil) %>
+      <%= render "admin/settings/link_card",
+            url: edit_admin_notification_preferences_path,
+            title: t("admin.settings.communication.notifications_label"),
+            desc: t("admin.settings.communication.notifications_desc") %>
+    </div>
+  </section>
+
+</div>

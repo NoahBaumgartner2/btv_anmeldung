@@ -574,7 +574,17 @@ de:
         management: "Verwaltung"
         communication: "Kommunikation"
         configuration: "Konfiguration"
+        analysis: "Auswertung"
+        settings: "Einstellungen"
       links:
+        settings_communication: "Kommunikation"
+        settings_communication_desc: "E-Mail, System-Mails & Newsletter"
+        settings_club: "Verein"
+        settings_club_desc: "Design, Kontakt & Rechtliches"
+        settings_payments: "Zahlungen"
+        settings_payments_desc: "SumUp & Payment-Setup"
+        settings_data: "Daten & Exporte"
+        settings_data_desc: "Exportprofile, Berichte & NDS"
         trainers: "Trainer"
         trainers_desc: "Trainer verwalten & zuweisen"
         holidays: "Ferientage"
@@ -1196,6 +1206,45 @@ de:
       to_home: "Zur Startseite"
 
   admin:
+    settings:
+      title: "Einstellungen"
+      subtitle: "Zentrale Konfiguration des Vereins."
+      back: "← Kommandozentrale"
+      tabs:
+        communication: "Kommunikation"
+        club: "Verein"
+        payments: "Zahlungen"
+        data: "Daten & Exporte"
+      communication:
+        smtp_title: "E-Mail-Versand (SMTP)"
+        smtp_desc: "SMTP-Zugangsdaten, Absender und App-URL für ausgehende E-Mails."
+        system_mails_title: "System-Benachrichtigungen"
+        system_mails_desc: "Lege fest, welche automatischen E-Mails der Verein versendet."
+        infomaniak_title: "Newsletter-API (Infomaniak)"
+        infomaniak_desc: "API-Zugangsdaten für den Newsletter-Versand über Infomaniak."
+        links_title: "Weitere Kommunikation"
+        newsletter_label: "Mailing-Zentrale"
+        newsletter_desc: "Newsletter erstellen & versenden"
+        subscribers_label: "Abonnenten"
+        subscribers_desc: "Newsletter-Abonnenten verwalten"
+        notifications_label: "Meine Benachrichtigungen"
+        notifications_desc: "Persönliche E-Mail-Benachrichtigungen einstellen"
+      club:
+        title: "Vereinseinstellungen"
+        desc: "Name, Design, Kontakt sowie Datenschutz- und Impressumsangaben."
+      payments:
+        title: "Zahlungseinstellungen"
+        desc: "SumUp-Zugangsdaten und Währung für Online-Zahlungen."
+        actions_title: "Verbindung & Abgleich"
+      data:
+        title: "Daten & Exporte"
+        desc: "Exportprofile, Berichte und der NDS-/J+S-Datenaustausch."
+        export_profiles_label: "Exportprofile"
+        export_profiles_desc: "Export-Vorlagen verwalten"
+        reports_label: "Berichte"
+        reports_desc: "Auswertungen & Statistiken"
+        nds_label: "NDS / J+S"
+        nds_desc: "Datenaustausch mit J+S"
     notification_preferences:
       mandatory_badge: "Immer aktiv"
       attendance_reminder_mandatory_hint: "Diese Erinnerung ist für alle Trainer verpflichtend aktiv."

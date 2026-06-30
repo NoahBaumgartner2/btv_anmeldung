@@ -1,21 +1,18 @@
 require "net/smtp"
 
 class MailSettingsController < ApplicationController
+  include SettingsLoadable
+
   before_action :authenticate_user!
   before_action :authorize_admin!
 
+  # E-Mail-Einstellungen leben jetzt im Kommunikation-Tab des Einstellungs-Hubs.
   def show
-    @mail_setting = MailSetting.current
-  rescue => e
-    Rails.logger.error "[MailSettingsController] show Fehler: #{e.class}: #{e.message}"
-    redirect_to dashboards_admin_path, alert: "Die E-Mail-Einstellungen konnten nicht geladen werden. Bitte versuche es später erneut."
+    redirect_to admin_settings_communication_path
   end
 
   def edit
-    @mail_setting = MailSetting.current
-  rescue => e
-    Rails.logger.error "[MailSettingsController] edit Fehler: #{e.class}: #{e.message}"
-    redirect_to dashboards_admin_path, alert: "Die E-Mail-Einstellungen konnten nicht geladen werden. Bitte versuche es später erneut."
+    redirect_to admin_settings_communication_path
   end
 
   def update
@@ -25,12 +22,15 @@ class MailSettingsController < ApplicationController
       MailSetting.apply!
       respond_to do |format|
         format.json { render json: { ok: true } }
-        format.html { redirect_to mail_setting_path, notice: "E-Mail-Einstellungen wurden gespeichert." }
+        format.html { redirect_to admin_settings_communication_path, notice: "E-Mail-Einstellungen wurden gespeichert." }
       end
     else
       respond_to do |format|
         format.json { render json: { ok: false, errors: @mail_setting.errors.full_messages }, status: :unprocessable_entity }
-        format.html { render :edit, status: :unprocessable_entity }
+        format.html do
+          load_communication_settings
+          render "admin/settings/communication", status: :unprocessable_entity
+        end
       end
     end
   end

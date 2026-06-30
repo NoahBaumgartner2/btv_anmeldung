@@ -1,0 +1,23 @@
+<div class="max-w-3xl mx-auto mt-8 sm:mt-10 mb-16 px-4">
+
+  <div class="mb-6">
+    <%= link_to t("admin.settings.back"), dashboards_admin_path,
+          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2"><%= t("admin.settings.title") %></h1>
+    <p class="text-gray-500 mt-1 text-sm"><%= t("admin.settings.subtitle") %></p>
+  </div>
+
+  <%= render "admin/settings/tabs", active: :payments %>
+
+  <section class="mb-10">
+    <h2 class="text-lg font-bold text-gray-900 mb-1"><%= t("admin.settings.payments.title") %></h2>
+    <p class="text-sm text-gray-500 mb-4"><%= t("admin.settings.payments.desc") %></p>
+    <%= render "admin/payment_settings/form" %>
+  </section>
+
+  <section>
+    <h2 class="text-lg font-bold text-gray-900 mb-4"><%= t("admin.settings.payments.actions_title") %></h2>
+    <%= render "admin/payment_settings/actions" %>
+  </section>
+
+</div>
