@@ -2,7 +2,8 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["searchTab", "createTab", "searchPanel", "createPanel",
-                    "searchInput", "searchResults", "participantId", "enrollForm"]
+                    "searchInput", "searchResults", "participantId", "enrollForm",
+                    "trialCheckbox", "trialSessionSelect", "trialField", "trialSessionField"]
 
   showSearch() {
     this.searchPanelTarget.classList.remove("hidden")
@@ -63,9 +64,25 @@ export default class extends Controller {
   enroll(event) {
     const participantId = event.currentTarget.dataset.participantId
     const name = event.currentTarget.closest("div").querySelector("p.font-bold").textContent
-    if (!confirm(`${name} für diesen Kurs anmelden?`)) return
+    const verb = this.hasTrialCheckboxTarget && this.trialCheckboxTarget.checked ? "zum Schnuppern anmelden" : "für diesen Kurs anmelden"
+    if (!confirm(`${name} ${verb}?`)) return
 
     this.participantIdTarget.value = participantId
     this.enrollFormTarget.submit()
+  }
+
+  toggleTrial() {
+    const checked = this.trialCheckboxTarget.checked
+    this.trialFieldTargets.forEach(f => f.value = checked ? "true" : "false")
+    if (this.hasTrialSessionSelectTarget) {
+      this.trialSessionSelectTarget.closest("div").classList.toggle("hidden", !checked)
+    }
+    this.syncTrialSession()
+  }
+
+  syncTrialSession() {
+    const val = (this.hasTrialSessionSelectTarget && this.trialCheckboxTarget.checked)
+      ? this.trialSessionSelectTarget.value : ""
+    this.trialSessionFieldTargets.forEach(f => f.value = val)
   }
 }

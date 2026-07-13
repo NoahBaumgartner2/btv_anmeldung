@@ -288,4 +288,122 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, I18n.t("courses.manage.move_button")
   end
+
+  # ── Admin: manuelle Schnuppern-Anmeldung ────────────────────────────────
+
+  test "manual_enroll mit trial meldet Teilnehmer zum Schnuppern an" do
+    course = Course.new(
+      title: "Drop-In Schnupperkurs", category: "Turnen",
+      registration_type: "pro_training", registration_mode: "single_session",
+      allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 5
+    )
+    course.save!(validate: false)
+
+    post manual_enroll_course_url(course), params: {
+      participant_id: participants(:one).id, trial: "true"
+    }
+
+    reg = CourseRegistration.last
+    assert_equal "schnuppern", reg.status
+    assert_equal participants(:one), reg.participant
+    assert_redirected_to manage_course_path(course)
+  end
+
+  test "manual_enroll mit trial bei Semesterkurs verlangt trial_session_id" do
+    course = Course.new(
+      title: "Semesterkurs Schnuppern", category: "Turnen",
+      registration_type: "semester", registration_mode: "semester",
+      allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+    session = course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
+
+    assert_no_difference("CourseRegistration.count") do
+      post manual_enroll_course_url(course), params: { participant_id: participants(:one).id, trial: "true" }
+    end
+
+    assert_difference("CourseRegistration.count", 1) do
+      post manual_enroll_course_url(course), params: {
+        participant_id: participants(:one).id, trial: "true", trial_session_id: session.id
+      }
+    end
+    assert_equal "schnuppern", CourseRegistration.last.status
+    assert_equal session, CourseRegistration.last.trial_session
+  end
+
+  test "manual_enroll mit trial blockiert erneutes Schnuppern derselben Kategorie" do
+    course = Course.new(
+      title: "Drop-In Schnupperkurs 2", category: "Turnen",
+      registration_type: "pro_training", registration_mode: "single_session",
+      allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+
+    CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    other_course = Course.new(
+      title: "Drop-In Schnupperkurs 3", category: "Turnen",
+      registration_type: "pro_training", registration_mode: "single_session",
+      allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    other_course.save!(validate: false)
+
+    assert_no_difference("CourseRegistration.count") do
+      post manual_enroll_course_url(other_course), params: { participant_id: participants(:one).id, trial: "true" }
+    end
+    assert_redirected_to manage_course_path(other_course)
+  end
+
+  test "manual_enroll mit trial setzt Warteliste wenn Kurs voll" do
+    course = Course.new(
+      title: "Voller Schnupperkurs", category: "Turnen",
+      registration_type: "pro_training", registration_mode: "single_session",
+      allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 1, enable_waitlist: true
+    )
+    course.save!(validate: false)
+
+    CourseRegistration.new(
+      course: course, participant: participants(:two),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    post manual_enroll_course_url(course), params: { participant_id: participants(:one).id, trial: "true" }
+
+    assert_equal "warteliste", CourseRegistration.last.status
+  end
+
+  test "manage zeigt Schnuppern-Checkbox bei allows_trial-Kurs" do
+    course = Course.new(
+      title: "Schnupperkurs Checkbox", category: "Turnen",
+      registration_type: "pro_training", registration_mode: "single_session",
+      allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+
+    get manage_course_url(course)
+
+    assert_response :success
+    assert_includes response.body, "Nur schnuppern"
+  end
+
+  test "manage zeigt keine Schnuppern-Checkbox ohne allows_trial" do
+    course = Course.new(
+      title: "Normalkurs Checkbox", category: "Turnen",
+      registration_type: "pro_training", registration_mode: "single_session",
+      allows_trial: false, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+
+    get manage_course_url(course)
+
+    assert_response :success
+    assert_not_includes response.body, "Nur schnuppern"
+  end
 end
