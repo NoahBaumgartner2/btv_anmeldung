@@ -52,7 +52,7 @@ class ExpirePendingPaymentsJob < ApplicationJob
       # Reguläre, still verfallene Reservierungen (ausstehend ohne Schnupperhintergrund)
       # werden ohne Mail storniert. Mailer nach der Transaktion versenden.
       if was_spot_offer || registration.trial_expires_at.present?
-        CourseRegistrationMailer.payment_expired(registration).deliver_later
+        CourseRegistrationMailer.payment_expired(registration, was_spot_offer: was_spot_offer).deliver_later
       else
         Rails.logger.info "[ExpirePendingPaymentsJob] Registration #{registration.id} regulär – " \
                           "still storniert ohne Mail."

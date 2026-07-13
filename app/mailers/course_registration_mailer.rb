@@ -138,11 +138,12 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
-  def payment_expired(course_registration)
+  def payment_expired(course_registration, was_spot_offer: false)
     @course_registration = course_registration
     @course = course_registration.course
     @participant = course_registration.participant
     @recipient = @participant.user
+    @was_spot_offer = was_spot_offer
     return if @recipient.nil?
 
     # Schutz-Guard: Schnupperplätze laufen nie über die 48h-Zahlungsfrist ab –

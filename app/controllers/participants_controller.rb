@@ -8,7 +8,7 @@ class ParticipantsController < ApplicationController
     end
 
     @participants = current_user.participants
-      .includes(course_registrations: [ :course, :training_session ])
+      .includes(course_registrations: [ :course, :training_session, :trial_session ])
 
     all_regs = @participants.flat_map(&:course_registrations)
 

@@ -17,10 +17,12 @@ class ExpirePendingPaymentsJobTest < ActiveJob::TestCase
 
     expired = CourseRegistration.new(
       course: course, participant: participants(:one),
-      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false,
-      payment_expires_at: 1.hour.ago
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false
     )
     expired.save!(validate: false)
+    # set_payment_expiry setzt beim Speichern eine frische Frist; hier simulieren wir
+    # den Zeitablauf danach, ohne den Callback erneut auszulösen.
+    expired.update_column(:payment_expires_at, 1.hour.ago)
 
     ExpirePendingPaymentsJob.new.perform
 
@@ -79,11 +81,12 @@ class ExpirePendingPaymentsJobTest < ActiveJob::TestCase
     expired = CourseRegistration.new(
       course: course, participant: participants(:one),
       status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false,
-      trial_expires_at: 1.day.ago, payment_expires_at: 1.hour.ago
+      trial_expires_at: 1.day.ago
     )
     expired.save!(validate: false)
+    expired.update_column(:payment_expires_at, 1.hour.ago)
 
-    assert_enqueued_email_with CourseRegistrationMailer, :payment_expired, args: [ expired ] do
+    assert_enqueued_email_with CourseRegistrationMailer, :payment_expired, args: [ expired, { was_spot_offer: false } ] do
       ExpirePendingPaymentsJob.new.perform
     end
 
@@ -96,9 +99,10 @@ class ExpirePendingPaymentsJobTest < ActiveJob::TestCase
     expired = CourseRegistration.new(
       course: course, participant: participants(:one),
       status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false,
-      trial_expires_at: nil, payment_expires_at: 1.hour.ago
+      trial_expires_at: nil
     )
     expired.save!(validate: false)
+    expired.update_column(:payment_expires_at, 1.hour.ago)
 
     assert_no_enqueued_emails do
       ExpirePendingPaymentsJob.new.perform
@@ -117,7 +121,7 @@ class ExpirePendingPaymentsJobTest < ActiveJob::TestCase
     )
     expired.save!(validate: false)
 
-    assert_enqueued_email_with CourseRegistrationMailer, :payment_expired, args: [ expired ] do
+    assert_enqueued_email_with CourseRegistrationMailer, :payment_expired, args: [ expired, { was_spot_offer: true } ] do
       ExpirePendingPaymentsJob.new.perform
     end
 

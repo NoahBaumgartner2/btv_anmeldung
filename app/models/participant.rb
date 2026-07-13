@@ -94,6 +94,10 @@ class Participant < ApplicationRecord
       .where(participant_id: sibling_ids)
       .where(courses: { category: category })
       .where.not(status: %w[schnuppern ausstehend])
+      # Eine stornierte Anmeldung blockiert nur, wenn sie eine echte (bezahlte/
+      # bestätigte) Anmeldung war. Ein storniertes Schnuppertraining (erkennbar an
+      # gesetztem trial_expires_at) darf erneutes Schnuppern nicht verhindern.
+      .where.not("course_registrations.status = ? AND course_registrations.trial_expires_at IS NOT NULL", "storniert")
       .exists?
   end
 

@@ -985,7 +985,7 @@ class CourseRegistrationsController < ApplicationController
   # weiter zur Zahlung.
   def accept_spot_as_registration(course)
     if course.has_payment? && course.price_cents.to_i > 0
-      @course_registration.update!(status: "ausstehend", payment_expires_at: nil)
+      @course_registration.update!(status: "ausstehend")
       if ::SumupConfig.configured?
         redirect_to checkout_preview_registration_path(@course_registration)
       else
