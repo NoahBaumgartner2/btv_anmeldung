@@ -437,4 +437,36 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_not_includes response.body, "Nur schnuppern"
   end
+
+  test "manage zeigt Trainingsauswahl wenn Sessions vorhanden" do
+    course = Course.new(
+      title: "Schnupperkurs mit Sessions", category: "Turnen",
+      registration_type: "pro_training", registration_mode: "single_session",
+      allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+    session = course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
+
+    get manage_course_url(course)
+
+    assert_response :success
+    assert_includes response.body, "manual_trial_session"
+    assert_includes response.body, I18n.l(session.start_time)
+  end
+
+  test "manage zeigt Hinweis wenn keine Trainings für Schnuppern vorhanden" do
+    course = Course.new(
+      title: "Schnupperkurs ohne Sessions", category: "Turnen",
+      registration_type: "pro_training", registration_mode: "single_session",
+      allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+
+    get manage_course_url(course)
+
+    assert_response :success
+    assert_includes response.body, I18n.t("course_registrations.form.trial_no_sessions")
+  end
 end

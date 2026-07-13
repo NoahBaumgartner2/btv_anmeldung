@@ -182,16 +182,20 @@
                      class="rounded border-amber-400 text-amber-600 focus:ring-amber-500">
               <span class="text-sm font-bold text-amber-800">Nur schnuppern (kein regulärer Kursplatz)</span>
             </label>
-            <% if @trial_sessions.any? %>
-              <div class="mt-3 hidden">
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Schnuppertraining</label>
+            <div class="mt-3 hidden" data-manual-enroll-target="trialSessionWrap">
+              <% if @trial_sessions.any? %>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"><%= t("course_registrations.form.trial_session_label") %></label>
                 <%= select_tag :manual_trial_session,
                       options_from_collection_for_select(@trial_sessions, :id, ->(s) { I18n.l(s.start_time) }),
-                      prompt: "Bitte wählen...",
+                      prompt: t("course_registrations.form.trial_session_prompt"),
                       data: { "manual-enroll-target": "trialSessionSelect", action: "change->manual-enroll#syncTrialSession" },
                       class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
-              </div>
-            <% end %>
+              <% else %>
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-600">
+                  <%= t("course_registrations.form.trial_no_sessions") %>
+                </div>
+              <% end %>
+            </div>
           </div>
         <% end %>
 
