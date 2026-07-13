@@ -14,9 +14,12 @@
   Hallo <%= greeting_name(@recipient) %>,<br><br>
   die Reservierung von <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
   für den Kurs <strong><%= @course.title %></strong> wurde automatisch storniert, da die Zahlung nicht
-  innerhalb von 48 Stunden eingegangen ist. Der Kursplatz wurde wieder freigegeben. Wenn eine Teilnahme
-  trotzdem noch gewünscht ist, kann die definitive Anmeldung bei verfügbaren Plätzen selbstverständlich
-  noch vorgenommen werden.
+  rechtzeitig eingegangen ist.
+  <% if @was_spot_offer %>
+    Der Kursplatz wurde wieder freigegeben.
+  <% end %>
+  Wenn eine Teilnahme trotzdem noch gewünscht ist, kann die definitive Anmeldung bei verfügbaren Plätzen
+  selbstverständlich noch vorgenommen werden.
 </p>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:32px;">

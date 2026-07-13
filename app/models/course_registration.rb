@@ -28,7 +28,7 @@ class CourseRegistration < ApplicationRecord
   validate :training_session_bookable, on: :create
   validate :trial_session_bookable, on: :create
 
-  before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") && payment_expires_at.nil? }
+  before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") }
   before_save :set_trial_expiry,
     if: -> { will_save_change_to_status?(to: TRIAL_STATUS) && trial_expires_at.nil? }
 

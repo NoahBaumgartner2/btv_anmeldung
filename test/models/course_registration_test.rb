@@ -415,4 +415,18 @@ class CourseRegistrationTest < ActiveSupport::TestCase
 
     assert_in_delta 48.hours.from_now.to_i, reg.payment_expires_at.to_i, 60
   end
+
+  test "set_payment_expiry erneuert eine abgelaufene Frist bei erneutem Eintritt in ausstehend" do
+    reg = CourseRegistration.new(course: paid_course, participant: participants(:one),
+      status: "ausstehend", payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+    reg.update_column(:payment_expires_at, 1.hour.ago)
+
+    reg.status = "storniert"
+    reg.save!(validate: false)
+    reg.status = "ausstehend"
+    reg.save!(validate: false)
+
+    assert_in_delta 48.hours.from_now.to_i, reg.payment_expires_at.to_i, 60
+  end
 end
