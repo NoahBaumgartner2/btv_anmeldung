@@ -203,7 +203,7 @@ class CoursesController < ApplicationController
     @manual_participant = Participant.new(country: "CH", nationality: "CH", mother_tongue: "DE")
     # Zielkurse für die Admin-Verschiebe-Funktion (alle Kurse, kategorienübergreifend).
     @move_target_courses = Course.order(:category, :title).to_a if current_user&.admin?
-    @trial_sessions = if @course.allows_trial? && @course.registration_mode != "single_session"
+    @trial_sessions = if @course.allows_trial?
       @course.training_sessions.where(is_canceled: false).where("start_time > ?", Time.current).order(:start_time)
     else
       []
@@ -477,13 +477,20 @@ class CoursesController < ApplicationController
         return redirect_to manage_course_path(@course), alert: "Schnuppern ist für diesen Kurs nicht möglich."
       end
 
-      if participant.ever_trialed_in_category?(@course.category)
-        return redirect_to manage_course_path(@course),
-          alert: "#{participant.first_name} hat in dieser Trainingskategorie bereits geschnuppert."
-      end
-
+      # Wie beim Eltern-Self-Service: bei Drop-In-Kursen (single_session) legt die
+      # gewählte Session direkt training_session_id fest (Kapazität wird pro Session
+      # gezählt); bei Semesterkursen ist es eine separate trial_session (Kapazität
+      # gilt kursweit, das Schnuppertraining bestimmt nur die 7-Tage-Frist).
+      training_session_id_for_capacity = nil
       trial_session = nil
-      if @course.registration_mode != "single_session"
+
+      if @course.registration_mode == "single_session"
+        session = @course.training_sessions.find_by(id: trial_session_id)
+        if session.nil? || session.is_canceled? || session.start_time <= Time.current
+          return redirect_to manage_course_path(@course), alert: "Bitte ein gültiges Training auswählen."
+        end
+        training_session_id_for_capacity = session.id
+      else
         trial_session = @course.training_sessions.find_by(id: trial_session_id)
         if trial_session.nil? || trial_session.is_canceled? || trial_session.start_time <= Time.current
           return redirect_to manage_course_path(@course), alert: "Bitte ein gültiges Schnuppertraining auswählen."
@@ -495,7 +502,14 @@ class CoursesController < ApplicationController
       full = false
 
       Course.find(@course.id).with_lock do
-        belegte = @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
+        belegte = if training_session_id_for_capacity
+          @course.course_registrations
+                 .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: training_session_id_for_capacity)
+                 .distinct.count(:participant_id)
+        else
+          @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
+        end
+
         if @course.max_participants.present? && belegte >= @course.max_participants
           if @course.enable_waitlist?
             status = "warteliste"
@@ -512,6 +526,7 @@ class CoursesController < ApplicationController
             participant: participant,
             status: status,
             trial_session: trial_session,
+            training_session_id: training_session_id_for_capacity,
             payment_cleared: false,
             holiday_deduction_claimed: false
           )

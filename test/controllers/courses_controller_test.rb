@@ -291,7 +291,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   # ── Admin: manuelle Schnuppern-Anmeldung ────────────────────────────────
 
-  test "manual_enroll mit trial meldet Teilnehmer zum Schnuppern an" do
+  test "manual_enroll mit trial meldet Teilnehmer zum Schnuppern an (Drop-In)" do
     course = Course.new(
       title: "Drop-In Schnupperkurs", category: "Turnen",
       registration_type: "pro_training", registration_mode: "single_session",
@@ -299,15 +299,35 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       max_participants: 5
     )
     course.save!(validate: false)
+    session = course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
 
     post manual_enroll_course_url(course), params: {
-      participant_id: participants(:one).id, trial: "true"
+      participant_id: participants(:one).id, trial: "true", trial_session_id: session.id
     }
 
     reg = CourseRegistration.last
     assert_equal "schnuppern", reg.status
     assert_equal participants(:one), reg.participant
+    assert_equal session.id, reg.training_session_id
     assert_redirected_to manage_course_path(course)
+  end
+
+  test "manual_enroll mit trial bei Drop-In verlangt trial_session_id" do
+    course = Course.new(
+      title: "Drop-In Schnupperkurs ohne Session", category: "Turnen",
+      registration_type: "pro_training", registration_mode: "single_session",
+      allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+    course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
+
+    assert_no_difference("CourseRegistration.count") do
+      post manual_enroll_course_url(course), params: { participant_id: participants(:one).id, trial: "true" }
+    end
   end
 
   test "manual_enroll mit trial bei Semesterkurs verlangt trial_session_id" do
@@ -334,7 +354,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_equal session, CourseRegistration.last.trial_session
   end
 
-  test "manual_enroll mit trial blockiert erneutes Schnuppern derselben Kategorie" do
+  test "manual_enroll mit trial erlaubt erneutes Schnuppern derselben Kategorie (Admin-Override)" do
     course = Course.new(
       title: "Drop-In Schnupperkurs 2", category: "Turnen",
       registration_type: "pro_training", registration_mode: "single_session",
@@ -353,11 +373,16 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
     )
     other_course.save!(validate: false)
+    session = other_course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
 
-    assert_no_difference("CourseRegistration.count") do
-      post manual_enroll_course_url(other_course), params: { participant_id: participants(:one).id, trial: "true" }
+    assert_difference("CourseRegistration.count", 1) do
+      post manual_enroll_course_url(other_course), params: {
+        participant_id: participants(:one).id, trial: "true", trial_session_id: session.id
+      }
     end
-    assert_redirected_to manage_course_path(other_course)
+    assert_equal "schnuppern", CourseRegistration.last.status
   end
 
   test "manual_enroll mit trial setzt Warteliste wenn Kurs voll" do
@@ -368,13 +393,19 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       max_participants: 1, enable_waitlist: true
     )
     course.save!(validate: false)
+    session = course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
 
     CourseRegistration.new(
       course: course, participant: participants(:two),
-      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false,
+      training_session_id: session.id
     ).save!(validate: false)
 
-    post manual_enroll_course_url(course), params: { participant_id: participants(:one).id, trial: "true" }
+    post manual_enroll_course_url(course), params: {
+      participant_id: participants(:one).id, trial: "true", trial_session_id: session.id
+    }
 
     assert_equal "warteliste", CourseRegistration.last.status
   end
