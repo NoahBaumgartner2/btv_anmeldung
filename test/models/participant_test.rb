@@ -113,6 +113,15 @@ class ParticipantTest < ActiveSupport::TestCase
     assert_not @participant.schnupper_eligible_for_category?("Kids Gym")
   end
 
+  test "schnupper_eligible_for_category? returns true when a trial was cancelled" do
+    reg = CourseRegistration.new(course: @course, participant: @participant,
+      status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+    reg.update!(status: "storniert", cancelled_at: Time.current)
+
+    assert @participant.schnupper_eligible_for_category?("Kids Gym")
+  end
+
   # ── Identitäts-basierte Duplikat-Erkennung ────────────────────────────────
 
   test "ever_trialed_in_category? returns true when sibling with same AHV has trialed" do
