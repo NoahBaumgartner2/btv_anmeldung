@@ -4,6 +4,11 @@ class TrainingSession < ApplicationRecord
 
   has_many :attendances, dependent: :destroy
 
+  def past?
+    reference = end_time || start_time
+    reference.present? && reference < Time.current
+  end
+
   def attendance_recorded?
     is_canceled? || attendance_confirmed_at.present?
   end

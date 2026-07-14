@@ -123,7 +123,7 @@
   <% end %>
 
   <%# ── Löschen (nur Admin) ────────────────────────────────────────────── %>
-  <% if current_user.admin? %>
+  <% if current_user.admin? && !@training_session.past? %>
     <div class="mb-6">
       <%= button_to training_session_path(@training_session),
             method: :delete,

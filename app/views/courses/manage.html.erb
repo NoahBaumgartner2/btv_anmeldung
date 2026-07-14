@@ -516,6 +516,12 @@
                 <%= link_to t("courses.manage.attendance_control"), training_session_path(session),
                       class: "bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 text-sm font-bold py-2 px-4 rounded-lg transition min-h-11 flex items-center" %>
               <% end %>
+              <% if current_user.admin? && !is_past %>
+                <%= button_to t("training_sessions.show.delete_btn"), training_session_path(session),
+                      method: :delete,
+                      data: { turbo_confirm: t("training_sessions.show.delete_confirm") },
+                      class: "bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 text-sm font-bold py-2 px-4 rounded-lg transition min-h-11 flex items-center cursor-pointer" %>
+              <% end %>
             </div>
 
           </div>
