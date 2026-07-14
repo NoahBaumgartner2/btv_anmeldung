@@ -91,11 +91,32 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "should destroy training_session" do
+    future = training_sessions(:future)
+
     assert_difference("TrainingSession.count", -1) do
+      delete training_session_url(future)
+    end
+
+    assert_redirected_to manage_course_path(future.course)
+  end
+
+  test "destroy blockiert vergangene Trainings, um Anwesenheitskontrollen zu erhalten" do
+    assert_no_difference("TrainingSession.count") do
       delete training_session_url(@training_session)
     end
 
-    assert_redirected_to course_path(@training_session.course)
+    assert_redirected_to manage_course_path(@training_session.course)
+    assert_equal "Vergangene Trainings können nicht gelöscht werden, um die Anwesenheitskontrolle zu erhalten.", flash[:alert]
+  end
+
+  test "destroy ist für Trainer ohne Adminrechte gesperrt" do
+    sign_out users(:admin)
+    sign_in users(:one)
+    future = training_sessions(:future)
+
+    assert_no_difference("TrainingSession.count") do
+      delete training_session_url(future)
+    end
   end
 
   test "confirm_attendance marks past session as confirmed" do

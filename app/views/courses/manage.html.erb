@@ -173,6 +173,32 @@
       </div>
 
       <div class="p-4 sm:p-6">
+        <% if @course.allows_trial? %>
+          <div class="mb-5 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox"
+                     data-manual-enroll-target="trialCheckbox"
+                     data-action="change->manual-enroll#toggleTrial"
+                     class="rounded border-amber-400 text-amber-600 focus:ring-amber-500">
+              <span class="text-sm font-bold text-amber-800">Nur schnuppern (kein regulärer Kursplatz)</span>
+            </label>
+            <div class="mt-3 hidden" data-manual-enroll-target="trialSessionWrap">
+              <% if @trial_sessions.any? %>
+                <label class="block text-sm font-semibold text-gray-700 mb-1"><%= t("course_registrations.form.trial_session_label") %></label>
+                <%= select_tag :manual_trial_session,
+                      options_from_collection_for_select(@trial_sessions, :id, ->(s) { I18n.l(s.start_time) }),
+                      prompt: t("course_registrations.form.trial_session_prompt"),
+                      data: { "manual-enroll-target": "trialSessionSelect", action: "change->manual-enroll#syncTrialSession" },
+                      class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+              <% else %>
+                <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-600">
+                  <%= t("course_registrations.form.trial_no_sessions") %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
         <%# Tab-Wechsel %>
         <div class="flex gap-2 mb-5">
           <button type="button"
@@ -201,6 +227,8 @@
 
           <%= form_with url: manual_enroll_course_path(@course), method: :post, data: { "manual-enroll-target": "enrollForm" }, class: "hidden" do |f| %>
             <%= f.hidden_field :participant_id, data: { "manual-enroll-target": "participantId" } %>
+            <%= f.hidden_field :trial, value: "false", data: { "manual-enroll-target": "trialField" } %>
+            <%= f.hidden_field :trial_session_id, data: { "manual-enroll-target": "trialSessionField" } %>
           <% end %>
         </div>
 
@@ -212,7 +240,8 @@
                 submit_label: "Kind anmelden & Account erstellen",
                 hide_cancel: true,
                 hide_admin_section: true,
-                manual_enroll_mode: true %>
+                manual_enroll_mode: true,
+                course: @course %>
         </div>
       </div>
     </div>
@@ -486,6 +515,12 @@
               <% else %>
                 <%= link_to t("courses.manage.attendance_control"), training_session_path(session),
                       class: "bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 text-sm font-bold py-2 px-4 rounded-lg transition min-h-11 flex items-center" %>
+              <% end %>
+              <% if current_user.admin? && !is_past %>
+                <%= button_to t("training_sessions.show.delete_btn"), training_session_path(session),
+                      method: :delete,
+                      data: { turbo_confirm: t("training_sessions.show.delete_confirm") },
+                      class: "bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 text-sm font-bold py-2 px-4 rounded-lg transition min-h-11 flex items-center cursor-pointer" %>
               <% end %>
             </div>
 

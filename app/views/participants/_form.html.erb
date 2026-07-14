@@ -252,6 +252,11 @@
     </div>
   <% end %>
 
+  <% if local_assigns[:manual_enroll_mode] && local_assigns[:course]&.allows_trial? %>
+    <%= hidden_field_tag :trial, "false", data: { "manual-enroll-target": "trialField" } %>
+    <%= hidden_field_tag :trial_session_id, nil, data: { "manual-enroll-target": "trialSessionField" } %>
+  <% end %>
+
   <%# ── Aktionen ─────────────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row items-center gap-3">
     <%= form.submit local_assigns.fetch(:submit_label) { participant.new_record? ? t("participants.form.submit_new") : t("participants.form.submit_edit") },

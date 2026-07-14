@@ -72,8 +72,14 @@ class TrainingSessionsController < ApplicationController
     return if performed?
 
     course = @training_session.course
+
+    if @training_session.past?
+      return redirect_to manage_course_path(course),
+        alert: "Vergangene Trainings können nicht gelöscht werden, um die Anwesenheitskontrolle zu erhalten."
+    end
+
     @training_session.destroy!
-    redirect_to course_path(course), notice: t("training_sessions.show.deleted_notice")
+    redirect_to manage_course_path(course), notice: t("training_sessions.show.deleted_notice")
   end
 
   def cancel

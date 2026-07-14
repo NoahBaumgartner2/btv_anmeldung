@@ -203,6 +203,11 @@ class CoursesController < ApplicationController
     @manual_participant = Participant.new(country: "CH", nationality: "CH", mother_tongue: "DE")
     # Zielkurse für die Admin-Verschiebe-Funktion (alle Kurse, kategorienübergreifend).
     @move_target_courses = Course.order(:category, :title).to_a if current_user&.admin?
+    @trial_sessions = if @course.allows_trial?
+      @course.training_sessions.where(is_canceled: false).where("start_time > ?", Time.current).order(:start_time)
+    else
+      []
+    end
   end
 
   # GET /courses/:id/participant_search?q=...
@@ -246,9 +251,12 @@ class CoursesController < ApplicationController
     authorize_trainer_or_admin!
     return if performed?
 
+    trial = params[:trial] == "true"
+    trial_session_id = params[:trial_session_id]
+
     if params[:participant_id].present?
       participant = Participant.find(params[:participant_id])
-      enroll_participant(participant)
+      enroll_participant(participant, trial: trial, trial_session_id: trial_session_id)
 
     elsif params[:new_family_email].present?
       email = params[:new_family_email].strip.downcase
@@ -278,7 +286,7 @@ class CoursesController < ApplicationController
         return render :manage, status: :unprocessable_entity
       end
 
-      enroll_participant(participant)
+      enroll_participant(participant, trial: trial, trial_session_id: trial_session_id)
     else
       redirect_to manage_course_path(@course), alert: "Bitte Teilnehmer auswählen oder neue Familie erfassen."
     end
@@ -429,11 +437,13 @@ class CoursesController < ApplicationController
       end
     end
 
-    def enroll_participant(participant)
+    def enroll_participant(participant, trial: false, trial_session_id: nil)
       if @course.course_registrations.where(participant: participant).where.not(status: "storniert").exists?
         return redirect_to manage_course_path(@course),
           alert: "#{participant.first_name} ist bereits für diesen Kurs angemeldet."
       end
+
+      return enroll_participant_as_trial(participant, trial_session_id) if trial
 
       bestaetigte = @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
       status = if @course.max_participants.present? && bestaetigte >= @course.max_participants
@@ -455,6 +465,82 @@ class CoursesController < ApplicationController
         msg = status == "warteliste" ?
           "#{participant.first_name} wurde auf die Warteliste gesetzt." :
           "#{participant.first_name} wurde erfolgreich angemeldet."
+        redirect_to manage_course_path(@course), notice: msg
+      else
+        redirect_to manage_course_path(@course),
+          alert: "Anmeldung fehlgeschlagen: #{reg.errors.full_messages.join(', ')}"
+      end
+    end
+
+    def enroll_participant_as_trial(participant, trial_session_id)
+      unless @course.allows_trial?
+        return redirect_to manage_course_path(@course), alert: "Schnuppern ist für diesen Kurs nicht möglich."
+      end
+
+      # Wie beim Eltern-Self-Service: bei Drop-In-Kursen (single_session) legt die
+      # gewählte Session direkt training_session_id fest (Kapazität wird pro Session
+      # gezählt); bei Semesterkursen ist es eine separate trial_session (Kapazität
+      # gilt kursweit, das Schnuppertraining bestimmt nur die 7-Tage-Frist).
+      training_session_id_for_capacity = nil
+      trial_session = nil
+
+      if @course.registration_mode == "single_session"
+        session = @course.training_sessions.find_by(id: trial_session_id)
+        if session.nil? || session.is_canceled? || session.start_time <= Time.current
+          return redirect_to manage_course_path(@course), alert: "Bitte ein gültiges Training auswählen."
+        end
+        training_session_id_for_capacity = session.id
+      else
+        trial_session = @course.training_sessions.find_by(id: trial_session_id)
+        if trial_session.nil? || trial_session.is_canceled? || trial_session.start_time <= Time.current
+          return redirect_to manage_course_path(@course), alert: "Bitte ein gültiges Schnuppertraining auswählen."
+        end
+      end
+
+      status = nil
+      reg = nil
+      full = false
+
+      Course.find(@course.id).with_lock do
+        belegte = if training_session_id_for_capacity
+          @course.course_registrations
+                 .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: training_session_id_for_capacity)
+                 .distinct.count(:participant_id)
+        else
+          @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
+        end
+
+        if @course.max_participants.present? && belegte >= @course.max_participants
+          if @course.enable_waitlist?
+            status = "warteliste"
+          else
+            full = true
+          end
+        else
+          status = "schnuppern"
+        end
+
+        unless full
+          reg = CourseRegistration.new(
+            course: @course,
+            participant: participant,
+            status: status,
+            trial_session: trial_session,
+            training_session_id: training_session_id_for_capacity,
+            payment_cleared: false,
+            holiday_deduction_claimed: false
+          )
+          reg.save(validate: false)
+        end
+      end
+
+      return redirect_to manage_course_path(@course), alert: "Der Kurs ist voll." if full
+
+      if reg.persisted?
+        CourseRegistrationMailer.confirmation(reg).deliver_later
+        msg = status == "warteliste" ?
+          "#{participant.first_name} wurde auf die Warteliste gesetzt." :
+          "#{participant.first_name} wurde zum Schnuppern angemeldet."
         redirect_to manage_course_path(@course), notice: msg
       else
         redirect_to manage_course_path(@course),
