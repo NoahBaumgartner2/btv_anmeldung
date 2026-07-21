@@ -452,6 +452,8 @@ class CoursesController < ApplicationController
         "bestätigt"
       end
 
+      abo_remaining_entries = params[:abo_remaining_entries].presence
+
       reg = CourseRegistration.new(
         course: @course,
         participant: participant,
@@ -460,8 +462,18 @@ class CoursesController < ApplicationController
         holiday_deduction_claimed: false
       )
 
+      if @course.abo?
+        reg.abo_entries_total = abo_remaining_entries ? abo_remaining_entries.to_i : @course.abo_size
+        reg.abo_entries_used  = 0
+        reg.payment_cleared = true if abo_remaining_entries
+      end
+
       if reg.save(validate: false)
-        CourseRegistrationMailer.confirmation(reg).deliver_later
+        if abo_remaining_entries
+          CourseRegistrationMailer.abo_imported(reg).deliver_later
+        else
+          CourseRegistrationMailer.confirmation(reg).deliver_later
+        end
         msg = status == "warteliste" ?
           "#{participant.first_name} wurde auf die Warteliste gesetzt." :
           "#{participant.first_name} wurde erfolgreich angemeldet."

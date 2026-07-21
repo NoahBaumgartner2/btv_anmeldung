@@ -286,6 +286,8 @@ fr:
       abo_adjust_label: "Ajuster le crédit"
       abo_remaining_input: "Entrées restantes"
       abo_save: "Enregistrer"
+      abo_import_label: "Importer un abonnement existant (entrées restantes)"
+      abo_import_hint: "Optionnel : indiquer le nombre d'entrées restantes d'un abonnement déjà existant. Laisser vide pour un nouvel abonnement complet."
       send_email: "E-mail"
       send_email_modal_title: "E-mail à %{name}"
       send_email_subject_label: "Objet"

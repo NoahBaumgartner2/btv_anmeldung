@@ -208,4 +208,28 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
     assert_no_match "Warteliste", mail.html_part.body.decoded
     assert_no_match "Warteliste", mail.text_part.body.decoded
   end
+
+  test "confirmation nutzt bei bestätigtem Abo die eigenständige Abo-Vorlage statt der generischen" do
+    @course.update_columns(registration_mode: "abo", registration_type: "abo", abo_size: 10)
+    @registration.update_columns(status: "bestätigt", abo_entries_total: 10, abo_entries_used: 3)
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    assert_match "Abo aktiviert", mail.subject
+    [ mail.text_part, mail.html_part ].each do |part|
+      body = part.body.decoded
+      assert_match "Buchungsseite", body
+      assert_match "7", body # verbleibende Eintritte (10 - 3)
+      assert_no_match "abzumelden", body
+    end
+  end
+
+  test "confirmation zeigt für Abo mit Status warteliste weiterhin die generische Vorlage" do
+    @course.update_columns(registration_mode: "abo", registration_type: "abo", abo_size: 10)
+    @registration.update_column(:status, "warteliste")
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    assert_match "Auf der Warteliste", mail.subject
+  end
 end

@@ -325,6 +325,8 @@ de:
       abo_adjust_label: "Guthaben anpassen"
       abo_remaining_input: "Verbleibende Eintritte"
       abo_save: "Speichern"
+      abo_import_label: "Bestehendes Abo importieren (verbleibende Eintritte)"
+      abo_import_hint: "Optional: Anzahl Resteintritte aus einem bereits bestehenden Abo eintragen. Leer lassen für ein neues volles Abo."
       send_email: "E-Mail"
       send_email_modal_title: "E-Mail an %{name}"
       send_email_subject_label: "Betreff"

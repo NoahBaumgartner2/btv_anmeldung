@@ -1,0 +1,52 @@
+<% primary = @_club&.effective_primary_color || "#dc2626" %>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0;font-size:15px;font-weight:600;color:#166534;font-family:Arial,Helvetica,sans-serif;">Abo aktiviert!</p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Hallo <%= greeting_name(@recipient) %>,<br><br>
+  das Abo von <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
+  für <strong><%= @course.title %></strong> ist ab sofort aktiv. Ein Abo ist nicht an ein einzelnes
+  Training gebunden – <%= @participant.first_name %> kann die Eintritte flexibel für beliebige
+  Trainings dieser Kategorie einlösen.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:32px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Teilnehmer</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @participant.first_name %> <%= @participant.last_name %></p>
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Abo</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Eintritte</p>
+      <p style="margin:0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course_registration.abo_entries_remaining %></p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  <strong>So löst du einen Eintritt ein:</strong> Öffne die Buchungsseite deines Abos, wähle ein
+  passendes Training aus der Kategorie und buche es – ein Eintritt wird dabei automatisch abgezogen.
+  Ein gebuchtes Training kannst du dort bei Bedarf auch wieder stornieren, der Eintritt wird dir
+  dann zurückerstattet.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+  <tr>
+    <td align="center">
+      <a href="<%= @abo_sessions_url %>"
+         style="display:inline-block;padding:14px 32px;background:<%= primary %>;color:#ffffff;font-size:16px;font-weight:600;text-decoration:none;border-radius:8px;font-family:Arial,Helvetica,sans-serif;">
+        Trainings buchen
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 32px 0;font-size:13px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
+  Bei Fragen zu deinem Abo kannst du dich an den Administrator wenden.
+</p>
