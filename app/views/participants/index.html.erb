@@ -318,7 +318,8 @@
                         </div>
                       <% end %>
 
-                      <%# ── Vom Kurs abmelden ─────────────────────────── %>
+                      <%# ── Vom Kurs abmelden (nicht bei Abo: dort läuft die Stornierung pro gebuchtem Training) ── %>
+                      <% unless course.abo? %>
                       <div class="mt-3 pt-3 border-t border-gray-100"
                            data-controller="confirm-unsubscribe">
                         <%= form_with url: cancel_course_registration_path(reg),
@@ -361,6 +362,7 @@
                           </div>
                         </div>
                       </div>
+                      <% end %>
                       <%# Link zu weiteren Kursen derselben Kategorie %>
                       <% if course.category.present? && @more_courses_by_category[course.category]&.any? %>
                         <div class="mt-3 pt-3 border-t border-gray-100 text-center">

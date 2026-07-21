@@ -1,0 +1,48 @@
+<% primary = @_club&.effective_primary_color || "#16a34a" %>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0;font-size:15px;font-weight:600;color:#166534;font-family:Arial,Helvetica,sans-serif;">
+        Ihr bestehendes Abo wurde übernommen
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Hallo <%= greeting_name(@recipient) %>,<br><br>
+  beim Umzug auf unsere neue Anmeldeplattform haben wir das bestehende Abo von
+  <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
+  für den Kurs <strong><%= @course.title %></strong> mit den noch verbleibenden Eintritten
+  automatisch für Sie übernommen. Es ist keine erneute Zahlung nötig – die Eintritte
+  stehen ab sofort wie gewohnt zur Verfügung.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:32px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Teilnehmer</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @participant.first_name %> <%= @participant.last_name %></p>
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Verbleibende Eintritte</p>
+      <p style="margin:0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course_registration.abo_entries_remaining %></p>
+    </td>
+  </tr>
+</table>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+  <tr>
+    <td align="center">
+      <a href="<%= course_url(@course) %>"
+         style="display:inline-block;padding:14px 32px;background:<%= primary %>;color:#ffffff;font-size:16px;font-weight:600;text-decoration:none;border-radius:8px;font-family:Arial,Helvetica,sans-serif;">
+        Zur Kursanmeldung
+      </a>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 32px 0;font-size:13px;color:#9ca3af;font-family:Arial,Helvetica,sans-serif;">
+  Bei Fragen zu Ihrem Abo kannst du dich an den Administrator wenden.
+</p>
