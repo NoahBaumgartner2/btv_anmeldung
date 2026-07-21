@@ -45,6 +45,14 @@ class CourseRegistrationMailer < ApplicationMailer
     else "Anmeldung erhalten: #{@course.title}"
     end
 
+    # Abos haben kein einzelnes Training, von dem man sich "abmelden" könnte – die
+    # generische Vorlage passt inhaltlich nicht. Sobald das Abo aktiv ist (bestätigt),
+    # erklärt eine eigene Vorlage stattdessen die Einlösung über die Buchungsseite.
+    if @course.abo? && course_registration.status == "bestätigt"
+      @abo_sessions_url = abo_sessions_course_registration_url(course_registration)
+      return mail(to: @recipient.email, subject: "Abo aktiviert: #{@course.title}", template_name: "abo_confirmation")
+    end
+
     mail(to: @recipient.email, subject: subject)
   end
 
@@ -123,6 +131,18 @@ class CourseRegistrationMailer < ApplicationMailer
       to: admin_user.email,
       subject: "Teilnehmer abgemeldet: #{@participant.first_name} #{@participant.last_name} – #{@course.title}"
     )
+  end
+
+  # Wird verschickt, wenn ein Admin ein bestehendes (Alt-)Abo mit Resteintritten
+  # manuell importiert, statt es neu zu verkaufen (siehe CoursesController#enroll_participant).
+  def abo_imported(course_registration)
+    @course_registration = course_registration
+    @course = course_registration.course
+    @participant = course_registration.participant
+    @recipient = @participant.user
+    return if @recipient.nil?
+
+    mail(to: @recipient.email, subject: "Ihr bestehendes Abo wurde übertragen: #{@course.title}")
   end
 
   def abo_exhausted(course_registration)

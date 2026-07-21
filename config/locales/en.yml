@@ -286,6 +286,8 @@ en:
       abo_adjust_label: "Adjust credit"
       abo_remaining_input: "Remaining entries"
       abo_save: "Save"
+      abo_import_label: "Import existing subscription (remaining entries)"
+      abo_import_hint: "Optional: enter the number of remaining entries from an already existing subscription. Leave blank for a new full subscription."
       send_email: "Email"
       send_email_modal_title: "Email to %{name}"
       send_email_subject_label: "Subject"

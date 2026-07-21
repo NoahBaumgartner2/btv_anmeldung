@@ -410,6 +410,43 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_equal "warteliste", CourseRegistration.last.status
   end
 
+  test "manual_enroll importiert bestehendes Abo mit Resteintritten" do
+    course = Course.new(
+      title: "Abo-Kurs Import", category: "Turnen",
+      registration_type: "abo", registration_mode: "abo", abo_size: 10,
+      has_payment: true, price_cents: 5000, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+
+    post manual_enroll_course_url(course), params: {
+      participant_id: participants(:one).id, abo_remaining_entries: "5"
+    }
+
+    reg = CourseRegistration.last
+    assert_equal 5, reg.abo_entries_total
+    assert_equal 0, reg.abo_entries_used
+    assert reg.payment_cleared?
+    assert_equal "bestätigt", reg.status
+    assert_enqueued_email_with CourseRegistrationMailer, :abo_imported, args: [ reg ]
+  end
+
+  test "manual_enroll ohne Import setzt volles Abo-Kontingent aus course.abo_size" do
+    course = Course.new(
+      title: "Abo-Kurs Normal", category: "Turnen",
+      registration_type: "abo", registration_mode: "abo", abo_size: 10,
+      has_payment: true, price_cents: 5000, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+
+    post manual_enroll_course_url(course), params: { participant_id: participants(:one).id }
+
+    reg = CourseRegistration.last
+    assert_equal 10, reg.abo_entries_total
+    assert_equal 0, reg.abo_entries_used
+    assert_not reg.payment_cleared?
+    assert_enqueued_email_with CourseRegistrationMailer, :confirmation, args: [ reg ]
+  end
+
   test "manage zeigt Schnuppern-Checkbox bei allows_trial-Kurs" do
     course = Course.new(
       title: "Schnupperkurs Checkbox", category: "Turnen",

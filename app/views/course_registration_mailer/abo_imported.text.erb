@@ -1,0 +1,18 @@
+Hallo <%= greeting_name(@recipient) %>,
+
+beim Umzug auf unsere neue Anmeldeplattform haben wir das bestehende Abo von
+<%= @participant.first_name %> <%= @participant.last_name %> für den Kurs
+"<%= @course.title %>" mit den noch verbleibenden Eintritten automatisch für Sie
+übernommen. Es ist keine erneute Zahlung nötig – die Eintritte stehen ab sofort
+wie gewohnt zur Verfügung.
+
+Teilnehmer:              <%= @participant.first_name %> <%= @participant.last_name %>
+Kurs:                    <%= @course.title %>
+Verbleibende Eintritte:  <%= @course_registration.abo_entries_remaining %>
+
+Zur Kursanmeldung: <%= course_url(@course) %>
+
+Bei Fragen zu Ihrem Abo kannst du dich an den Administrator wenden.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

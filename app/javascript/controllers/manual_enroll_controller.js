@@ -3,7 +3,8 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["searchTab", "createTab", "searchPanel", "createPanel",
                     "searchInput", "searchResults", "participantId", "enrollForm",
-                    "trialCheckbox", "trialSessionWrap", "trialSessionSelect", "trialField", "trialSessionField"]
+                    "trialCheckbox", "trialSessionWrap", "trialSessionSelect", "trialField", "trialSessionField",
+                    "aboEntriesDisplay", "aboEntriesField"]
 
   showSearch() {
     this.searchPanelTarget.classList.remove("hidden")
@@ -84,5 +85,10 @@ export default class extends Controller {
     const val = (this.hasTrialSessionSelectTarget && this.trialCheckboxTarget.checked)
       ? this.trialSessionSelectTarget.value : ""
     this.trialSessionFieldTargets.forEach(f => f.value = val)
+  }
+
+  syncAboEntries() {
+    const val = this.hasAboEntriesDisplayTarget ? this.aboEntriesDisplayTarget.value : ""
+    this.aboEntriesFieldTargets.forEach(f => f.value = val)
   }
 }

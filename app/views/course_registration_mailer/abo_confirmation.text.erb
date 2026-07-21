@@ -1,0 +1,20 @@
+Hallo <%= greeting_name(@recipient) %>,
+
+das Abo von <%= @participant.first_name %> <%= @participant.last_name %> für "<%= @course.title %>"
+ist ab sofort aktiv. Ein Abo ist nicht an ein einzelnes Training gebunden – <%= @participant.first_name %>
+kann die Eintritte flexibel für beliebige Trainings dieser Kategorie einlösen.
+
+Teilnehmer:  <%= @participant.first_name %> <%= @participant.last_name %>
+Abo:         <%= @course.title %>
+Eintritte:   <%= @course_registration.abo_entries_remaining %>
+
+So löst du einen Eintritt ein: Öffne die Buchungsseite deines Abos, wähle ein passendes Training
+aus der Kategorie und buche es – ein Eintritt wird dabei automatisch abgezogen. Ein gebuchtes
+Training kannst du dort bei Bedarf auch wieder stornieren, der Eintritt wird dir dann zurückerstattet.
+
+Trainings buchen: <%= @abo_sessions_url %>
+
+Bei Fragen zu deinem Abo kannst du dich an den Administrator wenden.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

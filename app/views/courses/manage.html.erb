@@ -199,6 +199,17 @@
           </div>
         <% end %>
 
+        <% if @course.abo? %>
+          <div class="mb-5 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <label class="block text-sm font-bold text-emerald-800 mb-1"><%= t("courses.manage.abo_import_label") %></label>
+            <p class="text-xs text-emerald-700 mb-2"><%= t("courses.manage.abo_import_hint") %></p>
+            <%= number_field_tag :abo_remaining_entries_display, nil,
+                  min: 0,
+                  data: { "manual-enroll-target": "aboEntriesDisplay", action: "input->manual-enroll#syncAboEntries" },
+                  class: "block w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+          </div>
+        <% end %>
+
         <%# Tab-Wechsel %>
         <div class="flex gap-2 mb-5">
           <button type="button"
@@ -229,6 +240,9 @@
             <%= f.hidden_field :participant_id, data: { "manual-enroll-target": "participantId" } %>
             <%= f.hidden_field :trial, value: "false", data: { "manual-enroll-target": "trialField" } %>
             <%= f.hidden_field :trial_session_id, data: { "manual-enroll-target": "trialSessionField" } %>
+            <% if @course.abo? %>
+              <%= f.hidden_field :abo_remaining_entries, data: { "manual-enroll-target": "aboEntriesField" } %>
+            <% end %>
           <% end %>
         </div>
 
