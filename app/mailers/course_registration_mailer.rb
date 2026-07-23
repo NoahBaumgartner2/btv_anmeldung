@@ -142,6 +142,7 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
+    @abo_sessions_url = abo_sessions_course_registration_url(course_registration)
     mail(to: @recipient.email, subject: "Ihr bestehendes Abo wurde übertragen: #{@course.title}")
   end
 

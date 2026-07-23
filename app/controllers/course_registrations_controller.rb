@@ -819,10 +819,24 @@ class CourseRegistrationsController < ApplicationController
 
     @all_sessions = @course_registration.displayable_abo_sessions
     @booked_session_ids = @course_registration.abo_booked_session_ids.to_set
-    @spots_taken_by_session = CourseRegistration
+
+    specific_counts = CourseRegistration
       .where(training_session_id: @all_sessions.map(&:id), status: %w[bestätigt schnuppern])
       .group(:training_session_id)
       .count
+
+    # Semester-Anmeldungen (training_session_id nil) belegen bei JEDER Session
+    # des jeweiligen Kurses einen Platz mit – sonst würden Abo-Buchungen sie
+    # überbuchen (siehe TrainingSession#occupied_spots für den Einzelfall).
+    semester_counts = CourseRegistration
+      .where(course_id: @all_sessions.map(&:course_id).uniq, training_session_id: nil, status: %w[bestätigt schnuppern])
+      .group(:course_id)
+      .count
+
+    @spots_taken_by_session = @all_sessions.index_with do |s|
+      specific_counts[s.id].to_i + semester_counts[s.course_id].to_i
+    end
+
     @available_weekdays = @all_sessions.map { |s| s.start_time.in_time_zone.wday }.uniq.sort
   end
 
@@ -871,9 +885,7 @@ class CourseRegistrationsController < ApplicationController
     booking = nil
 
     session.course.with_lock do
-      spots_taken = session.course.course_registrations
-                           .where(status: %w[bestätigt schnuppern], training_session_id: session.id)
-                           .count
+      spots_taken = session.occupied_spots
       is_full = session.course.max_participants.present? && spots_taken >= session.course.max_participants
 
       if is_full && !session.course.enable_waitlist?
