@@ -32,4 +32,14 @@ class TrainingSession < ApplicationRecord
   def needs_admin_notification?
     end_time.present? && end_time < 7.days.ago && admin_notified_at.nil? && !attendance_recorded?
   end
+
+  # Belegte Plätze für DIESE Session: Semester-Anmeldungen (training_session_id
+  # nil) zählen für jede Session des Kurses mit, da diese Teilnehmer:innen jedes
+  # Mal anwesend sind – sonst würden Abo-Buchungen sie überbuchen.
+  def occupied_spots
+    CourseRegistration
+      .where(course_id: course_id, status: %w[bestätigt schnuppern])
+      .where("training_session_id = ? OR training_session_id IS NULL", id)
+      .count
+  end
 end
