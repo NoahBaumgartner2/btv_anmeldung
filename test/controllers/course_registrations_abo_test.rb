@@ -79,6 +79,35 @@ class CourseRegistrationsAboTest < ActionDispatch::IntegrationTest
     assert_not @abo_reg.abo_booking?
   end
 
+  # ── abo_sessions (Anzeige freie Plätze) ───────────────────────────────────
+
+  test "abo_sessions zeigt pro Session die tatsächlich belegten Plätze an (nicht für alle gleich)" do
+    @target_course.update_columns(max_participants: 5)
+
+    booked = CourseRegistration.new(
+      course: @target_course,
+      participant: participants(:two),
+      training_session: @future_session,
+      status: "bestätigt",
+      payment_cleared: true
+    )
+    booked.save!(validate: false)
+
+    empty_session = @target_course.training_sessions.create!(
+      start_time: 4.days.from_now,
+      end_time: 4.days.from_now + 1.hour,
+      is_canceled: false
+    )
+
+    sign_in @parent
+    get abo_sessions_course_registration_path(@abo_reg)
+
+    assert_response :success
+    spots_taken = controller.instance_variable_get(:@spots_taken_by_session)
+    assert_equal 1, spots_taken[@future_session.id]
+    assert_equal 0, spots_taken[empty_session.id]
+  end
+
   # ── book_abo_session ──────────────────────────────────────────────────────
 
   test "book_abo_session erstellt CourseRegistration und erhöht abo_entries_used" do

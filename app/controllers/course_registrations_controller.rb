@@ -833,8 +833,8 @@ class CourseRegistrationsController < ApplicationController
       .group(:course_id)
       .count
 
-    @spots_taken_by_session = @all_sessions.index_with do |s|
-      specific_counts[s.id].to_i + semester_counts[s.course_id].to_i
+    @spots_taken_by_session = @all_sessions.each_with_object({}) do |s, hash|
+      hash[s.id] = specific_counts[s.id].to_i + semester_counts[s.course_id].to_i
     end
 
     @available_weekdays = @all_sessions.map { |s| s.start_time.in_time_zone.wday }.uniq.sort
