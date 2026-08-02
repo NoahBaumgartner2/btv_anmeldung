@@ -10,7 +10,7 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
       title: "Rollover Test Kurs", category: "Turnen",
       registration_type: "semester", registration_mode: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
-      term: terms(:one), renewal_priority_weeks: 3, public_registration_weeks: 1
+      term: terms(:one), renewal_priority_date: ROLLOVER_DUE_DATE, public_registration_days: 7
     }.merge(attrs)).tap { |c| c.save!(validate: false) }
   end
 
@@ -86,7 +86,7 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
   end
 
   test "roll_over! macht nichts, wenn Kurs noch nicht rollover_due? ist" do
-    course = make_course(renewal_priority_weeks: 0)
+    course = make_course(renewal_priority_date: terms(:two).start_date)
 
     travel_to(ROLLOVER_DUE_DATE) do
       assert_not course.rollover_due?

@@ -85,15 +85,16 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
             <div>
-              <%= form.label :renewal_priority_weeks, "Vorlauf für Angemeldete (Wochen)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-              <p class="text-xs text-gray-400 mb-1.5">So viele Wochen vor Start darf sich anmelden, wer im Vorgänger-Kurs bereits angemeldet war.</p>
-              <%= form.number_field :renewal_priority_weeks, min: 0,
+              <%= form.label :renewal_priority_date, "Vorlauf für Angemeldete (Datum)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <p class="text-xs text-gray-400 mb-1.5">Ab diesem Datum darf sich anmelden, wer im Vorgänger-Kurs bereits angemeldet war. Löst auch die automatische Erstellung des Nachfolge-Kurses aus.</p>
+              <%= form.date_field :renewal_priority_date,
+                    data: { controller: "datepicker" },
                     class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
             </div>
             <div>
-              <%= form.label :public_registration_weeks, "Vorlauf für alle (Wochen)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-              <p class="text-xs text-gray-400 mb-1.5">So viele Wochen vor Start wird die Anmeldung für alle geöffnet.</p>
-              <%= form.number_field :public_registration_weeks, min: 0,
+              <%= form.label :public_registration_days, "Vorlauf für alle (Tage)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <p class="text-xs text-gray-400 mb-1.5">So viele Tage nach obigem Datum wird die Anmeldung für alle geöffnet.</p>
+              <%= form.number_field :public_registration_days, min: 0,
                     class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
             </div>
           </div>
@@ -236,8 +237,8 @@
                 <label class="cursor-pointer">
                   <input type="checkbox" name="course[holiday_type_ids][]" value="<%= type.id %>"
                          <%= "checked" if course.new_record? || course.holiday_type_ids.include?(type.id) %> class="sr-only peer">
-                  <span class="peer-checked:bg-yellow-400 peer-checked:text-yellow-950 peer-checked:border-yellow-400
-                               block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-yellow-300
+                  <span class="peer-checked:bg-primary-600 peer-checked:text-white peer-checked:border-primary-600
+                               block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-primary-300
                                font-semibold px-4 py-2 rounded-xl text-sm transition select-none">
                     <%= type.name %>
                   </span>

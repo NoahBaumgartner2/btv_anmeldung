@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_170020) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_203000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -172,10 +172,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_170020) do
     t.string "payment_methods", default: ["card"], null: false, array: true
     t.bigint "previous_course_id"
     t.integer "price_cents"
-    t.integer "public_registration_weeks", default: 1
+    t.integer "public_registration_days", default: 7
     t.string "registration_mode"
     t.string "registration_type"
-    t.integer "renewal_priority_weeks", default: 3
+    t.date "renewal_priority_date"
     t.boolean "requires_ahv_number", default: false, null: false
     t.boolean "requires_city", default: false, null: false
     t.boolean "requires_country", default: false, null: false

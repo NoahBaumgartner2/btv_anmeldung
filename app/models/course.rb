@@ -236,26 +236,24 @@ class Course < ApplicationRecord
   end
 
   # Ist die automatische Verlängerung fällig? (Term gesetzt, nächster Term
-  # existiert, noch nicht verlängert, Vorlauf-Schwelle erreicht.)
+  # existiert, noch nicht verlängert, Vorlauf-Datum erreicht oder leer.)
   def rollover_due?
     return false if term.blank? || next_term.blank? || next_course.present?
-    Date.current >= (next_term.start_date.to_date - renewal_priority_weeks.to_i.weeks)
+    Date.current >= (renewal_priority_date || next_term.start_date.to_date)
   end
 
   # Zugriffssperre für automatisch verlängerte Kurse: ohne previous_course
   # (kein Nachfolge-Kurs einer Verlängerung) gilt die normale Anmeldung ohne
-  # Einschränkung. Mit previous_course gilt ein zweistufiges Fenster:
-  # zuerst nur für Familien mit aktiver Anmeldung im Vorgänger-Kurs
-  # (renewal_priority_weeks vor Kursstart), danach für alle
-  # (public_registration_weeks vor Kursstart).
+  # Einschränkung. Mit previous_course gilt ein zweistufiges Fenster: zuerst
+  # nur für Familien mit aktiver Anmeldung im Vorgänger-Kurs (ab
+  # renewal_priority_date), danach für alle (ab renewal_priority_date +
+  # public_registration_days).
   def registration_window_open_for?(user)
-    return true if previous_course_id.blank? || start_date.blank?
+    return true if previous_course_id.blank? || renewal_priority_date.blank?
 
-    public_weeks = public_registration_weeks.to_i
-    return true if Date.current >= (start_date.to_date - public_weeks.weeks)
-
-    priority_weeks = (renewal_priority_weeks || public_registration_weeks).to_i
-    return false if Date.current < (start_date.to_date - priority_weeks.weeks)
+    public_from = renewal_priority_date + public_registration_days.to_i.days
+    return true if Date.current >= public_from
+    return false if Date.current < renewal_priority_date
 
     previous_course.course_registrations
       .joins(participant: :user)
@@ -282,8 +280,8 @@ class Course < ApplicationRecord
   # Eigener Zeitraum (kein Term): automatische Verlängerung ist ohne Term
   # ohnehin nicht möglich (siehe rollover_due?) – die Checkbox wird zusätzlich
   # zurückgesetzt, damit sie nicht "unsichtbar aktiv" bleibt (z.B. wenn im
-  # Formular auf "Eigener Zeitraum" gewechselt wird). renewal_priority_weeks/
-  # public_registration_weeks bleiben unangetastet – die steuern unabhängig
+  # Formular auf "Eigener Zeitraum" gewechselt wird). renewal_priority_date/
+  # public_registration_days bleiben unangetastet – die steuern unabhängig
   # vom Term das Registrierungsfenster für previous_course-Nachfolgekurse
   # (siehe registration_window_open_for?).
   def clear_rollover_fields_without_term
