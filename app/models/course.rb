@@ -27,6 +27,7 @@ class Course < ApplicationRecord
 
   before_save :clean_payment_methods
   before_save :clear_dates_for_abo
+  before_save :clear_rollover_fields_without_term
 
   # Gibt die tatsächlich nutzbaren Zahlungsmethoden zurück (bereinigt, mit Fallback)
   def effective_payment_methods
@@ -276,6 +277,18 @@ class Course < ApplicationRecord
     self.start_date = nil
     self.end_date = nil
     self.term_id = nil
+  end
+
+  # Eigener Zeitraum (kein Term): automatische Verlängerung ist ohne Term
+  # ohnehin nicht möglich (siehe rollover_due?) – die Checkbox wird zusätzlich
+  # zurückgesetzt, damit sie nicht "unsichtbar aktiv" bleibt (z.B. wenn im
+  # Formular auf "Eigener Zeitraum" gewechselt wird). renewal_priority_weeks/
+  # public_registration_weeks bleiben unangetastet – die steuern unabhängig
+  # vom Term das Registrierungsfenster für previous_course-Nachfolgekurse
+  # (siehe registration_window_open_for?).
+  def clear_rollover_fields_without_term
+    return if term_id.present?
+    self.auto_rollover = false
   end
 
   def max_age_must_be_greater_than_or_equal_to_min_age
