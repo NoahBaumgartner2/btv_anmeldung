@@ -1,6 +1,8 @@
 require "test_helper"
 
 class CourseRolloverServiceTest < ActiveSupport::TestCase
+  include ActionMailer::TestHelper
+
   ROLLOVER_DUE_DATE = Date.new(2026, 12, 22) # 3 Wochen vor terms(:two).start_date (2027-01-11)
 
   def make_course(attrs = {})
@@ -66,6 +68,18 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
     new_course.training_sessions.each do |s|
       assert s.start_time.to_date < holiday.start_date || s.start_time.to_date > holiday.end_date,
         "Training #{s.start_time} liegt in den Ferien"
+    end
+  end
+
+  test "roll_over! benachrichtigt bisherige Teilnehmende per Mail" do
+    course = make_course
+    reg = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt")
+    reg.save!(validate: false)
+    cancelled = CourseRegistration.new(course: course, participant: participants(:two), status: "storniert")
+    cancelled.save!(validate: false)
+
+    assert_enqueued_emails 1 do
+      travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
     end
   end
 

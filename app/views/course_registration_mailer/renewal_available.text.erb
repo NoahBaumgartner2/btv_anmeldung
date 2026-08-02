@@ -1,0 +1,9 @@
+Hallo,
+
+<%= @participant.first_name %> <%= @participant.last_name %> war im Kurs "<%= @course.title %>" angemeldet.
+Für die nächste Periode (<%= @new_course.term&.name %>) kannst du dich ab sofort neu anmelden – noch bevor
+die Anmeldung für alle anderen öffnet.
+
+Jetzt neu anmelden: <%= @registration_url %>
+
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

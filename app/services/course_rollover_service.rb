@@ -34,10 +34,20 @@ class CourseRolloverService
       generate_sessions(new_course)
     end
 
+    notify_previous_participants(new_course)
+
     new_course
   end
 
   private
+
+  # Informiert bisherige (nicht stornierte) Teilnehmende des alten Kurses,
+  # dass sie sich für die neue Periode neu anmelden können.
+  def notify_previous_participants(new_course)
+    @course.course_registrations.where.not(status: "storniert").find_each do |reg|
+      CourseRegistrationMailer.renewal_available(reg, new_course).deliver_later
+    end
+  end
 
   def copy_trainers(new_course)
     @course.course_trainers.each do |ct|
