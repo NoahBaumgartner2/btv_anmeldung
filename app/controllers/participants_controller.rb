@@ -88,7 +88,24 @@ class ParticipantsController < ApplicationController
   end
 
   def update
+    # Platzhalter aus einer E-Mail-only-Anmeldung sind unvollständig (fehlendes
+    # Geburtsdatum/Gender/etc.) und daher noch nicht valide.
+    was_incomplete = !@participant.valid?
+
     if @participant.update(participant_params)
+      # Sobald die Familie das Profil vervollständigt, die bisher zurückgehaltene
+      # Bestätigungsmail nachreichen (siehe courses_controller#enroll_participant).
+      if was_incomplete
+        @participant.course_registrations.where.not(status: "storniert").find_each do |reg|
+          # payment_cleared wird beim Abo-Import (bestehende Resteintritte) gesetzt –
+          # dieselbe Unterscheidung wie in courses_controller#enroll_participant.
+          if reg.course.abo? && reg.payment_cleared?
+            CourseRegistrationMailer.abo_imported(reg).deliver_later
+          else
+            CourseRegistrationMailer.confirmation(reg).deliver_later
+          end
+        end
+      end
       redirect_to participants_path, notice: "#{@participant.first_name} wurde erfolgreich aktualisiert."
     else
       render :edit, status: :unprocessable_entity

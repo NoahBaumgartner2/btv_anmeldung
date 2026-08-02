@@ -506,4 +506,75 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, I18n.t("course_registrations.form.trial_no_sessions")
   end
+
+  # ── Admin: manuelle Anmeldung mit ungültiger/neuer E-Mail ──────────────
+
+  test "manual_enroll mit ungültiger E-Mail zeigt Fehlermeldung statt 500" do
+    assert_no_difference([ "User.count", "Participant.count", "CourseRegistration.count" ]) do
+      post manual_enroll_course_url(@course), params: {
+        new_family_email: "not-an-email", participant: { first_name: "Test", last_name: "Kind" }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, "gültige E-Mail-Adresse"
+  end
+
+  test "manual_enroll email_only ohne Namen zeigt Fehlermeldung" do
+    assert_no_difference([ "User.count", "Participant.count", "CourseRegistration.count" ]) do
+      post manual_enroll_course_url(@course), params: {
+        new_family_email: "neue.familie@example.com", email_only: "true",
+        participant: { first_name: "", last_name: "" }
+      }
+    end
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, "Vor- und Nachname"
+  end
+
+  test "manual_enroll email_only legt Platzhalter-Teilnehmer an und verschickt complete_profile-Mail" do
+    assert_difference([ "User.count", "Participant.count", "CourseRegistration.count" ], 1) do
+      assert_enqueued_emails 1 do
+        post manual_enroll_course_url(@course), params: {
+          new_family_email: "neue.familie@example.com", email_only: "true",
+          participant: { first_name: "Mia", last_name: "Muster" }
+        }
+      end
+    end
+
+    participant = Participant.last
+    assert_equal "Mia", participant.first_name
+    assert_equal "Muster", participant.last_name
+    assert_nil participant.date_of_birth
+    assert_equal "neue.familie@example.com", participant.user.email
+
+    job = enqueued_jobs.find { |j| j[:args].first == "ParticipantMailer" }
+    assert_equal "complete_profile", job[:args][1]
+    assert_redirected_to manage_course_path(@course)
+  end
+
+  test "manual_enroll Fehler bei allows_trial-Kurs crasht nicht (fehlende @trial_sessions)" do
+    course = Course.new(
+      title: "Trial Fehlertest", category: "Turnen",
+      registration_type: "semester", registration_mode: "semester",
+      allows_trial: true, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+
+    post manual_enroll_course_url(course), params: {
+      new_family_email: "not-an-email", participant: { first_name: "Test", last_name: "Kind" }
+    }
+
+    assert_response :unprocessable_entity
+  end
+
+  test "manual_enroll zeigt bei Fehler das 'Neue Familie erstellen'-Panel direkt an" do
+    post manual_enroll_course_url(@course), params: {
+      new_family_email: "not-an-email", participant: { first_name: "Test", last_name: "Kind" }
+    }
+
+    assert_response :unprocessable_entity
+    assert_match(/data-manual-enroll-target="createPanel" class="\s*"/, response.body)
+    assert_match(/data-manual-enroll-target="searchPanel" class="hidden"/, response.body)
+  end
 end
