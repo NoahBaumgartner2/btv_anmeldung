@@ -29,15 +29,16 @@ class CourseTest < ActiveSupport::TestCase
 
   # ── Abo: kein Datumsbereich ──────────────────────────────────────────────────
 
-  test "abo-Kurs verliert start_date/end_date beim Speichern" do
+  test "abo-Kurs verliert start_date/end_date/term_id beim Speichern" do
     course = Course.new(base_attrs.merge(
       registration_type: "abo", registration_mode: "abo", abo_size: 10,
-      start_date: Date.new(2026, 1, 1), end_date: Date.new(2026, 12, 31)
+      start_date: Date.new(2026, 1, 1), end_date: Date.new(2026, 12, 31), term: terms(:one)
     ))
     course.save!(validate: false)
 
     assert_nil course.start_date
     assert_nil course.end_date
+    assert_nil course.term_id
   end
 
   test "nicht-abo-Kurs behält start_date/end_date" do
@@ -60,6 +61,90 @@ class CourseTest < ActiveSupport::TestCase
   test "Kurs ist auch ohne Term gültig" do
     course = Course.new(base_attrs)
     assert course.valid?, course.errors.full_messages.inspect
+  end
+
+  # ── Automatische Verlängerung (rollover_due? / registration_window_open_for?) ──
+
+  test "rollover_due? ist false ohne Term" do
+    course = Course.new(base_attrs)
+    course.save!(validate: false)
+    assert_not course.rollover_due?
+  end
+
+  test "rollover_due? ist false ohne nächsten Term" do
+    course = Course.new(base_attrs.merge(term: terms(:two))) # letzter Term der Kette
+    course.save!(validate: false)
+    assert_not course.rollover_due?
+  end
+
+  test "rollover_due? ist true wenn die Vorlauf-Schwelle erreicht ist" do
+    term = terms(:one) # next_term ist terms(:two), start_date 2027-01-11
+    course = Course.new(base_attrs.merge(term: term, renewal_priority_weeks: 3))
+    course.save!(validate: false)
+
+    travel_to(Date.new(2026, 12, 22)) do # 3 Wochen vor 2027-01-11
+      assert course.rollover_due?
+    end
+
+    travel_to(Date.new(2026, 12, 1)) do
+      assert_not course.rollover_due?
+    end
+  end
+
+  test "rollover_due? ist false wenn bereits ein Nachfolge-Kurs existiert" do
+    term = terms(:one)
+    course = Course.new(base_attrs.merge(term: term, renewal_priority_weeks: 3))
+    course.save!(validate: false)
+
+    successor = Course.new(base_attrs.merge(term: terms(:two), previous_course: course))
+    successor.save!(validate: false)
+
+    travel_to(Date.new(2026, 12, 22)) do
+      assert_not course.rollover_due?
+    end
+  end
+
+  test "registration_window_open_for? ist immer offen ohne previous_course" do
+    course = Course.new(base_attrs.merge(start_date: Date.new(2027, 1, 11)))
+    course.save!(validate: false)
+    assert course.registration_window_open_for?(users(:parent_only))
+  end
+
+  test "registration_window_open_for? ist erst ab public_registration_weeks für alle offen" do
+    old_course = Course.new(base_attrs)
+    old_course.save!(validate: false)
+
+    new_course = Course.new(base_attrs.merge(
+      start_date: Date.new(2027, 1, 11), previous_course: old_course,
+      renewal_priority_weeks: 3, public_registration_weeks: 1
+    ))
+    new_course.save!(validate: false)
+
+    travel_to(Date.new(2027, 1, 1)) do # 10 Tage vorher, weder Prio- noch Public-Fenster
+      assert_not new_course.registration_window_open_for?(users(:parent_only))
+    end
+
+    travel_to(Date.new(2027, 1, 8)) do # 3 Tage vorher, im Public-Fenster
+      assert new_course.registration_window_open_for?(users(:parent_only))
+    end
+  end
+
+  test "registration_window_open_for? erlaubt Vorgänger-Teilnehmern früheren Zugriff" do
+    old_course = Course.new(base_attrs)
+    old_course.save!(validate: false)
+    reg = CourseRegistration.new(course: old_course, participant: participants(:one), status: "bestätigt")
+    reg.save!(validate: false)
+
+    new_course = Course.new(base_attrs.merge(
+      start_date: Date.new(2027, 1, 11), previous_course: old_course,
+      renewal_priority_weeks: 3, public_registration_weeks: 1
+    ))
+    new_course.save!(validate: false)
+
+    travel_to(Date.new(2026, 12, 22)) do # 3 Wochen vorher: Prio-Fenster, Public noch zu
+      assert new_course.registration_window_open_for?(participants(:one).user)
+      assert_not new_course.registration_window_open_for?(users(:parent_only))
+    end
   end
 
   # ── Preisreduktion ───────────────────────────────────────────────────────────

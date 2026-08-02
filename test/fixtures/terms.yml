@@ -2,10 +2,12 @@
 
 one:
   name: HS2026
+  kind: semester
   start_date: 2026-08-17
   end_date: 2026-12-19
 
 two:
   name: FS2027
+  kind: semester
   start_date: 2027-01-11
   end_date: 2027-06-19

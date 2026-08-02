@@ -146,6 +146,22 @@ class CourseRegistrationMailer < ApplicationMailer
     mail(to: @recipient.email, subject: "Ihr bestehendes Abo wurde übertragen: #{@course.title}")
   end
 
+  # Wird verschickt, wenn CourseRolloverService automatisch einen Nachfolge-
+  # Kurs erstellt hat: informiert bisherige Teilnehmende, dass sie sich
+  # (bereits im Vorlauf-Fenster, vor allen anderen) neu anmelden können.
+  def renewal_available(old_registration, new_course)
+    @old_registration = old_registration
+    @course = old_registration.course
+    @new_course = new_course
+    @participant = old_registration.participant
+    @recipient = @participant.user
+    return if @recipient.nil?
+
+    @registration_url = new_course_registration_url(course_id: @new_course.id)
+
+    mail(to: @recipient.email, subject: "Neuanmeldung für #{@new_course.title} jetzt möglich")
+  end
+
   def abo_exhausted(course_registration)
     @course_registration = course_registration
     @course = course_registration.course

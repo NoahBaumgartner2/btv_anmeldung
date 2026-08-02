@@ -53,12 +53,38 @@
         <div>
           <%= form.label :term_id, "Semester/Quartal", class: "block text-sm font-medium text-gray-700 mb-1" %>
           <p class="text-xs text-gray-400 mb-1.5">
-            Optional – ordnet den Kurs einem festen Datumsbereich (z.B. HS2026) zu. Massgebend für Trainings &amp;
-            Kurslaufzeit bleiben aktuell weiterhin Start-/Enddatum unten.
+            Ordnet den Kurs einem Datumsbereich (z.B. HS2026) zu. Sobald der Vorlauf unten erreicht ist, wird
+            automatisch ein Nachfolge-Kurs für den nächsten Term derselben Art erstellt (gleiche Einstellungen,
+            neue Trainings – Wochentag/Zeit werden von den bestehenden Trainings übernommen).
           </p>
           <%= form.collection_select :term_id, Term.order(start_date: :desc), :id, :name,
                 { include_blank: "Kein Semester/Quartal" },
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11 mb-5" %>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+            <div>
+              <%= form.label :renewal_priority_weeks, "Vorlauf für Angemeldete (Wochen)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <p class="text-xs text-gray-400 mb-1.5">So viele Wochen vor Start darf sich anmelden, wer im Vorgänger-Kurs bereits angemeldet war.</p>
+              <%= form.number_field :renewal_priority_weeks, min: 0,
+                    class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+            </div>
+            <div>
+              <%= form.label :public_registration_weeks, "Vorlauf für alle (Wochen)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <p class="text-xs text-gray-400 mb-1.5">So viele Wochen vor Start wird die Anmeldung für alle geöffnet.</p>
+              <%= form.number_field :public_registration_weeks, min: 0,
+                    class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
+            </div>
+          </div>
+
+          <label class="flex items-center gap-3 cursor-pointer">
+            <%= form.check_box :auto_rollover,
+                  class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+            <span class="text-sm font-medium text-gray-800">Nächste Periode automatisch erstellen</span>
+          </label>
+          <p class="text-xs text-gray-400 mt-0.5 ml-8">
+            Aus: sobald der Vorlauf erreicht ist, bekommen Admins nur eine E-Mail und können die Verlängerung
+            über einen Button in der Kursverwaltung selbst auslösen.
+          </p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>

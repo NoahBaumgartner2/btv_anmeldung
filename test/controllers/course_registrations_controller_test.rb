@@ -1219,4 +1219,59 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal "warteliste", waiting.reload.status
   end
+
+  # ── Automatische Verlängerung: Registrierungsfenster ────────────────────────
+
+  def make_rollover_course(previous_course:, start_date:, renewal_priority_weeks: 3, public_registration_weeks: 1)
+    Course.new(
+      title: "Nachfolge-Kurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      previous_course: previous_course, start_date: start_date,
+      renewal_priority_weeks: renewal_priority_weeks, public_registration_weeks: public_registration_weeks
+    ).tap { |c| c.save!(validate: false) }
+  end
+
+  test "new blockiert Kurs ausserhalb des Registrierungsfensters" do
+    old_course = @registration.course
+    new_course = make_rollover_course(previous_course: old_course, start_date: Date.new(2027, 1, 11))
+
+    travel_to(Date.new(2027, 1, 1)) do # weder Prio- noch Public-Fenster offen
+      sign_in @trial_parent
+      get new_course_registration_path(course_id: new_course.id)
+    end
+
+    assert_redirected_to courses_path
+    assert_match "noch nicht geöffnet", flash[:alert]
+  end
+
+  test "new erlaubt Vorgänger-Teilnehmern frühzeitigen Zugriff" do
+    old_course = @registration.course
+    prior_reg = CourseRegistration.new(course: old_course, participant: @trial_participant, status: "bestätigt")
+    prior_reg.save!(validate: false)
+    new_course = make_rollover_course(previous_course: old_course, start_date: Date.new(2027, 1, 11))
+
+    travel_to(Date.new(2026, 12, 22)) do # 3 Wochen vorher: Prio-Fenster
+      sign_in @trial_parent
+      get new_course_registration_path(course_id: new_course.id)
+    end
+
+    assert_response :success
+  end
+
+  test "create blockiert Kurs ausserhalb des Registrierungsfensters" do
+    old_course = @registration.course
+    new_course = make_rollover_course(previous_course: old_course, start_date: Date.new(2027, 1, 11))
+
+    travel_to(Date.new(2027, 1, 1)) do
+      sign_in @trial_parent
+      assert_no_difference "CourseRegistration.count" do
+        post course_registrations_path, params: {
+          course_registration: { course_id: new_course.id, participant_id: @trial_participant.id }
+        }
+      end
+    end
+
+    assert_redirected_to courses_path
+    assert_match "noch nicht geöffnet", flash[:alert]
+  end
 end

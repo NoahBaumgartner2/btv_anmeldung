@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_105238) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_132957) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -149,6 +149,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_105238) do
     t.boolean "allows_holiday_deduction"
     t.boolean "allows_talent_marking", default: false, null: false
     t.boolean "allows_trial", default: false, null: false
+    t.boolean "auto_rollover", default: true, null: false
     t.string "category"
     t.datetime "created_at", null: false
     t.integer "default_end_hour"
@@ -169,9 +170,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_105238) do
     t.integer "max_participants"
     t.integer "min_age"
     t.string "payment_methods", default: ["card"], null: false, array: true
+    t.bigint "previous_course_id"
     t.integer "price_cents"
+    t.integer "public_registration_weeks", default: 1
     t.string "registration_mode"
     t.string "registration_type"
+    t.integer "renewal_priority_weeks", default: 3
     t.boolean "requires_ahv_number", default: false, null: false
     t.boolean "requires_city", default: false, null: false
     t.boolean "requires_country", default: false, null: false
@@ -181,6 +185,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_105238) do
     t.boolean "requires_street", default: false, null: false
     t.boolean "requires_zip_code", default: false, null: false
     t.boolean "restricted", default: false, null: false
+    t.datetime "rollover_notified_at"
     t.integer "second_course_price_cents"
     t.integer "sibling_price_cents"
     t.datetime "start_date"
@@ -190,6 +195,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_105238) do
     t.datetime "updated_at", null: false
     t.integer "youth_max_age", default: 20
     t.integer "youth_price_cents"
+    t.index ["previous_course_id"], name: "index_courses_on_previous_course_id", unique: true
     t.index ["term_id"], name: "index_courses_on_term_id"
   end
 
@@ -316,6 +322,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_105238) do
   create_table "terms", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "end_date"
+    t.string "kind"
     t.string "name"
     t.date "start_date"
     t.datetime "updated_at", null: false
@@ -412,6 +419,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_105238) do
   add_foreign_key "course_registrations", "training_sessions", column: "trial_session_id"
   add_foreign_key "course_trainers", "courses"
   add_foreign_key "course_trainers", "trainers"
+  add_foreign_key "courses", "courses", column: "previous_course_id"
   add_foreign_key "courses", "terms"
   add_foreign_key "participants", "users"
   add_foreign_key "trainers", "users"

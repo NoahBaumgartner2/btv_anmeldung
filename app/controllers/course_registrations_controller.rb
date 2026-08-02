@@ -46,6 +46,10 @@ class CourseRegistrationsController < ApplicationController
         redirect_to courses_path, alert: "Dieser Kurs ist nur für eingeladene Teilnehmende zugänglich."
         return
       end
+      if @course && !@course.registration_window_open_for?(current_user)
+        redirect_to courses_path, alert: "Die Anmeldung für diesen Kurs ist noch nicht geöffnet."
+        return
+      end
       @course_registration.course_id = @course&.id
       # Nur Kurse der gleichen Kategorie anzeigen
       @selectable_courses = if @course&.category.present?
@@ -80,6 +84,11 @@ class CourseRegistrationsController < ApplicationController
 
     if course&.restricted? && !course.accessible_by?(current_user)
       redirect_to courses_path, alert: "Dieser Kurs ist nur für eingeladene Teilnehmende zugänglich."
+      return
+    end
+
+    if course && !course.registration_window_open_for?(current_user)
+      redirect_to courses_path, alert: "Die Anmeldung für diesen Kurs ist noch nicht geöffnet."
       return
     end
 
