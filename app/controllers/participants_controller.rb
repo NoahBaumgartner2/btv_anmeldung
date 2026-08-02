@@ -88,7 +88,18 @@ class ParticipantsController < ApplicationController
   end
 
   def update
+    # Platzhalter aus einer E-Mail-only-Anmeldung sind unvollständig (fehlendes
+    # Geburtsdatum/Gender/etc.) und daher noch nicht valide.
+    was_incomplete = !@participant.valid?
+
     if @participant.update(participant_params)
+      # Sobald die Familie das Profil vervollständigt, die bisher zurückgehaltene
+      # Bestätigungsmail nachreichen (siehe courses_controller#enroll_participant).
+      if was_incomplete
+        @participant.course_registrations.where.not(status: "storniert").find_each do |reg|
+          CourseRegistrationMailer.confirmation(reg).deliver_later
+        end
+      end
       redirect_to participants_path, notice: "#{@participant.first_name} wurde erfolgreich aktualisiert."
     else
       render :edit, status: :unprocessable_entity

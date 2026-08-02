@@ -4,7 +4,8 @@ export default class extends Controller {
   static targets = ["searchTab", "createTab", "searchPanel", "createPanel",
                     "searchInput", "searchResults", "participantId", "enrollForm",
                     "trialCheckbox", "trialSessionWrap", "trialSessionSelect", "trialField", "trialSessionField",
-                    "aboEntriesDisplay", "aboEntriesField"]
+                    "aboEntriesDisplay", "aboEntriesField",
+                    "emailOnlyCheckbox", "emailOnlyField", "detailFields"]
 
   showSearch() {
     this.searchPanelTarget.classList.remove("hidden")
@@ -90,5 +91,11 @@ export default class extends Controller {
   syncAboEntries() {
     const val = this.hasAboEntriesDisplayTarget ? this.aboEntriesDisplayTarget.value : ""
     this.aboEntriesFieldTargets.forEach(f => f.value = val)
+  }
+
+  toggleEmailOnly() {
+    const checked = this.emailOnlyCheckboxTarget.checked
+    this.emailOnlyFieldTarget.value = checked ? "true" : "false"
+    this.detailFieldsTargets.forEach(el => el.classList.toggle("hidden", checked))
   }
 }

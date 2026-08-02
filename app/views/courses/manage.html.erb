@@ -210,24 +210,26 @@
           </div>
         <% end %>
 
+        <% _show_create = @show_manual_create_panel %>
+
         <%# Tab-Wechsel %>
         <div class="flex gap-2 mb-5">
           <button type="button"
                   data-action="click->manual-enroll#showSearch"
                   data-manual-enroll-target="searchTab"
-                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold bg-primary-600 text-white transition">
+                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition <%= _show_create ? "bg-gray-100 text-gray-600 hover:bg-gray-200" : "bg-primary-600 text-white" %>">
             Bestehende Familie suchen
           </button>
           <button type="button"
                   data-action="click->manual-enroll#showCreate"
                   data-manual-enroll-target="createTab"
-                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold bg-gray-100 text-gray-600 hover:bg-gray-200 transition">
+                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition <%= _show_create ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200" %>">
             Neue Familie erstellen
           </button>
         </div>
 
         <%# Suche-Panel %>
-        <div data-manual-enroll-target="searchPanel">
+        <div data-manual-enroll-target="searchPanel" class="<%= "hidden" if _show_create %>">
           <input type="text"
                  placeholder="Name oder E-Mail der Eltern / des Kindes..."
                  data-manual-enroll-target="searchInput"
@@ -247,7 +249,7 @@
         </div>
 
         <%# Neue Familie erstellen Panel %>
-        <div data-manual-enroll-target="createPanel" class="hidden">
+        <div data-manual-enroll-target="createPanel" class="<%= "hidden" unless _show_create %>">
           <%= render "participants/form",
                 participant: @manual_participant,
                 form_url: manual_enroll_course_path(@course),

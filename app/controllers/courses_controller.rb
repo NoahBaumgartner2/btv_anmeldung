@@ -201,13 +201,8 @@ class CoursesController < ApplicationController
 
   def manage
     @manual_participant = Participant.new(country: "CH", nationality: "CH", mother_tongue: "DE")
-    # Zielkurse für die Admin-Verschiebe-Funktion (alle Kurse, kategorienübergreifend).
-    @move_target_courses = Course.order(:category, :title).to_a if current_user&.admin?
-    @trial_sessions = if @course.allows_trial?
-      @course.training_sessions.where(is_canceled: false).where("start_time > ?", Time.current).order(:start_time)
-    else
-      []
-    end
+    @show_manual_create_panel = false
+    set_manage_view_ivars
   end
 
   # GET /courses/:id/participant_search?q=...
@@ -260,33 +255,64 @@ class CoursesController < ApplicationController
 
     elsif params[:new_family_email].present?
       email = params[:new_family_email].strip.downcase
+      email_only = params[:email_only] == "true"
+
+      unless email.match?(URI::MailTo::EMAIL_REGEXP)
+        return manual_enroll_form_error("Bitte eine gültige E-Mail-Adresse angeben.")
+      end
+
+      if email_only
+        first_name = params.dig(:participant, :first_name).to_s.strip
+        last_name  = params.dig(:participant, :last_name).to_s.strip
+
+        if first_name.blank? || last_name.blank?
+          return manual_enroll_form_error("Bitte Vor- und Nachname angeben.")
+        end
+      end
+
       user = User.find_or_initialize_by(email: email)
+      reset_password_token = nil
 
       if user.new_record?
         user.password = Devise.friendly_token[0, 20]
         user.privacy_accepted = true
         user.skip_confirmation!
-        user.save!
-        user.send_reset_password_instructions
+
+        unless user.save
+          return manual_enroll_form_error("Account konnte nicht erstellt werden: #{user.errors.full_messages.join(', ')}")
+        end
+
+        if email_only
+          # Kein Passwort-Mail von Devise – der Link steckt stattdessen im
+          # ParticipantMailer#complete_profile weiter unten.
+          reset_password_token = user.send(:set_reset_password_token)
+        else
+          user.send_reset_password_instructions
+        end
       end
 
-      p_params = params.require(:participant).permit(
-        :first_name, :last_name, :date_of_birth, :gender, :phone_number,
-        :ahv_number, :street, :house_number, :zip_code, :city, :country,
-        :nationality, :mother_tongue, :js_person_number
-      )
+      if email_only
+        participant = Participant.new(user: user, first_name: first_name, last_name: last_name)
+        participant.save(validate: false)
+      else
+        p_params = params.require(:participant).permit(
+          :first_name, :last_name, :date_of_birth, :gender, :phone_number,
+          :ahv_number, :street, :house_number, :zip_code, :city, :country,
+          :nationality, :mother_tongue, :js_person_number
+        )
 
-      participant = Participant.new(p_params)
-      participant.user = user
-      participant.phone_number = "000 000 00 00" if participant.phone_number.blank?
+        participant = Participant.new(p_params)
+        participant.user = user
+        participant.phone_number = "000 000 00 00" if participant.phone_number.blank?
 
-      unless participant.save
-        @manual_participant = participant
-        flash.now[:alert] = "Teilnehmer konnte nicht erstellt werden: #{participant.errors.full_messages.join(', ')}"
-        return render :manage, status: :unprocessable_entity
+        unless participant.save
+          @manual_participant = participant
+          return manual_enroll_form_error("Teilnehmer konnte nicht erstellt werden: #{participant.errors.full_messages.join(', ')}")
+        end
       end
 
-      enroll_participant(participant, trial: trial, trial_session_id: trial_session_id)
+      enroll_participant(participant, trial: trial, trial_session_id: trial_session_id,
+        email_only: email_only, reset_password_token: reset_password_token)
     else
       redirect_to manage_course_path(@course), alert: "Bitte Teilnehmer auswählen oder neue Familie erfassen."
     end
@@ -437,7 +463,27 @@ class CoursesController < ApplicationController
       end
     end
 
-    def enroll_participant(participant, trial: false, trial_session_id: nil)
+    def manual_enroll_form_error(message)
+      @manual_participant ||= Participant.new(country: "CH", nationality: "CH", mother_tongue: "DE")
+      @show_manual_create_panel = true
+      set_manage_view_ivars
+      flash.now[:alert] = message
+      render :manage, status: :unprocessable_entity
+    end
+
+    # Von `manage` sowie jedem Fehlerpfad benötigt, der die manage-View erneut
+    # rendert (siehe manual_enroll_form_error und den Teilnehmer-Save-Fehler unten).
+    def set_manage_view_ivars
+      # Zielkurse für die Admin-Verschiebe-Funktion (alle Kurse, kategorienübergreifend).
+      @move_target_courses = Course.order(:category, :title).to_a if current_user&.admin?
+      @trial_sessions = if @course.allows_trial?
+        @course.training_sessions.where(is_canceled: false).where("start_time > ?", Time.current).order(:start_time)
+      else
+        []
+      end
+    end
+
+    def enroll_participant(participant, trial: false, trial_session_id: nil, email_only: false, reset_password_token: nil)
       if @course.course_registrations.where(participant: participant).where.not(status: "storniert").exists?
         return redirect_to manage_course_path(@course),
           alert: "#{participant.first_name} ist bereits für diesen Kurs angemeldet."
@@ -469,14 +515,23 @@ class CoursesController < ApplicationController
       end
 
       if reg.save(validate: false)
-        if abo_remaining_entries
+        # E-Mail-only-Anmeldung: Platzhalter-Teilnehmer hat noch kein Geburtsdatum/
+        # Adresse/etc. – statt der Bestätigungsmail geht ein Link zum Ergänzen raus.
+        # Die reguläre Bestätigungsmail wird nachgereicht, sobald die Familie das
+        # Profil selbst vervollständigt hat (siehe participants_controller#update).
+        if email_only
+          ParticipantMailer.complete_profile(participant, @course, reset_password_token: reset_password_token).deliver_later
+        elsif abo_remaining_entries
           CourseRegistrationMailer.abo_imported(reg).deliver_later
         else
           CourseRegistrationMailer.confirmation(reg).deliver_later
         end
+
+        name = "#{participant.first_name} #{participant.last_name}"
         msg = status == "warteliste" ?
-          "#{participant.first_name} wurde auf die Warteliste gesetzt." :
-          "#{participant.first_name} wurde erfolgreich angemeldet."
+          "#{name} wurde auf die Warteliste gesetzt." :
+          "#{name} wurde erfolgreich angemeldet."
+        msg += " Die Familie erhält eine E-Mail, um die restlichen Angaben zu ergänzen." if email_only
         redirect_to manage_course_path(@course), notice: msg
       else
         redirect_to manage_course_path(@course),
