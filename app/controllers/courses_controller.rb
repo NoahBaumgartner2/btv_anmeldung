@@ -46,7 +46,7 @@ class CoursesController < ApplicationController
       if @course.save
         provision_new_trainer(@course)
         save_trainer_permissions(@course)
-        result = generate_initial_training_sessions(@course)
+        result = generate_training_sessions_from_form(@course)
 
         notice = "Kurs wurde erfolgreich erstellt."
         notice += " #{result[:created]} #{"Training".pluralize(result[:created])} automatisch erstellt." if result && result[:created] > 0
@@ -75,6 +75,7 @@ class CoursesController < ApplicationController
       if @course.update(p)
         provision_new_trainer(@course)
         save_trainer_permissions(@course)
+        result = generate_training_sessions_from_form(@course)
 
         # Wurde die Teilnehmerzahl erhöht, können freigewordene Plätze sofort
         # mit Wartelisten-Einträgen aufgefüllt werden (vorher nur bei Storno/Ablauf).
@@ -105,7 +106,10 @@ class CoursesController < ApplicationController
           end
         end
 
-        format.html { redirect_to manage_course_path(@course), notice: "Kurs wurde erfolgreich aktualisiert.", status: :see_other }
+        notice = "Kurs wurde erfolgreich aktualisiert."
+        notice += " #{result[:created]} #{"Training".pluralize(result[:created])} automatisch ergänzt." if result && result[:created] > 0
+
+        format.html { redirect_to manage_course_path(@course), notice: notice, status: :see_other }
         format.json { render :show, status: :ok, location: @course }
       else
         format.html { render :edit, status: :unprocessable_entity }
@@ -385,9 +389,10 @@ class CoursesController < ApplicationController
       @course = Course.find(params.expect(:id))
     end
 
-    # Legt beim Erstellen eines Kurses (falls Wochentag(e) im Formular gewählt wurden)
-    # sofort die Trainingssessions an – erspart den separaten "Trainings generieren"-Schritt.
-    def generate_initial_training_sessions(course)
+    # Legt beim Erstellen/Bearbeiten eines Kurses (falls Wochentag(e) im Formular gewählt
+    # wurden) fehlende Trainingssessions an – erspart den separaten "Trainings generieren"-
+    # Schritt. Bereits vorhandene Termine werden übersprungen (siehe generate_training_sessions).
+    def generate_training_sessions_from_form(course)
       weekdays = Array(params[:weekdays]).map(&:to_i)
       return if weekdays.empty? || course.default_start_hour.blank? || course.start_date.blank? || course.end_date.blank?
 
