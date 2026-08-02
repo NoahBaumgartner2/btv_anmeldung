@@ -132,4 +132,46 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
       }
     end
   end
+
+  # ── Obligatorisches Formular für Platzhalter-Teilnehmer ────────────────
+
+  test "unvollständiger Platzhalter-Teilnehmer erzwingt Weiterleitung zum Ergänzen-Formular" do
+    placeholder = Participant.new(user: @user, first_name: "Mia", last_name: "Muster")
+    placeholder.save!(validate: false)
+
+    get participants_url
+
+    assert_redirected_to edit_participant_path(placeholder)
+    assert_match "Mia Muster", flash[:alert]
+  end
+
+  test "edit/update des unvollständigen Teilnehmers bleibt trotz Sperre erreichbar" do
+    placeholder = Participant.new(user: @user, first_name: "Mia", last_name: "Muster")
+    placeholder.save!(validate: false)
+
+    get edit_participant_url(placeholder)
+    assert_response :success
+
+    patch participant_url(placeholder), params: {
+      participant: {
+        first_name: "Mia", last_name: "Muster", date_of_birth: "2015-01-01",
+        gender: "weiblich", phone_number: "+41 79 123 45 67", ahv_number: "756.1234.5678.90"
+      }
+    }
+    assert_redirected_to participants_url
+
+    # Nach Vervollständigung keine Sperre mehr
+    get participants_url
+    assert_response :success
+  end
+
+  test "Sperre gilt nicht für Admins/Trainer" do
+    Participant.new(user: @user, first_name: "Mia", last_name: "Muster").tap { |p| p.save!(validate: false) }
+
+    sign_out @user
+    sign_in users(:admin)
+    get participants_url
+    assert_response :redirect # Admins werden zu my_profile umgeleitet, nicht zum Formular
+    assert_not_includes response.redirect_url, "edit"
+  end
 end
