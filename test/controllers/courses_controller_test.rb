@@ -13,6 +13,27 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index blendet Kurse ausserhalb des Registrierungsfensters für normale Familien aus" do
+    old_course = @course
+    hidden_course = Course.new(
+      title: "Noch nicht offener Nachfolge-Kurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      previous_course: old_course, start_date: Date.new(2027, 1, 11),
+      renewal_priority_weeks: 3, public_registration_weeks: 1
+    )
+    hidden_course.save!(validate: false)
+
+    sign_out users(:admin)
+    sign_in users(:parent_only)
+
+    travel_to(Date.new(2027, 1, 1)) do
+      get courses_url
+    end
+
+    assert_response :success
+    assert_not_includes response.body, hidden_course.title
+  end
+
   test "index zeigt Trainingszeit auf der Kurskarte" do
     date = Date.current.next_occurring(:monday)
     start_time = Time.zone.local(date.year, date.month, date.day, 17, 0)

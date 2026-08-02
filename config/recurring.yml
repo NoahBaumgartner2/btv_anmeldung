@@ -34,3 +34,9 @@ production:
     queue: default
     schedule: "0 2 * * *"
     description: "Storniert Schnupper-Anmeldungen die älter als 7 Tage sind"
+
+  rollover_course_periods:
+    class: RolloverCoursePeriodsJob
+    queue: default
+    schedule: "0 3 * * *"
+    description: "Erstellt automatisch den nächsten Semester-/Quartal-Kurs, sobald der Vorlauf erreicht ist"

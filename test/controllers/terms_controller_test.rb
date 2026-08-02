@@ -20,7 +20,7 @@ class TermsControllerTest < ActionDispatch::IntegrationTest
 
   test "should create term" do
     assert_difference("Term.count") do
-      post terms_url, params: { term: { name: "WS2030", start_date: "2030-08-01", end_date: "2030-12-01" } }
+      post terms_url, params: { term: { name: "WS2030", kind: "semester", start_date: "2030-08-01", end_date: "2030-12-01" } }
     end
 
     assert_redirected_to terms_url
@@ -28,7 +28,15 @@ class TermsControllerTest < ActionDispatch::IntegrationTest
 
   test "should not create term with invalid dates" do
     assert_no_difference("Term.count") do
-      post terms_url, params: { term: { name: "WS2031", start_date: "2031-12-01", end_date: "2031-08-01" } }
+      post terms_url, params: { term: { name: "WS2031", kind: "semester", start_date: "2031-12-01", end_date: "2031-08-01" } }
+    end
+
+    assert_response :unprocessable_entity
+  end
+
+  test "should not create term without kind" do
+    assert_no_difference("Term.count") do
+      post terms_url, params: { term: { name: "WS2032", start_date: "2032-08-01", end_date: "2032-12-01" } }
     end
 
     assert_response :unprocessable_entity

@@ -1,10 +1,15 @@
 class Course < ApplicationRecord
   # Optionale Zuordnung zu einem Term (Semester/Quartal-Datumsbereich, z.B.
   # "HS2026"). Nicht zu verwechseln mit registration_mode ("semester"/
-  # "quartal"), das nur die Anmelde-Kadenz beschreibt. Der Term bestimmt
-  # aktuell noch NICHT start_date/end_date – die bleiben primär (Hybrid-
-  # Übergangslösung, siehe Course#clear_dates_for_abo unten).
+  # "quartal"), das nur die Anmelde-Kadenz beschreibt.
+  #
+  # Kurse mit gesetztem term können automatisch verlängert werden: sobald die
+  # Vorlauf-Schwelle erreicht ist, erstellt RolloverCoursePeriodsJob via
+  # CourseRolloverService einen Nachfolge-Kurs für term.next_term und verweist
+  # per previous_course auf diesen (verhindert doppeltes Auslösen).
   belongs_to :term, optional: true
+  belongs_to :previous_course, class_name: "Course", optional: true
+  has_one :next_course, class_name: "Course", foreign_key: :previous_course_id, dependent: :nullify, inverse_of: :previous_course
 
   has_many :course_registrations, dependent: :destroy
   has_many :participants, through: :course_registrations
@@ -223,6 +228,40 @@ class Course < ApplicationRecord
     !restricted? || user&.admin? || permitted_users.include?(user)
   end
 
+  # Der chronologisch nächste Term derselben Art (nil wenn kein Term gesetzt).
+  def next_term
+    term&.next_term
+  end
+
+  # Ist die automatische Verlängerung fällig? (Term gesetzt, nächster Term
+  # existiert, noch nicht verlängert, Vorlauf-Schwelle erreicht.)
+  def rollover_due?
+    return false if term.blank? || next_term.blank? || next_course.present?
+    Date.current >= (next_term.start_date.to_date - renewal_priority_weeks.to_i.weeks)
+  end
+
+  # Zugriffssperre für automatisch verlängerte Kurse: ohne previous_course
+  # (kein Nachfolge-Kurs einer Verlängerung) gilt die normale Anmeldung ohne
+  # Einschränkung. Mit previous_course gilt ein zweistufiges Fenster:
+  # zuerst nur für Familien mit aktiver Anmeldung im Vorgänger-Kurs
+  # (renewal_priority_weeks vor Kursstart), danach für alle
+  # (public_registration_weeks vor Kursstart).
+  def registration_window_open_for?(user)
+    return true if previous_course_id.blank? || start_date.blank?
+
+    public_weeks = public_registration_weeks.to_i
+    return true if Date.current >= (start_date.to_date - public_weeks.weeks)
+
+    priority_weeks = (renewal_priority_weeks || public_registration_weeks).to_i
+    return false if Date.current < (start_date.to_date - priority_weeks.weeks)
+
+    previous_course.course_registrations
+      .joins(participant: :user)
+      .where(users: { id: user&.id })
+      .where.not(status: "storniert")
+      .exists?
+  end
+
   private
 
   def clean_payment_methods
@@ -235,6 +274,7 @@ class Course < ApplicationRecord
     return unless registration_mode == "abo"
     self.start_date = nil
     self.end_date = nil
+    self.term_id = nil
   end
 
   def max_age_must_be_greater_than_or_equal_to_min_age

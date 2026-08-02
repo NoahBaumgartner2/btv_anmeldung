@@ -9,14 +9,19 @@ class CoursesController < ApplicationController
     @restricted_courses = if current_user&.admin?
       all_restricted
     elsif current_user
-      all_restricted.select { |c| c.accessible_by?(current_user) }
+      all_restricted.select { |c| c.accessible_by?(current_user) && c.registration_window_open_for?(current_user) }
     else
       []
     end
     @restricted_courses = @restricted_courses.sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
-    @public_courses = Course.where(restricted: false)
-                            .includes(:course_registrations, :training_sessions)
-                            .sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
+
+    public_scope = Course.where(restricted: false).includes(:course_registrations, :training_sessions)
+    @public_courses = if current_user&.admin?
+      public_scope.to_a
+    else
+      public_scope.select { |c| c.registration_window_open_for?(current_user) }
+    end
+    @public_courses = @public_courses.sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
   end
 
   # GET /courses/1 or /courses/1.json
@@ -395,7 +400,7 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :term_id, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, :allows_talent_marking, :email_note, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :term_id, :renewal_priority_weeks, :public_registration_weeks, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, :allows_talent_marking, :email_note, trainer_ids: [], payment_methods: [])
     end
 
     # Stuft nach einer Kapazitätserhöhung Wartelisten-Anmeldungen hoch.

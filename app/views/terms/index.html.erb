@@ -17,6 +17,7 @@
         <thead class="bg-gray-50">
           <tr>
             <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Bezeichnung</th>
+            <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Art</th>
             <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Zeitraum</th>
             <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Kurse</th>
             <th scope="col" class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aktionen</th>
@@ -27,6 +28,9 @@
             <tr class="hover:bg-gray-50 transition duration-150">
               <td class="py-4 px-4">
                 <span class="text-sm font-semibold text-gray-900"><%= term.name %></span>
+              </td>
+              <td class="py-4 px-4 text-sm text-gray-600 capitalize">
+                <%= term.kind %>
               </td>
               <td class="py-4 px-4 text-sm text-gray-600">
                 <%= term.start_date.strftime("%-d. %b %Y") %> &ndash; <%= term.end_date.strftime("%-d. %b %Y") %>
