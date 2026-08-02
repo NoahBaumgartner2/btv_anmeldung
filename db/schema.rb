@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_16_160000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_105238) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -184,11 +184,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_16_160000) do
     t.integer "second_course_price_cents"
     t.integer "sibling_price_cents"
     t.datetime "start_date"
+    t.bigint "term_id"
     t.string "title"
     t.integer "training_value_cents"
     t.datetime "updated_at", null: false
     t.integer "youth_max_age", default: 20
     t.integer "youth_price_cents"
+    t.index ["term_id"], name: "index_courses_on_term_id"
   end
 
   create_table "export_profiles", force: :cascade do |t|
@@ -311,6 +313,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_16_160000) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "terms", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "end_date"
+    t.string "name"
+    t.date "start_date"
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_terms_on_name", unique: true
+  end
+
   create_table "trainers", force: :cascade do |t|
     t.string "ahv_number"
     t.string "city"
@@ -401,6 +412,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_16_160000) do
   add_foreign_key "course_registrations", "training_sessions", column: "trial_session_id"
   add_foreign_key "course_trainers", "courses"
   add_foreign_key "course_trainers", "trainers"
+  add_foreign_key "courses", "terms"
   add_foreign_key "participants", "users"
   add_foreign_key "trainers", "users"
   add_foreign_key "training_sessions", "courses"

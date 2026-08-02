@@ -27,6 +27,41 @@ class CourseTest < ActiveSupport::TestCase
     assert_equal false, course.allows_trial
   end
 
+  # ── Abo: kein Datumsbereich ──────────────────────────────────────────────────
+
+  test "abo-Kurs verliert start_date/end_date beim Speichern" do
+    course = Course.new(base_attrs.merge(
+      registration_type: "abo", registration_mode: "abo", abo_size: 10,
+      start_date: Date.new(2026, 1, 1), end_date: Date.new(2026, 12, 31)
+    ))
+    course.save!(validate: false)
+
+    assert_nil course.start_date
+    assert_nil course.end_date
+  end
+
+  test "nicht-abo-Kurs behält start_date/end_date" do
+    course = Course.new(base_attrs.merge(
+      start_date: Date.new(2026, 1, 1), end_date: Date.new(2026, 12, 31)
+    ))
+    course.save!(validate: false)
+
+    assert_equal Date.new(2026, 1, 1), course.start_date.to_date
+    assert_equal Date.new(2026, 12, 31), course.end_date.to_date
+  end
+
+  # ── Term (Semester/Quartal-Zuordnung) ────────────────────────────────────────
+
+  test "Kurs kann optional einem Term zugeordnet werden" do
+    course = Course.new(base_attrs.merge(term: terms(:one)))
+    assert course.valid?, course.errors.full_messages.inspect
+  end
+
+  test "Kurs ist auch ohne Term gültig" do
+    course = Course.new(base_attrs)
+    assert course.valid?, course.errors.full_messages.inspect
+  end
+
   # ── Preisreduktion ───────────────────────────────────────────────────────────
 
   def paid_attrs

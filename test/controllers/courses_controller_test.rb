@@ -41,6 +41,25 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "Kurs kann mit Semester/Quartal (term_id) erstellt werden" do
+    term = terms(:one)
+
+    post courses_url, params: { course: {
+      allows_holiday_deduction: @course.allows_holiday_deduction, description: @course.description,
+      end_date: @course.end_date, has_payment: @course.has_payment, has_ticketing: @course.has_ticketing,
+      location: @course.location, registration_type: @course.registration_type,
+      start_date: @course.start_date, title: @course.title, term_id: term.id
+    } }
+
+    assert_equal term, Course.last.term
+  end
+
+  test "new zeigt Semester/Quartal-Auswahl im Kursformular" do
+    get new_course_url
+    assert_response :success
+    assert_includes response.body, "Semester/Quartal"
+  end
+
   test "manage zeigt offene ausstehend-Anmeldung trotz neuerer Stornierung desselben Kindes" do
     course = Course.new(
       title: "Bezahlkurs", registration_type: "semester", registration_mode: "semester",

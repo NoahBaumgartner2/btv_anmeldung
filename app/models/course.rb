@@ -1,4 +1,11 @@
 class Course < ApplicationRecord
+  # Optionale Zuordnung zu einem Term (Semester/Quartal-Datumsbereich, z.B.
+  # "HS2026"). Nicht zu verwechseln mit registration_mode ("semester"/
+  # "quartal"), das nur die Anmelde-Kadenz beschreibt. Der Term bestimmt
+  # aktuell noch NICHT start_date/end_date – die bleiben primär (Hybrid-
+  # Übergangslösung, siehe Course#clear_dates_for_abo unten).
+  belongs_to :term, optional: true
+
   has_many :course_registrations, dependent: :destroy
   has_many :participants, through: :course_registrations
   has_many :course_trainers, dependent: :destroy
@@ -13,6 +20,7 @@ class Course < ApplicationRecord
   }.freeze
 
   before_save :clean_payment_methods
+  before_save :clear_dates_for_abo
 
   # Gibt die tatsächlich nutzbaren Zahlungsmethoden zurück (bereinigt, mit Fallback)
   def effective_payment_methods
@@ -220,6 +228,13 @@ class Course < ApplicationRecord
   def clean_payment_methods
     self.payment_methods = (payment_methods || []).reject(&:blank?).select { |v| PAYMENT_METHODS.key?(v) }
     self.payment_methods = [ "card" ] if payment_methods.empty?
+  end
+
+  # Abo-Kurse sind durchgehend verfügbar (kein fester Zeitraum).
+  def clear_dates_for_abo
+    return unless registration_mode == "abo"
+    self.start_date = nil
+    self.end_date = nil
   end
 
   def max_age_must_be_greater_than_or_equal_to_min_age
