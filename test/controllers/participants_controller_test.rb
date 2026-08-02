@@ -90,6 +90,34 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "confirmation", job[:args][1]
   end
 
+  test "update eines unvollständigen Platzhalter-Teilnehmers bei importiertem Abo verschickt abo_imported-Mail" do
+    placeholder = Participant.new(user: @user, first_name: "Mia", last_name: "Muster")
+    placeholder.save!(validate: false)
+    course = Course.new(
+      title: "Abo-Kurs", category: "Turnen",
+      registration_type: "abo", registration_mode: "abo", abo_size: 10,
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+    reg = CourseRegistration.new(
+      course: course, participant: placeholder, status: "bestätigt",
+      abo_entries_total: 6, abo_entries_used: 0, payment_cleared: true
+    )
+    reg.save!(validate: false)
+
+    assert_enqueued_emails 1 do
+      patch participant_url(placeholder), params: {
+        participant: {
+          first_name: "Mia", last_name: "Muster", date_of_birth: "2015-01-01",
+          gender: "weiblich", phone_number: "+41 79 123 45 67", ahv_number: "756.1234.5678.90"
+        }
+      }
+    end
+
+    job = enqueued_jobs.find { |j| j[:args].first == "CourseRegistrationMailer" }
+    assert_equal "abo_imported", job[:args][1]
+  end
+
   test "update eines bereits vollständigen Teilnehmers verschickt keine erneute Bestätigungsmail" do
     assert_enqueued_emails 0 do
       patch participant_url(@participant), params: {
