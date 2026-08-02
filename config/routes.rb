@@ -62,6 +62,7 @@ Rails.application.routes.draw do
     end
   end
   resources :holidays
+  resources :terms
 
   get "my_profile", to: "participants#my_profile", as: :my_profile
 

@@ -591,6 +591,8 @@ de:
         trainers_desc: "Trainer verwalten & zuweisen"
         holidays: "Ferientage"
         holidays_desc: "Sperrdaten konfigurieren"
+        terms: "Semester/Quartal"
+        terms_desc: "Datumsbereiche für Kurse verwalten"
         open_attendances: "Offene Präsenzkontrollen"
         open_attendances_desc: "Nicht abgeschlossene Trainings"
         newsletters: "Mailing-Zentrale"
