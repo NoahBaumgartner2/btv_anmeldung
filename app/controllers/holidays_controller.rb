@@ -1,59 +1,52 @@
 class HolidaysController < ApplicationController
-  before_action :set_holiday, only: %i[ show edit update destroy ]
   before_action :authorize_admin!
+  before_action :set_holiday_type
+  before_action :set_holiday, only: %i[ edit update destroy ]
 
-  # GET /holidays or /holidays.json
-  def index
-    @holidays = Holiday.order(start_date: :asc)
-  end
-
-  # GET /holidays/1 or /holidays/1.json
-  def show
-  end
-
-  # GET /holidays/new
+  # GET /holiday_types/:holiday_type_id/holidays/new
   def new
-    @holiday = Holiday.new
+    @holiday = @holiday_type.holidays.new
   end
 
-  # GET /holidays/1/edit
+  # GET /holiday_types/:holiday_type_id/holidays/1/edit
   def edit
   end
 
-  # POST /holidays or /holidays.json
+  # POST /holiday_types/:holiday_type_id/holidays
   def create
-    @holiday = Holiday.new(holiday_params)
+    @holiday = @holiday_type.holidays.new(holiday_params)
     if @holiday.save
-      # Wir leiten einfach "back" (zurück), da du meistens vom Kurs-Dashboard kommst
-      redirect_back fallback_location: holidays_path, notice: "Ferien wurden erfolgreich gespeichert."
+      redirect_to holiday_type_path(@holiday_type), notice: "Termin wurde erfolgreich gespeichert."
     else
       render :new, status: :unprocessable_entity
     end
   end
 
-  # PATCH/PUT /holidays/1
+  # PATCH/PUT /holiday_types/:holiday_type_id/holidays/1
   def update
     if @holiday.update(holiday_params)
-      redirect_to holidays_path, notice: "Ferien wurden erfolgreich aktualisiert."
+      redirect_to holiday_type_path(@holiday_type), notice: "Termin wurde erfolgreich aktualisiert."
     else
       render :edit, status: :unprocessable_entity
     end
   end
 
-  # DELETE /holidays/1
+  # DELETE /holiday_types/:holiday_type_id/holidays/1
   def destroy
     @holiday.destroy!
-    redirect_to holidays_path, notice: "Ferien wurden entfernt."
+    redirect_to holiday_type_path(@holiday_type), notice: "Termin wurde entfernt."
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_holiday
-      @holiday = Holiday.find(params.expect(:id))
+    def set_holiday_type
+      @holiday_type = HolidayType.find(params.expect(:holiday_type_id))
     end
 
-    # Only allow a list of trusted parameters through.
+    def set_holiday
+      @holiday = @holiday_type.holidays.find(params.expect(:id))
+    end
+
     def holiday_params
-      params.expect(holiday: [ :title, :start_date, :end_date ])
+      params.expect(holiday: [ :start_date, :end_date ])
     end
 end

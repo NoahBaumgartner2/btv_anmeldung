@@ -9,6 +9,7 @@ class Course < ApplicationRecord
   # per previous_course auf diesen (verhindert doppeltes Auslösen).
   belongs_to :term, optional: true
   belongs_to :previous_course, class_name: "Course", optional: true
+  has_and_belongs_to_many :holiday_types
   has_one :next_course, class_name: "Course", foreign_key: :previous_course_id, dependent: :nullify, inverse_of: :previous_course
 
   has_many :course_registrations, dependent: :destroy

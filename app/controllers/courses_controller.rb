@@ -46,7 +46,12 @@ class CoursesController < ApplicationController
       if @course.save
         provision_new_trainer(@course)
         save_trainer_permissions(@course)
-        format.html { redirect_to manage_course_path(@course), notice: "Kurs wurde erfolgreich erstellt." }
+        result = generate_initial_training_sessions(@course)
+
+        notice = "Kurs wurde erfolgreich erstellt."
+        notice += " #{result[:created]} #{"Training".pluralize(result[:created])} automatisch erstellt." if result && result[:created] > 0
+
+        format.html { redirect_to manage_course_path(@course), notice: notice }
         format.json { render :show, status: :created, location: @course }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -153,53 +158,20 @@ class CoursesController < ApplicationController
                   status: :see_other and return
     end
 
-    wochentag = params[:day_of_week].to_i
     start_uhrzeit = "#{params[:start_hour]}:#{format('%02d', params[:start_minute].to_i)}"
     end_uhrzeit   = params[:end_hour].present? ? "#{params[:end_hour]}:#{format('%02d', params[:end_minute].to_i)}" : nil
 
-    # Ausgewählte DB-Ferien (Checkboxen)
-    selected_holiday_ids = Array(params[:holiday_ids]).map(&:to_i)
-    holidays = Holiday.where(id: selected_holiday_ids)
+    result = generate_training_sessions(
+      @course,
+      weekdays: [ params[:day_of_week].to_i ],
+      start_uhrzeit: start_uhrzeit,
+      end_uhrzeit: end_uhrzeit,
+      holiday_ids: Array(params[:holiday_ids]).map(&:to_i),
+      extra_holidays: parse_extra_holidays(params[:extra_holidays])
+    )
 
-    # Manuell eingegebene Ferien
-    extra_holidays = Array(params[:extra_holidays]&.values).filter_map do |h|
-      next unless h[:start_date].present? && h[:end_date].present?
-      { start_date: Date.parse(h[:start_date]), end_date: Date.parse(h[:end_date]) }
-    rescue ArgumentError
-      nil
-    end
-
-    current_date = @course.start_date.to_date
-    end_date     = @course.end_date.to_date
-    created_count  = 0
-    skipped_count  = 0
-
-    while current_date <= end_date
-      if current_date.wday == wochentag
-        is_holiday = holidays.any? { |h| current_date >= h.start_date && current_date <= h.end_date } ||
-                     extra_holidays.any? { |h| current_date >= h[:start_date] && current_date <= h[:end_date] }
-        exists     = @course.training_sessions.where("start_time::date = ?", current_date).exists?
-
-        if is_holiday || exists
-          skipped_count += 1
-        else
-          sh, sm = start_uhrzeit.split(":").map(&:to_i)
-          full_start = current_date.in_time_zone.change(hour: sh, min: sm)
-
-          full_end = if end_uhrzeit.present?
-            eh, em = end_uhrzeit.split(":").map(&:to_i)
-            current_date.in_time_zone.change(hour: eh, min: em)
-          end
-
-          @course.training_sessions.create!(start_time: full_start, end_time: full_end)
-          created_count += 1
-        end
-      end
-      current_date += 1.day
-    end
-
-    notice = "#{created_count} #{"Training".pluralize(created_count)} erstellt"
-    notice += ", #{skipped_count} übersprungen (Ferien oder bereits vorhanden)" if skipped_count > 0
+    notice = "#{result[:created]} #{"Training".pluralize(result[:created])} erstellt"
+    notice += ", #{result[:skipped]} übersprungen (Ferien oder bereits vorhanden)" if result[:skipped] > 0
 
     redirect_to manage_course_path(@course), notice: notice, status: :see_other
   end
@@ -413,9 +385,74 @@ class CoursesController < ApplicationController
       @course = Course.find(params.expect(:id))
     end
 
+    # Legt beim Erstellen eines Kurses (falls Wochentag(e) im Formular gewählt wurden)
+    # sofort die Trainingssessions an – erspart den separaten "Trainings generieren"-Schritt.
+    def generate_initial_training_sessions(course)
+      weekdays = Array(params[:weekdays]).map(&:to_i)
+      return if weekdays.empty? || course.default_start_hour.blank? || course.start_date.blank? || course.end_date.blank?
+
+      start_uhrzeit = "#{course.default_start_hour}:#{format('%02d', course.default_start_minute.to_i)}"
+      end_uhrzeit   = course.default_end_hour.present? ? "#{course.default_end_hour}:#{format('%02d', course.default_end_minute.to_i)}" : nil
+
+      holiday_ids = Holiday.where(holiday_type_id: course.holiday_type_ids)
+                            .where("start_date <= ? AND end_date >= ?", course.end_date, course.start_date)
+                            .pluck(:id)
+
+      generate_training_sessions(
+        course,
+        weekdays: weekdays,
+        start_uhrzeit: start_uhrzeit,
+        end_uhrzeit: end_uhrzeit,
+        holiday_ids: holiday_ids,
+        extra_holidays: parse_extra_holidays(params[:extra_holidays])
+      )
+    end
+
+    # Erstellt TrainingSessions für jeden gewählten Wochentag im Kurszeitraum,
+    # überspringt Ferien (DB + manuell) und bereits vorhandene Termine.
+    def generate_training_sessions(course, weekdays:, start_uhrzeit:, end_uhrzeit:, holiday_ids: [], extra_holidays: [])
+      holidays = Holiday.where(id: holiday_ids)
+      sh, sm = start_uhrzeit.split(":").map(&:to_i)
+      eh, em = end_uhrzeit&.split(":")&.map(&:to_i)
+
+      created = 0
+      skipped = 0
+      current_date = course.start_date.to_date
+      end_date     = course.end_date.to_date
+
+      while current_date <= end_date
+        if weekdays.include?(current_date.wday)
+          is_holiday = holidays.any? { |h| current_date >= h.start_date && current_date <= h.end_date } ||
+                       extra_holidays.any? { |h| current_date >= h[:start_date] && current_date <= h[:end_date] }
+          exists = course.training_sessions.where("start_time::date = ?", current_date).exists?
+
+          if is_holiday || exists
+            skipped += 1
+          else
+            full_start = current_date.in_time_zone.change(hour: sh, min: sm)
+            full_end   = eh ? current_date.in_time_zone.change(hour: eh, min: em) : nil
+            course.training_sessions.create!(start_time: full_start, end_time: full_end)
+            created += 1
+          end
+        end
+        current_date += 1.day
+      end
+
+      { created: created, skipped: skipped }
+    end
+
+    def parse_extra_holidays(raw)
+      Array(raw&.values).filter_map do |h|
+        next unless h[:start_date].present? && h[:end_date].present?
+        { start_date: Date.parse(h[:start_date]), end_date: Date.parse(h[:end_date]) }
+      rescue ArgumentError
+        nil
+      end
+    end
+
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :term_id, :renewal_priority_weeks, :public_registration_weeks, :auto_rollover, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, :allows_talent_marking, :email_note, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :term_id, :renewal_priority_weeks, :public_registration_weeks, :auto_rollover, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, :allows_talent_marking, :email_note, trainer_ids: [], payment_methods: [], holiday_type_ids: [])
     end
 
     # Stuft nach einer Kapazitätserhöhung Wartelisten-Anmeldungen hoch.

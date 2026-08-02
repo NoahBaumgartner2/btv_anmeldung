@@ -61,7 +61,9 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
       start_time: Time.zone.local(2026, 8, 19, 17, 0),
       end_time: Time.zone.local(2026, 8, 19, 18, 0)
     )
-    holiday = Holiday.create!(title: "Testferien", start_date: terms(:two).start_date, end_date: terms(:two).start_date + 13.days)
+    holiday_type = HolidayType.create!(name: "Testferien")
+    course.holiday_types << holiday_type
+    holiday = Holiday.create!(holiday_type: holiday_type, start_date: terms(:two).start_date, end_date: terms(:two).start_date + 13.days)
 
     new_course = travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
 

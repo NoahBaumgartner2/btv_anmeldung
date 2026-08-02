@@ -61,7 +61,9 @@ Rails.application.routes.draw do
       post :invite
     end
   end
-  resources :holidays
+  resources :holiday_types do
+    resources :holidays, except: [ :index, :show ]
+  end
   resources :terms
 
   get "my_profile", to: "participants#my_profile", as: :my_profile

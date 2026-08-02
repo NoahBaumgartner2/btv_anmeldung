@@ -1,7 +1,7 @@
 <%
   has_dates      = @course.start_date.present? && @course.end_date.present?
   existing_count = @course.training_sessions.count
-  course_holidays = has_dates ? Holiday.where("start_date <= ? AND end_date >= ?", @course.end_date, @course.start_date).order(:start_date) : []
+  course_holidays = has_dates ? Holiday.where("start_date <= ? AND end_date >= ?", @course.end_date, @course.start_date).order(:start_date).includes(:holiday_type) : []
   weeks_total    = has_dates ? ((@course.end_date.to_date - @course.start_date.to_date) / 7.0).ceil : nil
 
   hours   = (6..22).map { |h| [format("%02d", h), h] }
@@ -146,7 +146,7 @@
                          checked
                          class="w-4 h-4 mt-0.5 rounded border-yellow-400 text-primary-600 focus:ring-primary-500 shrink-0">
                   <div class="flex-1 min-w-0">
-                    <span class="block font-semibold text-yellow-900 leading-snug"><%= holiday.title %></span>
+                    <span class="block font-semibold text-yellow-900 leading-snug"><%= holiday.holiday_type.name %></span>
                     <span class="block text-xs text-yellow-700 font-medium mt-0.5">
                       <%= holiday.start_date.strftime("%-d. %b") %> – <%= holiday.end_date.strftime("%-d. %b %Y") %>
                     </span>

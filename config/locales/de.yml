@@ -1083,40 +1083,47 @@ de:
       title: "Training bearbeiten"
       back: "← Zurück zur Übersicht"
 
-  holidays:
+  holiday_types:
     index:
       title: "Ferien & Sperrdaten"
-      subtitle: "Zeiten, in denen kein Training stattfindet. Der Trainings-Generator überspringt diese Daten automatisch."
-      new_holiday: "+ Neue Ferien erfassen"
-      col_name: "Bezeichnung"
-      col_period: "Zeitraum"
-      col_status: "Status"
-      col_actions: "Aktionen"
-      status:
-        past: "Vergangen"
-        current: "Aktuell"
-        upcoming: "Bevorstehend"
-      days: "%{count} Tage"
+      subtitle: "Wiederkehrende Ferien-Kategorien (z.B. Herbstferien) mit Jahres-Terminen. Der Trainings-Generator überspringt die gewählten Kategorien automatisch."
+      new_type: "+ Neuer Ferien-Typ"
+      edit_type: "Umbenennen"
+      delete_type: "Löschen"
+      delete_type_confirm: "«%{name}» inkl. aller Jahres-Termine wirklich löschen?"
+      no_dates: "Noch keine Jahres-Termine erfasst."
+      add_date: "+ Termin hinzufügen"
       edit: "Bearbeiten"
       delete: "Löschen"
-      delete_confirm: "«%{title}» wirklich löschen?"
+      delete_confirm: "Diesen Termin wirklich löschen?"
       empty:
-        title: "Noch keine Ferien eingetragen"
-        body: "Der Trainings-Generator wird aktuell keine Daten überspringen."
-    edit:
-      title: "Ferien bearbeiten"
+        title: "Noch keine Ferien-Typen eingetragen"
+        body: "Lege z.B. \"Herbstferien\" oder \"Weihnachtsferien\" an und erfasse darunter die Jahres-Termine."
     new:
-      title: "Neue Ferien erfassen"
-      subtitle: "Trage hier einen Ferienzeitraum ein. Der Trainings-Generator überspringt diese Tage automatisch."
+      title: "Neuer Ferien-Typ"
+      subtitle: "z.B. \"Herbstferien\" – die konkreten Daten erfasst du danach pro Jahr."
+    edit:
+      title: "Ferien-Typ bearbeiten"
     form:
-      label_title: "Bezeichnung"
-      placeholder_title: "z.B. Herbstferien 2026"
+      label_name: "Bezeichnung"
+      placeholder_name: "z.B. Herbstferien"
+      save_new: "Ferien-Typ speichern"
+      save_edit: "Änderungen speichern"
+
+  holidays:
+    index:
+      days: "%{count} Tage"
+    edit:
+      title: "Termin bearbeiten"
+    new:
+      title: "Neuer Termin"
+    form:
       label_from: "Von"
       label_to: "Bis (letzter Ferientag)"
       errors:
         one: "Es gibt 1 Fehler:"
         other: "Es gibt %{count} Fehler:"
-      save_new: "Ferien speichern"
+      save_new: "Termin speichern"
       save_edit: "Änderungen speichern"
       cancel: "Abbrechen"
 
