@@ -80,6 +80,7 @@ Rails.application.routes.draw do
       get  :participant_search
       post :send_custom_email
       post :toggle_talent
+      post :roll_over
     end
   end
 

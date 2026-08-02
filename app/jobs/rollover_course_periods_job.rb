@@ -10,6 +10,11 @@ class RolloverCoursePeriodsJob < ApplicationJob
     scope.find_each do |course|
       next unless course.rollover_due?
 
+      unless course.auto_rollover?
+        notify_admins_once(course)
+        next
+      end
+
       begin
         new_course = CourseRolloverService.roll_over!(course)
         rolled_over += 1
@@ -23,5 +28,16 @@ class RolloverCoursePeriodsJob < ApplicationJob
     end
 
     Rails.logger.info "[RolloverCoursePeriodsJob] Abgeschlossen: #{rolled_over} verlängert, #{errors} Fehler."
+  end
+
+  private
+
+  # Nur einmal benachrichtigen, nicht bei jedem täglichen Lauf erneut.
+  def notify_admins_once(course)
+    return if course.rollover_notified_at.present?
+
+    CourseRolloverMailer.ready_for_manual_rollover(course).deliver_later
+    course.update_columns(rollover_notified_at: Time.current)
+    Rails.logger.info "[RolloverCoursePeriodsJob] Kurs #{course.id} (#{course.title}) bereit – Admins benachrichtigt (manueller Modus)."
   end
 end

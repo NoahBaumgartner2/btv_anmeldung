@@ -617,4 +617,55 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_match(/data-manual-enroll-target="createPanel" class="\s*"/, response.body)
     assert_match(/data-manual-enroll-target="searchPanel" class="hidden"/, response.body)
   end
+
+  # ── roll_over (manueller Modus) ─────────────────────────────────────────
+
+  test "roll_over erstellt den Nachfolge-Kurs, wenn fällig" do
+    course = Course.new(
+      title: "Manueller Rollover-Kurs", category: "Turnen",
+      registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      term: terms(:one), renewal_priority_weeks: 3, auto_rollover: false
+    )
+    course.save!(validate: false)
+
+    travel_to(Date.new(2026, 12, 22)) do # 3 Wochen vor terms(:two).start_date
+      assert_difference("Course.count", 1) do
+        post roll_over_course_url(course)
+      end
+    end
+
+    assert_redirected_to manage_course_path(Course.last)
+  end
+
+  test "roll_over lehnt ab, wenn noch nicht fällig" do
+    course = Course.new(
+      title: "Noch nicht fälliger Kurs", category: "Turnen",
+      registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      term: terms(:one), renewal_priority_weeks: 3, auto_rollover: false
+    )
+    course.save!(validate: false)
+
+    assert_no_difference("Course.count") do
+      post roll_over_course_url(course)
+    end
+
+    assert_redirected_to manage_course_path(course)
+    assert_match "noch nicht bereit", flash[:alert]
+  end
+
+  test "roll_over ist nur für Admins zugänglich" do
+    course = Course.new(
+      title: "Kurs", category: "Turnen", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+
+    sign_out users(:admin)
+    sign_in users(:one) # Trainer, kein Admin
+
+    post roll_over_course_url(course)
+    assert_redirected_to root_path
+  end
 end

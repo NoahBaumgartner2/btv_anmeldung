@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_115952) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_132957) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -149,6 +149,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_115952) do
     t.boolean "allows_holiday_deduction"
     t.boolean "allows_talent_marking", default: false, null: false
     t.boolean "allows_trial", default: false, null: false
+    t.boolean "auto_rollover", default: true, null: false
     t.string "category"
     t.datetime "created_at", null: false
     t.integer "default_end_hour"
@@ -184,6 +185,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_115952) do
     t.boolean "requires_street", default: false, null: false
     t.boolean "requires_zip_code", default: false, null: false
     t.boolean "restricted", default: false, null: false
+    t.datetime "rollover_notified_at"
     t.integer "second_course_price_cents"
     t.integer "sibling_price_cents"
     t.datetime "start_date"

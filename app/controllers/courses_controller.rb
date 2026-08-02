@@ -3,7 +3,7 @@ class CoursesController < ApplicationController
   before_action :authorize_admin!, except: [ :index, :show, :manage, :participant_search, :manual_enroll, :send_custom_email, :toggle_talent ]
   # GET /courses or /courses.json
   before_action :authorize_trainer!, only: [ :manage, :send_custom_email, :toggle_talent ]
-  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email toggle_talent ]
+  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email toggle_talent roll_over ]
   def index
     all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users, :training_sessions)
     @restricted_courses = if current_user&.admin?
@@ -210,6 +210,21 @@ class CoursesController < ApplicationController
     set_manage_view_ivars
   end
 
+  # POST /courses/:id/roll_over – manuelles Auslösen der Verlängerung
+  # (bei Kursen mit auto_rollover: false, siehe RolloverCoursePeriodsJob).
+  def roll_over
+    unless @course.rollover_due?
+      return redirect_to manage_course_path(@course), alert: "Die nächste Periode ist noch nicht bereit."
+    end
+
+    new_course = CourseRolloverService.roll_over!(@course)
+    if new_course
+      redirect_to manage_course_path(new_course), notice: "Nächste Periode (#{new_course.term.name}) wurde erstellt."
+    else
+      redirect_to manage_course_path(@course), alert: "Die nächste Periode konnte nicht erstellt werden."
+    end
+  end
+
   # GET /courses/:id/participant_search?q=...
   def participant_search
     authorize_trainer_or_admin!
@@ -400,7 +415,7 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :term_id, :renewal_priority_weeks, :public_registration_weeks, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, :allows_talent_marking, :email_note, trainer_ids: [], payment_methods: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :term_id, :renewal_priority_weeks, :public_registration_weeks, :auto_rollover, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :restricted, :allows_talent_marking, :email_note, trainer_ids: [], payment_methods: [])
     end
 
     # Stuft nach einer Kapazitätserhöhung Wartelisten-Anmeldungen hoch.

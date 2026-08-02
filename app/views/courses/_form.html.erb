@@ -75,6 +75,16 @@
                     class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
             </div>
           </div>
+
+          <label class="flex items-center gap-3 cursor-pointer">
+            <%= form.check_box :auto_rollover,
+                  class: "h-5 w-5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+            <span class="text-sm font-medium text-gray-800">Nächste Periode automatisch erstellen</span>
+          </label>
+          <p class="text-xs text-gray-400 mt-0.5 ml-8">
+            Aus: sobald der Vorlauf erreicht ist, bekommen Admins nur eine E-Mail und können die Verlängerung
+            über einen Button in der Kursverwaltung selbst auslösen.
+          </p>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
