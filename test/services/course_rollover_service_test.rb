@@ -85,6 +85,22 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "roll_over! schickt pro Teilnehmer nur eine Mail, auch bei mehreren aktiven Registrierungen" do
+    # index_course_registrations_unique_active erlaubt Duplikate, sobald eine
+    # Registrierung an ein Training gebunden ist (z.B. Schnuppertermine) —
+    # genau dieser Fall führte in Produktion zu mehreren Mails pro Teilnehmer.
+    course = make_course
+    session = course.training_sessions.create!(start_time: Time.zone.local(2026, 8, 19, 17, 0))
+    reg = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt")
+    reg.save!(validate: false)
+    reg_with_session = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt", training_session: session)
+    reg_with_session.save!(validate: false)
+
+    assert_enqueued_emails 1 do
+      travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
+    end
+  end
+
   test "roll_over! macht nichts, wenn Kurs noch nicht rollover_due? ist" do
     course = make_course(renewal_priority_date: terms(:two).start_date)
 

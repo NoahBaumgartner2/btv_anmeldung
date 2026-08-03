@@ -45,7 +45,10 @@ class CourseRolloverService
   # Informiert bisherige (nicht stornierte) Teilnehmende des alten Kurses,
   # dass sie sich für die neue Periode neu anmelden können.
   def notify_previous_participants(new_course)
-    @course.course_registrations.where.not(status: "storniert").find_each do |reg|
+    @course.course_registrations.where.not(status: "storniert")
+           .select("DISTINCT ON (participant_id) *")
+           .order(:participant_id, created_at: :desc)
+           .each do |reg|
       CourseRegistrationMailer.renewal_available(reg, new_course).deliver_later
     end
   end
