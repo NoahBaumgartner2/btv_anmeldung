@@ -689,12 +689,7 @@ en:
       courses:
         title: "Current Courses"
         subtitle: "Discover our current offer and register directly."
-        join_anytime: "Join anytime"
-        spots_free:
-          one: "1 spot left"
-          other: "%{count} spots left"
-        view_full: "View details"
-        view_more: "Learn more"
+        view_category: "View courses"
         view_all: "View all courses →"
         empty: "No courses currently available. Check back soon!"
       how_it_works:
