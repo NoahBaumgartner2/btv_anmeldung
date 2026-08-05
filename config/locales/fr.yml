@@ -150,6 +150,7 @@ fr:
           other: "%{count} sur liste d'attente"
       date:
         single_session: "Sessions individuelles · rejoignez à tout moment"
+        abo: "En continu · rejoignez à tout moment"
         tba: "Date à confirmer"
       participants_count: "%{confirmed} sur %{max} inscrits"
       actions:

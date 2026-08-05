@@ -150,6 +150,7 @@ en:
           other: "%{count} on waitlist"
       date:
         single_session: "Single sessions · join anytime"
+        abo: "Ongoing · join anytime"
         tba: "Date to be announced"
       participants_count: "%{confirmed} of %{max} registered"
       actions:
