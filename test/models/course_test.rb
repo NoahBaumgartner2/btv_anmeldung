@@ -79,7 +79,8 @@ class CourseTest < ActiveSupport::TestCase
 
   test "rollover_due? ist true wenn die Vorlauf-Schwelle erreicht ist" do
     term = terms(:one) # next_term ist terms(:two), start_date 2027-01-11
-    course = Course.new(base_attrs.merge(term: term, renewal_priority_date: Date.new(2026, 12, 22)))
+    terms(:two).update!(priority_registration_date: Date.new(2026, 12, 22))
+    course = Course.new(base_attrs.merge(term: term))
     course.save!(validate: false)
 
     travel_to(Date.new(2026, 12, 22)) do
@@ -93,7 +94,8 @@ class CourseTest < ActiveSupport::TestCase
 
   test "rollover_due? ist false wenn bereits ein Nachfolge-Kurs existiert" do
     term = terms(:one)
-    course = Course.new(base_attrs.merge(term: term, renewal_priority_date: Date.new(2026, 12, 22)))
+    terms(:two).update!(priority_registration_date: Date.new(2026, 12, 22))
+    course = Course.new(base_attrs.merge(term: term))
     course.save!(validate: false)
 
     successor = Course.new(base_attrs.merge(term: terms(:two), previous_course: course))
@@ -114,9 +116,10 @@ class CourseTest < ActiveSupport::TestCase
     old_course = Course.new(base_attrs)
     old_course.save!(validate: false)
 
+    terms(:two).update!(priority_registration_date: Date.new(2027, 1, 5))
     new_course = Course.new(base_attrs.merge(
       start_date: Date.new(2027, 1, 11), previous_course: old_course,
-      renewal_priority_date: Date.new(2027, 1, 5), public_registration_days: 3
+      term: terms(:two), public_registration_days: 3
     ))
     new_course.save!(validate: false)
 
@@ -135,9 +138,10 @@ class CourseTest < ActiveSupport::TestCase
     reg = CourseRegistration.new(course: old_course, participant: participants(:one), status: "bestätigt")
     reg.save!(validate: false)
 
+    terms(:two).update!(priority_registration_date: Date.new(2026, 12, 22))
     new_course = Course.new(base_attrs.merge(
       start_date: Date.new(2027, 1, 11), previous_course: old_course,
-      renewal_priority_date: Date.new(2026, 12, 22), public_registration_days: 7
+      term: terms(:two), public_registration_days: 7
     ))
     new_course.save!(validate: false)
 

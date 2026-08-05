@@ -1222,12 +1222,13 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   # ── Automatische Verlängerung: Registrierungsfenster ────────────────────────
 
-  def make_rollover_course(previous_course:, start_date:, renewal_priority_date: Date.new(2026, 12, 21), public_registration_days: 14)
+  def make_rollover_course(previous_course:, start_date:, priority_registration_date: Date.new(2026, 12, 21), public_registration_days: 14)
+    terms(:two).update!(priority_registration_date: priority_registration_date)
     Course.new(
       title: "Nachfolge-Kurs", registration_type: "semester", registration_mode: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
       previous_course: previous_course, start_date: start_date,
-      renewal_priority_date: renewal_priority_date, public_registration_days: public_registration_days
+      term: terms(:two), public_registration_days: public_registration_days
     ).tap { |c| c.save!(validate: false) }
   end
 

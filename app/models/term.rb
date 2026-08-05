@@ -9,6 +9,11 @@
 # damit lässt sich "der nächste Term nach diesem" bestimmen (z.B. nach
 # HS2026 kommt FS2027), was RolloverCoursePeriodsJob für die automatische
 # Kurs-Verlängerung nutzt.
+#
+# `priority_registration_date` ist das Datum, ab dem für diesen Term die
+# Anmeldung für bereits im Vorgänger-Kurs angemeldete Teilnehmende öffnet
+# (siehe Course#rollover_due? und Course#registration_window_open_for?).
+# Wird einmal pro Term gepflegt (z.B. bei HS2026), statt bei jedem Kurs neu.
 class Term < ApplicationRecord
   KINDS = %w[semester quartal].freeze
 

@@ -14,7 +14,8 @@ class RolloverCoursePeriodsJobTest < ActiveJob::TestCase
   end
 
   test "verlängert fällige Kurse mit Term" do
-    course = make_course(term: terms(:one), renewal_priority_date: ROLLOVER_DUE_DATE)
+    terms(:two).update!(priority_registration_date: ROLLOVER_DUE_DATE)
+    course = make_course(term: terms(:one))
 
     travel_to(ROLLOVER_DUE_DATE) do
       assert_difference("Course.count", 1) do
@@ -36,7 +37,8 @@ class RolloverCoursePeriodsJobTest < ActiveJob::TestCase
   end
 
   test "verlängert einen Kurs nicht doppelt" do
-    course = make_course(term: terms(:one), renewal_priority_date: ROLLOVER_DUE_DATE)
+    terms(:two).update!(priority_registration_date: ROLLOVER_DUE_DATE)
+    course = make_course(term: terms(:one))
 
     travel_to(ROLLOVER_DUE_DATE) do
       RolloverCoursePeriodsJob.perform_now
@@ -47,7 +49,8 @@ class RolloverCoursePeriodsJobTest < ActiveJob::TestCase
   end
 
   test "rührt Kurse vor Erreichen der Vorlauf-Schwelle nicht an" do
-    make_course(term: terms(:one), renewal_priority_date: ROLLOVER_DUE_DATE)
+    terms(:two).update!(priority_registration_date: ROLLOVER_DUE_DATE)
+    make_course(term: terms(:one))
 
     travel_to(Date.new(2026, 11, 1)) do
       assert_no_difference("Course.count") do
@@ -59,7 +62,8 @@ class RolloverCoursePeriodsJobTest < ActiveJob::TestCase
   # ── Manueller Modus (auto_rollover: false) ──────────────────────────────
 
   test "benachrichtigt Admins statt automatisch zu verlängern, wenn auto_rollover false ist" do
-    course = make_course(term: terms(:one), renewal_priority_date: ROLLOVER_DUE_DATE, auto_rollover: false)
+    terms(:two).update!(priority_registration_date: ROLLOVER_DUE_DATE)
+    course = make_course(term: terms(:one), auto_rollover: false)
 
     travel_to(ROLLOVER_DUE_DATE) do
       assert_no_difference("Course.count") do
@@ -73,7 +77,8 @@ class RolloverCoursePeriodsJobTest < ActiveJob::TestCase
   end
 
   test "benachrichtigt Admins bei manuellem Modus nur einmal" do
-    course = make_course(term: terms(:one), renewal_priority_date: ROLLOVER_DUE_DATE, auto_rollover: false)
+    terms(:two).update!(priority_registration_date: ROLLOVER_DUE_DATE)
+    course = make_course(term: terms(:one), auto_rollover: false)
 
     travel_to(ROLLOVER_DUE_DATE) do
       RolloverCoursePeriodsJob.perform_now

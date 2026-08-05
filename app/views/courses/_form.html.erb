@@ -70,9 +70,9 @@
           <%= form.label :term_id, "Semester/Quartal", class: "block text-sm font-medium text-gray-700 mb-1" %>
           <p class="text-xs text-gray-400 mb-1.5">
             Ordnet den Kurs einem Datumsbereich (z.B. HS2026) zu. Start-/Enddatum werden vom Term übernommen.
-            Sobald der Vorlauf unten erreicht ist, wird automatisch ein Nachfolge-Kurs für den nächsten Term
-            derselben Art erstellt (gleiche Einstellungen, neue Trainings – Wochentag/Zeit werden von den
-            bestehenden Trainings übernommen).
+            Sobald der Vorlauf (im Term hinterlegtes Datum "Vorlauf für Angemeldete") erreicht ist, wird
+            automatisch ein Nachfolge-Kurs für den nächsten Term derselben Art erstellt (gleiche Einstellungen,
+            neue Trainings – Wochentag/Zeit werden von den bestehenden Trainings übernommen).
           </p>
           <%= form.select :term_id,
                 options_for_select(
@@ -83,20 +83,11 @@
                 data: { term_mode_target: "termSelect", action: "change->term-mode#syncDates" },
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11 mb-5" %>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
-            <div>
-              <%= form.label :renewal_priority_date, "Vorlauf für Angemeldete (Datum)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-              <p class="text-xs text-gray-400 mb-1.5">Ab diesem Datum darf sich anmelden, wer im Vorgänger-Kurs bereits angemeldet war. Löst auch die automatische Erstellung des Nachfolge-Kurses aus.</p>
-              <%= form.date_field :renewal_priority_date,
-                    data: { controller: "datepicker" },
-                    class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
-            </div>
-            <div>
-              <%= form.label :public_registration_days, "Vorlauf für alle (Tage)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-              <p class="text-xs text-gray-400 mb-1.5">So viele Tage nach obigem Datum wird die Anmeldung für alle geöffnet.</p>
-              <%= form.number_field :public_registration_days, min: 0,
-                    class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
-            </div>
+          <div class="mb-5">
+            <%= form.label :public_registration_days, "Vorlauf für alle (Tage)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+            <p class="text-xs text-gray-400 mb-1.5">So viele Tage nach dem im Term hinterlegten Vorlauf-Datum wird die Anmeldung für alle geöffnet.</p>
+            <%= form.number_field :public_registration_days, min: 0,
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
           </div>
 
           <label class="flex items-center gap-3 cursor-pointer">

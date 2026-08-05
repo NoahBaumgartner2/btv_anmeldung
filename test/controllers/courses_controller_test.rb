@@ -15,11 +15,12 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
   test "index blendet Kurse ausserhalb des Registrierungsfensters für normale Familien aus" do
     old_course = @course
+    terms(:two).update!(priority_registration_date: Date.new(2026, 12, 21))
     hidden_course = Course.new(
       title: "Noch nicht offener Nachfolge-Kurs", registration_type: "semester", registration_mode: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
       previous_course: old_course, start_date: Date.new(2027, 1, 11),
-      renewal_priority_date: Date.new(2026, 12, 21), public_registration_days: 14
+      term: terms(:two), public_registration_days: 14
     )
     hidden_course.save!(validate: false)
 
@@ -621,11 +622,12 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   # ── roll_over (manueller Modus) ─────────────────────────────────────────
 
   test "roll_over erstellt den Nachfolge-Kurs, wenn fällig" do
+    terms(:two).update!(priority_registration_date: Date.new(2026, 12, 22))
     course = Course.new(
       title: "Manueller Rollover-Kurs", category: "Turnen",
       registration_type: "semester", registration_mode: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
-      term: terms(:one), renewal_priority_date: Date.new(2026, 12, 22), auto_rollover: false
+      term: terms(:one), auto_rollover: false
     )
     course.save!(validate: false)
 
@@ -639,11 +641,12 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "roll_over lehnt ab, wenn noch nicht fällig" do
+    terms(:two).update!(priority_registration_date: Date.new(2030, 1, 1))
     course = Course.new(
       title: "Noch nicht fälliger Kurs", category: "Turnen",
       registration_type: "semester", registration_mode: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
-      term: terms(:one), renewal_priority_date: Date.new(2030, 1, 1), auto_rollover: false
+      term: terms(:one), auto_rollover: false
     )
     course.save!(validate: false)
 
