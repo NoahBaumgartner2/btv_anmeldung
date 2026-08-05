@@ -10,7 +10,7 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
       title: "Rollover Test Kurs", category: "Turnen",
       registration_type: "semester", registration_mode: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
-      term: terms(:one), renewal_priority_weeks: 3, public_registration_weeks: 1
+      term: terms(:one), renewal_priority_date: ROLLOVER_DUE_DATE, public_registration_days: 7
     }.merge(attrs)).tap { |c| c.save!(validate: false) }
   end
 
@@ -61,7 +61,9 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
       start_time: Time.zone.local(2026, 8, 19, 17, 0),
       end_time: Time.zone.local(2026, 8, 19, 18, 0)
     )
-    holiday = Holiday.create!(title: "Testferien", start_date: terms(:two).start_date, end_date: terms(:two).start_date + 13.days)
+    holiday_type = HolidayType.create!(name: "Testferien")
+    course.holiday_types << holiday_type
+    holiday = Holiday.create!(holiday_type: holiday_type, start_date: terms(:two).start_date, end_date: terms(:two).start_date + 13.days)
 
     new_course = travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
 
@@ -83,8 +85,24 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "roll_over! schickt pro Teilnehmer nur eine Mail, auch bei mehreren aktiven Registrierungen" do
+    # index_course_registrations_unique_active erlaubt Duplikate, sobald eine
+    # Registrierung an ein Training gebunden ist (z.B. Schnuppertermine) —
+    # genau dieser Fall führte in Produktion zu mehreren Mails pro Teilnehmer.
+    course = make_course
+    session = course.training_sessions.create!(start_time: Time.zone.local(2026, 8, 19, 17, 0))
+    reg = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt")
+    reg.save!(validate: false)
+    reg_with_session = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt", training_session: session)
+    reg_with_session.save!(validate: false)
+
+    assert_enqueued_emails 1 do
+      travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
+    end
+  end
+
   test "roll_over! macht nichts, wenn Kurs noch nicht rollover_due? ist" do
-    course = make_course(renewal_priority_weeks: 0)
+    course = make_course(renewal_priority_date: terms(:two).start_date)
 
     travel_to(ROLLOVER_DUE_DATE) do
       assert_not course.rollover_due?

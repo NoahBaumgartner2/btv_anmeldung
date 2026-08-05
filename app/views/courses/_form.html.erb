@@ -49,29 +49,52 @@
     <div class="p-6">
       <div id="course-date-fields"
            data-registration-mode-target="dateFields"
+           data-controller="term-mode"
            class="mb-5">
-        <div>
+        <div class="flex gap-5 mb-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <%= radio_button_tag "course[term_mode]", "term", course.term_id.present? || course.new_record?,
+                  data: { term_mode_target: "radio", action: "change->term-mode#toggle" },
+                  class: "h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 cursor-pointer" %>
+            <span class="text-sm font-medium text-gray-800">Semester/Quartal</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <%= radio_button_tag "course[term_mode]", "manual", course.persisted? && course.term_id.blank?,
+                  data: { term_mode_target: "radio", action: "change->term-mode#toggle" },
+                  class: "h-4 w-4 text-primary-600 border-gray-300 focus:ring-primary-500 cursor-pointer" %>
+            <span class="text-sm font-medium text-gray-800">Eigener Zeitraum</span>
+          </label>
+        </div>
+
+        <div data-term-mode-target="termFields">
           <%= form.label :term_id, "Semester/Quartal", class: "block text-sm font-medium text-gray-700 mb-1" %>
           <p class="text-xs text-gray-400 mb-1.5">
-            Ordnet den Kurs einem Datumsbereich (z.B. HS2026) zu. Sobald der Vorlauf unten erreicht ist, wird
-            automatisch ein Nachfolge-Kurs für den nächsten Term derselben Art erstellt (gleiche Einstellungen,
-            neue Trainings – Wochentag/Zeit werden von den bestehenden Trainings übernommen).
+            Ordnet den Kurs einem Datumsbereich (z.B. HS2026) zu. Start-/Enddatum werden vom Term übernommen.
+            Sobald der Vorlauf unten erreicht ist, wird automatisch ein Nachfolge-Kurs für den nächsten Term
+            derselben Art erstellt (gleiche Einstellungen, neue Trainings – Wochentag/Zeit werden von den
+            bestehenden Trainings übernommen).
           </p>
-          <%= form.collection_select :term_id, Term.order(start_date: :desc), :id, :name,
+          <%= form.select :term_id,
+                options_for_select(
+                  Term.order(start_date: :desc).map { |t| [ t.name, t.id, { data: { start: t.start_date, end: t.end_date } } ] },
+                  course.term_id
+                ),
                 { include_blank: "Kein Semester/Quartal" },
+                data: { term_mode_target: "termSelect", action: "change->term-mode#syncDates" },
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11 mb-5" %>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
             <div>
-              <%= form.label :renewal_priority_weeks, "Vorlauf für Angemeldete (Wochen)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-              <p class="text-xs text-gray-400 mb-1.5">So viele Wochen vor Start darf sich anmelden, wer im Vorgänger-Kurs bereits angemeldet war.</p>
-              <%= form.number_field :renewal_priority_weeks, min: 0,
+              <%= form.label :renewal_priority_date, "Vorlauf für Angemeldete (Datum)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <p class="text-xs text-gray-400 mb-1.5">Ab diesem Datum darf sich anmelden, wer im Vorgänger-Kurs bereits angemeldet war. Löst auch die automatische Erstellung des Nachfolge-Kurses aus.</p>
+              <%= form.date_field :renewal_priority_date,
+                    data: { controller: "datepicker" },
                     class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
             </div>
             <div>
-              <%= form.label :public_registration_weeks, "Vorlauf für alle (Wochen)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-              <p class="text-xs text-gray-400 mb-1.5">So viele Wochen vor Start wird die Anmeldung für alle geöffnet.</p>
-              <%= form.number_field :public_registration_weeks, min: 0,
+              <%= form.label :public_registration_days, "Vorlauf für alle (Tage)", class: "block text-sm font-medium text-gray-700 mb-1" %>
+              <p class="text-xs text-gray-400 mb-1.5">So viele Tage nach obigem Datum wird die Anmeldung für alle geöffnet.</p>
+              <%= form.number_field :public_registration_days, min: 0,
                     class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
             </div>
           </div>
@@ -86,17 +109,18 @@
             über einen Button in der Kursverwaltung selbst auslösen.
           </p>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5" data-term-mode-target="manualFields">
           <div>
             <%= form.label :start_date, "Startdatum", class: "block text-sm font-medium text-gray-700 mb-1" %>
             <%= form.date_field :start_date,
-                  data: { controller: "datepicker" },
+                  data: { controller: "datepicker", term_mode_target: "startDate" },
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
           </div>
           <div>
             <%= form.label :end_date, "Enddatum", class: "block text-sm font-medium text-gray-700 mb-1" %>
             <%= form.date_field :end_date,
-                  data: { controller: "datepicker" },
+                  data: { controller: "datepicker", term_mode_target: "endDate" },
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 min-h-11" %>
           </div>
         </div>
@@ -175,6 +199,68 @@
           </div>
         </div>
       </div>
+
+      <div class="mt-6 pt-6 border-t border-gray-100">
+          <p class="text-sm font-bold text-gray-700 mb-1">Trainings automatisch erstellen</p>
+          <p class="text-xs text-gray-400 mb-3">
+            <% if course.new_record? %>
+              Wochentag(e) wählen – beim Speichern werden die einzelnen Trainingstermine im gewählten
+              Zeitraum automatisch angelegt (Ferien werden übersprungen).
+            <% else %>
+              Wochentag(e) wählen – beim Speichern werden fehlende Trainingstermine im gewählten Zeitraum
+              automatisch ergänzt (bereits vorhandene Termine und Ferien werden übersprungen).
+            <% end %>
+          </p>
+
+          <div class="flex gap-2 flex-wrap mb-5">
+            <% [ [ "Mo", 1 ], [ "Di", 2 ], [ "Mi", 3 ], [ "Do", 4 ], [ "Fr", 5 ], [ "Sa", 6 ], [ "So", 0 ] ].each do |label, value| %>
+              <label class="cursor-pointer">
+                <input type="checkbox" name="weekdays[]" value="<%= value %>" class="sr-only peer" id="new_weekday_<%= value %>">
+                <span class="peer-checked:bg-primary-600 peer-checked:text-white peer-checked:border-primary-600
+                             block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-primary-300
+                             font-bold px-4 py-2.5 rounded-xl text-sm transition select-none w-14 text-center">
+                  <%= label %>
+                </span>
+              </label>
+            <% end %>
+          </div>
+
+          <% if HolidayType.any? %>
+            <p class="text-sm font-bold text-gray-700 mb-1">Ferien überspringen</p>
+            <p class="text-xs text-gray-400 mb-2">
+              Die genauen Jahres-Daten pro Typ werden unter
+              <%= link_to "Ferien-Verwaltung", holiday_types_path, target: "_blank", class: "underline" %> gepflegt.
+            </p>
+            <div class="flex gap-2 flex-wrap mb-5">
+              <%= hidden_field_tag "course[holiday_type_ids][]", "" %>
+              <% HolidayType.order(:name).each do |type| %>
+                <label class="cursor-pointer">
+                  <input type="checkbox" name="course[holiday_type_ids][]" value="<%= type.id %>"
+                         <%= "checked" if course.new_record? || course.holiday_type_ids.include?(type.id) %> class="sr-only peer">
+                  <span class="peer-checked:bg-primary-600 peer-checked:text-white peer-checked:border-primary-600
+                               block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-primary-300
+                               font-semibold px-4 py-2 rounded-xl text-sm transition select-none">
+                    <%= type.name %>
+                  </span>
+                </label>
+              <% end %>
+            </div>
+          <% end %>
+
+          <div data-controller="extra-holidays">
+            <p class="text-sm font-bold text-gray-700 mb-2">
+              Weitere Ferien <span class="font-normal text-gray-400">(optional)</span>
+            </p>
+            <div data-extra-holidays-target="list" class="space-y-2"></div>
+            <button type="button" data-action="extra-holidays#addHoliday"
+                    class="mt-3 flex items-center gap-1.5 text-sm font-semibold text-primary-600 hover:text-primary-800 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+              </svg>
+              Ferien hinzufügen
+            </button>
+          </div>
+        </div>
     </div>
   </div>
 

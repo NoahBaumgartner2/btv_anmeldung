@@ -9,6 +9,7 @@ class Course < ApplicationRecord
   # per previous_course auf diesen (verhindert doppeltes Auslösen).
   belongs_to :term, optional: true
   belongs_to :previous_course, class_name: "Course", optional: true
+  has_and_belongs_to_many :holiday_types
   has_one :next_course, class_name: "Course", foreign_key: :previous_course_id, dependent: :nullify, inverse_of: :previous_course
 
   has_many :course_registrations, dependent: :destroy
@@ -26,6 +27,7 @@ class Course < ApplicationRecord
 
   before_save :clean_payment_methods
   before_save :clear_dates_for_abo
+  before_save :clear_rollover_fields_without_term
 
   # Gibt die tatsächlich nutzbaren Zahlungsmethoden zurück (bereinigt, mit Fallback)
   def effective_payment_methods
@@ -234,26 +236,24 @@ class Course < ApplicationRecord
   end
 
   # Ist die automatische Verlängerung fällig? (Term gesetzt, nächster Term
-  # existiert, noch nicht verlängert, Vorlauf-Schwelle erreicht.)
+  # existiert, noch nicht verlängert, Vorlauf-Datum erreicht oder leer.)
   def rollover_due?
     return false if term.blank? || next_term.blank? || next_course.present?
-    Date.current >= (next_term.start_date.to_date - renewal_priority_weeks.to_i.weeks)
+    Date.current >= (renewal_priority_date || next_term.start_date.to_date)
   end
 
   # Zugriffssperre für automatisch verlängerte Kurse: ohne previous_course
   # (kein Nachfolge-Kurs einer Verlängerung) gilt die normale Anmeldung ohne
-  # Einschränkung. Mit previous_course gilt ein zweistufiges Fenster:
-  # zuerst nur für Familien mit aktiver Anmeldung im Vorgänger-Kurs
-  # (renewal_priority_weeks vor Kursstart), danach für alle
-  # (public_registration_weeks vor Kursstart).
+  # Einschränkung. Mit previous_course gilt ein zweistufiges Fenster: zuerst
+  # nur für Familien mit aktiver Anmeldung im Vorgänger-Kurs (ab
+  # renewal_priority_date), danach für alle (ab renewal_priority_date +
+  # public_registration_days).
   def registration_window_open_for?(user)
-    return true if previous_course_id.blank? || start_date.blank?
+    return true if previous_course_id.blank? || renewal_priority_date.blank?
 
-    public_weeks = public_registration_weeks.to_i
-    return true if Date.current >= (start_date.to_date - public_weeks.weeks)
-
-    priority_weeks = (renewal_priority_weeks || public_registration_weeks).to_i
-    return false if Date.current < (start_date.to_date - priority_weeks.weeks)
+    public_from = renewal_priority_date + public_registration_days.to_i.days
+    return true if Date.current >= public_from
+    return false if Date.current < renewal_priority_date
 
     previous_course.course_registrations
       .joins(participant: :user)
@@ -275,6 +275,18 @@ class Course < ApplicationRecord
     self.start_date = nil
     self.end_date = nil
     self.term_id = nil
+  end
+
+  # Eigener Zeitraum (kein Term): automatische Verlängerung ist ohne Term
+  # ohnehin nicht möglich (siehe rollover_due?) – die Checkbox wird zusätzlich
+  # zurückgesetzt, damit sie nicht "unsichtbar aktiv" bleibt (z.B. wenn im
+  # Formular auf "Eigener Zeitraum" gewechselt wird). renewal_priority_date/
+  # public_registration_days bleiben unangetastet – die steuern unabhängig
+  # vom Term das Registrierungsfenster für previous_course-Nachfolgekurse
+  # (siehe registration_window_open_for?).
+  def clear_rollover_fields_without_term
+    return if term_id.present?
+    self.auto_rollover = false
   end
 
   def max_age_must_be_greater_than_or_equal_to_min_age

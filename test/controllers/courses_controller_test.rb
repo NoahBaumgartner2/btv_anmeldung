@@ -19,7 +19,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       title: "Noch nicht offener Nachfolge-Kurs", registration_type: "semester", registration_mode: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
       previous_course: old_course, start_date: Date.new(2027, 1, 11),
-      renewal_priority_weeks: 3, public_registration_weeks: 1
+      renewal_priority_date: Date.new(2026, 12, 21), public_registration_days: 14
     )
     hidden_course.save!(validate: false)
 
@@ -625,11 +625,11 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       title: "Manueller Rollover-Kurs", category: "Turnen",
       registration_type: "semester", registration_mode: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
-      term: terms(:one), renewal_priority_weeks: 3, auto_rollover: false
+      term: terms(:one), renewal_priority_date: Date.new(2026, 12, 22), auto_rollover: false
     )
     course.save!(validate: false)
 
-    travel_to(Date.new(2026, 12, 22)) do # 3 Wochen vor terms(:two).start_date
+    travel_to(Date.new(2026, 12, 22)) do # Vorlauf-Datum erreicht
       assert_difference("Course.count", 1) do
         post roll_over_course_url(course)
       end
@@ -643,7 +643,7 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       title: "Noch nicht fälliger Kurs", category: "Turnen",
       registration_type: "semester", registration_mode: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
-      term: terms(:one), renewal_priority_weeks: 3, auto_rollover: false
+      term: terms(:one), renewal_priority_date: Date.new(2030, 1, 1), auto_rollover: false
     )
     course.save!(validate: false)
 

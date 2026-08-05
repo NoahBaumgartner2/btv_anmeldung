@@ -79,10 +79,10 @@ class CourseTest < ActiveSupport::TestCase
 
   test "rollover_due? ist true wenn die Vorlauf-Schwelle erreicht ist" do
     term = terms(:one) # next_term ist terms(:two), start_date 2027-01-11
-    course = Course.new(base_attrs.merge(term: term, renewal_priority_weeks: 3))
+    course = Course.new(base_attrs.merge(term: term, renewal_priority_date: Date.new(2026, 12, 22)))
     course.save!(validate: false)
 
-    travel_to(Date.new(2026, 12, 22)) do # 3 Wochen vor 2027-01-11
+    travel_to(Date.new(2026, 12, 22)) do
       assert course.rollover_due?
     end
 
@@ -93,7 +93,7 @@ class CourseTest < ActiveSupport::TestCase
 
   test "rollover_due? ist false wenn bereits ein Nachfolge-Kurs existiert" do
     term = terms(:one)
-    course = Course.new(base_attrs.merge(term: term, renewal_priority_weeks: 3))
+    course = Course.new(base_attrs.merge(term: term, renewal_priority_date: Date.new(2026, 12, 22)))
     course.save!(validate: false)
 
     successor = Course.new(base_attrs.merge(term: terms(:two), previous_course: course))
@@ -110,21 +110,21 @@ class CourseTest < ActiveSupport::TestCase
     assert course.registration_window_open_for?(users(:parent_only))
   end
 
-  test "registration_window_open_for? ist erst ab public_registration_weeks für alle offen" do
+  test "registration_window_open_for? ist erst ab public_registration_days für alle offen" do
     old_course = Course.new(base_attrs)
     old_course.save!(validate: false)
 
     new_course = Course.new(base_attrs.merge(
       start_date: Date.new(2027, 1, 11), previous_course: old_course,
-      renewal_priority_weeks: 3, public_registration_weeks: 1
+      renewal_priority_date: Date.new(2027, 1, 5), public_registration_days: 3
     ))
     new_course.save!(validate: false)
 
-    travel_to(Date.new(2027, 1, 1)) do # 10 Tage vorher, weder Prio- noch Public-Fenster
+    travel_to(Date.new(2027, 1, 1)) do # vor dem Vorlauf-Datum, weder Prio- noch Public-Fenster
       assert_not new_course.registration_window_open_for?(users(:parent_only))
     end
 
-    travel_to(Date.new(2027, 1, 8)) do # 3 Tage vorher, im Public-Fenster
+    travel_to(Date.new(2027, 1, 8)) do # im Public-Fenster (Vorlauf-Datum + 3 Tage)
       assert new_course.registration_window_open_for?(users(:parent_only))
     end
   end
@@ -137,11 +137,11 @@ class CourseTest < ActiveSupport::TestCase
 
     new_course = Course.new(base_attrs.merge(
       start_date: Date.new(2027, 1, 11), previous_course: old_course,
-      renewal_priority_weeks: 3, public_registration_weeks: 1
+      renewal_priority_date: Date.new(2026, 12, 22), public_registration_days: 7
     ))
     new_course.save!(validate: false)
 
-    travel_to(Date.new(2026, 12, 22)) do # 3 Wochen vorher: Prio-Fenster, Public noch zu
+    travel_to(Date.new(2026, 12, 22)) do # Vorlauf-Datum erreicht: Prio-Fenster, Public noch zu
       assert new_course.registration_window_open_for?(participants(:one).user)
       assert_not new_course.registration_window_open_for?(users(:parent_only))
     end

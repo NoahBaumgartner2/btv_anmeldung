@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_02_132957) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_02_203000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -172,10 +172,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_132957) do
     t.string "payment_methods", default: ["card"], null: false, array: true
     t.bigint "previous_course_id"
     t.integer "price_cents"
-    t.integer "public_registration_weeks", default: 1
+    t.integer "public_registration_days", default: 7
     t.string "registration_mode"
     t.string "registration_type"
-    t.integer "renewal_priority_weeks", default: 3
+    t.date "renewal_priority_date"
     t.boolean "requires_ahv_number", default: false, null: false
     t.boolean "requires_city", default: false, null: false
     t.boolean "requires_country", default: false, null: false
@@ -197,6 +197,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_132957) do
     t.integer "youth_price_cents"
     t.index ["previous_course_id"], name: "index_courses_on_previous_course_id", unique: true
     t.index ["term_id"], name: "index_courses_on_term_id"
+  end
+
+  create_table "courses_holiday_types", id: false, force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.bigint "holiday_type_id", null: false
+    t.index ["course_id", "holiday_type_id"], name: "index_courses_holiday_types_on_course_and_type", unique: true
+    t.index ["holiday_type_id"], name: "index_courses_holiday_types_on_holiday_type_id"
   end
 
   create_table "export_profiles", force: :cascade do |t|
@@ -224,12 +231,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_132957) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "holiday_types", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_holiday_types_on_name", unique: true
+  end
+
   create_table "holidays", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "end_date"
+    t.bigint "holiday_type_id", null: false
     t.date "start_date"
-    t.string "title"
     t.datetime "updated_at", null: false
+    t.index ["holiday_type_id"], name: "index_holidays_on_holiday_type_id"
   end
 
   create_table "infomaniak_settings", force: :cascade do |t|
@@ -421,6 +436,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_02_132957) do
   add_foreign_key "course_trainers", "trainers"
   add_foreign_key "courses", "courses", column: "previous_course_id"
   add_foreign_key "courses", "terms"
+  add_foreign_key "courses_holiday_types", "courses"
+  add_foreign_key "courses_holiday_types", "holiday_types"
+  add_foreign_key "holidays", "holiday_types"
   add_foreign_key "participants", "users"
   add_foreign_key "trainers", "users"
   add_foreign_key "training_sessions", "courses"
