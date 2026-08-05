@@ -45,6 +45,19 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_includes @response.body, "Montag, 17:00–18:30"
   end
 
+  test "index zeigt bei Abo-Kursen 'Durchgehend verfügbar' statt 'Termin folgt'" do
+    Course.new(
+      title: "Abo-Kurs", category: "Turnen", registration_type: "abo", registration_mode: "abo",
+      abo_size: 10, has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    ).save!(validate: false)
+
+    get courses_url
+
+    assert_response :success
+    assert_includes @response.body, "Durchgehend verfügbar"
+    assert_not_includes @response.body, "Termin folgt"
+  end
+
   test "should get new" do
     get new_course_url
     assert_response :success
