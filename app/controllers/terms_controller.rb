@@ -47,6 +47,6 @@ class TermsController < ApplicationController
     end
 
     def term_params
-      params.expect(term: [ :name, :kind, :start_date, :end_date ])
+      params.expect(term: [ :name, :kind, :start_date, :end_date, :priority_registration_date ])
     end
 end

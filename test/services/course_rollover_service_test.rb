@@ -5,12 +5,16 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
 
   ROLLOVER_DUE_DATE = Date.new(2026, 12, 22) # 3 Wochen vor terms(:two).start_date (2027-01-11)
 
+  setup do
+    terms(:two).update!(priority_registration_date: ROLLOVER_DUE_DATE)
+  end
+
   def make_course(attrs = {})
     Course.new({
       title: "Rollover Test Kurs", category: "Turnen",
       registration_type: "semester", registration_mode: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
-      term: terms(:one), renewal_priority_date: ROLLOVER_DUE_DATE, public_registration_days: 7
+      term: terms(:one), public_registration_days: 7
     }.merge(attrs)).tap { |c| c.save!(validate: false) }
   end
 
@@ -102,7 +106,8 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
   end
 
   test "roll_over! macht nichts, wenn Kurs noch nicht rollover_due? ist" do
-    course = make_course(renewal_priority_date: terms(:two).start_date)
+    terms(:two).update!(priority_registration_date: terms(:two).start_date)
+    course = make_course
 
     travel_to(ROLLOVER_DUE_DATE) do
       assert_not course.rollover_due?
