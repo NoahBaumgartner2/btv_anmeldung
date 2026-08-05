@@ -1088,8 +1088,8 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     )
     waiting.save!(validate: false)
 
-    sign_in @parent
-    post cancel_course_registration_path(confirmed)
+    sign_in users(:admin)
+    post trainer_cancel_course_registration_path(confirmed)
 
     assert_equal "platz_frei", waiting.reload.status,
       "Wartender muss nach Stornierung auf platz_frei hochgestuft werden"

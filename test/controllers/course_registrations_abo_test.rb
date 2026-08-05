@@ -178,8 +178,8 @@ class CourseRegistrationsAboTest < ActionDispatch::IntegrationTest
 
   # ── cancel mit Abo-Rückerstattung ─────────────────────────────────────────
 
-  test "cancel einer Abo-Buchung erstattet den Eintritt zurück" do
-    sign_in @parent
+  test "trainer_cancel einer Abo-Buchung erstattet den Eintritt zurück" do
+    sign_in users(:admin)
 
     booking = CourseRegistration.new(
       course: @target_course,
@@ -192,17 +192,17 @@ class CourseRegistrationsAboTest < ActionDispatch::IntegrationTest
     booking.save!(validate: false)
     @abo_reg.update_columns(abo_entries_used: 3)
 
-    post cancel_course_registration_path(booking)
+    post trainer_cancel_course_registration_path(booking)
 
-    assert_redirected_to participants_path
+    assert_redirected_to manage_course_path(@target_course)
     booking.reload
     assert_equal "storniert", booking.status
     @abo_reg.reload
     assert_equal 2, @abo_reg.abo_entries_used
   end
 
-  test "cancel einer Abo-Buchung erstattet NICHT wenn Session bereits begonnen" do
-    sign_in @parent
+  test "trainer_cancel einer Abo-Buchung erstattet NICHT wenn Session bereits begonnen" do
+    sign_in users(:admin)
 
     past_session = @target_course.training_sessions.create!(
       start_time: 2.hours.ago,
@@ -221,9 +221,9 @@ class CourseRegistrationsAboTest < ActionDispatch::IntegrationTest
     booking.save!(validate: false)
     @abo_reg.update_columns(abo_entries_used: 3)
 
-    post cancel_course_registration_path(booking)
+    post trainer_cancel_course_registration_path(booking)
 
-    assert_redirected_to participants_path
+    assert_redirected_to manage_course_path(@target_course)
     @abo_reg.reload
     assert_equal 3, @abo_reg.abo_entries_used
   end

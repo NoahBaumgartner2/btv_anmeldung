@@ -86,7 +86,7 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :course_registrations do
+  resources :course_registrations, except: [ :destroy ] do
     collection do
       get :trial_eligible
     end
@@ -94,7 +94,6 @@ Rails.application.routes.draw do
       post :scan
       post :unsubscribe_from_session
       post :resubscribe_to_session
-      post :cancel
       post :trainer_cancel
       post :use_abo_entry
       post :update_abo_entries
