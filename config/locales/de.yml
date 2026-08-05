@@ -730,12 +730,7 @@ de:
       courses:
         title: "Aktuelle Kurse"
         subtitle: "Entdecke unser aktuelles Angebot und melde dich direkt an."
-        join_anytime: "Jederzeit einsteigen"
-        spots_free:
-          one: "Noch 1 Platz frei"
-          other: "Noch %{count} Plätze frei"
-        view_full: "Details ansehen"
-        view_more: "Mehr erfahren"
+        view_category: "Kurse ansehen"
         view_all: "Alle Kurse ansehen →"
         empty: "Aktuell sind keine Kurse verfügbar. Schau bald wieder vorbei!"
       how_it_works:

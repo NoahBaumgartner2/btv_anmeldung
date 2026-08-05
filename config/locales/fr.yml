@@ -687,12 +687,7 @@ fr:
       courses:
         title: "Cours actuels"
         subtitle: "Découvrez notre offre actuelle et inscrivez-vous directement."
-        join_anytime: "Rejoindre à tout moment"
-        spots_free:
-          one: "Plus qu'1 place"
-          other: "Plus que %{count} places"
-        view_full: "Voir les détails"
-        view_more: "En savoir plus"
+        view_category: "Voir les cours"
         view_all: "Voir tous les cours →"
         empty: "Aucun cours disponible actuellement. Revenez bientôt !"
       how_it_works:
