@@ -1,8 +1,8 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
-  # Sucht die Anmeldung anhand der ID in der URL, bevor edit, update oder destroy ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :destroy, :cancel, :trainer_cancel, :use_abo_entry, :update_abo_entries, :convert_trial, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
-  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :destroy, :cancel, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
+  # Sucht die Anmeldung anhand der ID in der URL, bevor edit oder update ausgeführt wird
+  before_action :set_course_registration, only: [ :show, :edit, :update, :trainer_cancel, :use_abo_entry, :update_abo_entries, :convert_trial, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
+  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
 
   def show
     if @course_registration.status == "ausstehend" && @course_registration.course.price_cents.to_i == 0
@@ -370,116 +370,6 @@ class CourseRegistrationsController < ApplicationController
     end
   end
 
-  # NEU: Eine Anmeldung komplett löschen/stornieren
-  def destroy
-    course              = @course_registration.course
-    training_session_id = @course_registration.training_session_id
-    already_cancelled   = @course_registration.status == "storniert"
-
-    refund_cents = nil
-    if !already_cancelled && @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
-      @course_registration.with_lock do
-        @course_registration.reload
-        break if @course_registration.refunded_at.present?
-        planned_cents = RefundService.calculate_amount_cents(@course_registration)
-        begin
-          result = RefundService.process(@course_registration)
-          refund_cents = result[:amount_cents] if result[:refunded]
-        rescue RuntimeError => e
-          Rails.logger.error "[destroy] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
-          User.where(admin: true).find_each do |admin_user|
-            CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message, planned_cents).deliver_later
-          end
-        end
-      end
-    end
-
-    unless already_cancelled
-      CourseRegistrationMailer.self_cancelled(@course_registration, refund_amount_cents: refund_cents).deliver_later
-    end
-    @course_registration.destroy
-    WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
-
-    notice = if refund_cents
-      amount_chf = format("%.2f", refund_cents / 100.0)
-      "#{t("course_registrations.flash.destroyed")} Rückerstattung von CHF #{amount_chf} wurde ausgelöst."
-    else
-      t("course_registrations.flash.destroyed")
-    end
-    redirect_to participants_path, notice: notice
-  end
-
-  def cancel
-    if @course_registration.status == "storniert"
-      redirect_to participants_path, alert: t("course_registrations.flash.already_cancelled")
-      return
-    end
-
-    already_cancelled_in_lock = false
-    training_session_id = @course_registration.training_session_id
-
-    @course_registration.with_lock do
-      if @course_registration.status == "storniert"
-        already_cancelled_in_lock = true
-        next
-      end
-
-      @course_registration.update!(
-        status: "storniert",
-        cancelled_at: Time.current
-      )
-    end
-
-    if already_cancelled_in_lock
-      redirect_to participants_path, alert: t("course_registrations.flash.already_cancelled")
-      return
-    end
-
-    # Abo-Eintrag zurückbuchen, wenn es sich um eine Abo-Buchung handelt
-    # und die zugehörige Session noch nicht begonnen hat
-    if @course_registration.abo_booking?
-      session = @course_registration.training_session
-      @course_registration.refund_abo_entry! if session.nil? || session.start_time > Time.current
-    end
-
-    course = @course_registration.course
-
-    WaitlistPromotionService.promote_next_from_waitlist(
-      course,
-      training_session_id: training_session_id
-    )
-
-    if @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
-      planned_cents = RefundService.calculate_amount_cents(@course_registration)
-      begin
-        result = RefundService.process(@course_registration)
-        if result[:refunded]
-          amount_chf = format("%.2f", result[:amount_cents] / 100.0)
-          notice = "Die Anmeldung für \"#{course.title}\" wurde storniert. Rückerstattung von CHF #{amount_chf} wurde ausgelöst."
-        else
-          notice = "Die Anmeldung für \"#{course.title}\" wurde storniert."
-        end
-      rescue RuntimeError => e
-        Rails.logger.error "[cancel] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
-        User.where(admin: true).find_each do |admin_user|
-          CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message, planned_cents).deliver_later
-        end
-        notice = "Die Anmeldung für \"#{course.title}\" wurde storniert. Die Rückerstattung konnte nicht automatisch ausgelöst werden — der Administrator wurde informiert."
-      end
-    else
-      notice = "Die Anmeldung für \"#{course.title}\" wurde storniert."
-    end
-
-    refund_cents = defined?(result) && result&.dig(:refunded) ? result[:amount_cents] : nil
-    CourseRegistrationMailer.self_cancelled(@course_registration, refund_amount_cents: refund_cents).deliver_later
-    course.trainers.includes(:user).each do |trainer|
-      next unless trainer.user&.email.present?
-      next unless trainer.user.admin_notification_enabled?("cancel_notice")
-      CourseRegistrationMailer.trainer_cancel_notice(@course_registration, trainer.user).deliver_later
-    end
-    redirect_to participants_path, notice: notice
-  end
-
   # Trainer (oder Admin) meldet ein Kind vom Kurs ab.
   # Eltern werden per E-Mail informiert; optional wird der Admin
   # für eine allfällige Rückerstattung benachrichtigt.
@@ -505,6 +395,13 @@ class CourseRegistrationsController < ApplicationController
       cancelled_at: Time.current,
       cancelled_by_trainer: trainer
     )
+
+    # Abo-Eintrag zurückbuchen, wenn es sich um eine Abo-Buchung handelt
+    # und die zugehörige Session noch nicht begonnen hat
+    if @course_registration.abo_booking?
+      abo_session = @course_registration.training_session
+      @course_registration.refund_abo_entry! if abo_session.nil? || abo_session.start_time > Time.current
+    end
 
     WaitlistPromotionService.promote_next_from_waitlist(
       course,
