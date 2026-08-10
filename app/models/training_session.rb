@@ -4,6 +4,11 @@ class TrainingSession < ApplicationRecord
 
   has_many :attendances, dependent: :destroy
 
+  # SQL-Gegenstück zu #past? — für Anmeldung/Buchung: eine Session bleibt
+  # buchbar bis zu ihrem Ende (end_time), nicht nur bis zum Start. Fehlt
+  # end_time, gilt start_time als Referenz.
+  scope :not_past, -> { where("COALESCE(end_time, start_time) >= ?", Time.current) }
+
   def past?
     reference = end_time || start_time
     reference.present? && reference < Time.current

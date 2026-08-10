@@ -539,7 +539,7 @@ class CoursesController < ApplicationController
       # Zielkurse für die Admin-Verschiebe-Funktion (alle Kurse, kategorienübergreifend).
       @move_target_courses = Course.order(:category, :title).to_a if current_user&.admin?
       @trial_sessions = if @course.allows_trial?
-        @course.training_sessions.where(is_canceled: false).where("start_time > ?", Time.current).order(:start_time)
+        @course.training_sessions.where(is_canceled: false).not_past.order(:start_time)
       else
         []
       end
@@ -615,13 +615,13 @@ class CoursesController < ApplicationController
 
       if @course.registration_mode == "single_session"
         session = @course.training_sessions.find_by(id: trial_session_id)
-        if session.nil? || session.is_canceled? || session.start_time <= Time.current
+        if session.nil? || session.is_canceled? || session.past?
           return redirect_to manage_course_path(@course), alert: "Bitte ein gültiges Training auswählen."
         end
         training_session_id_for_capacity = session.id
       else
         trial_session = @course.training_sessions.find_by(id: trial_session_id)
-        if trial_session.nil? || trial_session.is_canceled? || trial_session.start_time <= Time.current
+        if trial_session.nil? || trial_session.is_canceled? || trial_session.past?
           return redirect_to manage_course_path(@course), alert: "Bitte ein gültiges Schnuppertraining auswählen."
         end
       end

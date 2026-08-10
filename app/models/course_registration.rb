@@ -118,7 +118,7 @@ class CourseRegistration < ApplicationRecord
       .joins(:course)
       .where(courses: { category: course.category })
       .where(is_canceled: false)
-      .where("training_sessions.start_time > ?", Time.current)
+      .not_past
       .includes(:course)
       .order("training_sessions.start_time")
   end
@@ -136,7 +136,7 @@ class CourseRegistration < ApplicationRecord
       .joins(:course)
       .where(courses: { category: course.category })
       .where(is_canceled: false)
-      .where("training_sessions.start_time > ?", Time.current)
+      .not_past
       .where.not(id: already_booked_ids)
       .includes(:course)
       .order("training_sessions.start_time")
@@ -172,7 +172,7 @@ class CourseRegistration < ApplicationRecord
       errors.add(:base, I18n.t("course_registrations.errors.trial_session_wrong_course"))
     elsif trial_session.is_canceled?
       errors.add(:base, I18n.t("course_registrations.errors.session_cancelled"))
-    elsif trial_session.start_time <= Time.current
+    elsif trial_session.past?
       errors.add(:base, I18n.t("course_registrations.errors.session_in_past"))
     end
   end
@@ -212,7 +212,7 @@ class CourseRegistration < ApplicationRecord
 
     if training_session.is_canceled?
       errors.add(:base, I18n.t("course_registrations.errors.session_cancelled"))
-    elsif training_session.start_time <= Time.current
+    elsif training_session.past?
       errors.add(:base, I18n.t("course_registrations.errors.session_in_past"))
     end
   end

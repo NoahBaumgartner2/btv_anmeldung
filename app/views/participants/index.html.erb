@@ -313,8 +313,7 @@
               <% active_single.each do |course_id, regs| %>
                 <% course = regs.first.course %>
                 <%
-                  now           = Time.current
-                  upcoming_regs = regs.select { |r| ["bestätigt", "schnuppern"].include?(r.status) && r.training_session&.start_time.present? && r.training_session.start_time > now }
+                  upcoming_regs = regs.select { |r| ["bestätigt", "schnuppern"].include?(r.status) && r.training_session.present? && !r.training_session.past? }
                   next_reg      = upcoming_regs.min_by { |r| r.training_session.start_time }
                   active_count  = upcoming_regs.size
                 %>
@@ -336,7 +335,7 @@
                     <% regs.each do |reg| %>
                       <% session = reg.training_session %>
                       <% next unless session %>
-                      <% is_past      = session.start_time < now %>
+                      <% is_past      = session.past? %>
                       <% is_storniert = reg.status == "storniert" %>
                       <div class="flex items-center justify-between gap-2 sm:gap-3 px-4 sm:px-5 py-3 <%= is_past || is_storniert ? 'opacity-50' : '' %>">
                         <div class="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
