@@ -149,7 +149,7 @@ class CourseRegistrationsController < ApplicationController
           @course_registration.errors.add(:base, I18n.t("course_registrations.errors.session_cancelled"))
           setup_new_form(course)
           return render :new, status: :unprocessable_entity
-        elsif trial_session.start_time <= Time.current
+        elsif trial_session.past?
           @course_registration.errors.add(:base, I18n.t("course_registrations.errors.session_in_past"))
           setup_new_form(course)
           return render :new, status: :unprocessable_entity
@@ -712,7 +712,7 @@ class CourseRegistrationsController < ApplicationController
 
     @trial_sessions = @course.training_sessions
                              .where(is_canceled: false)
-                             .where("start_time > ?", Time.current)
+                             .not_past
                              .order(:start_time)
                              .limit(20)
   end
@@ -771,7 +771,7 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
-    if session.start_time <= Time.current
+    if session.past?
       redirect_to abo_sessions_course_registration_path(@course_registration),
                   alert: t("course_registrations.errors.session_in_past")
       return
@@ -942,7 +942,7 @@ class CourseRegistrationsController < ApplicationController
         redirect_to choose_trial_session_course_registration_path(@course_registration),
           alert: t("course_registrations.errors.session_cancelled")
         return
-      elsif session.start_time <= Time.current
+      elsif session.past?
         redirect_to choose_trial_session_course_registration_path(@course_registration),
           alert: t("course_registrations.errors.session_in_past")
         return
@@ -993,7 +993,7 @@ class CourseRegistrationsController < ApplicationController
 
     @trial_sessions = course.training_sessions
                             .where(is_canceled: false)
-                            .where("start_time > ?", Time.current)
+                            .not_past
                             .order(:start_time)
                             .limit(10)
   end

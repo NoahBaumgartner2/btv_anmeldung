@@ -185,7 +185,7 @@
       <%
         bookable_sessions = @course.training_sessions
           .where(is_canceled: false)
-          .where("start_time > ?", Time.current)
+          .not_past
           .order(:start_time)
       %>
       <%
