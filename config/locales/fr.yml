@@ -1008,7 +1008,7 @@ fr:
       attendance_confirmed_notice: "Le contrôle de présence a été terminé."
       attendance_reopened_notice: "Le contrôle de présence a été rouvert."
       reminder_aria: "Envoyer un rappel de désinscription à %{name}"
-      reminder_confirm: "Envoyer à %{name} un rappel pour se désinscrire via « Mon profil » dans l'app ?"
+      reminder_confirm: "Envoyer à %{name} un rappel de te contacter pour une désinscription ?"
       reminder_sent: "Rappel envoyé à %{name}."
       reminder_invalid: "Le rappel n'a pas pu être envoyé – aucune adresse e-mail valide enregistrée."
     form:

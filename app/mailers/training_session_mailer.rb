@@ -29,7 +29,6 @@ class TrainingSessionMailer < ApplicationMailer
     @participant      = course_registration.participant
     @participant_user = @participant.user
     @trainer_emails   = @course.trainers.map { |t| t.user&.email }.compact.uniq
-    @my_profile_url   = my_profile_url
 
     mail(
       to: @participant_user.email,

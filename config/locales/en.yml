@@ -1014,7 +1014,7 @@ en:
       attendance_confirmed_notice: "Attendance check has been completed."
       attendance_reopened_notice: "Attendance check has been reopened."
       reminder_aria: "Send unsubscribe reminder to %{name}"
-      reminder_confirm: "Send %{name} a reminder to unsubscribe via «My Profile» in the app?"
+      reminder_confirm: "Send %{name} a reminder to contact you for an unsubscription?"
       reminder_sent: "Reminder sent to %{name}."
       reminder_invalid: "Reminder could not be sent – no valid email address on file."
     form:
