@@ -18,13 +18,13 @@ class TrainingSessionMailerTest < ActionMailer::TestCase
     assert_match @course.title, mail.subject
   end
 
-  test "unsubscribe_reminder verlinkt Mein Profil und nennt Trainer-E-Mails" do
+  test "unsubscribe_reminder nennt Trainer-E-Mails statt Selbst-Abmeldung in der App" do
     trainer = @course.trainers.first
     assert trainer&.user&.email.present?, "Fixture-Kurs sollte einen Trainer mit E-Mail haben"
 
     mail = TrainingSessionMailer.unsubscribe_reminder(@training_session, @registration)
 
-    assert_match Rails.application.routes.url_helpers.my_profile_path, mail.body.encoded
     assert_match trainer.user.email, mail.body.encoded
+    assert_no_match(/Mein Profil/, mail.body.encoded)
   end
 end
