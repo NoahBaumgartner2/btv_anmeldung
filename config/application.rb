@@ -32,5 +32,10 @@ module BtvAnmeldung
     config.time_zone = "Europe/Zurich"
     config.active_record.default_timezone = :local
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # Retries transient SMTP failures (timeouts, "server too busy", daily
+    # sending-quota hits) instead of silently losing the mail - see
+    # app/jobs/mail_delivery_job.rb.
+    config.action_mailer.delivery_job = "MailDeliveryJob"
   end
 end
