@@ -32,7 +32,6 @@ class Participant < ApplicationRecord
               message: "muss im Format 756.XXXX.XXXX.XX angegeben werden"
             },
             allow_blank: true
-  validate :ahv_required_for_minors, if: -> { date_of_birth.present? }
   validate :ahv_number_cannot_be_cleared, on: :update
 
   validate :phone_number_format, if: -> { phone_number.present? }
@@ -114,22 +113,12 @@ class Participant < ApplicationRecord
       .none?
   end
 
-  # AHV-Nummer ist für Kinder/Jugendliche Pflicht.
-  # Optional nur für Erwachsene, die bei Kursstart älter als 20 Jahre sind.
-  def ahv_required_for?(course)
-    age = age_at(course.age_reference_date)
-    age.nil? || age <= 20
-  end
-
-  # Gibt fehlende Pflichtfelder für einen bestimmten Kurs zurück (als Symbole)
+  # Gibt fehlende Pflichtfelder für einen bestimmten Kurs zurück (als Symbole).
+  # Welche Felder Pflicht sind, entscheidet ausschliesslich der Kurs (siehe
+  # Course#required_participant_fields: konfigurierbares "Pflichtfeld"-Häkchen
+  # bzw. AHV-Nummer immer bei J+S-Kursen) - keine kursunabhängige Altersregel.
   def missing_fields_for(course)
-    fields = course.required_participant_fields
-    fields |= [ :ahv_number ] if ahv_required_for?(course)
-    fields.select { |field| self[field].blank? }
-  end
-
-  def minor?
-    date_of_birth.present? && age_at(Date.today) < 18
+    course.required_participant_fields.select { |field| self[field].blank? }
   end
 
   # Alter am Referenzdatum (z.B. Kursstart). Gibt nil zurück, wenn kein Geburtsdatum vorhanden.
@@ -173,10 +162,6 @@ class Participant < ApplicationRecord
     unless phone_number.count("0-9") >= 7
       errors.add(:phone_number, "muss mindestens 7 Ziffern haben (erlaubt: +, Ziffern, Leerzeichen, -)")
     end
-  end
-
-  def ahv_required_for_minors
-    errors.add(:ahv_number, "ist für Personen unter 18 Jahren Pflicht") if minor? && ahv_number.blank?
   end
 
   def ahv_number_cannot_be_cleared

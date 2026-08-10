@@ -184,36 +184,10 @@ class ParticipantTest < ActiveSupport::TestCase
     assert_not subject.ever_trialed_in_category?("Kids Gym")
   end
 
-  # ── ahv_required_for? ────────────────────────────────────────────────────────
+  # ── missing_fields_for (AHV richtet sich ausschliesslich nach dem Kurs) ───────
 
-  test "ahv_required_for? returns true for participant aged 20 at course start" do
-    course = Course.new(start_date: Date.new(2026, 9, 1))
-    participant = Participant.new(date_of_birth: Date.new(2006, 1, 1)) # turns 20 before Sep 1
-    assert participant.ahv_required_for?(course)
-  end
-
-  test "ahv_required_for? returns true for participant aged exactly 20 at course start" do
-    course = Course.new(start_date: Date.new(2026, 9, 1))
-    participant = Participant.new(date_of_birth: Date.new(2006, 9, 1)) # exactly 20 on start day
-    assert participant.ahv_required_for?(course)
-  end
-
-  test "ahv_required_for? returns false for participant aged 21 at course start" do
-    course = Course.new(start_date: Date.new(2026, 9, 1))
-    participant = Participant.new(date_of_birth: Date.new(2004, 12, 31)) # turns 21 before Sep 1
-    assert_not participant.ahv_required_for?(course)
-  end
-
-  test "ahv_required_for? returns true when date_of_birth is nil" do
-    course = Course.new(start_date: Date.new(2026, 9, 1))
-    participant = Participant.new(date_of_birth: nil)
-    assert participant.ahv_required_for?(course)
-  end
-
-  # ── missing_fields_for (AHV-Altersregel) ─────────────────────────────────────
-
-  test "missing_fields_for includes ahv_number for participant aged <=20 without AHV" do
-    course = Course.new(start_date: Date.new(2026, 9, 1))
+  test "missing_fields_for includes ahv_number when course requires it, regardless of age" do
+    course = Course.new(start_date: Date.new(2026, 9, 1), requires_ahv_number: true)
     course.save!(validate: false)
     participant = Participant.new(
       user: users(:one), first_name: "Jung", last_name: "Kind",
@@ -223,15 +197,35 @@ class ParticipantTest < ActiveSupport::TestCase
     assert_includes participant.missing_fields_for(course), :ahv_number
   end
 
-  test "missing_fields_for excludes ahv_number for participant aged >20 without AHV (course has no required fields)" do
-    course = Course.new(start_date: Date.new(2026, 9, 1))
+  test "missing_fields_for excludes ahv_number when course does not require it, even for a minor" do
+    course = Course.new(start_date: Date.new(2026, 9, 1), requires_ahv_number: false)
     course.save!(validate: false)
     participant = Participant.new(
-      user: users(:one), first_name: "Erwachsen", last_name: "Person",
-      date_of_birth: Date.new(2004, 12, 31), gender: "weiblich",
+      user: users(:one), first_name: "Jung", last_name: "Kind",
+      date_of_birth: Date.new(2015, 1, 1), gender: "weiblich",
       phone_number: "0791000098", ahv_number: nil
     )
     assert_not_includes participant.missing_fields_for(course), :ahv_number
+  end
+
+  test "missing_fields_for includes ahv_number for J+S courses even without the checkbox, regardless of age" do
+    course = Course.new(start_date: Date.new(2026, 9, 1), requires_ahv_number: false, is_js_training: true)
+    course.save!(validate: false)
+    participant = Participant.new(
+      user: users(:one), first_name: "Erwachsen", last_name: "Person",
+      date_of_birth: Date.new(1980, 1, 1), gender: "weiblich",
+      phone_number: "0791000097", ahv_number: nil
+    )
+    assert_includes participant.missing_fields_for(course), :ahv_number
+  end
+
+  test "a minor can be saved without an AHV number when no course requires it" do
+    participant = Participant.new(
+      user: users(:one), first_name: "Jung", last_name: "Kind",
+      date_of_birth: Date.new(2015, 1, 1), gender: "weiblich",
+      phone_number: "0791000096", ahv_number: nil
+    )
+    assert participant.valid?
   end
 
   # ── AHV-Löschschutz ───────────────────────────────────────────────────────
