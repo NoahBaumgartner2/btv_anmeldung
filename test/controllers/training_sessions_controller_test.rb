@@ -73,6 +73,38 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     assert_match participants(:two).first_name, @response.body, "Bestätigter erscheint weiterhin bei jedem Training"
   end
 
+  test "Abo-Einzelbuchung erscheint nur beim gebuchten Training in der Präsenzkontrolle" do
+    course = Course.new(
+      title: "10er-Abo", registration_type: "abo", registration_mode: "abo",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+    monday    = course.training_sessions.create!(start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: false)
+    wednesday = course.training_sessions.create!(start_time: 4.days.from_now, end_time: 4.days.from_now + 1.hour, is_canceled: false)
+
+    abo_source = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", abo_entries_total: 10, abo_entries_used: 0, payment_cleared: false
+    )
+    abo_source.save!(validate: false)
+
+    # Einzelbuchung: nur für den Montagstermin
+    monday_booking = CourseRegistration.new(
+      course: course, participant: participants(:one), training_session_id: monday.id,
+      abo_source_registration_id: abo_source.id, status: "bestätigt", payment_cleared: false
+    )
+    monday_booking.save!(validate: false)
+
+    get training_session_url(monday)
+    assert_response :success
+    assert_match participants(:one).first_name, @response.body, "Abo-Buchung muss beim gebuchten Termin (Montag) erscheinen"
+
+    get training_session_url(wednesday)
+    assert_response :success
+    assert_no_match(/#{Regexp.escape(participants(:one).first_name)}/, @response.body,
+      "Abo-Buchung darf NICHT bei einem nicht gebuchten Termin (Mittwoch) erscheinen")
+  end
+
   test "should get edit" do
     get edit_training_session_url(@training_session)
     assert_response :success

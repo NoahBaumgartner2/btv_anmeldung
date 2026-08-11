@@ -734,8 +734,12 @@ class CourseRegistrationsController < ApplicationController
     # Semester-Anmeldungen (training_session_id nil) belegen bei JEDER Session
     # des jeweiligen Kurses einen Platz mit – sonst würden Abo-Buchungen sie
     # überbuchen (siehe TrainingSession#occupied_spots für den Einzelfall).
+    # Abo-Pässe (abo_entries_total gesetzt) haben ebenfalls kein
+    # training_session_id, sind aber selbst kein Session-Besuch und werden
+    # daher ausgeschlossen (siehe CourseRegistration.applicable_to_session).
     semester_counts = CourseRegistration
-      .where(course_id: @all_sessions.map(&:course_id).uniq, training_session_id: nil, status: %w[bestätigt schnuppern])
+      .where(course_id: @all_sessions.map(&:course_id).uniq, training_session_id: nil,
+             abo_entries_total: nil, status: %w[bestätigt schnuppern])
       .group(:course_id)
       .count
 

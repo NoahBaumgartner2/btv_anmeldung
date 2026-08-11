@@ -44,7 +44,7 @@ class TrainingSession < ApplicationRecord
   def occupied_spots
     CourseRegistration
       .where(course_id: course_id, status: %w[bestätigt schnuppern])
-      .where("training_session_id = ? OR training_session_id IS NULL", id)
+      .applicable_to_session(id)
       .count
   end
 end
