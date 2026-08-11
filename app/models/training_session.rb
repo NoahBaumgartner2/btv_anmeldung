@@ -47,4 +47,12 @@ class TrainingSession < ApplicationRecord
       .applicable_to_session(id)
       .count
   end
+
+  # Erwartete Teilnehmer:innen für DIESE Session: wie #occupied_spots, aber
+  # abzüglich wer sich für genau diese Session abgemeldet hat (Attendance
+  # status "abgemeldet"). Für die Kursübersicht ("X Anwesende"), nicht für
+  # Kapazitätsprüfungen - dort bleibt #occupied_spots maßgeblich.
+  def attending_count
+    occupied_spots - attendances.where(status: "abgemeldet").count
+  end
 end
