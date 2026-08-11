@@ -1,8 +1,8 @@
 class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit oder update ausgeführt wird
-  before_action :set_course_registration, only: [ :show, :edit, :update, :trainer_cancel, :use_abo_entry, :update_abo_entries, :convert_trial, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
-  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
+  before_action :set_course_registration, only: [ :show, :edit, :update, :cancel, :trainer_cancel, :use_abo_entry, :update_abo_entries, :convert_trial, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
+  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :cancel, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
 
   def show
     if @course_registration.status == "ausstehend" && @course_registration.course.price_cents.to_i == 0
@@ -368,6 +368,43 @@ class CourseRegistrationsController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  # Selbst-Storno eines einzelnen 10er-Abo-Trainings durch den Teilnehmer/Elternteil.
+  # Nur für Abo-Einzelbuchungen (nicht für die reguläre Kursanmeldung) - siehe
+  # Commit 6526182, der die generelle Selbst-Abmeldung entfernt hat.
+  def cancel
+    unless @course_registration.abo_booking?
+      redirect_to participants_path, alert: t("course_registrations.flash.already_cancelled")
+      return
+    end
+
+    if @course_registration.status == "storniert"
+      redirect_to participants_path, alert: t("course_registrations.flash.already_cancelled")
+      return
+    end
+
+    session = @course_registration.training_session
+    unless session.nil? || session.start_time > 1.hour.from_now
+      redirect_to participants_path, alert: t("course_registrations.flash.already_cancelled")
+      return
+    end
+
+    course               = @course_registration.course
+    training_session_id  = @course_registration.training_session_id
+
+    @course_registration.with_lock do
+      @course_registration.reload
+      next if @course_registration.status == "storniert"
+
+      @course_registration.update!(status: "storniert", cancelled_at: Time.current)
+      @course_registration.refund_abo_entry!
+    end
+
+    WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
+    CourseRegistrationMailer.self_cancelled(@course_registration).deliver_later
+
+    redirect_to participants_path, notice: t("course_registrations.flash.destroyed")
   end
 
   # Trainer (oder Admin) meldet ein Kind vom Kurs ab.

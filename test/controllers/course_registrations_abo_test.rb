@@ -228,6 +228,68 @@ class CourseRegistrationsAboTest < ActionDispatch::IntegrationTest
     assert_equal 3, @abo_reg.abo_entries_used
   end
 
+  # ── cancel (Selbst-Storno eines Abo-Trainings durch Teilnehmer) ──────────
+
+  test "cancel einer Abo-Buchung durch den Teilnehmer erstattet den Eintritt zurück" do
+    sign_in @parent
+
+    booking = CourseRegistration.new(
+      course: @target_course,
+      participant: @participant,
+      training_session: @future_session,
+      abo_source_registration_id: @abo_reg.id,
+      status: "bestätigt"
+    )
+    booking.save!(validate: false)
+    @abo_reg.update_columns(abo_entries_used: 3)
+
+    post cancel_course_registration_path(booking)
+
+    assert_redirected_to participants_path
+    booking.reload
+    assert_equal "storniert", booking.status
+    @abo_reg.reload
+    assert_equal 2, @abo_reg.abo_entries_used
+  end
+
+  test "cancel einer Abo-Buchung schlägt fehl wenn Session bereits begonnen" do
+    sign_in @parent
+
+    past_session = @target_course.training_sessions.create!(
+      start_time: 2.hours.ago,
+      end_time: 1.hour.ago,
+      is_canceled: false
+    )
+
+    booking = CourseRegistration.new(
+      course: @target_course,
+      participant: @participant,
+      training_session: past_session,
+      abo_source_registration_id: @abo_reg.id,
+      status: "bestätigt"
+    )
+    booking.save!(validate: false)
+    @abo_reg.update_columns(abo_entries_used: 3)
+
+    post cancel_course_registration_path(booking)
+
+    assert_redirected_to participants_path
+    booking.reload
+    assert_equal "bestätigt", booking.status
+    @abo_reg.reload
+    assert_equal 3, @abo_reg.abo_entries_used
+  end
+
+  test "cancel einer regulären (nicht-Abo) Anmeldung ist weiterhin blockiert" do
+    sign_in @parent
+
+    post cancel_course_registration_path(@abo_reg)
+
+    assert_redirected_to participants_path
+    @abo_reg.reload
+    assert_equal "bestätigt", @abo_reg.status
+  end
+
   # ── Kapazität & Warteliste ───────────────────────────────────────────────
 
   test "book_abo_session setzt status warteliste wenn Session voll und Warteliste aktiv" do
