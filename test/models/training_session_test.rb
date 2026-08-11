@@ -104,4 +104,24 @@ class TrainingSessionTest < ActiveSupport::TestCase
 
     assert_equal 1, session.reload.attending_count
   end
+
+  test "attending_count wird nicht negativ durch verwaiste Attendance eines Abo-Passes" do
+    course = Course.new(title: "Attending-Count-Abo-Kurs", registration_mode: "abo",
+                         start_date: Date.today, end_date: 1.year.from_now.to_date, registration_type: "kurs")
+    course.save!(validate: false)
+    session = course.training_sessions.create!(
+      start_time: 1.day.from_now, end_time: 1.day.from_now + 1.hour, is_canceled: false
+    )
+
+    # Abo-Pass: belegt selbst keine Session (training_session_id nil, abo_entries_total gesetzt),
+    # zaehlt daher nicht in occupied_spots - besitzt hier aber (verwaist, z.B. aus einer frueheren
+    # Version der Anwesenheitsliste) trotzdem eine "abgemeldet"-Attendance fuer diese Session.
+    abo_pass = CourseRegistration.new(course: course, participant: participants(:one),
+                                       status: "bestätigt", abo_entries_total: 5)
+    abo_pass.save!(validate: false)
+    session.attendances.create!(course_registration: abo_pass, status: "abgemeldet")
+
+    assert_equal 0, session.occupied_spots
+    assert_equal 0, session.attending_count
+  end
 end

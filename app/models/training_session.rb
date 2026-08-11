@@ -49,10 +49,18 @@ class TrainingSession < ApplicationRecord
   end
 
   # Erwartete Teilnehmer:innen für DIESE Session: wie #occupied_spots, aber
-  # abzüglich wer sich für genau diese Session abgemeldet hat (Attendance
-  # status "abgemeldet"). Für die Kursübersicht ("X Anwesende"), nicht für
+  # ohne wer sich für genau diese Session abgemeldet hat (Attendance status
+  # "abgemeldet"). Für die Kursübersicht ("X Anwesende"), nicht für
   # Kapazitätsprüfungen - dort bleibt #occupied_spots maßgeblich.
+  #
+  # Wichtig: nur Abmeldungen abziehen, die zu einer auch in #occupied_spots
+  # gezählten Anmeldung gehören - sonst zählen verwaiste Attendance-Zeilen
+  # (z.B. von Abo-Pässen, die selbst nie eine Session belegen) doppelt.
   def attending_count
-    occupied_spots - attendances.where(status: "abgemeldet").count
+    CourseRegistration
+      .where(course_id: course_id, status: %w[bestätigt schnuppern])
+      .applicable_to_session(id)
+      .where.not(id: attendances.where(status: "abgemeldet").select(:course_registration_id))
+      .count
   end
 end
