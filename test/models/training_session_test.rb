@@ -82,4 +82,26 @@ class TrainingSessionTest < ActiveSupport::TestCase
     @session.update!(end_time: 8.days.ago, admin_notified_at: Time.current)
     assert_not @session.needs_admin_notification?
   end
+
+  # --- attending_count ---
+
+  test "attending_count zaehlt abgemeldete Teilnehmer nicht mit" do
+    course = Course.new(title: "Attending-Count-Kurs", registration_mode: "single_session",
+                         start_date: Date.today, end_date: 1.year.from_now.to_date, registration_type: "kurs")
+    course.save!(validate: false)
+    session = course.training_sessions.create!(
+      start_time: 1.day.from_now, end_time: 1.day.from_now + 1.hour, is_canceled: false
+    )
+
+    reg_a = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt")
+    reg_a.save!(validate: false)
+    reg_b = CourseRegistration.new(course: course, participant: participants(:two), status: "bestätigt")
+    reg_b.save!(validate: false)
+
+    assert_equal 2, session.attending_count
+
+    session.attendances.create!(course_registration: reg_a, status: "abgemeldet")
+
+    assert_equal 1, session.reload.attending_count
+  end
 end

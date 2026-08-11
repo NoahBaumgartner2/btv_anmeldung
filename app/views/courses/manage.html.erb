@@ -477,7 +477,7 @@
                            (session.end_time ? session.end_time > now : session.start_time > 2.hours.ago)
             is_past      = session.end_time ? session.end_time < now : (session.start_time && session.start_time < now)
             is_canceled  = session.is_canceled?
-            attendance   = session.attendances.size
+            attendance   = session.attending_count
           %>
 
           <div class="px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 border-b border-gray-50 last:border-0
