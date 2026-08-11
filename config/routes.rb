@@ -94,6 +94,7 @@ Rails.application.routes.draw do
       post :scan
       post :unsubscribe_from_session
       post :resubscribe_to_session
+      post :cancel
       post :trainer_cancel
       post :use_abo_entry
       post :update_abo_entries
