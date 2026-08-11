@@ -31,6 +31,7 @@ class TrainingSessionsController < ApplicationController
     @registrations = @training_session.course.course_registrations
       .includes(:participant)
       .where(status: %w[bestätigt schnuppern])
+      .applicable_to_session(@training_session.id)
       .order(id: :desc)
       .to_a
       .select { |reg| reg.status != "schnuppern" || trial_for_this_session?(reg) }
@@ -90,6 +91,7 @@ class TrainingSessionsController < ApplicationController
 
     @training_session.course.course_registrations
       .where(status: "bestätigt")
+      .applicable_to_session(@training_session.id)
       .includes(participant: :user)
       .each do |registration|
         next unless registration.participant&.user.present?

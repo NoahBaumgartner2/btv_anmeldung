@@ -9,6 +9,17 @@ class CourseRegistration < ApplicationRecord
   # Wartelistenplatz reserviert bleiben muss (kein Doppelvergeben).
   OCCUPYING_STATUSES = %w[bestätigt schnuppern platz_frei].freeze
 
+  # Anmeldungen ohne training_session_id gelten für JEDE Session des Kurses NUR
+  # bei Semester-Anmeldungen (Teilnehmer:in kommt wöchentlich). Abo-Pässe
+  # (abo_entries_total gesetzt) haben ebenfalls kein training_session_id, sind
+  # aber selbst kein Session-Besuch – nur ihre abo_bookings (Kinder mit
+  # eigenem training_session_id) gelten für eine bestimmte Session. Ohne diesen
+  # Ausschluss würde der Abo-Pass fälschlich bei jeder Session des Kurses als
+  # Teilnahme gezählt/angezeigt (siehe #occupied_spots, TrainingSessionsController#show).
+  scope :applicable_to_session, ->(session_id) {
+    where("training_session_id = ? OR (training_session_id IS NULL AND abo_entries_total IS NULL)", session_id)
+  }
+
   belongs_to :course
   belongs_to :participant
   belongs_to :training_session, optional: true
