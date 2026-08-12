@@ -70,6 +70,22 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     assert_equal "sibling", result[:discount]
   end
 
+  test "nur das später angemeldete Geschwisterkind bekommt den Rabatt, nicht beide" do
+    course = make_course
+    first_child  = make_participant(users(:one), first_name: "Anna")
+    second_child = make_participant(users(:one), first_name: "Ben")
+    first_reg  = make_registration(course, first_child, status: "bestätigt")
+    second_reg = make_registration(course, second_child, status: "bestätigt")
+
+    first_result  = DiscountCalculator.call(first_reg)
+    second_result = DiscountCalculator.call(second_reg)
+
+    assert_equal 10_000, first_result[:price_cents]
+    assert_nil first_result[:discount]
+    assert_equal 6_000, second_result[:price_cents]
+    assert_equal "sibling", second_result[:discount]
+  end
+
   test "kein Rabatt wenn bestehende Anmeldung in anderer Kategorie" do
     other_course = make_course(title: "Tennis", category: "tennis")
     course       = make_course(title: "Polysport", category: "polysport")

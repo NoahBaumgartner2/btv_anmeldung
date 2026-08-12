@@ -1039,7 +1039,7 @@ de:
       cancel_abort: "Abbrechen"
       participants_label: "Teilnehmende"
       registered_count: "%{count} angemeldet"
-      unsubscribed_by_parents: "Von Eltern abgemeldet"
+      unsubscribed_by_parents: "Abgemeldet"
       status_unsubscribed: "Abgemeldet"
       status_absent: "Abwesend"
       attendance_not_yet_possible: "Anwesenheit kann erst ab Trainingsbeginn erfasst werden."

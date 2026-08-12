@@ -989,7 +989,7 @@ fr:
       cancel_abort: "Annuler"
       participants_label: "Participants"
       registered_count: "%{count} inscrits"
-      unsubscribed_by_parents: "Désinscrit par les parents"
+      unsubscribed_by_parents: "Désinscrit"
       status_unsubscribed: "Désinscrit"
       status_absent: "Absent"
       attendance_not_yet_possible: "La présence ne peut être enregistrée qu'à partir du début de l'entraînement."

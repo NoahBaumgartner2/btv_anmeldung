@@ -40,6 +40,12 @@ class DiscountCalculator
   # Bestehende Anmeldungen derselben Kategorie zählen nur, wenn sie bestätigt
   # oder bezahlt sind — zwei gleichzeitig ausstehende Anmeldungen rabattieren
   # sich nicht gegenseitig. Stornierte zählen nie (auch wenn bezahlt).
+  #
+  # Nur früher erstellte Anmeldungen zählen (created_at, id als Tiebreaker):
+  # sonst würden sich zwei Geschwister, die im selben Kurs angemeldet sind,
+  # gegenseitig als "bestehende Anmeldung" sehen und beide den Rabatt bekommen,
+  # statt nur die zeitlich spätere. So zahlt immer die zuerst angemeldete
+  # Person den vollen Preis, jede weitere den Rabatt.
   def self.existing_registrations(registration)
     CourseRegistration
       .joins(:course)
@@ -47,6 +53,10 @@ class DiscountCalculator
       .where.not(id: registration.id)
       .where.not(status: "storniert")
       .where("course_registrations.status = ? OR course_registrations.payment_cleared = ?", "bestätigt", true)
+      .where(
+        "course_registrations.created_at < ? OR (course_registrations.created_at = ? AND course_registrations.id < ?)",
+        registration.created_at, registration.created_at, registration.id
+      )
   end
   private_class_method :existing_registrations
 

@@ -995,7 +995,7 @@ en:
       cancel_abort: "Abort"
       participants_label: "Participants"
       registered_count: "%{count} registered"
-      unsubscribed_by_parents: "Unsubscribed by parents"
+      unsubscribed_by_parents: "Unsubscribed"
       status_unsubscribed: "Unsubscribed"
       status_absent: "Absent"
       attendance_not_yet_possible: "Attendance can only be recorded from the start of the training."
