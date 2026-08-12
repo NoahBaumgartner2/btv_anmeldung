@@ -47,6 +47,17 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
     assert_match "50.00", mail.body.encoded
   end
 
+  test "confirmation Schnupper-Mail nennt das Datum des Schnuppertrainings" do
+    @registration.update_columns(status: "schnuppern", trial_session_id: training_sessions(:one).id)
+
+    mail = CourseRegistrationMailer.confirmation(@registration)
+
+    [ mail.text_part, mail.html_part ].each do |part|
+      assert_match "Schnuppertraining", part.body.decoded
+      assert_match I18n.l(training_sessions(:one).start_time.to_date), part.body.decoded
+    end
+  end
+
   test "confirmation Schnupper-Mail nennt Kursleitung mit Name und E-Mail" do
     trainer = @course.trainers.first
     assert trainer.present?, "Fixture-Kurs sollte mind. einen zugewiesenen Trainer haben"
