@@ -186,9 +186,14 @@ class Course < ApplicationRecord
   # eindeutig pro Teilnehmer:in. Maßgeblich für jede Teilnehmer-/Kapazitätsanzeige und deckt sich
   # mit der Anmelde-Kapazitätsprüfung. Arbeitet Ruby-seitig auf der (ggf. vorgeladenen) Association,
   # damit kein N+1 entsteht, wenn der Controller course_registrations included.
+  #
+  # 10er-Abo-Einzelbuchungen (abo_source_registration_id gesetzt) zählen hier NICHT mit:
+  # sie belegen nur EINEN einzelnen Termin (siehe TrainingSession#occupied_spots), nicht
+  # dauerhaft einen Platz im Kurs. Sonst würde ein einziger Schnuppertermin per Abo den
+  # ganzen Kurs für den Rest des Semesters fälschlich als "ausgebucht" markieren.
   def occupied_spots
     course_registrations
-      .select { |r| CourseRegistration::OCCUPYING_STATUSES.include?(r.status) }
+      .select { |r| CourseRegistration::OCCUPYING_STATUSES.include?(r.status) && r.abo_source_registration_id.blank? }
       .map(&:participant_id).uniq.size
   end
 

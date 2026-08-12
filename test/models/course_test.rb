@@ -291,6 +291,27 @@ class CourseTest < ActiveSupport::TestCase
     assert_equal 1, course.reload.occupied_spots
   end
 
+  test "occupied_spots ignoriert 10er-Abo-Einzelbuchungen für einen einzelnen Termin" do
+    course = Course.new(base_attrs.merge(title: "Mittwoch", max_participants: 1))
+    course.save!(validate: false)
+    session = course.training_sessions.create!(start_time: 1.week.from_now, end_time: 1.week.from_now + 1.hour)
+
+    abo_pass = CourseRegistration.new(
+      course: Course.new(base_attrs.merge(title: "Abo-Pass")).tap { |c| c.save!(validate: false) },
+      participant: participants(:one), status: "bestätigt", abo_entries_total: 10,
+      payment_cleared: true, holiday_deduction_claimed: false
+    ).tap { |r| r.save!(validate: false) }
+
+    CourseRegistration.new(
+      course: course, participant: participants(:one), status: "bestätigt",
+      training_session: session, abo_source_registration_id: abo_pass.id,
+      payment_cleared: true, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    assert_equal 0, course.reload.occupied_spots
+    assert_not course.full?
+  end
+
   test "waitlist_count zählt nur echte Wartelisten-Einträge, eindeutig pro Person" do
     course = Course.new(base_attrs.merge(title: "Wartekurs", max_participants: 1))
     course.save!(validate: false)
