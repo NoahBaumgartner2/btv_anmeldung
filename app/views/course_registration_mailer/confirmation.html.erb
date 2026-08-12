@@ -56,6 +56,11 @@
       <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Kurs</p>
       <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @course.title %></p>
 
+      <% if @course_registration.status == "schnuppern" && @trial_session&.start_time %>
+        <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Schnuppertraining</p>
+        <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= I18n.l(@trial_session.start_time.to_date) %></p>
+      <% end %>
+
       <% trainer_names = @course.trainers.map(&:full_name) %>
       <% if trainer_names.any? %>
         <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Leiter*in</p>

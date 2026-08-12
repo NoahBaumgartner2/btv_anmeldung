@@ -21,6 +21,8 @@ class CourseRegistrationMailer < ApplicationMailer
                                .map { |t| { name: t.full_name, email: t.user&.email, phone: t.phone } }
                                .select { |c| c[:email].present? || c[:phone].present? }
 
+    @trial_session = course_registration.trial_session || course_registration.training_session if course_registration.status == "schnuppern"
+
     if [ "bestätigt", "schnuppern" ].include?(course_registration.status) && @course.has_ticketing?
       qr = RQRCode::QRCode.new(scan_course_registration_url(course_registration))
       png = qr.as_png(
