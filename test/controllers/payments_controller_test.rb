@@ -159,9 +159,12 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     sibling = Participant.new(user: @parent, first_name: "Bruder", last_name: "Mustermann",
       date_of_birth: Date.new(2013, 2, 2), gender: "männlich", phone_number: "+41790000001")
     sibling.save!(validate: false)
-    CourseRegistration.new(course: @course, participant: sibling,
+    sibling_registration = CourseRegistration.new(course: @course, participant: sibling,
       status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false)
-      .save!(validate: false)
+    sibling_registration.save!(validate: false)
+    # Muss vor @registration angemeldet gelten, sonst zahlt keine Seite den vollen
+    # Preis mehr (DiscountCalculator zählt nur früher erstellte Anmeldungen als "Geschwister").
+    sibling_registration.update_column(:created_at, @registration.created_at - 1.minute)
   end
 
   test "checkout_preview zeigt reduzierten Preis mit Rabatt-Hinweis" do
