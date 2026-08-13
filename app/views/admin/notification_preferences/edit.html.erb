@@ -5,23 +5,25 @@
     <%= link_to "← Kommandozentrale", dashboards_admin_path,
           class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
     <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2">Meine Benachrichtigungen</h1>
-    <p class="text-gray-500 mt-1 text-sm">Wähle, welche Benachrichtigungen du als Trainer erhalten möchtest.</p>
+    <p class="text-gray-500 mt-1 text-sm">Wähle, welche Benachrichtigungen du persönlich erhalten möchtest. Jeder Eintrag zeigt, in welcher Rolle er dich betrifft.</p>
   </div>
 
   <%= form_with url: admin_notification_preferences_path, method: :patch do %>
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <ul class="divide-y divide-gray-100">
         <% rows = [
-          [ "cancel_notice",          "Abmeldung von Kurs",       "Wenn ein Teilnehmer sich vom Kurs abmeldet (Kurs dem du als Trainer zugewiesen bist)" ],
-          [ "session_unsubscription", "Abmeldung von Training",   "Wenn ein Teilnehmer sich von einer einzelnen Trainingseinheit abmeldet" ],
-          [ "attendance_reminder",    "Anwesenheitserinnerung",   "Wenn Anwesenheiten nach dem Training noch nicht erfasst wurden" ],
+          [ "cancel_notice",          "Abmeldung von Kurs",       "Wenn ein Teilnehmer sich vom Kurs abmeldet (Kurs dem du als Trainer zugewiesen bist)", "trainer" ],
+          [ "session_unsubscription", "Abmeldung von Training",   "Wenn ein Teilnehmer sich von einer einzelnen Trainingseinheit abmeldet", "trainer" ],
+          [ "attendance_reminder",    "Anwesenheitserinnerung",   "Wenn Anwesenheiten nach dem Training noch nicht erfasst wurden", "trainer" ],
         ]
         # Nur Admins bekommen diese Mail (siehe TrainingSessionsController#cancel) – für
         # reine Trainer wäre der Schalter wirkungslos und nur verwirrend.
-        rows << [ "training_cancelled", "Training abgesagt", "Wenn ein Trainer ein einzelnes Training absagt" ] if current_user.admin?
-        rows.each do |type, name, description| %>
+        rows << [ "training_cancelled", "Training abgesagt", "Wenn ein Trainer ein einzelnes Training absagt", "admin" ] if current_user.admin?
+        rows.each do |type, name, description, role| %>
           <% mandatory = User::MANDATORY_NOTIFICATION_TYPES.include?(type) %>
           <% enabled = current_user.admin_notification_enabled?(type) %>
+          <% role_label = role == "admin" ? "Als Admin" : "Als Trainer" %>
+          <% role_classes = role == "admin" ? "bg-purple-50 text-purple-700" : "bg-blue-50 text-blue-700" %>
           <li class="flex items-center gap-4 px-6 py-4">
             <div class="shrink-0 w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -29,7 +31,10 @@
               </svg>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-semibold text-gray-800"><%= name %></p>
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="text-sm font-semibold text-gray-800"><%= name %></p>
+                <span class="inline-flex items-center rounded-full text-xs font-bold px-2 py-0.5 <%= role_classes %>"><%= role_label %></span>
+              </div>
               <p class="text-xs text-gray-400 mt-0.5"><%= description %></p>
               <% if mandatory %>
                 <p class="text-xs text-gray-500 mt-1"><%= t("admin.notification_preferences.attendance_reminder_mandatory_hint") %></p>

@@ -22,5 +22,22 @@ module Admin
       assert_not @trainer.admin_notification_enabled?("cancel_notice"),
              "Optionaler Typ muss weiterhin abschaltbar sein"
     end
+
+    test "edit zeigt 'Training abgesagt' (Admin-Rolle) nicht für reine Trainer" do
+      get edit_admin_notification_preferences_path
+      assert_response :success
+      assert_no_match "Training abgesagt", response.body
+    end
+
+    test "edit zeigt 'Training abgesagt' mit Admin-Rollen-Badge für Admins" do
+      sign_out @trainer
+      sign_in users(:admin)
+
+      get edit_admin_notification_preferences_path
+      assert_response :success
+      assert_match "Training abgesagt", response.body
+      assert_match "Als Admin", response.body
+      assert_match "Als Trainer", response.body
+    end
   end
 end
