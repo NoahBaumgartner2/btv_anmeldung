@@ -18,13 +18,15 @@ class TrainingSessionMailerTest < ActionMailer::TestCase
     assert_match @course.title, mail.subject
   end
 
-  test "unsubscribe_reminder nennt Trainer-E-Mails statt Selbst-Abmeldung in der App" do
+  test "unsubscribe_reminder verweist primär auf Selbst-Abmeldung unter Mein Profil, Trainer als Rückfalloption" do
     trainer = @course.trainers.first
     assert trainer&.user&.email.present?, "Fixture-Kurs sollte einen Trainer mit E-Mail haben"
 
     mail = TrainingSessionMailer.unsubscribe_reminder(@training_session, @registration)
 
+    [ mail.text_part, mail.html_part ].each do |part|
+      assert_match "Mein Profil", part.body.decoded
+    end
     assert_match trainer.user.email, mail.body.encoded
-    assert_no_match(/Mein Profil/, mail.body.encoded)
   end
 end

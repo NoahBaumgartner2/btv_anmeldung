@@ -32,7 +32,7 @@ class TrainingSessionMailer < ApplicationMailer
 
     mail(
       to: @participant_user.email,
-      subject: "Erinnerung: Bitte abmelden – #{@participant.first_name} #{@participant.last_name} (#{@course.title})"
+      subject: "Erinnerung: #{@participant.first_name} #{@participant.last_name} – #{@course.title}"
     )
   end
 
