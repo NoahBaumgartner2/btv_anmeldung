@@ -2,11 +2,11 @@
 
 <p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
   Hallo <%= greeting_name(@participant_user) %>,<br><br>
-  gemäss unseren Unterlagen ist <strong><%= @participant.first_name %> <%= @participant.last_name %></strong>
-  weiterhin für den Kurs <strong><%= @course.title %></strong> angemeldet.
-  Falls eine Teilnahme nicht mehr möglich ist, melde dich bitte bei
-  <strong>eurem Trainer/eurer Trainerin</strong>, damit die Abmeldung vorgenommen werden kann. So bleibt der Platz
-  nicht blockiert und kann an Wartelisten-Teilnehmende weitergegeben werden.
+  kleine Erinnerung: <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> wurde für das
+  letzte Training nicht abgemeldet. Es wäre für uns hilfreich, wenn ihr das nächste Mal daran denkt, <%= @participant.first_name %>
+  bei Verhinderung unter <strong>Mein Profil</strong> abzumelden.<br><br>
+  Falls es nicht klappt oder ihr sonstige Fragen habt, könnt ihr euch jederzeit bei <strong>eurem Trainer/eurer
+  Trainerin</strong> melden.
 </p>
 
 <% if @trainer_emails.any? %>
