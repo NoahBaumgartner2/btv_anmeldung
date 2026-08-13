@@ -218,4 +218,21 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to training_session_url(@training_session)
     assert_equal I18n.t("training_sessions.show.reminder_invalid"), flash[:alert]
   end
+
+  test "cancel verschickt Admin-Info nur an Admins, die sie nicht persönlich abgeschaltet haben" do
+    opted_out = User.new(email: "opted-out-admin@example.com", admin: true, country: "CH",
+      admin_notification_preferences: { "training_cancelled" => false })
+    opted_out.password = "password123"
+    opted_out.privacy_accepted = true
+    opted_out.skip_confirmation!
+    opted_out.save!(validate: false)
+
+    assert_enqueued_email_with TrainingSessionMailer, :training_cancelled_admin_notice,
+      args: [ @training_session, users(:admin) ] do
+      post cancel_training_session_url(@training_session)
+    end
+
+    admin_notice_jobs = enqueued_jobs.select { |j| j[:args][0..1] == [ "TrainingSessionMailer", "training_cancelled_admin_notice" ] }
+    assert_equal 1, admin_notice_jobs.size, "erwartet genau eine Admin-Info-Mail (nur an users(:admin), nicht an opted_out)"
+  end
 end

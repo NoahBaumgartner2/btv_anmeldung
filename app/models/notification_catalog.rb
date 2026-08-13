@@ -48,7 +48,7 @@ class NotificationCatalog
     entry(key: "session_unsubscription", category: "cancellation", toggleable: true, preview_method: :session_unsubscription, scope: :global_and_personal),
     entry(key: "unsubscribe_reminder",   category: "cancellation", toggleable: true, preview_method: :unsubscribe_reminder),
     entry(key: "training_cancelled",     category: "cancellation", toggleable: true, preview_method: :training_cancelled),
-    entry(key: "training_cancelled_admin", category: "cancellation", toggleable: true, preview_method: :training_cancelled_admin),
+    entry(key: "training_cancelled_admin", category: "cancellation", toggleable: true, preview_method: :training_cancelled_admin, scope: :global_and_personal),
 
     # ── Zahlung ────────────────────────────────────────────────────────────
     entry(key: "payment_expired",          category: "payment", toggleable: true, preview_method: :payment_expired),

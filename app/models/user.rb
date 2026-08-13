@@ -17,6 +17,7 @@ class User < ApplicationRecord
     cancel_notice
     session_unsubscription
     attendance_reminder
+    training_cancelled
   ].freeze
 
   # Verpflichtende Benachrichtigungen können nicht abgeschaltet werden.
