@@ -1,0 +1,162 @@
+{
+  "/home/miniserver/development/dashboard/server.js": {
+    "mtime": 1786300696.4681034,
+    "hash": "426cc31c4825b818445e727a264f1280"
+  },
+  "/home/miniserver/development/dashboard/public/sw.js": {
+    "mtime": 1778329325.7067266,
+    "hash": "6f9661612ffd1a38829e777adfcbeaee"
+  },
+  "/home/miniserver/development/dashboard/latexConverter/files/server.js": {
+    "mtime": 1778257479.4122918,
+    "hash": "2d9119ee166ac0c3d06521479f0e2309"
+  },
+  "/home/miniserver/development/dashboard/podcastCompressor/server.js": {
+    "mtime": 1778257549.7595842,
+    "hash": "f9dd13633c290a96c9503de282ead9e2"
+  },
+  "/home/miniserver/development/dashboard/latexStudy/files/server.js": {
+    "mtime": 1778257434.6521084,
+    "hash": "d9fbe2281ac54614470b4765ebfabdd5"
+  },
+  "/home/miniserver/development/dashboard/latexStudy/netlify/functions/summarize.js": {
+    "mtime": 1778257434.7536762,
+    "hash": "fec3cf6873c80e4febcc6eed1724599f"
+  },
+  "/home/miniserver/development/dashboard/latexStudy/netlify/functions/latex-only.js": {
+    "mtime": 1778257434.753147,
+    "hash": "fa39ced83a853c32a65f1f39a529445b"
+  },
+  "/home/miniserver/development/dashboard/latexStudy/netlify/functions/compile-pdf.js": {
+    "mtime": 1778257434.752468,
+    "hash": "fae1dfb22857afc6887efa0aff021bce"
+  },
+  "/home/miniserver/development/dashboard/latexStudy/netlify/functions/_shared.js": {
+    "mtime": 1778257434.7516243,
+    "hash": "0844e337c240779831f890d9248abad1"
+  },
+  "/home/miniserver/development/dashboard/README.md": {
+    "mtime": 1778258642.567111,
+    "hash": "a752a795476bde47e9e79376ac89744b"
+  },
+  "/home/miniserver/development/dashboard/login.html": {
+    "mtime": 1778330050.885645,
+    "hash": "de142b2a3f9cd2dc7537d52d900dd263"
+  },
+  "/home/miniserver/development/dashboard/index.html": {
+    "mtime": 1778257317.635779,
+    "hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/home/miniserver/development/dashboard/CLAUDE.md": {
+    "mtime": 1778404665.599621,
+    "hash": "da79aa9343cd2b362206f03762160abc"
+  },
+  "/home/miniserver/development/dashboard/public/index.html": {
+    "mtime": 1782068835.5398195,
+    "hash": "19c3a0c13a50d3c9ffd13fd776078c8f"
+  },
+  "/home/miniserver/development/dashboard/latexConverter/README.md": {
+    "mtime": 1778257479.5323355,
+    "hash": "b0aaa8913eee6cb3954832bcd89adfc4"
+  },
+  "/home/miniserver/development/dashboard/latexConverter/files/index.html": {
+    "mtime": 1778257479.2942226,
+    "hash": "57c6d49c7424bc69bfbf860deb0121cd"
+  },
+  "/home/miniserver/development/dashboard/podcastCompressor/README.md": {
+    "mtime": 1778257549.7059805,
+    "hash": "98828a56f1e5517012c51a8f941753cf"
+  },
+  "/home/miniserver/development/dashboard/podcastCompressor/index.html": {
+    "mtime": 1778365901.1143143,
+    "hash": "ad6697d9e94382167a328e5d5c80ff63"
+  },
+  "/home/miniserver/development/dashboard/latexStudy/README.md": {
+    "mtime": 1778257435.3928444,
+    "hash": "beb077d215737cf83cb0dd480208c464"
+  },
+  "/home/miniserver/development/dashboard/latexStudy/public/index.html": {
+    "mtime": 1778257434.932573,
+    "hash": "445759e09b2e07924597534b257b07a1"
+  },
+  "/home/miniserver/development/dashboard/latexStudy/files/index.html": {
+    "mtime": 1778257434.1072464,
+    "hash": "b424e4995fc3b8c3f2ceb85796deb955"
+  },
+  "/home/miniserver/development/dashboard/apps/smarthome/index.html": {
+    "mtime": 1778357576.2296264,
+    "hash": "063a1d059ddf384e95d9424a33c2482e"
+  },
+  "/home/miniserver/development/dashboard/apps/focus-timer/index.html": {
+    "mtime": 1780403637.1892822,
+    "hash": "bd03b51e9a89da6fdd828f168fb97901"
+  },
+  "/home/miniserver/development/dashboard/apps/focus-timer/overlay.html": {
+    "mtime": 1780123492.7188137,
+    "hash": "777f988a33e93eedc026cb8e21e1d6ee"
+  },
+  "/home/miniserver/development/dashboard/apps/latexConverter/index.html": {
+    "mtime": 1778748811.628805,
+    "hash": "c5d61d82a2eef124370f118e125aa8ab"
+  },
+  "/home/miniserver/development/dashboard/apps/podcastCompressor/index.html": {
+    "mtime": 1779463985.130036,
+    "hash": "328590c991c2477cfb43761dd8c80902"
+  },
+  "/home/miniserver/development/dashboard/apps/voiceAssistant/index.html": {
+    "mtime": 1778769430.562164,
+    "hash": "9097971360bf9483a148b7b37f893644"
+  },
+  "/home/miniserver/development/dashboard/apps/stremio/index.html": {
+    "mtime": 1778603258.3816953,
+    "hash": "f79aba8269c5f1adba8b111795b14bb5"
+  },
+  "/home/miniserver/development/dashboard/apps/shabFirmensuche/index.html": {
+    "mtime": 1782069723.8009346,
+    "hash": "edda8e5648ee23d2b9478dfec43feff8"
+  },
+  "/home/miniserver/development/dashboard/apps/smarthomeZentrale/index.html": {
+    "mtime": 1782067359.4179707,
+    "hash": "9559c5fee4345f215942b33e41db2bb6"
+  },
+  "/home/miniserver/development/dashboard/apps/admin/index.html": {
+    "mtime": 1782304421.8118482,
+    "hash": "36ecb06480c5d98ed8fa9b26637fdf68"
+  },
+  "/home/miniserver/development/dashboard/apps/petMeds/index.html": {
+    "mtime": 1778446696.578867,
+    "hash": "bd38118fb84c50b6c0455ba55f4ed8e1"
+  },
+  "/home/miniserver/development/dashboard/apps/latexStudy/index.html": {
+    "mtime": 1778748837.1919043,
+    "hash": "07ef4b8ef0a6f279a8112e13afa09ed1"
+  },
+  "/home/miniserver/development/dashboard/apps/examTrainer/index.html": {
+    "mtime": 1780147092.2644978,
+    "hash": "2b366eedaf510ae4f7b61343b900029c"
+  },
+  "/home/miniserver/development/dashboard/apps/server-monitor/index.html": {
+    "mtime": 1778405221.666856,
+    "hash": "135194344b9e93157280fef05c741c55"
+  },
+  "/home/miniserver/development/dashboard/apps/vault/index.html": {
+    "mtime": 1778400005.7409782,
+    "hash": "ca04569ec17394463df5cbaf121a1f7e"
+  },
+  "/home/miniserver/development/dashboard/apps/kodi/index.html": {
+    "mtime": 1778596780.0807862,
+    "hash": "161f56be8f45a86c07664af4bf5c7f83"
+  },
+  "/home/miniserver/development/dashboard/public/icons/icon-192x192.png": {
+    "mtime": 1778329547.9416203,
+    "hash": "bb7b8133142f45eb0d26b78170d20a79"
+  },
+  "/home/miniserver/development/dashboard/public/icons/icon-512x512.png": {
+    "mtime": 1778329548.0226207,
+    "hash": "36333d896ffed953ad6df8a247270829"
+  },
+  "/home/miniserver/development/dashboard/public/icons/apple-touch-icon.png": {
+    "mtime": 1778329547.9186733,
+    "hash": "918b49b9859ea0e41f92edcfb278b0d2"
+  }
+}
