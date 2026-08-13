@@ -8,6 +8,10 @@ class Admin::NotificationsControllerTest < ActionDispatch::IntegrationTest
     sign_in @admin
   end
 
+  teardown do
+    MailSetting.delete_all
+  end
+
   test "index zeigt alle Katalog-Einträge gruppiert nach Kategorie" do
     get admin_notifications_path
     assert_response :success
@@ -37,6 +41,17 @@ class Admin::NotificationsControllerTest < ActionDispatch::IntegrationTest
       assert_response :success, "#{entry.key}: #{response.body}"
       assert response.body.present?, "#{entry.key}: leerer Body"
     end
+  end
+
+  # Regression: die Vorschau muss auch für aktuell DEAKTIVIERTE Benachrichtigungen
+  # funktionieren – sie zeigt, wie die Mail aussähe, unabhängig vom Schalterzustand.
+  test "preview funktioniert auch für eine deaktivierte Benachrichtigung" do
+    MailSetting.current.set_notification_enabled!(:registration_confirmation, false)
+
+    get preview_admin_notification_path("registration_confirmation")
+
+    assert_response :success
+    assert_match "Max Muster", response.body
   end
 
   test "preview mit unbekanntem Key liefert 404" do

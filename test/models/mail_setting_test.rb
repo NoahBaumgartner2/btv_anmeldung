@@ -53,6 +53,23 @@ class MailSettingTest < ActiveSupport::TestCase
     assert_not setting.reload.mail_registration_confirmation_enabled
   end
 
+  test "with_preview_mode überschreibt mail_enabled? innerhalb des Blocks, auch für deaktivierte Mails" do
+    MailSetting.create!(mail_registration_confirmation_enabled: false)
+    assert_equal false, MailSetting.mail_enabled?(:registration_confirmation)
+
+    result = MailSetting.with_preview_mode { MailSetting.mail_enabled?(:registration_confirmation) }
+    assert_equal true, result
+
+    assert_equal false, MailSetting.mail_enabled?(:registration_confirmation), "Guard muss nach dem Block wieder greifen"
+  end
+
+  test "with_preview_mode setzt das Flag auch bei einer Exception im Block zurück" do
+    assert_raises(RuntimeError) do
+      MailSetting.with_preview_mode { raise "boom" }
+    end
+    assert_equal false, Thread.current[:notification_preview_mode]
+  end
+
   test "all mail toggle fields default to true" do
     setting = MailSetting.create!
     assert setting.mail_registration_confirmation_enabled

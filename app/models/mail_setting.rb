@@ -29,9 +29,22 @@ class MailSetting < ApplicationRecord
   end
 
   def self.mail_enabled?(key)
+    return true if Thread.current[:notification_preview_mode]
     rec = first
     return true if rec.nil?
     rec.notification_enabled?(key)
+  end
+
+  # Umgeht innerhalb des Blocks JEDEN mail_enabled?-Guard (auch für aktuell
+  # deaktivierte Benachrichtigungen) – die Vorschau in der Benachrichtigungs-
+  # zentrale soll immer den echten Mail-Inhalt zeigen, unabhängig vom
+  # Ein/Aus-Zustand. Thread-lokal, da pro Request ein eigener Thread bedient
+  # wird (Puma-Standard: Thread-pro-Request).
+  def self.with_preview_mode
+    Thread.current[:notification_preview_mode] = true
+    yield
+  ensure
+    Thread.current[:notification_preview_mode] = false
   end
 
   # ── Vereinheitlichte Benachrichtigungs-Schalter (Notification Center) ──────

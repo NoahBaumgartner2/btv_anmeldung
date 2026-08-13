@@ -20,13 +20,22 @@ module Admin
         return
       end
 
-      mail = NotificationPreviewBuilder.public_send(@entry.preview_method)
-      # .message löst den ActionMailer::MessageDelivery-Proxy zum echten Mail::Message auf.
-      # .decoded (statt .body.decoded) funktioniert robust für Multipart- UND Singlepart-Mails
-      # (manche Mails wie refund_failed_notice haben nur ein HTML-Template, keinen html_part).
-      message = mail.respond_to?(:message) ? mail.message : mail
-      part = message.html_part || message
-      render html: part.decoded.html_safe, layout: false
+      # WICHTIG: der gesamte Render-Vorgang muss INNERHALB von with_preview_mode
+      # laufen, nicht nur der Methodenaufruf. `Mailer.aktion(...)` liefert sofort
+      # eine lazy ActionMailer::MessageDelivery-Proxy zurück – der eigentliche
+      # Mailer-Code (inkl. mail_enabled?-Guard) läuft erst verzögert bei .message/
+      # .html_part/.decoded. Würde with_preview_mode vorher schon enden, griffe
+      # der Guard trotzdem und die Vorschau einer deaktivierten Mail bliebe leer.
+      html_content = MailSetting.with_preview_mode do
+        mail = NotificationPreviewBuilder.public_send(@entry.preview_method)
+        # .message löst den ActionMailer::MessageDelivery-Proxy zum echten Mail::Message auf.
+        # .decoded (statt .body.decoded) funktioniert robust für Multipart- UND Singlepart-Mails
+        # (manche Mails wie refund_failed_notice haben nur ein HTML-Template, keinen html_part).
+        message = mail.respond_to?(:message) ? mail.message : mail
+        part = message.html_part || message
+        part.decoded
+      end
+      render html: html_content.html_safe, layout: false
     rescue => e
       Rails.logger.error "[Admin::NotificationsController] Vorschau-Fehler für #{@entry.key}: #{e.class}: #{e.message}"
       render plain: "Vorschau konnte nicht geladen werden: #{e.message}", status: :unprocessable_entity
