@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_05_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_13_092125) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -263,6 +263,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_05_190000) do
     t.boolean "mail_payment_expired_enabled", default: true, null: false
     t.boolean "mail_registration_confirmation_enabled", default: true, null: false
     t.boolean "mail_waitlist_promoted_enabled", default: true, null: false
+    t.jsonb "notification_toggles", default: {}, null: false
     t.string "smtp_authentication", default: "plain"
     t.boolean "smtp_enable_starttls", default: true, null: false
     t.string "smtp_from_address"

@@ -8,8 +8,7 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
-    setting = MailSetting.first
-    return if setting && !setting.mail_registration_confirmation_enabled
+    return unless MailSetting.mail_enabled?(:registration_confirmation)
 
     # "ausstehend" (offener Checkout) und "platz_frei" (angebotener Platz) haben eigene Mails
     # (waitlist_promoted) bzw. brauchen keine Bestätigung. Da deliver_later den Datensatz beim
@@ -65,8 +64,7 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
-    setting = MailSetting.first
-    return if setting && !setting.mail_waitlist_promoted_enabled
+    return unless MailSetting.mail_enabled?(:waitlist_promoted)
 
     @registration_url = course_registration_url(course_registration)
     # "platz_frei": der Wartende darf zwischen Schnuppern und regulärer Anmeldung wählen.
@@ -90,8 +88,7 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient    = @participant.user
     return if @recipient.nil?
 
-    setting = MailSetting.first
-    return if setting && !setting.mail_cancelled_by_trainer_enabled
+    return unless MailSetting.mail_enabled?(:cancelled_by_trainer)
 
     @reason       = course_registration.cancellation_reason
     @cancelled_by = course_registration.cancelled_by_trainer&.user&.email
@@ -112,6 +109,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @refund_amount_chf   = refund_amount_cents ? format("%.2f", refund_amount_cents / 100.0) : nil
     @recipient    = admin_user
 
+    return unless MailSetting.mail_enabled?(:refund_failed_notice)
+
     mail(
       to: admin_user.email,
       subject: "Rückerstattung fehlgeschlagen: #{@participant.first_name} #{@participant.last_name} (#{@course.title})"
@@ -129,6 +128,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @refund_amount_chf   = refund_amount_cents ? format("%.2f", refund_amount_cents / 100.0) : nil
     @recipient    = admin_user
 
+    return unless MailSetting.mail_enabled?(:admin_refund_done_notice)
+
     mail(
       to: admin_user.email,
       subject: "Teilnehmer abgemeldet: #{@participant.first_name} #{@participant.last_name} – #{@course.title}"
@@ -143,6 +144,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @participant = course_registration.participant
     @recipient = @participant.user
     return if @recipient.nil?
+
+    return unless MailSetting.mail_enabled?(:abo_imported)
 
     @abo_sessions_url = abo_sessions_course_registration_url(course_registration)
     mail(to: @recipient.email, subject: "Ihr bestehendes Abo wurde übertragen: #{@course.title}")
@@ -159,6 +162,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
+    return unless MailSetting.mail_enabled?(:renewal_available)
+
     @registration_url = new_course_registration_url(course_id: @new_course.id)
 
     mail(to: @recipient.email, subject: "Neuanmeldung für #{@new_course.title} jetzt möglich")
@@ -170,6 +175,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @participant = course_registration.participant
     @recipient = @participant.user
     return if @recipient.nil?
+
+    return unless MailSetting.mail_enabled?(:abo_exhausted)
 
     mail(
       to: @recipient.email,
@@ -189,8 +196,7 @@ class CourseRegistrationMailer < ApplicationMailer
     # für sie ist trial_expired (Schnuppertraining + 7 Tage) zuständig.
     return if course_registration.trial?
 
-    setting = MailSetting.first
-    return if setting && !setting.mail_payment_expired_enabled
+    return unless MailSetting.mail_enabled?(:payment_expired)
 
     mail(
       to: @recipient.email,
@@ -207,8 +213,7 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
-    setting = MailSetting.first
-    return if setting && !setting.mail_payment_expired_enabled
+    return unless MailSetting.mail_enabled?(:trial_expired)
 
     @trial_session = course_registration.trial_session || course_registration.training_session
 
@@ -224,6 +229,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @participant = course_registration.participant
     @recipient = @participant.user
     return if @recipient.nil?
+
+    return unless MailSetting.mail_enabled?(:payment_receipt)
 
     @paid_at = course_registration.updated_at
     @transaction_id = course_registration.sumup_transaction_id
@@ -259,6 +266,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient = @participant.user
     return if @recipient.nil?
 
+    return unless MailSetting.mail_enabled?(:self_cancelled)
+
     @refund_amount_cents = refund_amount_cents
     @refund_amount_chf   = refund_amount_cents ? format("%.2f", refund_amount_cents / 100.0) : nil
     @cancelled_at        = course_registration.cancelled_at || Time.current
@@ -280,6 +289,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @recipient    = admin_user
     @cancelled_by_trainer = course_registration.cancelled_by_trainer&.user&.email
 
+    return unless MailSetting.mail_enabled?(:admin_cancel_notice)
+
     mail(
       to: admin_user.email,
       subject: "Abmeldung: #{@participant.first_name} #{@participant.last_name} – #{@course.title}"
@@ -293,12 +304,17 @@ class CourseRegistrationMailer < ApplicationMailer
     @parent       = @participant.user
     @recipient    = trainer_user
 
+    return unless MailSetting.mail_enabled?(:trainer_cancel_notice)
+
     mail(
       to: trainer_user.email,
       subject: "Abmeldung: #{@participant.first_name} #{@participant.last_name} – #{@course.title}"
     )
   end
 
+  # Manuelle Nachricht eines Trainers – bewusst NICHT über die Benachrichtigungszentrale
+  # abschaltbar: der Trainer verfasst sie gezielt und würde ein stilles Verschlucken nicht
+  # erwarten.
   def custom_message(course_registration, subject:, body:, sender:)
     @course_registration = course_registration
     @course = course_registration.course

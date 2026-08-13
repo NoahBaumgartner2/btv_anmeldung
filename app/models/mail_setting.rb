@@ -31,7 +31,35 @@ class MailSetting < ApplicationRecord
   def self.mail_enabled?(key)
     rec = first
     return true if rec.nil?
-    rec.public_send(:"#{key}_enabled")
+    rec.notification_enabled?(key)
+  end
+
+  # ── Vereinheitlichte Benachrichtigungs-Schalter (Notification Center) ──────
+  # Fünf ältere Mail-Typen haben feste Boolean-Spalten (mail_xyz_enabled);
+  # alle neueren laufen über die generische notification_toggles-JSONB-Spalte
+  # (Standard: aktiviert, nur explizites `false` deaktiviert). So kommt jeder
+  # neue Benachrichtigungstyp ohne weitere Migration in die Zentrale.
+  LEGACY_BOOLEAN_KEYS = %w[
+    registration_confirmation waitlist_promoted cancelled_by_trainer
+    payment_expired course_access_invited
+  ].freeze
+
+  def notification_enabled?(key)
+    key = key.to_s
+    if LEGACY_BOOLEAN_KEYS.include?(key)
+      public_send(:"mail_#{key}_enabled")
+    else
+      notification_toggles[key] != false
+    end
+  end
+
+  def set_notification_enabled!(key, enabled)
+    key = key.to_s
+    if LEGACY_BOOLEAN_KEYS.include?(key)
+      update!("mail_#{key}_enabled": enabled)
+    else
+      update!(notification_toggles: notification_toggles.merge(key => enabled))
+    end
   end
 
   # Opens a raw SMTP connection (TCP + optional STARTTLS + auth) without sending

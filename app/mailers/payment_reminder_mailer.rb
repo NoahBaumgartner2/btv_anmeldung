@@ -8,6 +8,8 @@ class PaymentReminderMailer < ApplicationMailer
 
     return if @recipient.nil?
 
+    return unless MailSetting.mail_enabled?(:payment_reminder)
+
     mail(
       to: @recipient.email,
       subject: "Zahlungserinnerung: #{@course.title}"

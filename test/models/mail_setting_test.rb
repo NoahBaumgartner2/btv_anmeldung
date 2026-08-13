@@ -6,17 +6,17 @@ class MailSettingTest < ActiveSupport::TestCase
   end
 
   test "mail_enabled? returns true when no record exists" do
-    assert_equal true, MailSetting.mail_enabled?(:mail_registration_confirmation)
-    assert_equal true, MailSetting.mail_enabled?(:mail_waitlist_promoted)
-    assert_equal true, MailSetting.mail_enabled?(:mail_cancelled_by_trainer)
-    assert_equal true, MailSetting.mail_enabled?(:mail_payment_expired)
-    assert_equal true, MailSetting.mail_enabled?(:mail_course_access_invited)
+    assert_equal true, MailSetting.mail_enabled?(:registration_confirmation)
+    assert_equal true, MailSetting.mail_enabled?(:waitlist_promoted)
+    assert_equal true, MailSetting.mail_enabled?(:cancelled_by_trainer)
+    assert_equal true, MailSetting.mail_enabled?(:payment_expired)
+    assert_equal true, MailSetting.mail_enabled?(:course_access_invited)
   end
 
   test "mail_enabled? returns true when setting exists with defaults" do
     MailSetting.create!
-    assert_equal true, MailSetting.mail_enabled?(:mail_registration_confirmation)
-    assert_equal true, MailSetting.mail_enabled?(:mail_waitlist_promoted)
+    assert_equal true, MailSetting.mail_enabled?(:registration_confirmation)
+    assert_equal true, MailSetting.mail_enabled?(:waitlist_promoted)
   end
 
   test "mail_enabled? returns false when specific mail is disabled" do
@@ -24,8 +24,33 @@ class MailSettingTest < ActiveSupport::TestCase
       mail_registration_confirmation_enabled: false,
       mail_waitlist_promoted_enabled: true
     )
-    assert_equal false, MailSetting.mail_enabled?(:mail_registration_confirmation)
-    assert_equal true,  MailSetting.mail_enabled?(:mail_waitlist_promoted)
+    assert_equal false, MailSetting.mail_enabled?(:registration_confirmation)
+    assert_equal true,  MailSetting.mail_enabled?(:waitlist_promoted)
+  end
+
+  # ── Neu: generische notification_toggles-Spalte für alle nicht-legacy Keys ──
+
+  test "notification_enabled? gibt true zurück, wenn kein Toggle gesetzt ist (Default: aktiv)" do
+    setting = MailSetting.create!
+    assert setting.notification_enabled?(:unsubscribe_reminder)
+  end
+
+  test "notification_enabled? gibt false zurück, wenn explizit deaktiviert" do
+    setting = MailSetting.create!(notification_toggles: { "unsubscribe_reminder" => false })
+    assert_not setting.notification_enabled?(:unsubscribe_reminder)
+    assert setting.notification_enabled?(:trainer_assigned), "andere Keys bleiben unberührt"
+  end
+
+  test "set_notification_enabled! schreibt in die jsonb-Spalte für neue Keys" do
+    setting = MailSetting.create!
+    setting.set_notification_enabled!(:unsubscribe_reminder, false)
+    assert_not setting.reload.notification_enabled?(:unsubscribe_reminder)
+  end
+
+  test "set_notification_enabled! schreibt in die Legacy-Boolean-Spalte für alte Keys" do
+    setting = MailSetting.create!
+    setting.set_notification_enabled!(:registration_confirmation, false)
+    assert_not setting.reload.mail_registration_confirmation_enabled
   end
 
   test "all mail toggle fields default to true" do

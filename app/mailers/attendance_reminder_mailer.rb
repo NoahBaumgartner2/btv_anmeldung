@@ -5,6 +5,8 @@ class AttendanceReminderMailer < ApplicationMailer
     @course = training_session.course
     @training_session_url = training_session_url(training_session)
 
+    return unless MailSetting.mail_enabled?(:attendance_reminder_trainer)
+
     mail(
       to: trainer.user.email,
       subject: "Erinnerung: Anwesenheit für #{@course.title} noch nicht erfasst"
@@ -28,6 +30,8 @@ class AttendanceReminderMailer < ApplicationMailer
     @course = training_session.course
     @trainer_names = training_session.course.course_trainers.map { |ct| ct.trainer.full_name }
     @training_session_url = training_session_url(training_session)
+
+    return unless MailSetting.mail_enabled?(:attendance_reminder_admin)
 
     mail(
       to: admin_user.email,

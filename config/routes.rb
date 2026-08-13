@@ -43,6 +43,12 @@ Rails.application.routes.draw do
       post :krabbel_gym_statistik
     end
     resource :notification_preferences, only: [ :edit, :update ]
+    resources :notifications, only: [ :index ] do
+      member do
+        get :preview
+        patch :toggle
+      end
+    end
 
     # Zentraler Einstellungs-Hub (4 Tabs). Bündelt die obigen Settings-Seiten.
     get "einstellungen",               to: "settings#communication", as: :settings

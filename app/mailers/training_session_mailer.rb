@@ -5,6 +5,8 @@ class TrainingSessionMailer < ApplicationMailer
     @participant_user = participant_user
     @training_session_url = training_session_url(training_session)
 
+    return unless MailSetting.mail_enabled?(:training_cancelled)
+
     mail(
       to: participant_user.email,
       subject: "Training abgesagt: #{@course.title} am #{I18n.l(training_session.start_time.to_date)}"
@@ -16,6 +18,8 @@ class TrainingSessionMailer < ApplicationMailer
     @course = training_session.course
     @participant = course_registration.participant
     @training_session_url = training_session_url(training_session)
+
+    return unless MailSetting.mail_enabled?(:session_unsubscription)
 
     mail(
       to: admin_user.email,
@@ -30,6 +34,8 @@ class TrainingSessionMailer < ApplicationMailer
     @participant_user = @participant.user
     @trainer_emails   = @course.trainers.map { |t| t.user&.email }.compact.uniq
 
+    return unless MailSetting.mail_enabled?(:unsubscribe_reminder)
+
     mail(
       to: @participant_user.email,
       subject: "Erinnerung: #{@participant.first_name} #{@participant.last_name} – #{@course.title}"
@@ -41,6 +47,8 @@ class TrainingSessionMailer < ApplicationMailer
     @course = training_session.course
     @admin_user = admin_user
     @training_session_url = training_session_url(training_session)
+
+    return unless MailSetting.mail_enabled?(:training_cancelled_admin)
 
     mail(
       to: admin_user.email,

@@ -1,0 +1,85 @@
+<div class="max-w-4xl mx-auto mt-8 sm:mt-10 mb-16 px-4">
+
+  <div class="mb-6">
+    <%= link_to t("admin.notifications.back"), admin_settings_communication_path,
+          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2"><%= t("admin.notifications.title") %></h1>
+    <p class="text-gray-500 mt-1 text-sm"><%= t("admin.notifications.subtitle") %></p>
+  </div>
+
+  <% @grouped.each do |category, entries| %>
+    <section class="mb-8">
+      <h2 class="text-lg font-bold text-gray-900 mb-1"><%= t("admin.notifications.categories.#{category}") %></h2>
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mt-3">
+        <ul class="divide-y divide-gray-100">
+          <% entries.each do |entry| %>
+            <% enabled = @mail_setting.notification_enabled?(entry.key) %>
+            <li class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-5 sm:px-6 py-4" data-controller="notification-toggle notification-preview modal">
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-gray-800"><%= entry.name %></p>
+                <p class="text-xs text-gray-400 mt-0.5"><%= entry.description %></p>
+                <p class="text-xs text-gray-400 mt-1">
+                  <span class="font-semibold text-gray-500"><%= t("admin.notifications.recipient_label") %>:</span>
+                  <%= entry.recipient %>
+                </p>
+              </div>
+
+              <div class="shrink-0 flex items-center gap-3 sm:gap-4">
+                <% if entry.preview_method %>
+                  <button type="button"
+                          data-action="click->notification-preview#setSrc click->modal#open"
+                          data-preview-url="<%= preview_admin_notification_path(entry.key) %>"
+                          data-preview-title="<%= entry.name %>"
+                          class="text-xs font-bold text-primary-700 hover:text-primary-900 transition cursor-pointer whitespace-nowrap min-h-11 px-2">
+                    <%= t("admin.notifications.preview_btn") %>
+                  </button>
+                <% end %>
+
+                <% if entry.toggleable %>
+                  <span class="text-xs font-medium <%= enabled ? 'text-green-600' : 'text-gray-400' %>"
+                        data-notification-toggle-target="label"
+                        data-enabled-text="<%= t('admin.notifications.enabled') %>"
+                        data-disabled-text="<%= t('admin.notifications.disabled') %>">
+                    <%= enabled ? t("admin.notifications.enabled") : t("admin.notifications.disabled") %>
+                  </span>
+                  <button type="button"
+                          data-action="click->notification-toggle#toggle"
+                          data-url="<%= toggle_admin_notification_path(entry.key) %>"
+                          data-value="<%= enabled ? '0' : '1' %>"
+                          data-enabled-text="<%= t('admin.notifications.enabled') %>"
+                          data-disabled-text="<%= t('admin.notifications.disabled') %>"
+                          class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 <%= enabled ? 'bg-green-500' : 'bg-gray-200' %>">
+                    <span class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow transition duration-200 ease-in-out <%= enabled ? 'translate-x-6' : 'translate-x-1' %>"></span>
+                  </button>
+                <% else %>
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-500 whitespace-nowrap">
+                    <%= t("admin.notifications.always_active_badge") %>
+                  </span>
+                <% end %>
+              </div>
+
+              <%# ── Vorschau-Modal (pro Zeile, aber Inhalt nur bei Klick geladen) ── %>
+              <div data-modal-target="dialog"
+                   data-action="click->modal#backdropClose"
+                   class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
+                <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+                  <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
+                    <p class="text-sm font-bold text-gray-800" data-notification-preview-target="title"></p>
+                    <button type="button" data-action="click->modal#close"
+                            class="text-gray-400 hover:text-gray-700 transition p-1 -m-1 min-h-11 min-w-11 flex items-center justify-center">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <iframe data-notification-preview-target="frame" class="flex-1 w-full" title="<%= t('admin.notifications.preview_btn') %>"></iframe>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </section>
+  <% end %>
+
+</div>
