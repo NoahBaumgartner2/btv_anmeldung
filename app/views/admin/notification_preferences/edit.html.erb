@@ -11,11 +11,15 @@
   <%= form_with url: admin_notification_preferences_path, method: :patch do %>
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
       <ul class="divide-y divide-gray-100">
-        <% [
+        <% rows = [
           [ "cancel_notice",          "Abmeldung von Kurs",       "Wenn ein Teilnehmer sich vom Kurs abmeldet (Kurs dem du als Trainer zugewiesen bist)" ],
           [ "session_unsubscription", "Abmeldung von Training",   "Wenn ein Teilnehmer sich von einer einzelnen Trainingseinheit abmeldet" ],
           [ "attendance_reminder",    "Anwesenheitserinnerung",   "Wenn Anwesenheiten nach dem Training noch nicht erfasst wurden" ],
-        ].each do |type, name, description| %>
+        ]
+        # Nur Admins bekommen diese Mail (siehe TrainingSessionsController#cancel) – für
+        # reine Trainer wäre der Schalter wirkungslos und nur verwirrend.
+        rows << [ "training_cancelled", "Training abgesagt", "Wenn ein Trainer ein einzelnes Training absagt" ] if current_user.admin?
+        rows.each do |type, name, description| %>
           <% mandatory = User::MANDATORY_NOTIFICATION_TYPES.include?(type) %>
           <% enabled = current_user.admin_notification_enabled?(type) %>
           <li class="flex items-center gap-4 px-6 py-4">

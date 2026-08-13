@@ -98,8 +98,9 @@ class TrainingSessionsController < ApplicationController
         TrainingSessionMailer.cancellation_notice(@training_session, registration.participant.user).deliver_later
       end
 
-    # Admins über Trainingsabsage informieren
+    # Admins über Trainingsabsage informieren (individuell abschaltbar, siehe "Meine Benachrichtigungen")
     User.where(admin: true).find_each do |admin_user|
+      next unless admin_user.admin_notification_enabled?("training_cancelled")
       TrainingSessionMailer.training_cancelled_admin_notice(@training_session, admin_user).deliver_later
     end
 

@@ -1453,7 +1453,7 @@ de:
       training_cancelled_admin:
         name: "Training abgesagt – Admin-Info"
         description: "Informiert Admins, wenn ein Training abgesagt wurde."
-        recipient: "Alle Admins"
+        recipient: "Admins – jede:r Admin kann diese Mail zusätzlich für sich selbst abschalten (unter 'Meine Benachrichtigungen')"
       payment_expired:
         name: "Zahlung abgelaufen"
         description: "Wird verschickt, wenn eine ausstehende Zahlung nach Ablauf der Frist storniert wird."
