@@ -1264,6 +1264,9 @@ de:
       preview_btn: "Vorschau"
       recipient_label: "Empfänger"
       always_active_badge: "Immer aktiv"
+      scope_hint_title: "Wichtig: Diese Schalter gelten global"
+      scope_hint_body: "Schaltest du eine Benachrichtigung hier aus, bekommt sie NIEMAND mehr – unabhängig von persönlichen Einstellungen ('Meine Benachrichtigungen'). Bei Einträgen mit dem Hinweis 'zusätzlich persönlich abschaltbar' entscheidet die persönliche Einstellung NUR dann, wenn der Schalter hier oben aktiv (an) ist."
+      global_and_personal_hint: "+ zusätzlich persönlich abschaltbar (wirkt nur, solange dieser Schalter aktiv ist)"
       categories:
         registration: "Anmeldung & Kursplatz"
         cancellation: "Abmeldung & Stornierung"
@@ -1431,18 +1434,14 @@ de:
         name: "Abmeldung durch Trainer"
         description: "Wird verschickt, wenn ein Trainer eine Anmeldung storniert."
         recipient: "Eltern des betroffenen Kindes"
-      admin_cancel_notice:
-        name: "Abmeldung – Admin-Info"
-        description: "Informiert Admins, wenn jemand vom Kurs abgemeldet wurde."
-        recipient: "Admins mit aktivierter Benachrichtigung"
       trainer_cancel_notice:
         name: "Abmeldung – Trainer-Info"
         description: "Informiert den zuständigen Trainer über eine Abmeldung."
-        recipient: "Trainer:in des Kurses"
+        recipient: "Trainer:in(nen) des Kurses – jede Person kann diese Mail zusätzlich für sich selbst abschalten"
       session_unsubscription:
         name: "Abmeldung durch Teilnehmer (Einzeltermin)"
         description: "Wird verschickt, wenn sich ein Teilnehmer selbst von einem einzelnen Training abmeldet."
-        recipient: "Admins mit aktivierter Benachrichtigung"
+        recipient: "Trainer:in(nen) des betroffenen Kurses – jede Person kann diese Mail zusätzlich für sich selbst abschalten"
       unsubscribe_reminder:
         name: "Erinnerung: Nicht abgemeldet"
         description: "Erinnerung, wenn jemand beim letzten Training nicht anwesend und nicht abgemeldet war."
@@ -1454,7 +1453,7 @@ de:
       training_cancelled_admin:
         name: "Training abgesagt – Admin-Info"
         description: "Informiert Admins, wenn ein Training abgesagt wurde."
-        recipient: "Admins mit aktivierter Benachrichtigung"
+        recipient: "Alle Admins"
       payment_expired:
         name: "Zahlung abgelaufen"
         description: "Wird verschickt, wenn eine ausstehende Zahlung nach Ablauf der Frist storniert wird."
@@ -1473,12 +1472,12 @@ de:
         recipient: "Eltern der betroffenen Anmeldung"
       refund_failed_notice:
         name: "Rückerstattung fehlgeschlagen"
-        description: "Warnt einen Admin, wenn eine automatische Rückerstattung technisch fehlgeschlagen ist."
-        recipient: "Admin, der die Stornierung ausgelöst hat"
+        description: "Warnt Admins, wenn eine automatische Rückerstattung technisch fehlgeschlagen ist."
+        recipient: "Alle Admins"
       admin_refund_done_notice:
         name: "Rückerstattung erfolgt – Admin-Info"
         description: "Informiert Admins, nachdem ein Trainer ein Kind ausgeschlossen und die Rückerstattung automatisch erfolgt ist."
-        recipient: "Admins mit aktivierter Benachrichtigung"
+        recipient: "Alle Admins"
       trainer_assigned:
         name: "Als Trainer zugeteilt"
         description: "Wird verschickt, wenn ein Trainer einem Kurs als Leiter zugeteilt wird."
@@ -1492,9 +1491,9 @@ de:
         description: "Erinnerung an Trainer, die Anwesenheit vor dem Training einzutragen."
         recipient: "Trainer:in des Kurses"
       attendance_reminder_admin:
-        name: "Anwesenheits-Erinnerung (Admin)"
-        description: "Benachrichtigung an Admin, wenn Anwesenheitseinträge fehlen."
-        recipient: "Admins mit aktivierter Benachrichtigung"
+        name: "Anwesenheits-Erinnerung (dringend)"
+        description: "Zweite, dringlichere Erinnerung an Trainer, wenn Anwesenheitseinträge weiterhin fehlen."
+        recipient: "Trainer:in(nen) des Kurses (verpflichtend, nicht persönlich abschaltbar)"
       custom_trainer_message:
         name: "Trainer-Nachricht"
         description: "Individuell verfasste Nachricht eines Trainers an Kursteilnehmende."
