@@ -1473,11 +1473,11 @@ de:
       refund_failed_notice:
         name: "Rückerstattung fehlgeschlagen"
         description: "Warnt Admins, wenn eine automatische Rückerstattung technisch fehlgeschlagen ist."
-        recipient: "Alle Admins"
+        recipient: "Admins – jede:r Admin kann diese Mail zusätzlich für sich selbst abschalten (unter 'Meine Benachrichtigungen')"
       admin_refund_done_notice:
         name: "Rückerstattung erfolgt – Admin-Info"
         description: "Informiert Admins, nachdem ein Trainer ein Kind ausgeschlossen und die Rückerstattung automatisch erfolgt ist."
-        recipient: "Alle Admins"
+        recipient: "Admins – jede:r Admin kann diese Mail zusätzlich für sich selbst abschalten (unter 'Meine Benachrichtigungen')"
       trainer_assigned:
         name: "Als Trainer zugeteilt"
         description: "Wird verschickt, wenn ein Trainer einem Kurs als Leiter zugeteilt wird."

@@ -466,14 +466,17 @@ class CourseRegistrationsController < ApplicationController
         refund_failed = true
         Rails.logger.error "[trainer_cancel] Refund fehlgeschlagen für Registration #{@course_registration.id}: #{e.message}"
         User.where(admin: true).find_each do |admin_user|
+          next unless admin_user.admin_notification_enabled?("refund_failed")
           CourseRegistrationMailer.refund_failed_notice(@course_registration, admin_user, e.message, planned_cents).deliver_later
         end
       end
     end
 
     # Admins automatisch über die Abmeldung informieren (sofern kein Refund-Fehler gemeldet wurde)
+    # – individuell abschaltbar, siehe "Meine Benachrichtigungen".
     unless refund_failed
       User.where(admin: true).find_each do |admin_user|
+        next unless admin_user.admin_notification_enabled?("refund_done")
         CourseRegistrationMailer.admin_refund_done_notice(@course_registration, admin_user, refund_amount_cents).deliver_later
       end
     end
