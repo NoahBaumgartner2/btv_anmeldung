@@ -21,8 +21,12 @@ module Admin
       end
 
       mail = NotificationPreviewBuilder.public_send(@entry.preview_method)
-      part = mail.html_part || mail
-      render html: part.body.decoded.html_safe, layout: false
+      # .message löst den ActionMailer::MessageDelivery-Proxy zum echten Mail::Message auf.
+      # .decoded (statt .body.decoded) funktioniert robust für Multipart- UND Singlepart-Mails
+      # (manche Mails wie refund_failed_notice haben nur ein HTML-Template, keinen html_part).
+      message = mail.respond_to?(:message) ? mail.message : mail
+      part = message.html_part || message
+      render html: part.decoded.html_safe, layout: false
     rescue => e
       Rails.logger.error "[Admin::NotificationsController] Vorschau-Fehler für #{@entry.key}: #{e.class}: #{e.message}"
       render plain: "Vorschau konnte nicht geladen werden: #{e.message}", status: :unprocessable_entity

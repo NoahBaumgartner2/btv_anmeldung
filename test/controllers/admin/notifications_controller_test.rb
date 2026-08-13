@@ -28,6 +28,17 @@ class Admin::NotificationsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Max Muster", response.body
   end
 
+  # Regression: manche Mails (z.B. refund_failed_notice) haben nur ein HTML-Template,
+  # keinen expliziten html_part → mail.html_part ist nil. Deckt jeden Katalog-Eintrag ab,
+  # nicht nur den einen Multipart-Fall oben.
+  test "preview rendert für JEDEN Katalog-Eintrag mit Vorschau erfolgreich, auch Singlepart-Mails" do
+    NotificationCatalog.all.select(&:preview_method).each do |entry|
+      get preview_admin_notification_path(entry.key)
+      assert_response :success, "#{entry.key}: #{response.body}"
+      assert response.body.present?, "#{entry.key}: leerer Body"
+    end
+  end
+
   test "preview mit unbekanntem Key liefert 404" do
     get preview_admin_notification_path("does_not_exist")
     assert_response :not_found
