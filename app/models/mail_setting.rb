@@ -29,9 +29,50 @@ class MailSetting < ApplicationRecord
   end
 
   def self.mail_enabled?(key)
+    return true if Thread.current[:notification_preview_mode]
     rec = first
     return true if rec.nil?
-    rec.public_send(:"#{key}_enabled")
+    rec.notification_enabled?(key)
+  end
+
+  # Umgeht innerhalb des Blocks JEDEN mail_enabled?-Guard (auch für aktuell
+  # deaktivierte Benachrichtigungen) – die Vorschau in der Benachrichtigungs-
+  # zentrale soll immer den echten Mail-Inhalt zeigen, unabhängig vom
+  # Ein/Aus-Zustand. Thread-lokal, da pro Request ein eigener Thread bedient
+  # wird (Puma-Standard: Thread-pro-Request).
+  def self.with_preview_mode
+    Thread.current[:notification_preview_mode] = true
+    yield
+  ensure
+    Thread.current[:notification_preview_mode] = false
+  end
+
+  # ── Vereinheitlichte Benachrichtigungs-Schalter (Notification Center) ──────
+  # Fünf ältere Mail-Typen haben feste Boolean-Spalten (mail_xyz_enabled);
+  # alle neueren laufen über die generische notification_toggles-JSONB-Spalte
+  # (Standard: aktiviert, nur explizites `false` deaktiviert). So kommt jeder
+  # neue Benachrichtigungstyp ohne weitere Migration in die Zentrale.
+  LEGACY_BOOLEAN_KEYS = %w[
+    registration_confirmation waitlist_promoted cancelled_by_trainer
+    payment_expired course_access_invited
+  ].freeze
+
+  def notification_enabled?(key)
+    key = key.to_s
+    if LEGACY_BOOLEAN_KEYS.include?(key)
+      public_send(:"mail_#{key}_enabled")
+    else
+      notification_toggles[key] != false
+    end
+  end
+
+  def set_notification_enabled!(key, enabled)
+    key = key.to_s
+    if LEGACY_BOOLEAN_KEYS.include?(key)
+      update!("mail_#{key}_enabled": enabled)
+    else
+      update!(notification_toggles: notification_toggles.merge(key => enabled))
+    end
   end
 
   # Opens a raw SMTP connection (TCP + optional STARTTLS + auth) without sending

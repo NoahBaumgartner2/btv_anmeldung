@@ -251,4 +251,33 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     assert trial.payment_cleared?
     assert_equal "bestätigt", trial.status
   end
+
+  # Regression: eine bereits "bestätigt"-Anmeldung (z.B. manuell vom Admin bestätigt,
+  # Zahlung online nachgeholt) mit offenem Checkout wurde vom Abgleich nie erfasst,
+  # weil die Query nur "ausstehend"/"schnuppern" prüfte. Blieb eine tatsächlich
+  # erfolgte Zahlung dadurch dauerhaft unentdeckt, wenn der Browser-Redirect ausblieb.
+  test "sync_pending gleicht eine bereits bestätigte Anmeldung mit offenem Checkout ab" do
+    course = Course.new(
+      title: "Bestätigt-Sync-Kurs", registration_type: "semester", has_payment: true,
+      price_cents: 15_000, has_ticketing: false, allows_holiday_deduction: false, max_participants: 10
+    )
+    course.save!(validate: false)
+
+    reg = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false,
+      sumup_checkout_id: "co-confirmed-sync"
+    )
+    reg.save!(validate: false)
+
+    with_http_stub(fake_http(ok_response('{"id":"co-confirmed-sync","status":"PAID","transactions":[{"id":"tx-confirmed-sync"}]}'))) do
+      result = PaymentSyncService.sync_pending
+      assert_equal 1, result.paid
+    end
+
+    reg.reload
+    assert reg.payment_cleared?
+    assert_equal "bestätigt", reg.status
+    assert_equal "tx-confirmed-sync", reg.sumup_transaction_id
+  end
 end

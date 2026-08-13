@@ -8,6 +8,8 @@ class ParticipantMailer < ApplicationMailer
       edit_participant_url(participant)
     end
 
+    return unless MailSetting.mail_enabled?(:participant_complete_profile)
+
     mail(
       to: participant.user.email,
       subject: "Bitte Angaben für #{participant.first_name} #{participant.last_name} ergänzen"

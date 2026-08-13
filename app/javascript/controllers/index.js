@@ -23,6 +23,8 @@ import NewsletterOptInController from "controllers/newsletter_opt_in_controller"
 import DiscountToggleController from "controllers/discount_toggle_controller"
 import AboWeekdayFilterController from "controllers/abo_weekday_filter_controller"
 import TermModeController from "controllers/term_mode_controller"
+import NotificationToggleController from "controllers/notification_toggle_controller"
+import NotificationPreviewController from "controllers/notification_preview_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -49,3 +51,5 @@ application.register("newsletter-opt-in", NewsletterOptInController)
 application.register("discount-toggle", DiscountToggleController)
 application.register("abo-weekday-filter", AboWeekdayFilterController)
 application.register("term-mode", TermModeController)
+application.register("notification-toggle", NotificationToggleController)
+application.register("notification-preview", NotificationPreviewController)

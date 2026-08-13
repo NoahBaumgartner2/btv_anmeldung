@@ -13,8 +13,8 @@ Rails.application.configure do
     # Nonce für Inline-Styles wird automatisch via content_security_policy_nonce_directives ergänzt
     policy.style_src :self
 
-    # SumUp Checkout-Frame
-    policy.frame_src "https://pay.sumup.com"
+    # SumUp Checkout-Frame + eigene Mail-Vorschau (Benachrichtigungszentrale, iframe same-origin)
+    policy.frame_src :self, "https://pay.sumup.com"
 
     # SumUp API-Calls aus dem Browser
     policy.connect_src :self, "https://api.sumup.com"

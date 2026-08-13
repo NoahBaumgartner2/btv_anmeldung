@@ -21,7 +21,11 @@
   <section class="mb-10">
     <h2 class="text-lg font-bold text-gray-900 mb-1"><%= t("admin.settings.communication.system_mails_title") %></h2>
     <p class="text-sm text-gray-500 mb-4"><%= t("admin.settings.communication.system_mails_desc") %></p>
-    <%= render "mail_settings/automated_mails" %>
+    <%= render "admin/settings/link_card",
+          url: admin_notifications_path,
+          title: t("admin.notifications.title"),
+          desc: t("admin.notifications.subtitle"),
+          badge: nil %>
   </section>
 
   <%# ── Newsletter-API (Infomaniak) ────────────────────────────────────── %>

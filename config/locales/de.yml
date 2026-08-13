@@ -1255,6 +1255,25 @@ de:
     notification_preferences:
       mandatory_badge: "Immer aktiv"
       attendance_reminder_mandatory_hint: "Diese Erinnerung ist für alle Trainer verpflichtend aktiv."
+    notifications:
+      back: "← Kommunikation"
+      title: "Benachrichtigungszentrale"
+      subtitle: "Alle automatischen E-Mails des Systems an einem Ort: ein-/ausschalten, sehen wer sie bekommt, und eine Vorschau des Inhalts ansehen."
+      enabled: "Aktiv"
+      disabled: "Inaktiv"
+      preview_btn: "Vorschau"
+      recipient_label: "Empfänger"
+      always_active_badge: "Immer aktiv"
+      scope_hint_title: "Wichtig: Diese Schalter gelten global"
+      scope_hint_body: "Schaltest du eine Benachrichtigung hier aus, bekommt sie NIEMAND mehr – unabhängig von persönlichen Einstellungen ('Meine Benachrichtigungen'). Bei Einträgen mit dem Hinweis 'zusätzlich persönlich abschaltbar' entscheidet die persönliche Einstellung NUR dann, wenn der Schalter hier oben aktiv (an) ist."
+      global_and_personal_hint: "+ zusätzlich persönlich abschaltbar (wirkt nur, solange dieser Schalter aktiv ist)"
+      categories:
+        registration: "Anmeldung & Kursplatz"
+        cancellation: "Abmeldung & Stornierung"
+        payment: "Zahlung"
+        trainer: "Trainer & Anwesenheit"
+        other: "Sonstiges"
+        account: "Konto (Devise, immer aktiv)"
     club_settings:
       show:
         title: "Vereinseinstellungen"
@@ -1382,6 +1401,119 @@ de:
         subtitle: "Workflow für den BASPO Jugend+Sport Datenaustausch – Personenimport und Anwesenheitskontrolle (AWK)."
 
   mail_settings:
+    catalog:
+      registration_confirmation:
+        name: "Anmeldebestätigung"
+        description: "Wird nach jeder Kursanmeldung verschickt (bestätigt, Warteliste, Schnuppern)."
+        recipient: "Eltern bzw. Teilnehmer:in, deren Anmeldung sich ändert"
+      waitlist_promoted:
+        name: "Von Warteliste nachrücken"
+        description: "Wird verschickt, wenn ein Teilnehmer von der Warteliste einen Platz erhält."
+        recipient: "Eltern bzw. Teilnehmer:in auf der Warteliste"
+      course_access_invited:
+        name: "Kurszugang eingeladen"
+        description: "Wird verschickt, wenn ein Benutzer manuell Zugang zu einem Kurs erhält."
+        recipient: "Eingeladene Person"
+      abo_imported:
+        name: "Bestehendes Abo übertragen"
+        description: "Wird verschickt, wenn ein Admin ein bestehendes 10er-Abo mit Resteintritten manuell importiert."
+        recipient: "Eltern des Abo-Inhabers"
+      abo_exhausted:
+        name: "Abo aufgebraucht"
+        description: "Wird verschickt, wenn alle Eintritte eines 10er-Abos aufgebraucht sind."
+        recipient: "Eltern des Abo-Inhabers"
+      renewal_available:
+        name: "Neuanmeldung möglich"
+        description: "Wird verschickt, wenn ein Nachfolge-Kurs erstellt wurde und bisherige Teilnehmende sich vorab neu anmelden können."
+        recipient: "Eltern bisheriger Teilnehmer:innen"
+      self_cancelled:
+        name: "Selbst-Abmeldung bestätigt"
+        description: "Bestätigung, wenn sich jemand selbst über 'Mein Profil' vom Kurs abmeldet."
+        recipient: "Eltern bzw. Teilnehmer:in, die sich abgemeldet haben"
+      cancelled_by_trainer:
+        name: "Abmeldung durch Trainer"
+        description: "Wird verschickt, wenn ein Trainer eine Anmeldung storniert."
+        recipient: "Eltern des betroffenen Kindes"
+      trainer_cancel_notice:
+        name: "Abmeldung – Trainer-Info"
+        description: "Informiert den zuständigen Trainer über eine Abmeldung."
+        recipient: "Trainer:in(nen) des Kurses – jede Person kann diese Mail zusätzlich für sich selbst abschalten"
+      session_unsubscription:
+        name: "Abmeldung durch Teilnehmer (Einzeltermin)"
+        description: "Wird verschickt, wenn sich ein Teilnehmer selbst von einem einzelnen Training abmeldet."
+        recipient: "Trainer:in(nen) des betroffenen Kurses – jede Person kann diese Mail zusätzlich für sich selbst abschalten"
+      unsubscribe_reminder:
+        name: "Erinnerung: Nicht abgemeldet"
+        description: "Erinnerung, wenn jemand beim letzten Training nicht anwesend und nicht abgemeldet war."
+        recipient: "Eltern des betroffenen Kindes"
+      training_cancelled:
+        name: "Training abgesagt"
+        description: "Wird verschickt, wenn ein Trainer ein einzelnes Training absagt."
+        recipient: "Eltern angemeldeter Teilnehmer:innen"
+      training_cancelled_admin:
+        name: "Training abgesagt – Admin-Info"
+        description: "Informiert Admins, wenn ein Training abgesagt wurde."
+        recipient: "Alle Admins"
+      payment_expired:
+        name: "Zahlung abgelaufen"
+        description: "Wird verschickt, wenn eine ausstehende Zahlung nach Ablauf der Frist storniert wird."
+        recipient: "Eltern der betroffenen Anmeldung"
+      trial_expired:
+        name: "Schnupperfrist abgelaufen"
+        description: "Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Frist (Training + 7 Tage) automatisch storniert wurde."
+        recipient: "Eltern des Schnupper-Teilnehmers"
+      payment_receipt:
+        name: "Zahlungsbeleg"
+        description: "Quittung nach erfolgreicher Online-Zahlung."
+        recipient: "Zahlende Person (Eltern)"
+      payment_reminder:
+        name: "Zahlungserinnerung"
+        description: "Erinnerung an eine noch offene Zahlung."
+        recipient: "Eltern der betroffenen Anmeldung"
+      refund_failed_notice:
+        name: "Rückerstattung fehlgeschlagen"
+        description: "Warnt Admins, wenn eine automatische Rückerstattung technisch fehlgeschlagen ist."
+        recipient: "Alle Admins"
+      admin_refund_done_notice:
+        name: "Rückerstattung erfolgt – Admin-Info"
+        description: "Informiert Admins, nachdem ein Trainer ein Kind ausgeschlossen und die Rückerstattung automatisch erfolgt ist."
+        recipient: "Alle Admins"
+      trainer_assigned:
+        name: "Als Trainer zugeteilt"
+        description: "Wird verschickt, wenn ein Trainer einem Kurs als Leiter zugeteilt wird."
+        recipient: "Zugeteilte:r Trainer:in"
+      trainer_invitation:
+        name: "Trainer-Einladung"
+        description: "Einladung mit Link zum Passwort-Setzen für neu angelegte Trainer-Konten."
+        recipient: "Neu angelegte:r Trainer:in"
+      attendance_reminder_trainer:
+        name: "Anwesenheits-Erinnerung (Trainer)"
+        description: "Erinnerung an Trainer, die Anwesenheit vor dem Training einzutragen."
+        recipient: "Trainer:in des Kurses"
+      attendance_reminder_admin:
+        name: "Anwesenheits-Erinnerung (dringend)"
+        description: "Zweite, dringlichere Erinnerung an Trainer, wenn Anwesenheitseinträge weiterhin fehlen."
+        recipient: "Trainer:in(nen) des Kurses (verpflichtend, nicht persönlich abschaltbar)"
+      custom_trainer_message:
+        name: "Trainer-Nachricht"
+        description: "Individuell verfasste Nachricht eines Trainers an Kursteilnehmende."
+        recipient: "Eltern der Kursteilnehmenden (je nach Auswahl des Trainers)"
+      participant_complete_profile:
+        name: "Angaben ergänzen"
+        description: "Bittet darum, fehlende Angaben zu einem Teilnehmer zu ergänzen."
+        recipient: "Eltern des betroffenen Teilnehmers"
+      course_rollover_ready:
+        name: "Bereit zur Verlängerung"
+        description: "Informiert Admins, wenn ein Kurs bereit für die manuelle Verlängerung in die nächste Periode ist."
+        recipient: "Admins"
+      devise_confirmation:
+        name: "E-Mail-Bestätigung (Konto)"
+        description: "Wird nach der Registrierung zur Bestätigung der E-Mail-Adresse verschickt."
+        recipient: "Neu registrierte Person"
+      devise_password_reset:
+        name: "Passwort zurücksetzen"
+        description: "Wird verschickt, wenn ein Benutzer sein Passwort zurücksetzen möchte."
+        recipient: "Anfragende Person"
     flash:
       test_auth_error: "Falscher Benutzername oder Passwort – bitte SMTP-Zugangsdaten prüfen."
       test_error: "Test-E-Mail konnte nicht gesendet werden: %{detail}"
