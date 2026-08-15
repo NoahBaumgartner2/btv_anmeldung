@@ -1038,6 +1038,8 @@ fr:
       substitute_set_btn: "Désigner"
       substitute_not_authorized: "Seuls les formateurs assignés à ce cours peuvent désigner un remplaçant."
       substitute_not_found: "Formateur remplaçant introuvable."
+      substitute_reason_placeholder: "Motif (p.ex. maladie, vacances) – obligatoire, sera signalé aux admins."
+      substitute_reason_required: "Merci d'indiquer un motif pour la désignation d'un formateur remplaçant."
       substitute_set_notice: "%{name} a été désigné(e) comme formateur remplaçant pour cet entraînement."
       substitute_removed_notice: "Le formateur remplaçant a été retiré."
     form:
@@ -1425,6 +1427,9 @@ fr:
         substitute_assigned:
           name: "Désigné comme formateur remplaçant"
           description: "Informe un formateur qu'il a été désigné comme remplaçant pour un entraînement"
+        substitute_assigned_admin:
+          name: "Formateur remplaçant désigné – info admin"
+          description: "Informe les admins, avec le motif indiqué, lorsqu'un formateur désigne un remplaçant pour un entraînement"
         devise_confirmation:
           name: "Confirmation e-mail (compte)"
           description: "Envoyé après l'inscription pour confirmer l'adresse e-mail"

@@ -58,6 +58,21 @@ class TrainingSessionMailer < ApplicationMailer
     )
   end
 
+  def substitute_assigned_admin_notice(training_session, substitute_trainer, admin_user)
+    @training_session = training_session
+    @course = training_session.course
+    @substitute_trainer = substitute_trainer
+    @admin_user = admin_user
+    @training_session_url = training_session_url(training_session)
+
+    return unless MailSetting.mail_enabled?(:substitute_assigned_admin)
+
+    mail(
+      to: admin_user.email,
+      subject: "Ersatztrainer:in eingetragen: #{@course.title} am #{I18n.l(training_session.start_time.to_date)}"
+    )
+  end
+
   def training_cancelled_admin_notice(training_session, admin_user)
     @training_session = training_session
     @course = training_session.course

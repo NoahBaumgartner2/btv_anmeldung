@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_15_221500) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_15_224500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -378,6 +378,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_221500) do
     t.datetime "end_time"
     t.boolean "is_canceled", default: false, null: false
     t.datetime "start_time"
+    t.text "substitute_reason"
     t.bigint "substitute_trainer_id"
     t.datetime "trainer_reminded_at"
     t.datetime "updated_at", null: false

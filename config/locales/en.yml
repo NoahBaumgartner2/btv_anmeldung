@@ -1044,6 +1044,8 @@ en:
       substitute_set_btn: "Assign"
       substitute_not_authorized: "Only trainers assigned to this course can assign a substitute."
       substitute_not_found: "Substitute trainer not found."
+      substitute_reason_placeholder: "Reason (e.g. illness, vacation) – required, will be reported to admins."
+      substitute_reason_required: "Please state a reason for assigning a substitute trainer."
       substitute_set_notice: "%{name} was assigned as substitute trainer for this session."
       substitute_removed_notice: "Substitute trainer was removed."
     form:
@@ -1431,6 +1433,9 @@ en:
         substitute_assigned:
           name: "Assigned as substitute trainer"
           description: "Notifies a trainer that they have been assigned as substitute for a single training session"
+        substitute_assigned_admin:
+          name: "Substitute trainer assigned – admin info"
+          description: "Notifies admins, including the stated reason, when a trainer assigns a substitute for a training session"
         devise_confirmation:
           name: "Email confirmation (account)"
           description: "Sent after registration to confirm the email address"

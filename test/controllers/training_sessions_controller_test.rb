@@ -295,17 +295,36 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "set_substitute: zugewiesener Trainer kann Ersatz eintragen, Mail wird verschickt" do
+  test "set_substitute: zugewiesener Trainer kann Ersatz eintragen, Mails an Ersatz und Admins werden verschickt" do
     sign_out users(:admin)
     sign_in users(:one) # trainers(:one) ist via course_trainers(:one) dem Kurs zugewiesen
 
     assert_enqueued_email_with TrainingSessionMailer, :substitute_assigned,
       args: [ @training_session, trainers(:two) ] do
-      post set_substitute_training_session_url(@training_session), params: { substitute_trainer_id: trainers(:two).id }
+      assert_enqueued_email_with TrainingSessionMailer, :substitute_assigned_admin_notice,
+        args: [ @training_session, trainers(:two), users(:admin) ] do
+        post set_substitute_training_session_url(@training_session),
+          params: { substitute_trainer_id: trainers(:two).id, substitute_reason: "Bin krank" }
+      end
     end
 
-    assert_equal trainers(:two), @training_session.reload.substitute_trainer
+    @training_session.reload
+    assert_equal trainers(:two), @training_session.substitute_trainer
+    assert_equal "Bin krank", @training_session.substitute_reason
     assert_redirected_to training_session_url(@training_session)
+  end
+
+  test "set_substitute: fehlender Grund wird abgelehnt" do
+    sign_out users(:admin)
+    sign_in users(:one)
+
+    assert_no_enqueued_emails do
+      post set_substitute_training_session_url(@training_session),
+        params: { substitute_trainer_id: trainers(:two).id, substitute_reason: "" }
+    end
+
+    assert_nil @training_session.reload.substitute_trainer
+    assert_equal I18n.t("training_sessions.show.substitute_reason_required"), flash[:alert]
   end
 
   test "set_substitute: nicht zugewiesener Trainer wird abgewiesen" do
@@ -313,7 +332,8 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     sign_in users(:two) # trainers(:two) ist NICHT diesem Kurs zugewiesen
 
     assert_no_enqueued_emails do
-      post set_substitute_training_session_url(@training_session), params: { substitute_trainer_id: trainers(:two).id }
+      post set_substitute_training_session_url(@training_session),
+        params: { substitute_trainer_id: trainers(:two).id, substitute_reason: "Bin krank" }
     end
 
     assert_nil @training_session.reload.substitute_trainer

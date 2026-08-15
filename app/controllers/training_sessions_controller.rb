@@ -250,10 +250,22 @@ class TrainingSessionsController < ApplicationController
       return redirect_to @training_session, alert: t("training_sessions.show.substitute_not_found")
     end
 
-    @training_session.update!(substitute_trainer: substitute)
+    # Beim Entfernen (substitute nil) ist kein Grund nötig – nur beim Eintragen.
+    reason = params[:substitute_reason].to_s.strip
+    if substitute && reason.blank?
+      return redirect_to @training_session, alert: t("training_sessions.show.substitute_reason_required")
+    end
+
+    @training_session.update!(substitute_trainer: substitute, substitute_reason: substitute ? reason : nil)
 
     if substitute
       TrainingSessionMailer.substitute_assigned(@training_session, substitute).deliver_later
+
+      User.where(admin: true).find_each do |admin_user|
+        next unless admin_user.admin_notification_enabled?("substitute_assigned_admin")
+        TrainingSessionMailer.substitute_assigned_admin_notice(@training_session, substitute, admin_user).deliver_later
+      end
+
       redirect_to @training_session, notice: t("training_sessions.show.substitute_set_notice", name: substitute.full_name)
     else
       redirect_to @training_session, notice: t("training_sessions.show.substitute_removed_notice")

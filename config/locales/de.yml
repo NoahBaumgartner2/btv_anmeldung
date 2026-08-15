@@ -1092,6 +1092,8 @@ de:
       substitute_set_btn: "Eintragen"
       substitute_not_authorized: "Nur zugewiesene Trainer:innen dieses Kurses können einen Ersatz bestimmen."
       substitute_not_found: "Ersatztrainer:in nicht gefunden."
+      substitute_reason_placeholder: "Grund (z.B. Krankheit, Ferien) – Pflichtfeld, wird an die Admins gemeldet."
+      substitute_reason_required: "Bitte gib einen Grund an, warum du eine:n Ersatztrainer:in einträgst."
       substitute_set_notice: "%{name} wurde als Ersatztrainer:in für dieses Training eingetragen."
       substitute_removed_notice: "Ersatztrainer:in wurde entfernt."
     form:
@@ -1535,6 +1537,10 @@ de:
         name: "Als Ersatztrainer eingetragen"
         description: "Informiert eine:n Trainer:in, dass sie/er für ein einzelnes Training als Ersatz eingetragen wurde."
         recipient: "Eingetragene:r Ersatztrainer:in"
+      substitute_assigned_admin:
+        name: "Ersatztrainer eingetragen – Admin-Info"
+        description: "Informiert Admins mit Grundangabe, wenn ein Trainer für ein Training eine:n Ersatztrainer:in einträgt."
+        recipient: "Admins – jede:r Admin kann diese Mail zusätzlich für sich selbst abschalten (unter 'Meine Benachrichtigungen')"
       participant_complete_profile:
         name: "Angaben ergänzen"
         description: "Bittet darum, fehlende Angaben zu einem Teilnehmer zu ergänzen."
