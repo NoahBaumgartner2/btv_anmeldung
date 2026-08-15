@@ -151,6 +151,41 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "toggle_attendance: ohne Drop-in ist Teilnehmer standardmäßig anwesend, Klick markiert abwesend" do
+    registration = course_registrations(:one)
+    assert_not @training_session.course.has_ticketing?
+
+    get training_session_url(@training_session)
+    assert_match participants(:one).first_name, @response.body
+
+    assert_difference("Attendance.count", 1) do
+      post toggle_attendance_training_session_url(@training_session), params: { course_registration_id: registration.id }
+    end
+    attendance = @training_session.attendances.find_by(course_registration_id: registration.id)
+    assert_equal "abwesend", attendance.status
+
+    assert_difference("Attendance.count", -1) do
+      post toggle_attendance_training_session_url(@training_session), params: { course_registration_id: registration.id }
+    end
+    assert_nil @training_session.attendances.find_by(course_registration_id: registration.id)
+  end
+
+  test "toggle_attendance: bei Drop-in-Kursen ist Teilnehmer standardmäßig abwesend, Klick markiert anwesend" do
+    @training_session.course.update!(has_ticketing: true)
+    registration = course_registrations(:one)
+
+    assert_difference("Attendance.count", 1) do
+      post toggle_attendance_training_session_url(@training_session), params: { course_registration_id: registration.id }
+    end
+    attendance = @training_session.attendances.find_by(course_registration_id: registration.id)
+    assert_equal "anwesend", attendance.status
+
+    assert_difference("Attendance.count", -1) do
+      post toggle_attendance_training_session_url(@training_session), params: { course_registration_id: registration.id }
+    end
+    assert_nil @training_session.attendances.find_by(course_registration_id: registration.id)
+  end
+
   test "confirm_attendance marks past session as confirmed" do
     @training_session.update!(attendance_confirmed_at: nil)
 

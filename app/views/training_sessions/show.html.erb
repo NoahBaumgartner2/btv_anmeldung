@@ -1,10 +1,15 @@
 <%
   course     = @training_session.course
+  # Drop-in-Kurse (QR-Ticketing): Anwesenheit ist standardmäßig abwesend, nur QR-Scan
+  # (oder manueller Klick) setzt explizit auf "anwesend". Alle anderen Anmeldekategorien:
+  # Anwesenheit ist standardmäßig da, man klickt nur No-Shows explizit auf "abwesend".
+  drop_in    = course.has_ticketing?
+  present_pred = ->(att) {
+    return false if att&.abgemeldet?
+    drop_in ? att&.status == "anwesend" : att&.status != "abwesend"
+  }
   attended   = @training_session.is_canceled? ? 0 :
-    @registrations.count { |reg|
-      att = @attendances_by_reg_id[reg.id]
-      att.present? && !att.abgemeldet?
-    }
+    @registrations.count { |reg| present_pred.call(@attendances_by_reg_id[reg.id]) }
   total      = @registrations.size
   pct        = total > 0 ? [(attended.to_f / total * 100).round, 100].min : 0
 %>
@@ -183,7 +188,7 @@
           <% participant     = reg.participant %>
           <% attendance      = @attendances_by_reg_id[reg.id] %>
           <% is_unsubscribed = attendance&.abgemeldet? %>
-          <% is_present      = !@training_session.is_canceled? && attendance.present? && !is_unsubscribed %>
+          <% is_present      = !@training_session.is_canceled? && present_pred.call(attendance) %>
 
           <li class="px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3
                      <%= is_unsubscribed ? 'bg-red-50/40 opacity-70' : is_present ? 'bg-green-50/40' : 'hover:bg-gray-50' %> transition">
@@ -223,7 +228,7 @@
               <span class="shrink-0 inline-flex items-center text-xs font-bold px-3 py-2 rounded-full bg-gray-100 text-gray-400 min-h-[36px]">
                 <%= t("training_sessions.show.attendance_cancelled") %>
               </span>
-            <% elsif @training_session.start_time > Time.current %>
+            <% elsif !@training_session.attendance_open? %>
               <span class="shrink-0 text-xs text-gray-400 font-medium px-3 py-2">
                 <%= t("training_sessions.show.attendance_not_yet") %>
               </span>
@@ -281,7 +286,7 @@
           <%= t("training_sessions.show.reopen_btn") %>
         <% end %>
       </div>
-    <% elsif @training_session.start_time && @training_session.start_time <= Time.current %>
+    <% elsif @training_session.attendance_open? %>
       <%= button_to confirm_attendance_training_session_path(@training_session),
             method: :post,
             class: "mt-6 w-full inline-flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-extrabold text-base py-4 px-5 rounded-2xl transition shadow-sm cursor-pointer min-h-[56px]" do %>

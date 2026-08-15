@@ -119,7 +119,7 @@ class TrainingSessionsController < ApplicationController
   def toggle_attendance
     return redirect_to @training_session, alert: "Training ist abgesagt – Anwesenheit kann nicht erfasst werden." if @training_session.is_canceled?
 
-    if @training_session.start_time > Time.current
+    unless @training_session.attendance_open?
       return redirect_to @training_session,
                          alert: t("training_sessions.show.attendance_not_yet_possible")
     end
@@ -134,34 +134,50 @@ class TrainingSessionsController < ApplicationController
 
     # Prüfen, ob für diese Anmeldung schon eine Anwesenheit existiert
     attendance = @training_session.attendances.find_by(course_registration_id: course_registration_id)
+    return redirect_to @training_session if attendance&.abgemeldet?
 
-    if attendance
-      return redirect_to @training_session if attendance.abgemeldet?
+    # Drop-in-Kurse (QR-Ticketing): Anwesenheit ist standardmäßig abwesend, nur QR-Scan
+    # (oder manueller Klick hier) setzt explizit auf "anwesend". Alle anderen
+    # Anmeldekategorien: Anwesenheit ist standardmäßig da, Klick markiert No-Shows
+    # explizit als "abwesend".
+    drop_in           = @training_session.course.has_ticketing?
+    currently_present = drop_in ? attendance&.status == "anwesend" : attendance&.status != "abwesend"
 
-      attendance.destroy
-      reg = course_registration
-      if reg.abo_entries_total.present? && reg.abo_entries_used.to_i > 0
-        reg.update_columns(abo_entries_used: reg.abo_entries_used - 1)
+    if currently_present
+      if drop_in
+        attendance.destroy
+        reg = course_registration
+        if reg.abo_entries_total.present? && reg.abo_entries_used.to_i > 0
+          reg.update_columns(abo_entries_used: reg.abo_entries_used - 1)
+        end
+      elsif attendance
+        attendance.update!(status: "abwesend")
+      else
+        @training_session.attendances.create!(course_registration_id: course_registration_id, status: "abwesend")
       end
     else
-      attendance = @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
-      unless attendance.persisted?
-        return redirect_to @training_session, alert: "Anwesenheit konnte nicht gespeichert werden."
-      end
-
-      reg = course_registration
-      if reg.abo_entries_total.present? && reg.abo_entries_total > 0
-        new_used = [ reg.abo_entries_used.to_i + 1, reg.abo_entries_total ].min
-        reg.update_columns(abo_entries_used: new_used)
-
-        if new_used >= reg.abo_entries_total
-          reg.update!(status: "storniert")
-          CourseRegistrationMailer.abo_exhausted(reg).deliver_later
-          WaitlistPromotionService.promote_next_from_waitlist(
-            @training_session.course,
-            training_session_id: @training_session.id
-          )
+      if drop_in
+        attendance = @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
+        unless attendance.persisted?
+          return redirect_to @training_session, alert: "Anwesenheit konnte nicht gespeichert werden."
         end
+
+        reg = course_registration
+        if reg.abo_entries_total.present? && reg.abo_entries_total > 0
+          new_used = [ reg.abo_entries_used.to_i + 1, reg.abo_entries_total ].min
+          reg.update_columns(abo_entries_used: new_used)
+
+          if new_used >= reg.abo_entries_total
+            reg.update!(status: "storniert")
+            CourseRegistrationMailer.abo_exhausted(reg).deliver_later
+            WaitlistPromotionService.promote_next_from_waitlist(
+              @training_session.course,
+              training_session_id: @training_session.id
+            )
+          end
+        end
+      else
+        attendance&.destroy
       end
     end
 
@@ -177,7 +193,7 @@ class TrainingSessionsController < ApplicationController
       return redirect_to @training_session, alert: "Training ist abgesagt – Anwesenheit kann nicht erfasst werden."
     end
 
-    if @training_session.start_time > Time.current
+    unless @training_session.attendance_open?
       return redirect_to @training_session,
                          alert: t("training_sessions.show.attendance_not_yet_possible")
     end

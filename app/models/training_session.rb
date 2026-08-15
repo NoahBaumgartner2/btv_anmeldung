@@ -14,6 +14,14 @@ class TrainingSession < ApplicationRecord
     reference.present? && reference < Time.current
   end
 
+  # Präsenzkontrolle darf schon vor Trainingsbeginn geöffnet werden, damit
+  # Trainer:innen frühzeitig da sein und bereits Anwesenheiten erfassen können.
+  ATTENDANCE_OPENS_BEFORE = 1.hour
+
+  def attendance_open?
+    start_time.present? && start_time <= ATTENDANCE_OPENS_BEFORE.from_now
+  end
+
   def attendance_recorded?
     is_canceled? || attendance_confirmed_at.present?
   end
