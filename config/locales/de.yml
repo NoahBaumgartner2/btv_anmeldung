@@ -231,6 +231,7 @@ de:
       no_bookable_sessions: "Momentan sind keine buchbaren Termine für diesen Kurs verfügbar."
       trainer_area:
         title: "Trainer & Admin Bereich"
+        manage: "Kurs verwalten"
         edit: "Kurs bearbeiten"
         new_session: "Neue Session"
         date_pending: "Datum ausstehend"
