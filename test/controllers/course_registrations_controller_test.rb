@@ -720,6 +720,39 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 0, reg.abo_entries_used
   end
 
+  test "zweiter Abo-Kauf (Gratiskurs) wird nicht blockiert und summiert die Eintritte auf" do
+    abo_course = Course.new(
+      title: "Gratis-Abo-Kurs", registration_type: "semester", registration_mode: "abo",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      allows_trial: false, abo_size: 10
+    )
+    abo_course.save!(validate: false)
+
+    existing = CourseRegistration.new(
+      course: abo_course, participant: @trial_participant, status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false,
+      abo_entries_total: 10, abo_entries_used: 7 # 3 verbleibend
+    )
+    existing.save!(validate: false)
+
+    sign_in @trial_parent
+
+    # Kein neuer Datensatz: der DB-Unique-Index index_course_registrations_unique_active
+    # erlaubt ohnehin nur eine aktive Anmeldung pro Person/Kurs – die bestehende wird
+    # direkt aufgestockt statt eine (kollidierende) zweite Zeile anzulegen.
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: { course_id: abo_course.id, participant_id: @trial_participant.id }
+      }
+    end
+
+    existing.reload
+    assert_equal "bestätigt", existing.status
+    assert_equal 20, existing.abo_entries_total # 10 (alt) + 10 (neu) = 20, verbleibend 13
+    assert_equal 13, existing.abo_entries_remaining
+    assert_redirected_to course_registration_path(existing)
+  end
+
   # ── update_abo_entries (Rest-Guthaben anpassen) ──────────────────────────
 
   def build_abo_registration(used: 3, total: 10)

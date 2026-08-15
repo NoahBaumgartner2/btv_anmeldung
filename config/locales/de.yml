@@ -897,6 +897,7 @@ de:
       already_cancelled: "Diese Anmeldung ist bereits storniert."
       not_a_trial: "Diese Anmeldung ist kein Schnupperplatz."
       trial_converted: "Du wurdest erfolgreich regulär angemeldet."
+      abo_topped_up: "%{name} hat jetzt %{remaining} Eintritte übrig."
       spot_not_offered: "Für diese Anmeldung liegt kein offenes Platzangebot vor."
       spot_offer_expired: "Die Frist für dieses Platzangebot ist leider abgelaufen. Der Platz wurde an die nächste Person weitergegeben."
       spot_not_eligible: "Schnuppern ist für diese Person in dieser Kategorie nicht (mehr) möglich. Bitte melde dich regulär an."
