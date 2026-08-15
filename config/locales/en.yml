@@ -1,6 +1,19 @@
 en:
   hello: "Hello world"
 
+  course_categories:
+    index:
+      header_label: "Management"
+      title: "Course categories"
+      back_to_dashboard: "Back to dashboard"
+      summary: "%{courses} courses · %{recipients} recipients"
+      compose_button: "Compose email"
+      modal_title: "Email to category “%{category}”"
+      subject_label: "Subject"
+      body_label: "Message"
+      submit: "Send email"
+      cancel: "Cancel"
+
   date:
     abbr_day_names:
       - Sun
@@ -296,6 +309,8 @@ en:
       send_email_body_label: "Message"
       send_email_submit: "Send email"
       send_email_cancel: "Cancel"
+      send_course_email_button: "Email all"
+      send_course_email_modal_title: "Email all participants"
       move_button: "Move"
       move_aria: "Move %{name} to another course"
       move_modal_title: "Move %{name}"
@@ -572,6 +587,8 @@ en:
         club_design_desc: "Logo, colours & name"
         export_profiles: "Export profiles"
         export_profiles_desc: "Manage export templates"
+        course_categories: "Course categories"
+        course_categories_desc: "Send an email to an entire category"
       table:
         course: "Course"
         category: "Category"

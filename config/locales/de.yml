@@ -1,6 +1,19 @@
 de:
   hello: "Hallo Welt"
 
+  course_categories:
+    index:
+      header_label: "Verwaltung"
+      title: "Kurskategorien"
+      back_to_dashboard: "Zurück zum Dashboard"
+      summary: "%{courses} Kurse · %{recipients} Empfänger"
+      compose_button: "E-Mail verfassen"
+      modal_title: "E-Mail an Kategorie „%{category}“"
+      subject_label: "Betreff"
+      body_label: "Nachricht"
+      submit: "E-Mail senden"
+      cancel: "Abbrechen"
+
   date:
     abbr_day_names:
       - So
@@ -335,6 +348,8 @@ de:
       send_email_body_label: "Nachricht"
       send_email_submit: "E-Mail senden"
       send_email_cancel: "Abbrechen"
+      send_course_email_button: "E-Mail an alle"
+      send_course_email_modal_title: "E-Mail an alle Teilnehmenden"
       move_button: "Verschieben"
       move_aria: "%{name} in einen anderen Kurs verschieben"
       move_modal_title: "%{name} verschieben"
@@ -613,6 +628,8 @@ de:
         club_design_desc: "Logo, Farben & Name"
         export_profiles: "Exportprofile"
         export_profiles_desc: "Export-Vorlagen verwalten"
+        course_categories: "Kurskategorien"
+        course_categories_desc: "E-Mail an eine ganze Kategorie versenden"
       table:
         course: "Kurs"
         category: "Kategorie"

@@ -73,6 +73,13 @@
               class: "bg-primary-600 text-white text-sm font-bold py-2 px-4 rounded-lg hover:bg-primary-700 transition" %>
         <%= render 'delete_modal', course: @course %>
       <% end %>
+      <div data-controller="modal" class="contents">
+        <button type="button" data-action="click->modal#open"
+                class="bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition">
+          <%= t("courses.manage.send_course_email_button") %>
+        </button>
+        <%= render "send_email_modal", course: @course %>
+      </div>
       <%= link_to t("courses.manage.back_to_dashboard"), current_user.admin? ? dashboards_admin_path : dashboards_trainer_path,
             class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
     </div>
@@ -94,6 +101,13 @@
               class: "text-center bg-purple-100 text-purple-700 text-sm font-bold py-2.5 px-3 rounded-lg active:bg-purple-200 transition min-h-11" %>
         <%= render 'delete_modal', course: @course %>
       <% end %>
+      <div data-controller="modal">
+        <button type="button" data-action="click->modal#open"
+                class="w-full text-center bg-white border border-gray-300 py-2.5 px-3 rounded-lg shadow-sm text-sm font-bold text-gray-700 active:bg-gray-100 transition min-h-11">
+          <%= t("courses.manage.send_course_email_button") %>
+        </button>
+        <%= render "send_email_modal", course: @course %>
+      </div>
       <%= link_to t("courses.manage.back_to_dashboard"), current_user.admin? ? dashboards_admin_path : dashboards_trainer_path,
             class: "text-center bg-white border border-gray-300 py-2.5 px-3 rounded-lg shadow-sm text-sm font-bold text-gray-700 active:bg-gray-100 transition min-h-11" %>
     </div>

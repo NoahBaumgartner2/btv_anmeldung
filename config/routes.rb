@@ -92,6 +92,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :course_categories, only: [ :index ] do
+    collection do
+      post :send_email
+    end
+  end
+
   resources :course_registrations, except: [ :destroy ] do
     collection do
       get :trial_eligible
