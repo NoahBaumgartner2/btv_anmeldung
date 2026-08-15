@@ -52,6 +52,12 @@
       <div class="min-w-0 flex-1">
         <p class="text-base sm:text-lg font-extrabold text-red-900"><%= t("training_sessions.show.cancelled_title") %></p>
         <p class="text-sm text-red-800 mt-1 break-words"><%= t("training_sessions.show.cancelled_body") %></p>
+        <% if @training_session.cancellation_reason.present? %>
+          <p class="text-sm text-red-800 mt-2 break-words">
+            <span class="font-bold"><%= t("training_sessions.show.cancel_reason_label") %>:</span>
+            <%= @training_session.cancellation_reason %>
+          </p>
+        <% end %>
       </div>
     </div>
   <% end %>
@@ -106,18 +112,27 @@
           <li><%= t("training_sessions.show.cancel_bullet_3") %></li>
           <li><%= t("training_sessions.show.cancel_bullet_4") %></li>
         </ul>
-        <div class="flex items-center gap-3">
-          <%= button_to cancel_training_session_path(@training_session),
-                method: :post,
-                class: "inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2 px-4 rounded-lg transition cursor-pointer" do %>
-            <%= t("training_sessions.show.confirm_cancel_btn") %>
-          <% end %>
-          <button type="button"
-                  data-action="click->cancel-training#close"
-                  class="text-sm font-semibold text-gray-600 hover:text-gray-900 transition cursor-pointer">
-            <%= t("training_sessions.show.cancel_abort") %>
-          </button>
-        </div>
+        <%= form_with url: cancel_training_session_path(@training_session), method: :post, class: "space-y-3" do %>
+          <div>
+            <label for="cancellation_reason" class="block text-xs font-bold text-red-700 mb-1">
+              <%= t("training_sessions.show.cancel_reason_input_label") %>
+            </label>
+            <textarea name="cancellation_reason" id="cancellation_reason" rows="2"
+                      placeholder="<%= t("training_sessions.show.cancel_reason_placeholder") %>"
+                      class="block w-full rounded-lg border border-red-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
+          </div>
+          <div class="flex items-center gap-3">
+            <button type="submit"
+                    class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2 px-4 rounded-lg transition cursor-pointer">
+              <%= t("training_sessions.show.confirm_cancel_btn") %>
+            </button>
+            <button type="button"
+                    data-action="click->cancel-training#close"
+                    class="text-sm font-semibold text-gray-600 hover:text-gray-900 transition cursor-pointer">
+              <%= t("training_sessions.show.cancel_abort") %>
+            </button>
+          </div>
+        <% end %>
       </div>
     </div>
   <% end %>
