@@ -51,7 +51,11 @@ class RefundService
     amount = (refund_cents / 100.0).round(2)
     txn_id = registration.sumup_transaction_id
 
-    uri = URI("https://api.sumup.com/v0.1/me/refund/#{txn_id}")
+    # Root Cause (siehe developer.sumup.com/api/transactions/refund): v0.1/me/refund/{id}
+    # ist die veraltete Route und lieferte pauschal 409 "not refundable in its current
+    # state", obwohl SumUp die Transaktion selbst als erstattbar auswies. Aktuelle,
+    # dokumentierte Route: v1.0/merchants/{merchant_code}/payments/{id}/refunds.
+    uri = URI("https://api.sumup.com/v1.0/merchants/#{SumupConfig.merchant_code}/payments/#{txn_id}/refunds")
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     http.open_timeout = 10
@@ -65,7 +69,8 @@ class RefundService
 
     response = http.request(request)
 
-    unless response.code.to_i == 204
+    # v1.0 antwortet bei Erfolg mit 200 + leerem JSON-Body (nicht mehr 204 wie v0.1).
+    unless response.code.to_i == 200
       parsed     = (JSON.parse(response.body) rescue {})
       parsed     = {} unless parsed.is_a?(Hash)
       error_code = parsed["error_code"].presence

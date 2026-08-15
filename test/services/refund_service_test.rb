@@ -1,9 +1,10 @@
 require "test_helper"
 
 class RefundServiceTest < ActiveSupport::TestCase
-  def no_content_response
-    r = Net::HTTPNoContent.new("1.1", "204", "No Content")
-    r.instance_variable_set(:@body, "")
+  # v1.0-Refund-Endpoint antwortet bei Erfolg mit 200 + leerem JSON-Body (siehe Fix).
+  def success_response
+    r = Net::HTTPOK.new("1.1", "200", "OK")
+    r.instance_variable_set(:@body, "{}")
     r.instance_variable_set(:@read, true)
     r
   end
@@ -139,7 +140,7 @@ class RefundServiceTest < ActiveSupport::TestCase
     reg = build_registration(price_cents: 10000, training_value_cents: 1500)
     stub_sessions_count(reg, 0)
 
-    with_http_stub(fake_http(no_content_response)) do
+    with_http_stub(fake_http(success_response)) do
       result = RefundService.process(reg)
       assert_equal true, result[:refunded]
       assert_equal 10000, result[:amount_cents]
@@ -152,7 +153,7 @@ class RefundServiceTest < ActiveSupport::TestCase
     reg = build_registration(price_cents: 10000, training_value_cents: 1500)
     stub_sessions_count(reg, 2)
 
-    with_http_stub(fake_http(no_content_response)) do
+    with_http_stub(fake_http(success_response)) do
       result = RefundService.process(reg)
       assert_equal true, result[:refunded]
       assert_equal 7000, result[:amount_cents]
