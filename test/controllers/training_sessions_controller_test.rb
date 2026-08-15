@@ -154,6 +154,7 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
   test "toggle_attendance: ohne Drop-in ist Teilnehmer standardmäßig anwesend, Klick markiert abwesend" do
     registration = course_registrations(:one)
     assert_not @training_session.course.has_ticketing?
+    attendances(:one).destroy # Fixture-Datensatz entfernen: Test startet ohne Attendance-Record
 
     get training_session_url(@training_session)
     assert_match participants(:one).first_name, @response.body
@@ -173,6 +174,7 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
   test "toggle_attendance: bei Drop-in-Kursen ist Teilnehmer standardmäßig abwesend, Klick markiert anwesend" do
     @training_session.course.update!(has_ticketing: true)
     registration = course_registrations(:one)
+    attendances(:one).destroy # Fixture-Datensatz entfernen: Test startet ohne Attendance-Record
 
     assert_difference("Attendance.count", 1) do
       post toggle_attendance_training_session_url(@training_session), params: { course_registration_id: registration.id }
@@ -291,5 +293,38 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     [ mail.text_part, mail.html_part ].each do |part|
       assert_match "Krankheit der Trainerin", part.body.decoded
     end
+  end
+
+  test "set_substitute: zugewiesener Trainer kann Ersatz eintragen, Mail wird verschickt" do
+    sign_out users(:admin)
+    sign_in users(:one) # trainers(:one) ist via course_trainers(:one) dem Kurs zugewiesen
+
+    assert_enqueued_email_with TrainingSessionMailer, :substitute_assigned,
+      args: [ @training_session, trainers(:two) ] do
+      post set_substitute_training_session_url(@training_session), params: { substitute_trainer_id: trainers(:two).id }
+    end
+
+    assert_equal trainers(:two), @training_session.reload.substitute_trainer
+    assert_redirected_to training_session_url(@training_session)
+  end
+
+  test "set_substitute: nicht zugewiesener Trainer wird abgewiesen" do
+    sign_out users(:admin)
+    sign_in users(:two) # trainers(:two) ist NICHT diesem Kurs zugewiesen
+
+    assert_no_enqueued_emails do
+      post set_substitute_training_session_url(@training_session), params: { substitute_trainer_id: trainers(:two).id }
+    end
+
+    assert_nil @training_session.reload.substitute_trainer
+    assert_equal I18n.t("training_sessions.show.substitute_not_authorized"), flash[:alert]
+  end
+
+  test "set_substitute: leerer Wert entfernt den eingetragenen Ersatz" do
+    @training_session.update!(substitute_trainer: trainers(:two))
+
+    post set_substitute_training_session_url(@training_session), params: { substitute_trainer_id: "" }
+
+    assert_nil @training_session.reload.substitute_trainer
   end
 end

@@ -136,6 +136,7 @@ Rails.application.routes.draw do
       post :cancel
       post :uncancel
       post :send_unsubscribe_reminder
+      post :set_substitute
     end
   end
 

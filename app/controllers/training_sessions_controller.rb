@@ -1,7 +1,7 @@
 class TrainingSessionsController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_trainer!
-  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance confirm_attendance reopen_attendance scanner cancel uncancel send_unsubscribe_reminder ]
+  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance confirm_attendance reopen_attendance scanner cancel uncancel send_unsubscribe_reminder set_substitute ]
 
   # Gezielte CSP-Erweiterung nur für die Scanner-Seite, damit html5-qrcode
   # funktioniert – ohne 'unsafe-inline'/'unsafe-eval' für script-src:
@@ -232,6 +232,32 @@ class TrainingSessionsController < ApplicationController
 
     redirect_to @training_session,
       notice: t("training_sessions.show.reminder_sent", name: registration.participant.first_name)
+  end
+
+  # Ein zugewiesener Trainer kann für EINE Session (z.B. bei eigener Abwesenheit)
+  # eine:n Ersatztrainer:in bestimmen. Die eigentliche Präsenzkontrolle-Autorisierung
+  # (authorize_trainer!) bleibt bewusst offen für alle Trainer:innen – diese Funktion
+  # dient primär der Sichtbarkeit (Dashboard) und Benachrichtigung der Vertretung.
+  def set_substitute
+    unless current_user.admin? || @training_session.course.trainers.exists?(user_id: current_user.id)
+      return redirect_to @training_session, alert: t("training_sessions.show.substitute_not_authorized")
+    end
+
+    trainer_id = params[:substitute_trainer_id].presence
+    substitute = trainer_id ? Trainer.find_by(id: trainer_id) : nil
+
+    if trainer_id.present? && substitute.nil?
+      return redirect_to @training_session, alert: t("training_sessions.show.substitute_not_found")
+    end
+
+    @training_session.update!(substitute_trainer: substitute)
+
+    if substitute
+      TrainingSessionMailer.substitute_assigned(@training_session, substitute).deliver_later
+      redirect_to @training_session, notice: t("training_sessions.show.substitute_set_notice", name: substitute.full_name)
+    else
+      redirect_to @training_session, notice: t("training_sessions.show.substitute_removed_notice")
+    end
   end
 
   private

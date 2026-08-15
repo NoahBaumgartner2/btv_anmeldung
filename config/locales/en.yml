@@ -627,6 +627,7 @@ en:
       next_session_label: "Next session"
       attendance: "Attendance"
       attendance_link: "Attendance — %{course}"
+      substitute_label: "My substitute assignments"
       course:
         confirmed: "Confirmed"
         waitlist: "Waitlist"
@@ -1035,6 +1036,16 @@ en:
       reminder_confirm: "Send %{name} a reminder to contact you for an unsubscription?"
       reminder_sent: "Reminder sent to %{name}."
       reminder_invalid: "Reminder could not be sent – no valid email address on file."
+      substitute_title: "Substitute trainer"
+      substitute_hint: "Can't lead this training yourself? Assign a substitute trainer – they'll get access to attendance control for this session."
+      substitute_current: "%{name} is assigned as substitute"
+      substitute_remove: "Remove"
+      substitute_select_prompt: "Select trainer …"
+      substitute_set_btn: "Assign"
+      substitute_not_authorized: "Only trainers assigned to this course can assign a substitute."
+      substitute_not_found: "Substitute trainer not found."
+      substitute_set_notice: "%{name} was assigned as substitute trainer for this session."
+      substitute_removed_notice: "Substitute trainer was removed."
     form:
       errors:
         one: "There is 1 error:"
@@ -1417,6 +1428,9 @@ en:
         custom_trainer_message:
           name: "Trainer message"
           description: "Manual message from a trainer to course participants"
+        substitute_assigned:
+          name: "Assigned as substitute trainer"
+          description: "Notifies a trainer that they have been assigned as substitute for a single training session"
         devise_confirmation:
           name: "Email confirmation (account)"
           description: "Sent after registration to confirm the email address"

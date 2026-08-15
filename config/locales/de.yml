@@ -668,6 +668,7 @@ de:
       next_session_label: "Nächste Session"
       attendance: "Präsenzkontrolle"
       attendance_link: "Präsenzkontrolle — %{course}"
+      substitute_label: "Meine Vertretungen"
       course:
         confirmed: "Bestätigt"
         waitlist: "Warteliste"
@@ -1083,6 +1084,16 @@ de:
       reminder_confirm: "Erinnerung an %{name} senden, sich bei dir für eine Abmeldung zu melden?"
       reminder_sent: "Erinnerung an %{name} wurde gesendet."
       reminder_invalid: "Erinnerung konnte nicht gesendet werden – keine gültige E-Mail-Adresse hinterlegt."
+      substitute_title: "Ersatztrainer:in"
+      substitute_hint: "Kannst du dieses Training nicht selbst leiten? Trage eine:n Ersatztrainer:in ein – sie/er erhält Zugriff auf die Präsenzkontrolle für dieses Training."
+      substitute_current: "%{name} ist als Ersatz eingetragen"
+      substitute_remove: "Entfernen"
+      substitute_select_prompt: "Trainer:in auswählen …"
+      substitute_set_btn: "Eintragen"
+      substitute_not_authorized: "Nur zugewiesene Trainer:innen dieses Kurses können einen Ersatz bestimmen."
+      substitute_not_found: "Ersatztrainer:in nicht gefunden."
+      substitute_set_notice: "%{name} wurde als Ersatztrainer:in für dieses Training eingetragen."
+      substitute_removed_notice: "Ersatztrainer:in wurde entfernt."
     form:
       errors:
         one: "Es gibt 1 Fehler:"
@@ -1520,6 +1531,10 @@ de:
         name: "Trainer-Nachricht"
         description: "Individuell verfasste Nachricht eines Trainers an Kursteilnehmende."
         recipient: "Eltern der Kursteilnehmenden (je nach Auswahl des Trainers)"
+      substitute_assigned:
+        name: "Als Ersatztrainer eingetragen"
+        description: "Informiert eine:n Trainer:in, dass sie/er für ein einzelnes Training als Ersatz eingetragen wurde."
+        recipient: "Eingetragene:r Ersatztrainer:in"
       participant_complete_profile:
         name: "Angaben ergänzen"
         description: "Bittet darum, fehlende Angaben zu einem Teilnehmer zu ergänzen."

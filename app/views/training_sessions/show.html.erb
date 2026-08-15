@@ -79,6 +79,43 @@
     <% end %>
   <% end %>
 
+  <%# ── Ersatztrainer ────────────────────────────────────────────────────── %>
+  <% can_manage_substitute = current_user.admin? || @training_session.course.trainers.exists?(user_id: current_user.id) %>
+  <% if can_manage_substitute && !@training_session.is_canceled? && !@training_session.past? %>
+    <div class="mb-6 bg-white border border-gray-200 rounded-xl shadow-sm p-4 sm:p-5">
+      <h3 class="font-bold text-gray-900 text-sm mb-1"><%= t("training_sessions.show.substitute_title") %></h3>
+      <p class="text-xs text-gray-400 mb-3"><%= t("training_sessions.show.substitute_hint") %></p>
+
+      <% if @training_session.substitute_trainer %>
+        <div class="flex items-center justify-between gap-3 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">
+          <span class="text-sm font-semibold text-blue-900">
+            <%= t("training_sessions.show.substitute_current", name: @training_session.substitute_trainer.full_name) %>
+          </span>
+          <%= button_to set_substitute_training_session_path(@training_session),
+                method: :post,
+                params: { substitute_trainer_id: "" },
+                class: "shrink-0 text-xs font-bold text-blue-700 hover:text-blue-900 transition cursor-pointer bg-transparent border-0 p-0" do %>
+            <%= t("training_sessions.show.substitute_remove") %>
+          <% end %>
+        </div>
+      <% else %>
+        <%= form_with url: set_substitute_training_session_path(@training_session), method: :post, class: "flex flex-col sm:flex-row gap-2" do %>
+          <select name="substitute_trainer_id" required
+                  class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+            <option value=""><%= t("training_sessions.show.substitute_select_prompt") %></option>
+            <% Trainer.includes(:user).order(:last_name, :first_name).each do |tr| %>
+              <option value="<%= tr.id %>"><%= tr.full_name %></option>
+            <% end %>
+          </select>
+          <button type="submit"
+                  class="shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer">
+            <%= t("training_sessions.show.substitute_set_btn") %>
+          </button>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
   <%# ── Absagen / Rückgängig ────────────────────────────────────────────── %>
   <% if @training_session.is_canceled? %>
     <% if current_user.admin? %>

@@ -1,6 +1,7 @@
 class TrainingSession < ApplicationRecord
   belongs_to :course
   belongs_to :attendance_confirmed_by, class_name: "User", optional: true
+  belongs_to :substitute_trainer, class_name: "Trainer", optional: true
 
   has_many :attendances, dependent: :destroy
 

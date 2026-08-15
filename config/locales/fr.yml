@@ -625,6 +625,7 @@ fr:
       next_session_label: "Prochaine session"
       attendance: "Contrôle de présence"
       attendance_link: "Présence — %{course}"
+      substitute_label: "Mes remplacements"
       course:
         confirmed: "Confirmé"
         waitlist: "Liste d'attente"
@@ -1029,6 +1030,16 @@ fr:
       reminder_confirm: "Envoyer à %{name} un rappel de te contacter pour une désinscription ?"
       reminder_sent: "Rappel envoyé à %{name}."
       reminder_invalid: "Le rappel n'a pas pu être envoyé – aucune adresse e-mail valide enregistrée."
+      substitute_title: "Formateur remplaçant"
+      substitute_hint: "Tu ne peux pas diriger cet entraînement toi-même ? Désigne un formateur remplaçant – il/elle aura accès au contrôle de présence pour cet entraînement."
+      substitute_current: "%{name} est désigné(e) comme remplaçant(e)"
+      substitute_remove: "Retirer"
+      substitute_select_prompt: "Choisir un formateur …"
+      substitute_set_btn: "Désigner"
+      substitute_not_authorized: "Seuls les formateurs assignés à ce cours peuvent désigner un remplaçant."
+      substitute_not_found: "Formateur remplaçant introuvable."
+      substitute_set_notice: "%{name} a été désigné(e) comme formateur remplaçant pour cet entraînement."
+      substitute_removed_notice: "Le formateur remplaçant a été retiré."
     form:
       errors:
         one: "Il y a 1 erreur :"
@@ -1411,6 +1422,9 @@ fr:
         custom_trainer_message:
           name: "Message du formateur"
           description: "Message manuel d'un formateur aux participants du cours"
+        substitute_assigned:
+          name: "Désigné comme formateur remplaçant"
+          description: "Informe un formateur qu'il a été désigné comme remplaçant pour un entraînement"
         devise_confirmation:
           name: "Confirmation e-mail (compte)"
           description: "Envoyé après l'inscription pour confirmer l'adresse e-mail"
