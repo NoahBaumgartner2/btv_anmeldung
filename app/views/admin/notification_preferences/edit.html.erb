@@ -16,9 +16,14 @@
           [ "session_unsubscription", "Abmeldung von Training",   "Wenn ein Teilnehmer sich von einer einzelnen Trainingseinheit abmeldet", "trainer" ],
           [ "attendance_reminder",    "Anwesenheitserinnerung",   "Wenn Anwesenheiten nach dem Training noch nicht erfasst wurden", "trainer" ],
         ]
-        # Nur Admins bekommen diese Mail (siehe TrainingSessionsController#cancel) – für
-        # reine Trainer wäre der Schalter wirkungslos und nur verwirrend.
-        rows << [ "training_cancelled", "Training abgesagt", "Wenn ein Trainer ein einzelnes Training absagt", "admin" ] if current_user.admin?
+        # Nur Admins bekommen diese Mails (siehe TrainingSessionsController#cancel und
+        # CourseRegistrationsController#trainer_cancel) – für reine Trainer wären die
+        # Schalter wirkungslos und nur verwirrend.
+        if current_user.admin?
+          rows << [ "training_cancelled", "Training abgesagt", "Wenn ein Trainer ein einzelnes Training absagt", "admin" ]
+          rows << [ "refund_done", "Rückerstattung erfolgt", "Wenn ein Trainer einen Teilnehmer abmeldet und die Rückerstattung automatisch erfolgt ist", "admin" ]
+          rows << [ "refund_failed", "Rückerstattung fehlgeschlagen", "Wenn eine automatische Rückerstattung technisch fehlgeschlagen ist", "admin" ]
+        end
         rows.each do |type, name, description, role| %>
           <% mandatory = User::MANDATORY_NOTIFICATION_TYPES.include?(type) %>
           <% enabled = current_user.admin_notification_enabled?(type) %>

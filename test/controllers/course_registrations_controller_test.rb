@@ -1095,6 +1095,36 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       "Wartender muss nach Stornierung auf platz_frei hochgestuft werden"
   end
 
+  test "trainer_cancel verschickt Rückerstattungs-Admin-Info nur an Admins, die sie nicht persönlich abgeschaltet haben" do
+    course = Course.new(
+      title: "Bezahlkurs-Cancel", registration_type: "semester", has_payment: true,
+      price_cents: 15_000, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+    reg = CourseRegistration.new(
+      course: course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+
+    opted_out = User.new(email: "opted-out-refund-admin@example.com", admin: true, country: "CH",
+      admin_notification_preferences: { "refund_done" => false })
+    opted_out.password = "password123"
+    opted_out.privacy_accepted = true
+    opted_out.skip_confirmation!
+    opted_out.save!(validate: false)
+
+    sign_in users(:admin)
+
+    assert_enqueued_email_with CourseRegistrationMailer, :admin_refund_done_notice,
+      args: [ reg, users(:admin), nil ] do
+      post trainer_cancel_course_registration_path(reg)
+    end
+
+    refund_done_jobs = enqueued_jobs.select { |j| j[:args][0..1] == [ "CourseRegistrationMailer", "admin_refund_done_notice" ] }
+    assert_equal 1, refund_done_jobs.size, "erwartet genau eine Rückerstattungs-Info-Mail (nicht an opted_out)"
+  end
+
   test "wiederholtes Anmelden auf Bezahlkurs legt keinen zweiten ausstehend-Datensatz an" do
     course = Course.new(
       title: "Bezahlkurs Reuse", registration_type: "semester", registration_mode: "semester",
