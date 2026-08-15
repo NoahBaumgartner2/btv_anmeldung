@@ -2,7 +2,8 @@ Eine Trainingseinheit wurde von einem Trainer abgesagt.
 
 Kurs:  <%= @course.title %>
 Datum: <%= I18n.l(@training_session.start_time, format: :long) %> – <%= I18n.l(@training_session.end_time, format: :short) %>
-
+<% if @training_session.cancellation_reason.present? %>Grund: <%= @training_session.cancellation_reason %>
+<% end %>
 Die betroffenen Teilnehmenden wurden bereits automatisch per E-Mail benachrichtigt.
 
 Trainingseinheit ansehen: <%= @training_session_url %>

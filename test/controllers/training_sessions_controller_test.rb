@@ -235,4 +235,26 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     admin_notice_jobs = enqueued_jobs.select { |j| j[:args][0..1] == [ "TrainingSessionMailer", "training_cancelled_admin_notice" ] }
     assert_equal 1, admin_notice_jobs.size, "erwartet genau eine Admin-Info-Mail (nur an users(:admin), nicht an opted_out)"
   end
+
+  test "cancel speichert den mitgegebenen Grund" do
+    post cancel_training_session_url(@training_session), params: { cancellation_reason: "Hallenausfall wegen Bauarbeiten" }
+
+    assert_equal "Hallenausfall wegen Bauarbeiten", @training_session.reload.cancellation_reason
+  end
+
+  test "cancel speichert nil, wenn kein Grund angegeben wurde" do
+    post cancel_training_session_url(@training_session), params: { cancellation_reason: "   " }
+
+    assert_nil @training_session.reload.cancellation_reason
+  end
+
+  test "cancellation_notice-Mail enthält den Grund" do
+    @training_session.update_column(:cancellation_reason, "Krankheit der Trainerin")
+
+    mail = TrainingSessionMailer.cancellation_notice(@training_session, users(:one))
+
+    [ mail.text_part, mail.html_part ].each do |part|
+      assert_match "Krankheit der Trainerin", part.body.decoded
+    end
+  end
 end
