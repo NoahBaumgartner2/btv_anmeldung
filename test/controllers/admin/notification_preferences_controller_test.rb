@@ -39,5 +39,21 @@ module Admin
       assert_match "Als Admin", response.body
       assert_match "Als Trainer", response.body
     end
+
+    test "edit verlinkt reine Trainer zurück zu Meine Kurse, nicht zur Kommandozentrale" do
+      get edit_admin_notification_preferences_path
+      assert_response :success
+      assert_select "a[href=?]", dashboards_trainer_path, text: /Meine Kurse/
+      assert_select "a", text: /Kommandozentrale/, count: 0
+    end
+
+    test "edit verlinkt Admins zurück zur Kommandozentrale" do
+      sign_out @trainer
+      sign_in users(:admin)
+
+      get edit_admin_notification_preferences_path
+      assert_response :success
+      assert_select "a[href=?]", dashboards_admin_path, text: /Kommandozentrale/
+    end
   end
 end

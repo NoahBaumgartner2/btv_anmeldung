@@ -53,32 +53,34 @@
 
             <%# Abo-Eintritte (mobile) %>
             <% if @course.abo? && reg.status == "bestätigt" %>
-              <div class="mb-3 flex items-center justify-between gap-2 flex-wrap">
-                <span class="text-xs text-gray-500">
-                  <%= t("courses.manage.abo_entries_label") %>:
-                  <span class="font-semibold text-gray-900"><%= reg.abo_entries_used.to_i %> / <%= reg.abo_entries_total.to_i %></span>
-                  <% if reg.abo_exhausted? %>
-                    <span class="ml-1 inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.abo_exhausted") %></span>
+              <div class="mb-3 bg-indigo-50 border border-indigo-100 rounded-lg p-2.5">
+                <div class="flex items-center justify-between gap-2 flex-wrap">
+                  <span class="text-xs text-indigo-700">
+                    <span class="font-bold"><%= reg.abo_entries_used.to_i %>/<%= reg.abo_entries_total.to_i %></span>
+                    <%= t("courses.manage.abo_entries_label") %>
+                    <% if reg.abo_exhausted? %>
+                      <span class="ml-1 inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.abo_exhausted") %></span>
+                    <% end %>
+                  </span>
+                  <%= button_to t("courses.manage.use_abo_entry"), use_abo_entry_course_registration_path(reg),
+                        method: :post,
+                        disabled: reg.abo_exhausted?,
+                        class: "text-xs bg-white active:bg-primary-50 text-primary-700 font-semibold border border-primary-200 px-2.5 py-1.5 rounded-lg transition cursor-pointer min-h-[36px] flex items-center disabled:opacity-40 disabled:cursor-not-allowed",
+                        data: { turbo_confirm: t("courses.manage.use_abo_entry_confirm", name: p.first_name) } %>
+                </div>
+                <% if current_user.admin? || @course.trainers.exists?(user_id: current_user.id) %>
+                  <%= form_with url: update_abo_entries_course_registration_path(reg), method: :post, data: { turbo: true }, class: "mt-2 pt-2 border-t border-indigo-100 flex items-center gap-2 flex-wrap" do %>
+                    <label class="text-xs text-indigo-700/80 shrink-0"><%= t("courses.manage.abo_adjust_label") %>:</label>
+                    <%= number_field_tag :remaining_entries, reg.abo_entries_remaining.to_i, min: 0,
+                          aria: { label: t("courses.manage.abo_remaining_input") },
+                          class: "w-16 text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+                    <button type="submit"
+                            class="text-xs bg-white active:bg-gray-100 text-gray-700 font-semibold border border-gray-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer min-h-[36px] flex items-center">
+                      <%= t("courses.manage.abo_save") %>
+                    </button>
                   <% end %>
-                </span>
-                <%= button_to t("courses.manage.use_abo_entry"), use_abo_entry_course_registration_path(reg),
-                      method: :post,
-                      disabled: reg.abo_exhausted?,
-                      class: "text-xs bg-primary-50 active:bg-primary-100 text-primary-700 font-semibold border border-primary-200 px-2.5 py-1.5 rounded-lg transition cursor-pointer min-h-[36px] flex items-center disabled:opacity-50 disabled:cursor-not-allowed",
-                      data: { turbo_confirm: t("courses.manage.use_abo_entry_confirm", name: p.first_name) } %>
-              </div>
-              <% if current_user.admin? || @course.trainers.exists?(user_id: current_user.id) %>
-                <%= form_with url: update_abo_entries_course_registration_path(reg), method: :post, data: { turbo: true }, class: "mb-3 flex items-center gap-2 flex-wrap" do %>
-                  <label class="text-xs text-gray-500 shrink-0"><%= t("courses.manage.abo_adjust_label") %>:</label>
-                  <%= number_field_tag :remaining_entries, reg.abo_entries_remaining.to_i, min: 0,
-                        aria: { label: t("courses.manage.abo_remaining_input") },
-                        class: "w-16 text-xs border border-gray-300 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500" %>
-                  <button type="submit"
-                          class="text-xs bg-gray-100 active:bg-gray-200 text-gray-700 font-semibold px-2.5 py-1.5 rounded-lg transition cursor-pointer min-h-[36px] flex items-center">
-                    <%= t("courses.manage.abo_save") %>
-                  </button>
                 <% end %>
-              <% end %>
+              </div>
             <% end %>
 
             <%# Actions %>

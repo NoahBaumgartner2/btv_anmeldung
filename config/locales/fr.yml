@@ -192,6 +192,7 @@ fr:
       no_bookable_sessions: "Aucune session réservable disponible pour ce cours pour le moment."
       trainer_area:
         title: "Zone Entraîneur & Admin"
+        manage: "Gérer le cours"
         edit: "Modifier le cours"
         new_session: "Nouvelle session"
         date_pending: "Date à confirmer"

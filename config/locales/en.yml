@@ -192,6 +192,7 @@ en:
       no_bookable_sessions: "No bookable sessions available for this course at the moment."
       trainer_area:
         title: "Trainer & Admin Area"
+        manage: "Manage course"
         edit: "Edit course"
         new_session: "New session"
         date_pending: "Date pending"
