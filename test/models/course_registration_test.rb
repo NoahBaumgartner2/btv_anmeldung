@@ -429,4 +429,72 @@ class CourseRegistrationTest < ActiveSupport::TestCase
 
     assert_in_delta 48.hours.from_now.to_i, reg.payment_expires_at.to_i, 60
   end
+
+  # ── merge_into_existing_abo! ─────────────────────────────────────────────
+
+  def make_abo_course(abo_size: 10)
+    course = Course.new(
+      title: "Merge-Abo-Kurs", registration_type: "semester", registration_mode: "abo",
+      has_payment: true, price_cents: 15_000, has_ticketing: false,
+      allows_holiday_deduction: false, allows_trial: false, abo_size: abo_size
+    )
+    course.save!(validate: false)
+    course
+  end
+
+  test "merge_into_existing_abo! summiert Eintritte und storniert die Quelle" do
+    course = make_abo_course
+    existing = CourseRegistration.new(
+      course: course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false,
+      abo_entries_total: 10, abo_entries_used: 7
+    )
+    existing.save!(validate: false)
+
+    topup = CourseRegistration.new(
+      course: course, participant: participants(:one), status: "ausstehend",
+      payment_cleared: false, holiday_deduction_claimed: false,
+      abo_entries_total: 10, abo_entries_used: 0
+    )
+    topup.save!(validate: false)
+
+    result = topup.merge_into_existing_abo!(payment_cleared: true)
+
+    assert_equal existing, result
+    existing.reload
+    assert_equal 20, existing.abo_entries_total
+    assert_equal 13, existing.abo_entries_remaining
+    topup.reload
+    assert_equal "storniert", topup.status
+    assert topup.payment_cleared?
+    assert_not_nil topup.cancelled_at
+  end
+
+  test "merge_into_existing_abo! gibt nil zurück ohne bestehenden Pass" do
+    course = make_abo_course
+    first_purchase = CourseRegistration.new(
+      course: course, participant: participants(:one), status: "ausstehend",
+      payment_cleared: false, holiday_deduction_claimed: false,
+      abo_entries_total: 10, abo_entries_used: 0
+    )
+    first_purchase.save!(validate: false)
+
+    assert_nil first_purchase.merge_into_existing_abo!
+    assert_equal "ausstehend", first_purchase.reload.status
+  end
+
+  test "merge_into_existing_abo! gibt nil zurück für Nicht-Abo-Kurse" do
+    course = Course.new(
+      title: "Normalkurs", registration_type: "semester", has_payment: false,
+      has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+    reg = CourseRegistration.new(
+      course: course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+
+    assert_nil reg.merge_into_existing_abo!
+  end
 end

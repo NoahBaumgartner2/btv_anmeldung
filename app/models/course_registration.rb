@@ -35,7 +35,10 @@ class CourseRegistration < ApplicationRecord
 
   validate :participant_has_required_fields, on: :create, unless: :abo_booking?
   validate :no_duplicate_single_session_registration, on: :create, unless: :abo_booking?
-  validate :no_duplicate_semester_registration, on: :create, unless: :abo_booking?
+  # Abo-Pässe (course.abo?) dürfen mehrfach gekauft werden – ein zweiter Kauf wird nach
+  # der Zahlung mit dem bestehenden Pass zusammengeführt statt geblockt (siehe
+  # #merge_into_existing_abo! und CourseRegistrationsController#create).
+  validate :no_duplicate_semester_registration, on: :create, unless: -> { abo_booking? || course&.abo? }
   validate :training_session_bookable, on: :create
   validate :trial_session_bookable, on: :create
 
@@ -107,6 +110,32 @@ class CourseRegistration < ApplicationRecord
 
   def abo_booking?
     abo_source_registration_id.present?
+  end
+
+  # Nach einem (erneuten) Abo-Kauf: existiert für dieselbe Person im selben Kurs
+  # bereits ein anderer aktiver Abo-Pass, werden die neu gekauften Eintritte dort
+  # aufsummiert (z.B. 3 verbleibende + neues 10er-Abo = 13) und diese Anmeldung
+  # sofort storniert – Eltern/Admins sehen so weiterhin nur einen Abo-Pass pro Kurs
+  # statt zwei getrennter Zeilen. Gibt den Ziel-Pass zurück, wenn zusammengeführt
+  # wurde, sonst nil. Nur für frisch bezahlte/bestätigte Abo-Pässe selbst aufrufen
+  # (nicht für Session-Buchungen, siehe abo_booking?).
+  #
+  # WICHTIG: setzt NIE status: "bestätigt" auf sich selbst (auch nicht kurzzeitig) –
+  # ein DB-Unique-Index (index_course_registrations_unique_active) erlaubt nur eine
+  # aktive Anmeldung pro Person/Kurs. extra_attrs (z.B. payment_cleared, sumup_*)
+  # werden zusammen mit dem Storno in einem einzigen update! gesetzt.
+  def merge_into_existing_abo!(**extra_attrs)
+    return nil unless course.abo? && !abo_booking? && abo_entries_total.present?
+
+    target = CourseRegistration
+      .where(participant_id: participant_id, course_id: course_id, status: "bestätigt")
+      .where.not(id: id)
+      .first
+    return nil unless target
+
+    target.increment!(:abo_entries_total, abo_entries_total.to_i)
+    update!(**extra_attrs, status: "storniert", cancelled_at: Time.current)
+    target
   end
 
   def refund_abo_entry!

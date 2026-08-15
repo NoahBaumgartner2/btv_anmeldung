@@ -17,6 +17,23 @@ class PaymentSyncService
       return if registration.payment_cleared?
 
       course = registration.course
+
+      # Zweiter Abo-Kauf: ein DB-Unique-Index (index_course_registrations_unique_active)
+      # erlaubt nur eine aktive ("bestätigt") Anmeldung pro Person/Kurs – die Zeile darf
+      # daher NIE selbst auf "bestätigt" wechseln, wenn bereits ein anderer bestätigter
+      # Pass existiert. merge_into_existing_abo! summiert die Eintritte dort auf und
+      # storniert diese Zeile direkt (Zahlung bleibt vermerkt, siehe payment_cleared).
+      merged_into = registration.merge_into_existing_abo!(
+        payment_cleared:      true,
+        sumup_transaction_id: transaction_id,
+        sumup_checkout_id:    checkout_id || registration.sumup_checkout_id
+      )
+      if merged_into
+        CourseRegistrationMailer.payment_receipt(registration).deliver_later
+        Rails.logger.info "[PaymentSyncService] Zweiter Abo-Kauf zusammengeführt: Registration #{registration.id} -> #{merged_into.id} (+#{registration.abo_entries_total} Eintritte)"
+        next
+      end
+
       # Wer bezahlt hat, erhält IMMER einen bestätigten Platz – niemals nachträglich
       # Warteliste. Andernfalls bekäme eine zahlende Person eine "Du stehst auf der
       # Warteliste"-Mail trotz erfolgter Zahlung (siehe Bug-Report). Im seltenen Race-Fall

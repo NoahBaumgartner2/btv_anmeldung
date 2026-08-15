@@ -252,6 +252,45 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     assert_equal "bestätigt", trial.status
   end
 
+  # ── mark_paid! – zweiter Abo-Kauf wird mit bestehendem Pass zusammengeführt ──
+
+  test "mark_paid! summiert einen zweiten bezahlten Abo-Kauf auf den bestehenden Pass" do
+    abo_course = Course.new(
+      title: "Bezahl-Abo-Kurs", registration_type: "semester", registration_mode: "abo",
+      has_payment: true, price_cents: 15_000, has_ticketing: false,
+      allows_holiday_deduction: false, allows_trial: false, abo_size: 10
+    )
+    abo_course.save!(validate: false)
+
+    existing = CourseRegistration.new(
+      course: abo_course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false,
+      abo_entries_total: 10, abo_entries_used: 7 # 3 verbleibend
+    )
+    existing.save!(validate: false)
+
+    new_purchase = CourseRegistration.new(
+      course: abo_course, participant: participants(:one), status: "ausstehend",
+      payment_cleared: false, holiday_deduction_claimed: false,
+      abo_entries_total: 10, abo_entries_used: 0
+    )
+    new_purchase.save!(validate: false)
+
+    assert_enqueued_email_with CourseRegistrationMailer, :payment_receipt, args: [ new_purchase ] do
+      PaymentSyncService.mark_paid!(new_purchase, transaction_id: "tx-abo-topup")
+    end
+    confirmation_jobs = enqueued_jobs.select { |j| j[:args][0..1] == [ "CourseRegistrationMailer", "confirmation" ] }
+    assert_empty confirmation_jobs, "confirmation-Mail sollte bei einem zusammengeführten Abo-Kauf nicht verschickt werden"
+
+    existing.reload
+    assert_equal 20, existing.abo_entries_total
+    assert_equal 13, existing.abo_entries_remaining
+
+    new_purchase.reload
+    assert_equal "storniert", new_purchase.status
+    assert new_purchase.payment_cleared? # Zahlung ist tatsächlich erfolgt
+  end
+
   # Regression: eine bereits "bestätigt"-Anmeldung (z.B. manuell vom Admin bestätigt,
   # Zahlung online nachgeholt) mit offenem Checkout wurde vom Abgleich nie erfasst,
   # weil die Query nur "ausstehend"/"schnuppern" prüfte. Blieb eine tatsächlich

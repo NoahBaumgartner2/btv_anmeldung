@@ -180,7 +180,10 @@ class CourseRegistrationsController < ApplicationController
     # - Bestehender Schnupperplatz ODER bestätigt-aber-noch-nicht-bezahlt auf einem
     #   kostenpflichtigen Kurs  → KEINEN zweiten Datensatz anlegen, sondern den bestehenden
     #   Datensatz weiterverwenden und zur Zahlung weiterleiten (Gratiskurs: regulär bestätigen).
-    if course && participant && course.registration_mode != "single_session"
+    # Abo-Kurse ausgenommen: dort ist ein mehrfacher Kauf gewollt (siehe Abschnitt 2e unten für
+    # Gratiskurse und CourseRegistration#merge_into_existing_abo! für den Bezahlkurs-Fall nach
+    # erfolgreicher Zahlung in PaymentSyncService.mark_paid!).
+    if course && participant && course.registration_mode != "single_session" && !course.abo?
       existing_reg = CourseRegistration.where(
         participant_id: participant.id,
         course_id: course.id
@@ -211,6 +214,25 @@ class CourseRegistrationsController < ApplicationController
           return redirect_to course_registration_path(existing_reg),
             notice: t("course_registrations.flash.trial_converted")
         end
+      end
+    end
+
+    # 2e. Zweiter Kauf eines Gratis-Abos: direkt aufstocken statt eine zweite Zeile
+    # anzulegen. Ein DB-Unique-Index (index_course_registrations_unique_active) erlaubt
+    # ohnehin nur eine aktive Anmeldung pro Person/Kurs – ein zweiter "bestätigt"-Insert
+    # würde daran scheitern. Bezahlkurse werden NICHT hier behandelt: dort entsteht ganz
+    # normal eine neue "ausstehend"-Anmeldung (erlaubt, da vom Unique-Index ausgenommen),
+    # und PaymentSyncService.mark_paid! führt die Eintritte nach erfolgreicher Zahlung
+    # zusammen (dort dieselbe Kollision, aber erst beim Zahlungsabschluss relevant).
+    if course&.abo? && participant && !(course.has_payment? && course.price_cents.to_i > 0)
+      existing_abo = Course.find(course.id).with_lock do
+        CourseRegistration.where(participant_id: participant.id, course_id: course.id, status: "bestätigt").first
+      end
+
+      if existing_abo
+        existing_abo.increment!(:abo_entries_total, course.abo_size.to_i)
+        return redirect_to course_registration_path(existing_abo),
+          notice: t("course_registrations.flash.abo_topped_up", name: participant.first_name, remaining: existing_abo.abo_entries_remaining)
       end
     end
 
