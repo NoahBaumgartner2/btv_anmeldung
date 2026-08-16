@@ -17,33 +17,167 @@
 <div class="max-w-2xl mx-auto w-full mt-6 sm:mt-8 mb-16">
 
   <%# ── Header ──────────────────────────────────────────────────────────── %>
-  <div class="mb-5 sm:mb-6">
-    <%= link_to manage_course_path(course),
-          class: "inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-800 transition mb-3 min-h-[44px] py-2 -ml-1 px-1" do %>
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-      </svg>
-      <span class="break-words"><%= course.title %></span>
-    <% end %>
+  <% can_manage_substitute = current_user.admin? || @training_session.course.trainers.exists?(user_id: current_user.id) %>
+  <% show_actions_modal = !@training_session.is_canceled? %>
+  <div class="mb-5 sm:mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+    <div class="min-w-0">
+      <%= link_to manage_course_path(course),
+            class: "inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-800 transition mb-3 min-h-[44px] py-2 -ml-1 px-1" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+        </svg>
+        <span class="break-words"><%= course.title %></span>
+      <% end %>
 
-    <div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 break-words">
-        <%= t("training_sessions.show.title") %>
-      </h1>
-      <p class="text-gray-500 text-sm sm:text-base mt-1 break-words">
-        <% if @training_session.start_time %>
-          <%= @training_session.start_time.in_time_zone.strftime("%-d. %B %Y") %>
-          <% if @training_session.end_time %>
-            · <%= @training_session.start_time.in_time_zone.strftime("%H:%M") %> – <%= @training_session.end_time.in_time_zone.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
-          <% else %>
-            · <%= @training_session.start_time.in_time_zone.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 break-words">
+          <%= t("training_sessions.show.title") %>
+        </h1>
+        <p class="text-gray-500 text-sm sm:text-base mt-1 break-words">
+          <% if @training_session.start_time %>
+            <%= @training_session.start_time.in_time_zone.strftime("%-d. %B %Y") %>
+            <% if @training_session.end_time %>
+              · <%= @training_session.start_time.in_time_zone.strftime("%H:%M") %> – <%= @training_session.end_time.in_time_zone.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
+            <% else %>
+              · <%= @training_session.start_time.in_time_zone.strftime("%H:%M") %> <%= t("misc.time_suffix") %>
+            <% end %>
           <% end %>
-        <% end %>
-        <% if course.location.present? %>
-          · <%= course.location %>
-        <% end %>
-      </p>
+          <% if course.location.present? %>
+            · <%= course.location %>
+          <% end %>
+        </p>
+      </div>
     </div>
+
+    <% if show_actions_modal %>
+      <div data-controller="modal training-actions" class="shrink-0">
+        <button type="button" data-action="click->modal#open"
+                class="inline-flex items-center gap-2 bg-white border border-gray-300 shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition py-2.5 px-4 rounded-lg min-h-11">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <%= t("training_sessions.show.manage_button") %>
+        </button>
+
+        <div data-modal-target="dialog"
+             data-action="click->modal#backdropClose"
+             class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6 text-left">
+            <div class="flex items-center justify-between mb-5">
+              <h3 class="text-lg font-extrabold text-gray-900"><%= t("training_sessions.show.manage_title") %></h3>
+              <button type="button" data-action="click->modal#close"
+                      class="text-gray-400 hover:text-gray-600 transition cursor-pointer" aria-label="<%= t("training_sessions.show.cancel_abort") %>">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+
+            <% if can_manage_substitute %>
+              <div class="flex gap-2 mb-5">
+                <button type="button" data-training-actions-target="cancelTab" data-action="click->training-actions#showCancel"
+                        class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition bg-red-600 text-white">
+                  <%= t("training_sessions.show.cancel_btn") %>
+                </button>
+                <button type="button" data-training-actions-target="substituteTab" data-action="click->training-actions#showSubstitute"
+                        class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition bg-gray-100 text-gray-600 hover:bg-gray-200">
+                  <%= t("training_sessions.show.substitute_title") %>
+                </button>
+              </div>
+            <% end %>
+
+            <%# ── Absagen-Panel ── %>
+            <div data-training-actions-target="cancelPanel">
+              <h4 class="font-bold text-red-800 text-sm mb-3"><%= t("training_sessions.show.cancel_panel_title") %></h4>
+              <ul class="text-sm text-red-700 space-y-1.5 mb-4 list-disc list-inside">
+                <li><%= t("training_sessions.show.cancel_bullet_1_html") %></li>
+                <li><%= t("training_sessions.show.cancel_bullet_2_html", count: @registrations.size.to_i) %></li>
+                <li><%= t("training_sessions.show.cancel_bullet_3") %></li>
+                <li><%= t("training_sessions.show.cancel_bullet_4") %></li>
+              </ul>
+              <%= form_with url: cancel_training_session_path(@training_session), method: :post, class: "space-y-3" do %>
+                <div>
+                  <label for="cancellation_reason" class="block text-xs font-bold text-red-700 mb-1">
+                    <%= t("training_sessions.show.cancel_reason_input_label") %>
+                  </label>
+                  <textarea name="cancellation_reason" id="cancellation_reason" rows="2"
+                            placeholder="<%= t("training_sessions.show.cancel_reason_placeholder") %>"
+                            class="block w-full rounded-lg border border-red-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
+                </div>
+                <button type="submit"
+                        class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2 px-4 rounded-lg transition cursor-pointer">
+                  <%= t("training_sessions.show.confirm_cancel_btn") %>
+                </button>
+              <% end %>
+            </div>
+
+            <%# ── Ersatztrainer-Panel ── %>
+            <% if can_manage_substitute %>
+              <div data-training-actions-target="substitutePanel" class="hidden">
+                <p class="text-xs text-gray-400 mb-3"><%= t("training_sessions.show.substitute_hint") %></p>
+
+                <% if @training_session.substitute_trainer %>
+                  <div class="flex items-start justify-between gap-3 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">
+                    <div class="min-w-0">
+                      <span class="text-sm font-semibold text-blue-900">
+                        <%= t("training_sessions.show.substitute_current", name: @training_session.substitute_trainer.full_name) %>
+                      </span>
+                      <% if @training_session.substitute_reason.present? %>
+                        <p class="text-xs text-blue-700 mt-0.5 break-words"><%= @training_session.substitute_reason %></p>
+                      <% end %>
+                    </div>
+                    <%= button_to set_substitute_training_session_path(@training_session),
+                          method: :post,
+                          params: { substitute_trainer_id: "" },
+                          class: "shrink-0 text-xs font-bold text-blue-700 hover:text-blue-900 transition cursor-pointer bg-transparent border-0 p-0" do %>
+                      <%= t("training_sessions.show.substitute_remove") %>
+                    <% end %>
+                  </div>
+                <% else %>
+                  <%= form_with url: set_substitute_training_session_path(@training_session), method: :post, class: "space-y-3" do %>
+                    <input type="hidden" name="substitute_trainer_id" data-training-actions-target="selectedTrainerId" required>
+
+                    <input type="text"
+                           placeholder="<%= t("training_sessions.show.substitute_search_placeholder") %>"
+                           data-training-actions-target="trainerSearch"
+                           data-action="input->training-actions#filterTrainers"
+                           class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+
+                    <div class="max-h-56 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100">
+                      <% Trainer.includes(:user, :courses).order(:last_name, :first_name).each do |tr| %>
+                        <% search_blob = [ tr.full_name, tr.user&.email, tr.phone, tr.courses.map(&:title).join(" ") ].compact.join(" ").downcase %>
+                        <button type="button"
+                                data-training-actions-target="trainerCard"
+                                data-search-blob="<%= search_blob %>"
+                                data-trainer-id="<%= tr.id %>"
+                                data-action="click->training-actions#selectTrainer"
+                                class="w-full text-left px-3 py-2.5 hover:bg-gray-50 transition flex flex-col gap-0.5 cursor-pointer">
+                          <span class="text-sm font-bold text-gray-900"><%= tr.full_name %></span>
+                          <span class="text-xs text-gray-500 truncate"><%= tr.user&.email %><% if tr.phone.present? %> · <%= tr.phone %><% end %></span>
+                          <span class="text-xs text-gray-400 truncate"><%= tr.courses.any? ? tr.courses.map(&:title).join(", ") : t("training_sessions.show.substitute_no_courses") %></span>
+                        </button>
+                      <% end %>
+                    </div>
+                    <p data-training-actions-target="noResults" class="hidden text-xs text-gray-400 text-center py-2"><%= t("training_sessions.show.substitute_no_results") %></p>
+
+                    <div data-training-actions-target="reasonWrap" class="hidden space-y-3">
+                      <textarea name="substitute_reason" rows="2" required
+                                placeholder="<%= t("training_sessions.show.substitute_reason_placeholder") %>"
+                                class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
+                      <button type="submit"
+                              class="bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer">
+                        <%= t("training_sessions.show.substitute_set_btn") %>
+                      </button>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <%# ── Abgesagt-Warnung ── %>
@@ -79,111 +213,19 @@
     <% end %>
   <% end %>
 
-  <%# ── Ersatztrainer ────────────────────────────────────────────────────── %>
-  <% can_manage_substitute = current_user.admin? || @training_session.course.trainers.exists?(user_id: current_user.id) %>
-  <% if can_manage_substitute && !@training_session.is_canceled? && !@training_session.past? %>
-    <div class="mb-6 bg-white border border-gray-200 rounded-xl shadow-sm p-4 sm:p-5">
-      <h3 class="font-bold text-gray-900 text-sm mb-1"><%= t("training_sessions.show.substitute_title") %></h3>
-      <p class="text-xs text-gray-400 mb-3"><%= t("training_sessions.show.substitute_hint") %></p>
-
-      <% if @training_session.substitute_trainer %>
-        <div class="flex items-start justify-between gap-3 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2.5">
-          <div class="min-w-0">
-            <span class="text-sm font-semibold text-blue-900">
-              <%= t("training_sessions.show.substitute_current", name: @training_session.substitute_trainer.full_name) %>
-            </span>
-            <% if @training_session.substitute_reason.present? %>
-              <p class="text-xs text-blue-700 mt-0.5 break-words"><%= @training_session.substitute_reason %></p>
-            <% end %>
-          </div>
-          <%= button_to set_substitute_training_session_path(@training_session),
-                method: :post,
-                params: { substitute_trainer_id: "" },
-                class: "shrink-0 text-xs font-bold text-blue-700 hover:text-blue-900 transition cursor-pointer bg-transparent border-0 p-0" do %>
-            <%= t("training_sessions.show.substitute_remove") %>
-          <% end %>
-        </div>
-      <% else %>
-        <%= form_with url: set_substitute_training_session_path(@training_session), method: :post, class: "flex flex-col gap-2" do %>
-          <select name="substitute_trainer_id" required
-                  class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
-            <option value=""><%= t("training_sessions.show.substitute_select_prompt") %></option>
-            <% Trainer.includes(:user).order(:last_name, :first_name).each do |tr| %>
-              <option value="<%= tr.id %>"><%= tr.full_name %></option>
-            <% end %>
-          </select>
-          <textarea name="substitute_reason" rows="2" required
-                    placeholder="<%= t("training_sessions.show.substitute_reason_placeholder") %>"
-                    class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
-          <button type="submit"
-                  class="self-start bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer">
-            <%= t("training_sessions.show.substitute_set_btn") %>
-          </button>
-        <% end %>
-      <% end %>
-    </div>
-  <% end %>
-
-  <%# ── Absagen / Rückgängig ────────────────────────────────────────────── %>
-  <% if @training_session.is_canceled? %>
-    <% if current_user.admin? %>
-      <div class="mb-6">
-        <%= button_to uncancel_training_session_path(@training_session),
-              method: :post,
-              data: { turbo_confirm: t("training_sessions.show.uncancel_confirm") },
-              class: "inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg transition shadow-sm cursor-pointer" do %>
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          <%= t("training_sessions.show.uncancel_btn") %>
-        <% end %>
-      </div>
-    <% end %>
-  <% else %>
-    <div class="mb-6" data-controller="cancel-training">
-      <%# Trigger-Button %>
-      <button type="button"
-              data-cancel-training-target="trigger"
-              data-action="click->cancel-training#open"
-              class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg transition shadow-sm cursor-pointer">
+  <%# ── Rückgängig (nur wenn abgesagt; Absagen/Ersatztrainer laufen jetzt über das
+       "Training verwalten"-Modal im Header) ─────────────────────────────── %>
+  <% if @training_session.is_canceled? && current_user.admin? %>
+    <div class="mb-6">
+      <%= button_to uncancel_training_session_path(@training_session),
+            method: :post,
+            data: { turbo_confirm: t("training_sessions.show.uncancel_confirm") },
+            class: "inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold text-sm py-2.5 px-4 rounded-lg transition shadow-sm cursor-pointer" do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
         </svg>
-        <%= t("training_sessions.show.cancel_btn") %>
-      </button>
-
-      <%# Bestätigungs-Panel %>
-      <div data-cancel-training-target="panel"
-           class="hidden mt-3 bg-red-50 border border-red-200 rounded-xl p-5">
-        <h3 class="font-bold text-red-800 text-sm mb-3"><%= t("training_sessions.show.cancel_panel_title") %></h3>
-        <ul class="text-sm text-red-700 space-y-1.5 mb-4 list-disc list-inside">
-          <li><%= t("training_sessions.show.cancel_bullet_1_html") %></li>
-          <li><%= t("training_sessions.show.cancel_bullet_2_html", count: @registrations.size.to_i) %></li>
-          <li><%= t("training_sessions.show.cancel_bullet_3") %></li>
-          <li><%= t("training_sessions.show.cancel_bullet_4") %></li>
-        </ul>
-        <%= form_with url: cancel_training_session_path(@training_session), method: :post, class: "space-y-3" do %>
-          <div>
-            <label for="cancellation_reason" class="block text-xs font-bold text-red-700 mb-1">
-              <%= t("training_sessions.show.cancel_reason_input_label") %>
-            </label>
-            <textarea name="cancellation_reason" id="cancellation_reason" rows="2"
-                      placeholder="<%= t("training_sessions.show.cancel_reason_placeholder") %>"
-                      class="block w-full rounded-lg border border-red-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
-          </div>
-          <div class="flex items-center gap-3">
-            <button type="submit"
-                    class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2 px-4 rounded-lg transition cursor-pointer">
-              <%= t("training_sessions.show.confirm_cancel_btn") %>
-            </button>
-            <button type="button"
-                    data-action="click->cancel-training#close"
-                    class="text-sm font-semibold text-gray-600 hover:text-gray-900 transition cursor-pointer">
-              <%= t("training_sessions.show.cancel_abort") %>
-            </button>
-          </div>
-        <% end %>
-      </div>
+        <%= t("training_sessions.show.uncancel_btn") %>
+      <% end %>
     </div>
   <% end %>
 
