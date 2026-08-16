@@ -234,7 +234,7 @@
 
     const SESSION_ID   = <%= @training_session.id.to_json %>;
     const CSRF         = document.querySelector('meta[name="csrf-token"]')?.content || "";
-    const LIBRARY_SRC  = <%= asset_path('vendor/html5-qrcode.min.js').to_json %>;
+    const LIBRARY_SRC  = <%= raw asset_path('vendor/html5-qrcode.min.js').to_json %>;
 
     // ── Helpers ────────────────────────────────────────────────────────
     function show(el) { el.classList.remove("hidden"); }
