@@ -589,7 +589,6 @@ de:
   dashboards:
     admin:
       title: "Kommandozentrale"
-      subtitle: "Willkommen, Boss! Hier steuerst du den gesamten Verein."
       new_course: "Neuer Kurs"
       sections:
         management: "Verwaltung"

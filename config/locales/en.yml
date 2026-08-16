@@ -550,7 +550,6 @@ en:
   dashboards:
     admin:
       title: "Command Centre"
-      subtitle: "Welcome, Admin! Manage the entire club from here."
       new_course: "New course"
       sections:
         management: "Management"
