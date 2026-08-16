@@ -1,6 +1,19 @@
 fr:
   hello: "Bonjour monde"
 
+  course_categories:
+    index:
+      header_label: "Gestion"
+      title: "Catégories de cours"
+      back_to_dashboard: "Retour au tableau de bord"
+      summary: "%{courses} cours · %{recipients} destinataires"
+      compose_button: "Rédiger l'e-mail"
+      modal_title: "E-mail à la catégorie « %{category} »"
+      subject_label: "Objet"
+      body_label: "Message"
+      submit: "Envoyer l'e-mail"
+      cancel: "Annuler"
+
   date:
     abbr_day_names:
       - dim
@@ -216,9 +229,11 @@ fr:
       confirm: "Supprimer définitivement"
     manage:
       header_label: "Gestion du cours"
+      manage_button: "Gérer le cours"
+      manage_title: "Gérer le cours"
       edit_course: "Modifier le cours"
-      auto_generate: "Générer automatiquement"
-      add_manual: "+ Ajouter manuellement"
+      auto_generate: "Générer automatiquement les entraînements"
+      add_manual: "Ajouter manuellement"
       back_to_dashboard: "Retour au tableau de bord"
       edit: "Modifier"
       add_training: "+ Entraînement"
@@ -296,6 +311,8 @@ fr:
       send_email_body_label: "Message"
       send_email_submit: "Envoyer l'e-mail"
       send_email_cancel: "Annuler"
+      send_course_email_button: "E-mail à tous"
+      send_course_email_modal_title: "E-mail à tous les participants"
       move_button: "Déplacer"
       move_aria: "Déplacer %{name} vers un autre cours"
       move_modal_title: "Déplacer %{name}"
@@ -533,7 +550,6 @@ fr:
   dashboards:
     admin:
       title: "Centre de commande"
-      subtitle: "Bienvenue, Admin ! Gérez l'ensemble du club depuis ici."
       new_course: "Nouveau cours"
       sections:
         management: "Gestion"
@@ -570,6 +586,8 @@ fr:
         club_design_desc: "Logo, couleurs & nom"
         export_profiles: "Profils d'export"
         export_profiles_desc: "Gérer les modèles d'export"
+        course_categories: "Catégories de cours"
+        course_categories_desc: "Envoyer un e-mail à toute une catégorie"
       table:
         course: "Cours"
         category: "Catégorie"
@@ -608,6 +626,7 @@ fr:
       next_session_label: "Prochaine session"
       attendance: "Contrôle de présence"
       attendance_link: "Présence — %{course}"
+      substitute_label: "Mes remplacements"
       course:
         confirmed: "Confirmé"
         waitlist: "Liste d'attente"
@@ -993,8 +1012,8 @@ fr:
       unsubscribed_by_parents: "Désinscrit"
       status_unsubscribed: "Désinscrit"
       status_absent: "Absent"
-      attendance_not_yet_possible: "La présence ne peut être enregistrée qu'à partir du début de l'entraînement."
-      attendance_not_yet: "Pas encore commencé"
+      attendance_not_yet_possible: "La présence ne peut être enregistrée qu'à partir d'une heure avant le début de l'entraînement."
+      attendance_not_yet: "Pas encore possible"
       attendance_cancelled: "Annulé"
       mark_absent_aria: "Marquer %{name} comme absent"
       mark_present_aria: "Marquer %{name} comme présent"
@@ -1012,6 +1031,23 @@ fr:
       reminder_confirm: "Envoyer à %{name} un rappel de te contacter pour une désinscription ?"
       reminder_sent: "Rappel envoyé à %{name}."
       reminder_invalid: "Le rappel n'a pas pu être envoyé – aucune adresse e-mail valide enregistrée."
+      cancel_reason_required: "Merci d'indiquer un motif pour l'annulation."
+      manage_button: "Gérer l'entraînement"
+      manage_title: "Gérer l'entraînement"
+      substitute_title: "Formateur remplaçant"
+      substitute_hint: "Tu ne peux pas diriger cet entraînement toi-même ? Désigne un formateur remplaçant – il/elle aura accès au contrôle de présence pour cet entraînement."
+      substitute_current: "%{name} est désigné(e) comme remplaçant(e)"
+      substitute_remove: "Retirer"
+      substitute_search_placeholder: "Rechercher par nom, e-mail, téléphone ou cours …"
+      substitute_no_courses: "Aucun cours assigné"
+      substitute_no_results: "Aucun résultat."
+      substitute_set_btn: "Désigner"
+      substitute_not_authorized: "Seuls les formateurs assignés à ce cours peuvent désigner un remplaçant."
+      substitute_not_found: "Formateur remplaçant introuvable."
+      substitute_reason_placeholder: "Motif (p.ex. maladie, vacances) – obligatoire, sera signalé aux admins."
+      substitute_reason_required: "Merci d'indiquer un motif pour la désignation d'un formateur remplaçant."
+      substitute_set_notice: "%{name} a été désigné(e) comme formateur remplaçant pour cet entraînement."
+      substitute_removed_notice: "Le formateur remplaçant a été retiré."
     form:
       errors:
         one: "Il y a 1 erreur :"
@@ -1078,6 +1114,21 @@ fr:
       js_label: "Reconnaissance J+S"
       js_hint: "Je dispose d'une reconnaissance J+S valide (OFSPO)"
       save: "Enregistrer les modifications"
+    tabs:
+      all: "Tous les entraîneurs"
+      substitutes: "Remplacements"
+    substitutes:
+      hint: "Aperçu pour le salaire : qui a remplacé et combien de fois."
+      month_label: "Mois"
+      filter_btn: "Filtrer"
+      reset_filter: "Réinitialiser le filtre"
+      col_trainer: "Entraîneur"
+      col_count: "Nombre"
+      col_date: "Date"
+      col_course: "Cours"
+      col_reason: "Motif"
+      details_title: "Tous les remplacements"
+      empty: "Aucun remplacement pour la période sélectionnée."
     index:
       title: "Entraîneurs"
       new_trainer: "Nouvel entraîneur"
@@ -1394,6 +1445,12 @@ fr:
         custom_trainer_message:
           name: "Message du formateur"
           description: "Message manuel d'un formateur aux participants du cours"
+        substitute_assigned:
+          name: "Désigné comme formateur remplaçant"
+          description: "Informe un formateur qu'il a été désigné comme remplaçant pour un entraînement"
+        substitute_assigned_admin:
+          name: "Formateur remplaçant désigné – info admin"
+          description: "Informe les admins, avec le motif indiqué, lorsqu'un formateur désigne un remplaçant pour un entraînement"
         devise_confirmation:
           name: "Confirmation e-mail (compte)"
           description: "Envoyé après l'inscription pour confirmer l'adresse e-mail"

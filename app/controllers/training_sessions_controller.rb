@@ -1,7 +1,7 @@
 class TrainingSessionsController < ApplicationController
   before_action :authenticate_user!
   before_action :authorize_trainer!
-  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance confirm_attendance reopen_attendance scanner cancel uncancel send_unsubscribe_reminder ]
+  before_action :set_training_session, only: %i[ show edit update destroy toggle_attendance confirm_attendance reopen_attendance scanner cancel uncancel send_unsubscribe_reminder set_substitute ]
 
   # Gezielte CSP-Erweiterung nur für die Scanner-Seite, damit html5-qrcode
   # funktioniert – ohne 'unsafe-inline'/'unsafe-eval' für script-src:
@@ -87,7 +87,12 @@ class TrainingSessionsController < ApplicationController
     authorize_trainer!
     return if performed?
 
-    @training_session.update!(is_canceled: true, cancellation_reason: params[:cancellation_reason].to_s.strip.presence)
+    reason = params[:cancellation_reason].to_s.strip
+    if reason.blank?
+      return redirect_to @training_session, alert: t("training_sessions.show.cancel_reason_required")
+    end
+
+    @training_session.update!(is_canceled: true, cancellation_reason: reason)
 
     @training_session.course.course_registrations
       .where(status: "bestätigt")
@@ -119,7 +124,7 @@ class TrainingSessionsController < ApplicationController
   def toggle_attendance
     return redirect_to @training_session, alert: "Training ist abgesagt – Anwesenheit kann nicht erfasst werden." if @training_session.is_canceled?
 
-    if @training_session.start_time > Time.current
+    unless @training_session.attendance_open?
       return redirect_to @training_session,
                          alert: t("training_sessions.show.attendance_not_yet_possible")
     end
@@ -134,34 +139,50 @@ class TrainingSessionsController < ApplicationController
 
     # Prüfen, ob für diese Anmeldung schon eine Anwesenheit existiert
     attendance = @training_session.attendances.find_by(course_registration_id: course_registration_id)
+    return redirect_to @training_session if attendance&.abgemeldet?
 
-    if attendance
-      return redirect_to @training_session if attendance.abgemeldet?
+    # Drop-in-Kurse (QR-Ticketing): Anwesenheit ist standardmäßig abwesend, nur QR-Scan
+    # (oder manueller Klick hier) setzt explizit auf "anwesend". Alle anderen
+    # Anmeldekategorien: Anwesenheit ist standardmäßig da, Klick markiert No-Shows
+    # explizit als "abwesend".
+    drop_in           = @training_session.course.has_ticketing?
+    currently_present = drop_in ? attendance&.status == "anwesend" : attendance&.status != "abwesend"
 
-      attendance.destroy
-      reg = course_registration
-      if reg.abo_entries_total.present? && reg.abo_entries_used.to_i > 0
-        reg.update_columns(abo_entries_used: reg.abo_entries_used - 1)
+    if currently_present
+      if drop_in
+        attendance.destroy
+        reg = course_registration
+        if reg.abo_entries_total.present? && reg.abo_entries_used.to_i > 0
+          reg.update_columns(abo_entries_used: reg.abo_entries_used - 1)
+        end
+      elsif attendance
+        attendance.update!(status: "abwesend")
+      else
+        @training_session.attendances.create!(course_registration_id: course_registration_id, status: "abwesend")
       end
     else
-      attendance = @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
-      unless attendance.persisted?
-        return redirect_to @training_session, alert: "Anwesenheit konnte nicht gespeichert werden."
-      end
-
-      reg = course_registration
-      if reg.abo_entries_total.present? && reg.abo_entries_total > 0
-        new_used = [ reg.abo_entries_used.to_i + 1, reg.abo_entries_total ].min
-        reg.update_columns(abo_entries_used: new_used)
-
-        if new_used >= reg.abo_entries_total
-          reg.update!(status: "storniert")
-          CourseRegistrationMailer.abo_exhausted(reg).deliver_later
-          WaitlistPromotionService.promote_next_from_waitlist(
-            @training_session.course,
-            training_session_id: @training_session.id
-          )
+      if drop_in
+        attendance = @training_session.attendances.create(course_registration_id: course_registration_id, status: "anwesend")
+        unless attendance.persisted?
+          return redirect_to @training_session, alert: "Anwesenheit konnte nicht gespeichert werden."
         end
+
+        reg = course_registration
+        if reg.abo_entries_total.present? && reg.abo_entries_total > 0
+          new_used = [ reg.abo_entries_used.to_i + 1, reg.abo_entries_total ].min
+          reg.update_columns(abo_entries_used: new_used)
+
+          if new_used >= reg.abo_entries_total
+            reg.update!(status: "storniert")
+            CourseRegistrationMailer.abo_exhausted(reg).deliver_later
+            WaitlistPromotionService.promote_next_from_waitlist(
+              @training_session.course,
+              training_session_id: @training_session.id
+            )
+          end
+        end
+      else
+        attendance&.destroy
       end
     end
 
@@ -177,7 +198,7 @@ class TrainingSessionsController < ApplicationController
       return redirect_to @training_session, alert: "Training ist abgesagt – Anwesenheit kann nicht erfasst werden."
     end
 
-    if @training_session.start_time > Time.current
+    unless @training_session.attendance_open?
       return redirect_to @training_session,
                          alert: t("training_sessions.show.attendance_not_yet_possible")
     end
@@ -216,6 +237,44 @@ class TrainingSessionsController < ApplicationController
 
     redirect_to @training_session,
       notice: t("training_sessions.show.reminder_sent", name: registration.participant.first_name)
+  end
+
+  # Ein zugewiesener Trainer kann für EINE Session (z.B. bei eigener Abwesenheit)
+  # eine:n Ersatztrainer:in bestimmen. Die eigentliche Präsenzkontrolle-Autorisierung
+  # (authorize_trainer!) bleibt bewusst offen für alle Trainer:innen – diese Funktion
+  # dient primär der Sichtbarkeit (Dashboard) und Benachrichtigung der Vertretung.
+  def set_substitute
+    unless current_user.admin? || @training_session.course.trainers.exists?(user_id: current_user.id)
+      return redirect_to @training_session, alert: t("training_sessions.show.substitute_not_authorized")
+    end
+
+    trainer_id = params[:substitute_trainer_id].presence
+    substitute = trainer_id ? Trainer.find_by(id: trainer_id) : nil
+
+    if trainer_id.present? && substitute.nil?
+      return redirect_to @training_session, alert: t("training_sessions.show.substitute_not_found")
+    end
+
+    # Beim Entfernen (substitute nil) ist kein Grund nötig – nur beim Eintragen.
+    reason = params[:substitute_reason].to_s.strip
+    if substitute && reason.blank?
+      return redirect_to @training_session, alert: t("training_sessions.show.substitute_reason_required")
+    end
+
+    @training_session.update!(substitute_trainer: substitute, substitute_reason: substitute ? reason : nil)
+
+    if substitute
+      TrainingSessionMailer.substitute_assigned(@training_session, substitute).deliver_later
+
+      User.where(admin: true).find_each do |admin_user|
+        next unless admin_user.admin_notification_enabled?("substitute_assigned_admin")
+        TrainingSessionMailer.substitute_assigned_admin_notice(@training_session, substitute, admin_user).deliver_later
+      end
+
+      redirect_to @training_session, notice: t("training_sessions.show.substitute_set_notice", name: substitute.full_name)
+    else
+      redirect_to @training_session, notice: t("training_sessions.show.substitute_removed_notice")
+    end
   end
 
   private

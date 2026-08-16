@@ -326,7 +326,7 @@ class CourseRegistrationMailer < ApplicationMailer
     @sender_email = sender.is_a?(Trainer) ? sender.user&.email : sender.try(:email)
     return if @recipient.nil?
 
-    mail(to: @recipient.email, subject: "Nachricht von #{@sender_name}")
+    mail(to: @recipient.email, subject: @custom_subject.presence || "Nachricht von #{@sender_name}")
   end
 
   def status_changed(course_registration)

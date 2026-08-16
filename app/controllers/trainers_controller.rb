@@ -12,6 +12,28 @@ def index
     @courses_by_category = Course.order(:title).group_by { |c| c.title.split("(").first.strip }
   end
 
+  # Übersicht für die Lohnabrechnung: wer hat wie oft als Ersatztrainer:in
+  # ausgeholfen. Optionaler Monatsfilter (params[:month], Format "YYYY-MM").
+  def substitutes
+    @month = params[:month].presence
+    scope = TrainingSession.where.not(substitute_trainer_id: nil).includes(:course, substitute_trainer: :user)
+
+    if @month.present?
+      begin
+        month_start = Date.parse("#{@month}-01")
+        scope = scope.where(start_time: month_start.beginning_of_month..month_start.end_of_month)
+      rescue ArgumentError
+        @month = nil
+      end
+    end
+
+    @substitute_sessions = scope.order(start_time: :desc).to_a
+    @counts_by_trainer = @substitute_sessions
+      .group_by(&:substitute_trainer)
+      .transform_values(&:count)
+      .sort_by { |trainer, count| [ -count, trainer.full_name ] }
+  end
+
   # GET /trainers/new
   # ?q=...       → Suchergebnisse anzeigen
   # ?user_id=... → Bestätigungs-/Telefon-Formular anzeigen

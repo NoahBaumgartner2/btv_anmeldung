@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_15_140102) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_15_224500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -378,10 +378,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_140102) do
     t.datetime "end_time"
     t.boolean "is_canceled", default: false, null: false
     t.datetime "start_time"
+    t.text "substitute_reason"
+    t.bigint "substitute_trainer_id"
     t.datetime "trainer_reminded_at"
     t.datetime "updated_at", null: false
     t.index ["attendance_confirmed_by_id"], name: "index_training_sessions_on_attendance_confirmed_by_id"
     t.index ["course_id"], name: "index_training_sessions_on_course_id"
+    t.index ["substitute_trainer_id"], name: "index_training_sessions_on_substitute_trainer_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -444,5 +447,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_140102) do
   add_foreign_key "participants", "users"
   add_foreign_key "trainers", "users"
   add_foreign_key "training_sessions", "courses"
+  add_foreign_key "training_sessions", "trainers", column: "substitute_trainer_id"
   add_foreign_key "training_sessions", "users", column: "attendance_confirmed_by_id"
 end

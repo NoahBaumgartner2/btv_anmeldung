@@ -20,6 +20,7 @@ class User < ApplicationRecord
     training_cancelled
     refund_done
     refund_failed
+    substitute_assigned_admin
   ].freeze
 
   # Verpflichtende Benachrichtigungen können nicht abgeschaltet werden.

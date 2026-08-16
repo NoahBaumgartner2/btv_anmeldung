@@ -151,6 +151,43 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "toggle_attendance: ohne Drop-in ist Teilnehmer standardmäßig anwesend, Klick markiert abwesend" do
+    registration = course_registrations(:one)
+    assert_not @training_session.course.has_ticketing?
+    attendances(:one).destroy # Fixture-Datensatz entfernen: Test startet ohne Attendance-Record
+
+    get training_session_url(@training_session)
+    assert_match participants(:one).first_name, @response.body
+
+    assert_difference("Attendance.count", 1) do
+      post toggle_attendance_training_session_url(@training_session), params: { course_registration_id: registration.id }
+    end
+    attendance = @training_session.attendances.find_by(course_registration_id: registration.id)
+    assert_equal "abwesend", attendance.status
+
+    assert_difference("Attendance.count", -1) do
+      post toggle_attendance_training_session_url(@training_session), params: { course_registration_id: registration.id }
+    end
+    assert_nil @training_session.attendances.find_by(course_registration_id: registration.id)
+  end
+
+  test "toggle_attendance: bei Drop-in-Kursen ist Teilnehmer standardmäßig abwesend, Klick markiert anwesend" do
+    @training_session.course.update!(has_ticketing: true)
+    registration = course_registrations(:one)
+    attendances(:one).destroy # Fixture-Datensatz entfernen: Test startet ohne Attendance-Record
+
+    assert_difference("Attendance.count", 1) do
+      post toggle_attendance_training_session_url(@training_session), params: { course_registration_id: registration.id }
+    end
+    attendance = @training_session.attendances.find_by(course_registration_id: registration.id)
+    assert_equal "anwesend", attendance.status
+
+    assert_difference("Attendance.count", -1) do
+      post toggle_attendance_training_session_url(@training_session), params: { course_registration_id: registration.id }
+    end
+    assert_nil @training_session.attendances.find_by(course_registration_id: registration.id)
+  end
+
   test "confirm_attendance marks past session as confirmed" do
     @training_session.update!(attendance_confirmed_at: nil)
 
@@ -229,7 +266,7 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_enqueued_email_with TrainingSessionMailer, :training_cancelled_admin_notice,
       args: [ @training_session, users(:admin) ] do
-      post cancel_training_session_url(@training_session)
+      post cancel_training_session_url(@training_session), params: { cancellation_reason: "Hallenausfall wegen Bauarbeiten" }
     end
 
     admin_notice_jobs = enqueued_jobs.select { |j| j[:args][0..1] == [ "TrainingSessionMailer", "training_cancelled_admin_notice" ] }
@@ -242,10 +279,15 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Hallenausfall wegen Bauarbeiten", @training_session.reload.cancellation_reason
   end
 
-  test "cancel speichert nil, wenn kein Grund angegeben wurde" do
-    post cancel_training_session_url(@training_session), params: { cancellation_reason: "   " }
+  test "cancel wird abgelehnt, wenn kein Grund angegeben wurde" do
+    assert_no_enqueued_emails do
+      post cancel_training_session_url(@training_session), params: { cancellation_reason: "   " }
+    end
 
-    assert_nil @training_session.reload.cancellation_reason
+    @training_session.reload
+    assert_not @training_session.is_canceled?
+    assert_nil @training_session.cancellation_reason
+    assert_equal I18n.t("training_sessions.show.cancel_reason_required"), flash[:alert]
   end
 
   test "cancellation_notice-Mail enthält den Grund" do
@@ -256,5 +298,58 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     [ mail.text_part, mail.html_part ].each do |part|
       assert_match "Krankheit der Trainerin", part.body.decoded
     end
+  end
+
+  test "set_substitute: zugewiesener Trainer kann Ersatz eintragen, Mails an Ersatz und Admins werden verschickt" do
+    sign_out users(:admin)
+    sign_in users(:one) # trainers(:one) ist via course_trainers(:one) dem Kurs zugewiesen
+
+    assert_enqueued_email_with TrainingSessionMailer, :substitute_assigned,
+      args: [ @training_session, trainers(:two) ] do
+      assert_enqueued_email_with TrainingSessionMailer, :substitute_assigned_admin_notice,
+        args: [ @training_session, trainers(:two), users(:admin) ] do
+        post set_substitute_training_session_url(@training_session),
+          params: { substitute_trainer_id: trainers(:two).id, substitute_reason: "Bin krank" }
+      end
+    end
+
+    @training_session.reload
+    assert_equal trainers(:two), @training_session.substitute_trainer
+    assert_equal "Bin krank", @training_session.substitute_reason
+    assert_redirected_to training_session_url(@training_session)
+  end
+
+  test "set_substitute: fehlender Grund wird abgelehnt" do
+    sign_out users(:admin)
+    sign_in users(:one)
+
+    assert_no_enqueued_emails do
+      post set_substitute_training_session_url(@training_session),
+        params: { substitute_trainer_id: trainers(:two).id, substitute_reason: "" }
+    end
+
+    assert_nil @training_session.reload.substitute_trainer
+    assert_equal I18n.t("training_sessions.show.substitute_reason_required"), flash[:alert]
+  end
+
+  test "set_substitute: nicht zugewiesener Trainer wird abgewiesen" do
+    sign_out users(:admin)
+    sign_in users(:two) # trainers(:two) ist NICHT diesem Kurs zugewiesen
+
+    assert_no_enqueued_emails do
+      post set_substitute_training_session_url(@training_session),
+        params: { substitute_trainer_id: trainers(:two).id, substitute_reason: "Bin krank" }
+    end
+
+    assert_nil @training_session.reload.substitute_trainer
+    assert_equal I18n.t("training_sessions.show.substitute_not_authorized"), flash[:alert]
+  end
+
+  test "set_substitute: leerer Wert entfernt den eingetragenen Ersatz" do
+    @training_session.update!(substitute_trainer: trainers(:two))
+
+    post set_substitute_training_session_url(@training_session), params: { substitute_trainer_id: "" }
+
+    assert_nil @training_session.reload.substitute_trainer
   end
 end

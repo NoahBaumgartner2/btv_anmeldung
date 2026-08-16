@@ -1,6 +1,19 @@
 de:
   hello: "Hallo Welt"
 
+  course_categories:
+    index:
+      header_label: "Verwaltung"
+      title: "Kurskategorien"
+      back_to_dashboard: "Zurück zum Dashboard"
+      summary: "%{courses} Kurse · %{recipients} Empfänger"
+      compose_button: "E-Mail verfassen"
+      modal_title: "E-Mail an Kategorie „%{category}“"
+      subject_label: "Betreff"
+      body_label: "Nachricht"
+      submit: "E-Mail senden"
+      cancel: "Abbrechen"
+
   date:
     abbr_day_names:
       - So
@@ -255,9 +268,11 @@ de:
       confirm: "Endgültig löschen"
     manage:
       header_label: "Kursverwaltung"
+      manage_button: "Kurs verwalten"
+      manage_title: "Kurs verwalten"
       edit_course: "Kurs bearbeiten"
-      auto_generate: "Automatisch generieren"
-      add_manual: "+ Manuell hinzufügen"
+      auto_generate: "Automatisch Trainings generieren"
+      add_manual: "Manuell hinzufügen"
       back_to_dashboard: "Zurück zum Dashboard"
       edit: "Bearbeiten"
       add_training: "+ Training"
@@ -335,6 +350,8 @@ de:
       send_email_body_label: "Nachricht"
       send_email_submit: "E-Mail senden"
       send_email_cancel: "Abbrechen"
+      send_course_email_button: "E-Mail an alle"
+      send_course_email_modal_title: "E-Mail an alle Teilnehmenden"
       move_button: "Verschieben"
       move_aria: "%{name} in einen anderen Kurs verschieben"
       move_modal_title: "%{name} verschieben"
@@ -572,7 +589,6 @@ de:
   dashboards:
     admin:
       title: "Kommandozentrale"
-      subtitle: "Willkommen, Boss! Hier steuerst du den gesamten Verein."
       new_course: "Neuer Kurs"
       sections:
         management: "Verwaltung"
@@ -613,6 +629,8 @@ de:
         club_design_desc: "Logo, Farben & Name"
         export_profiles: "Exportprofile"
         export_profiles_desc: "Export-Vorlagen verwalten"
+        course_categories: "Kurskategorien"
+        course_categories_desc: "E-Mail an eine ganze Kategorie versenden"
       table:
         course: "Kurs"
         category: "Kategorie"
@@ -651,6 +669,7 @@ de:
       next_session_label: "Nächste Session"
       attendance: "Präsenzkontrolle"
       attendance_link: "Präsenzkontrolle — %{course}"
+      substitute_label: "Meine Vertretungen"
       course:
         confirmed: "Bestätigt"
         waitlist: "Warteliste"
@@ -1039,16 +1058,17 @@ de:
       cancel_bullet_4: "Nur Admins können die Absage danach rückgängig machen."
       confirm_cancel_btn: "Ja, Training absagen"
       cancel_abort: "Abbrechen"
-      cancel_reason_input_label: "Grund (optional)"
+      cancel_reason_input_label: "Grund"
       cancel_reason_placeholder: "z.B. Krankheit, Feiertag, Hallenausfall..."
+      cancel_reason_required: "Bitte gib einen Grund für die Absage an."
       cancel_reason_label: "Grund"
       participants_label: "Teilnehmende"
       registered_count: "%{count} angemeldet"
       unsubscribed_by_parents: "Abgemeldet"
       status_unsubscribed: "Abgemeldet"
       status_absent: "Abwesend"
-      attendance_not_yet_possible: "Anwesenheit kann erst ab Trainingsbeginn erfasst werden."
-      attendance_not_yet: "Noch nicht begonnen"
+      attendance_not_yet_possible: "Anwesenheit kann erst ab 1 Stunde vor Trainingsbeginn erfasst werden."
+      attendance_not_yet: "Noch nicht möglich"
       attendance_cancelled: "Abgesagt"
       mark_absent_aria: "%{name} als abwesend markieren"
       mark_present_aria: "%{name} als anwesend markieren"
@@ -1066,6 +1086,22 @@ de:
       reminder_confirm: "Erinnerung an %{name} senden, sich bei dir für eine Abmeldung zu melden?"
       reminder_sent: "Erinnerung an %{name} wurde gesendet."
       reminder_invalid: "Erinnerung konnte nicht gesendet werden – keine gültige E-Mail-Adresse hinterlegt."
+      manage_button: "Training verwalten"
+      manage_title: "Training verwalten"
+      substitute_title: "Ersatztrainer:in"
+      substitute_hint: "Kannst du dieses Training nicht selbst leiten? Trage eine:n Ersatztrainer:in ein – sie/er erhält Zugriff auf die Präsenzkontrolle für dieses Training."
+      substitute_current: "%{name} ist als Ersatz eingetragen"
+      substitute_remove: "Entfernen"
+      substitute_search_placeholder: "Nach Name, E-Mail, Telefon oder Kurs suchen …"
+      substitute_no_courses: "Keine Kurse zugewiesen"
+      substitute_no_results: "Keine Treffer."
+      substitute_set_btn: "Eintragen"
+      substitute_not_authorized: "Nur zugewiesene Trainer:innen dieses Kurses können einen Ersatz bestimmen."
+      substitute_not_found: "Ersatztrainer:in nicht gefunden."
+      substitute_reason_placeholder: "Grund (z.B. Krankheit, Ferien) – Pflichtfeld, wird an die Admins gemeldet."
+      substitute_reason_required: "Bitte gib einen Grund an, warum du eine:n Ersatztrainer:in einträgst."
+      substitute_set_notice: "%{name} wurde als Ersatztrainer:in für dieses Training eingetragen."
+      substitute_removed_notice: "Ersatztrainer:in wurde entfernt."
     form:
       errors:
         one: "Es gibt 1 Fehler:"
@@ -1139,6 +1175,21 @@ de:
       js_label: "J+S-Anerkennung"
       js_hint: "Ich besitze eine gültige J+S-Anerkennung (BASPO)"
       save: "Änderungen speichern"
+    tabs:
+      all: "Alle Trainer"
+      substitutes: "Ersatztrainings"
+    substitutes:
+      hint: "Übersicht für die Lohnabrechnung: wer hat wie oft als Ersatztrainer:in ausgeholfen."
+      month_label: "Monat"
+      filter_btn: "Filtern"
+      reset_filter: "Filter zurücksetzen"
+      col_trainer: "Trainer:in"
+      col_count: "Anzahl"
+      col_date: "Datum"
+      col_course: "Kurs"
+      col_reason: "Grund"
+      details_title: "Alle Ersatztrainings"
+      empty: "Keine Ersatztrainings im gewählten Zeitraum."
     index:
       title: "Trainer"
       new_trainer: "Neuer Trainer"
@@ -1503,6 +1554,14 @@ de:
         name: "Trainer-Nachricht"
         description: "Individuell verfasste Nachricht eines Trainers an Kursteilnehmende."
         recipient: "Eltern der Kursteilnehmenden (je nach Auswahl des Trainers)"
+      substitute_assigned:
+        name: "Als Ersatztrainer eingetragen"
+        description: "Informiert eine:n Trainer:in, dass sie/er für ein einzelnes Training als Ersatz eingetragen wurde."
+        recipient: "Eingetragene:r Ersatztrainer:in"
+      substitute_assigned_admin:
+        name: "Ersatztrainer eingetragen – Admin-Info"
+        description: "Informiert Admins mit Grundangabe, wenn ein Trainer für ein Training eine:n Ersatztrainer:in einträgt."
+        recipient: "Admins – jede:r Admin kann diese Mail zusätzlich für sich selbst abschalten (unter 'Meine Benachrichtigungen')"
       participant_complete_profile:
         name: "Angaben ergänzen"
         description: "Bittet darum, fehlende Angaben zu einem Teilnehmer zu ergänzen."

@@ -1,0 +1,60 @@
+<div class="max-w-3xl mx-auto w-full px-4 mt-6 sm:mt-8 mb-16">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
+    <div>
+      <span class="text-red-600 font-bold text-sm tracking-wider uppercase mb-1 block"><%= t("course_categories.index.header_label") %></span>
+      <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900"><%= t("course_categories.index.title") %></h1>
+    </div>
+    <%= link_to t("course_categories.index.back_to_dashboard"), dashboards_admin_path,
+          class: "bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
+  </div>
+
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+    <% @categories.each do |cat| %>
+      <div data-controller="modal" class="contents">
+        <div class="flex items-center justify-between gap-4 px-4 py-4">
+          <div class="min-w-0">
+            <p class="font-bold text-gray-900 truncate"><%= cat[:name] %></p>
+            <p class="text-xs text-gray-400">
+              <%= t("course_categories.index.summary", courses: cat[:course_count], recipients: cat[:recipient_count]) %>
+            </p>
+          </div>
+          <button type="button" data-action="click->modal#open"
+                  class="shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-sm font-bold py-2 px-4 rounded-lg transition min-h-11">
+            <%= t("course_categories.index.compose_button") %>
+          </button>
+        </div>
+
+        <div data-modal-target="dialog"
+             data-action="click->modal#backdropClose"
+             class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+          <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 text-left">
+            <h3 class="text-lg font-extrabold text-gray-900 mb-5"><%= t("course_categories.index.modal_title", category: cat[:name]) %></h3>
+            <%= form_with url: send_email_course_categories_path, method: :post, data: { turbo: false }, class: "space-y-4" do %>
+              <%= hidden_field_tag :category, cat[:name] %>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t("course_categories.index.subject_label") %></label>
+                <input type="text" name="subject" required
+                       class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t("course_categories.index.body_label") %></label>
+                <textarea name="body" rows="5" required
+                          class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
+              </div>
+              <div class="flex gap-3 pt-2">
+                <button type="submit"
+                        class="flex-1 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11">
+                  <%= t("course_categories.index.submit") %>
+                </button>
+                <button type="button" data-action="click->modal#close"
+                        class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11">
+                  <%= t("course_categories.index.cancel") %>
+                </button>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

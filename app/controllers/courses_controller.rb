@@ -334,7 +334,10 @@ class CoursesController < ApplicationController
   end
 
   def send_custom_email
-    reg = @course.course_registrations.find(params[:registration_id])
+    unless current_user.admin? || @course.trainers.exists?(user_id: current_user.id)
+      return redirect_to manage_course_path(@course), alert: "Zugriff verweigert."
+    end
+
     subject = params[:subject].to_s.strip
     body    = params[:body].to_s.strip
 
@@ -343,8 +346,18 @@ class CoursesController < ApplicationController
     end
 
     sender = Trainer.find_by(user: current_user) || current_user
-    CourseRegistrationMailer.custom_message(reg, subject: subject, body: body, sender: sender).deliver_later
-    redirect_to manage_course_path(@course), notice: "E-Mail an #{reg.participant.first_name} #{reg.participant.last_name} wurde gesendet."
+
+    if params[:registration_id].present?
+      reg = @course.course_registrations.find(params[:registration_id])
+      CourseRegistrationMailer.custom_message(reg, subject: subject, body: body, sender: sender).deliver_later
+      redirect_to manage_course_path(@course), notice: "E-Mail an #{reg.participant.first_name} #{reg.participant.last_name} wurde gesendet."
+    else
+      regs = @course.course_registrations
+        .select { |r| CourseRegistration::OCCUPYING_STATUSES.include?(r.status) }
+        .uniq { |r| r.participant.user_id }
+      regs.each { |reg| CourseRegistrationMailer.custom_message(reg, subject: subject, body: body, sender: sender).deliver_later }
+      redirect_to manage_course_path(@course), notice: "E-Mail an #{regs.size} Teilnehmer wurde in die Warteschlange gelegt."
+    end
   end
 
   def grant_access

@@ -116,5 +116,12 @@ class DashboardsController < ApplicationController
     all_sessions.each do |s|
       @next_session_per_course[s.course_id] ||= s
     end
+
+    # Trainings, für die ICH als Ersatztrainer:in eingetragen wurde (unabhängig
+    # davon, ob ich sonst dem Kurs zugewiesen bin) – für Sichtbarkeit im Dashboard.
+    @substitute_sessions = @trainer ? TrainingSession.where(substitute_trainer: @trainer)
+                                                      .where("start_time >= ?", now.beginning_of_day)
+                                                      .order(:start_time)
+                                                      .to_a : []
   end
 end

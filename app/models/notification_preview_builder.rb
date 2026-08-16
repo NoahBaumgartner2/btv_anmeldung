@@ -171,6 +171,16 @@ class NotificationPreviewBuilder
       AttendanceReminderMailer.admin_notification_for(fake_training_session, fake_admin)
     end
 
+    def substitute_assigned
+      TrainingSessionMailer.substitute_assigned(fake_training_session, fake_trainer)
+    end
+
+    def substitute_assigned_admin
+      session = fake_training_session
+      session.substitute_reason = "Bin an diesem Tag krank."
+      TrainingSessionMailer.substitute_assigned_admin_notice(session, fake_trainer, fake_admin)
+    end
+
     def custom_trainer_message
       CourseRegistrationMailer.custom_message(
         fake_registration, subject: "Wichtige Info zum Training", sender: fake_trainer,

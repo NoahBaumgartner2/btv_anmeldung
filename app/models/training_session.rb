@@ -1,6 +1,7 @@
 class TrainingSession < ApplicationRecord
   belongs_to :course
   belongs_to :attendance_confirmed_by, class_name: "User", optional: true
+  belongs_to :substitute_trainer, class_name: "Trainer", optional: true
 
   has_many :attendances, dependent: :destroy
 
@@ -12,6 +13,14 @@ class TrainingSession < ApplicationRecord
   def past?
     reference = end_time || start_time
     reference.present? && reference < Time.current
+  end
+
+  # Präsenzkontrolle darf schon vor Trainingsbeginn geöffnet werden, damit
+  # Trainer:innen frühzeitig da sein und bereits Anwesenheiten erfassen können.
+  ATTENDANCE_OPENS_BEFORE = 1.hour
+
+  def attendance_open?
+    start_time.present? && start_time <= ATTENDANCE_OPENS_BEFORE.from_now
   end
 
   def attendance_recorded?

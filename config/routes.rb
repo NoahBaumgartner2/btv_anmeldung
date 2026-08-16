@@ -65,6 +65,7 @@ Rails.application.routes.draw do
     end
     collection do
       post :invite
+      get  :substitutes
     end
   end
   resources :holiday_types do
@@ -89,6 +90,12 @@ Rails.application.routes.draw do
       post :send_custom_email
       post :toggle_talent
       post :roll_over
+    end
+  end
+
+  resources :course_categories, only: [ :index ] do
+    collection do
+      post :send_email
     end
   end
 
@@ -130,6 +137,7 @@ Rails.application.routes.draw do
       post :cancel
       post :uncancel
       post :send_unsubscribe_reminder
+      post :set_substitute
     end
   end
 
