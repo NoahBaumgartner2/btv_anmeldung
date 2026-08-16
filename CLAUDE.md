@@ -92,3 +92,14 @@ Holidays (blackout dates — skipped when generating TrainingSessions)
 - System tests use Capybara + Selenium
 - Tests run in parallel (all CPU cores) — configured in `test/test_helper.rb`
 - CI runs: rubocop → brakeman → bundler-audit → yarn audit → tests → system tests
+
+### Deploy workflow preference
+
+- Commit and push to `staging` directly after finishing a change — no need to ask
+  for confirmation first. `staging` allows direct push (see `deploy` skill) and
+  auto-deploys to test.btvbern-anmeldung.ch.
+- Do NOT babysit the resulting CI run / deploy status unless explicitly asked to
+  check on it. No need to poll `gh run list`/`gh run view` or schedule a wakeup
+  for it by default.
+- Merging `staging` → `main` (production) still requires explicit user
+  confirmation — that part of the `deploy` skill is unchanged.
