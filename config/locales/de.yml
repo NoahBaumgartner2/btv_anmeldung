@@ -1175,6 +1175,21 @@ de:
       js_label: "J+S-Anerkennung"
       js_hint: "Ich besitze eine gültige J+S-Anerkennung (BASPO)"
       save: "Änderungen speichern"
+    tabs:
+      all: "Alle Trainer"
+      substitutes: "Ersatztrainings"
+    substitutes:
+      hint: "Übersicht für die Lohnabrechnung: wer hat wie oft als Ersatztrainer:in ausgeholfen."
+      month_label: "Monat"
+      filter_btn: "Filtern"
+      reset_filter: "Filter zurücksetzen"
+      col_trainer: "Trainer:in"
+      col_count: "Anzahl"
+      col_date: "Datum"
+      col_course: "Kurs"
+      col_reason: "Grund"
+      details_title: "Alle Ersatztrainings"
+      empty: "Keine Ersatztrainings im gewählten Zeitraum."
     index:
       title: "Trainer"
       new_trainer: "Neuer Trainer"

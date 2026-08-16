@@ -69,4 +69,24 @@ class TrainersControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
     assert_not trainers(:incomplete).reload.profile_complete?
   end
+
+  test "substitutes zeigt Ersatztrainings gruppiert nach Trainer:in" do
+    training_sessions(:one).update!(substitute_trainer: trainers(:two))
+
+    get substitutes_trainers_url
+    assert_response :success
+    assert_match trainers(:two).full_name, @response.body
+  end
+
+  test "substitutes filtert nach Monat" do
+    training_sessions(:one).update!(substitute_trainer: trainers(:two)) # start_time: 2026-03-29
+
+    get substitutes_trainers_url(month: "2026-03")
+    assert_response :success
+    assert_match trainers(:two).full_name, @response.body
+
+    get substitutes_trainers_url(month: "2026-04")
+    assert_response :success
+    assert_no_match(/#{Regexp.escape(trainers(:two).full_name)}/, @response.body)
+  end
 end

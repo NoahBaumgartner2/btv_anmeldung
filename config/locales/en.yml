@@ -1120,6 +1120,21 @@ en:
       js_label: "J+S accreditation"
       js_hint: "I hold a valid J+S accreditation (BASPO)"
       save: "Save changes"
+    tabs:
+      all: "All trainers"
+      substitutes: "Substitute trainings"
+    substitutes:
+      hint: "Overview for payroll: who substituted how many times."
+      month_label: "Month"
+      filter_btn: "Filter"
+      reset_filter: "Reset filter"
+      col_trainer: "Trainer"
+      col_count: "Count"
+      col_date: "Date"
+      col_course: "Course"
+      col_reason: "Reason"
+      details_title: "All substitute trainings"
+      empty: "No substitute trainings in the selected period."
     index:
       title: "Trainers"
       new_trainer: "New trainer"

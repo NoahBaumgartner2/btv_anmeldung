@@ -65,6 +65,7 @@ Rails.application.routes.draw do
     end
     collection do
       post :invite
+      get  :substitutes
     end
   end
   resources :holiday_types do

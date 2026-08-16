@@ -1114,6 +1114,21 @@ fr:
       js_label: "Reconnaissance J+S"
       js_hint: "Je dispose d'une reconnaissance J+S valide (OFSPO)"
       save: "Enregistrer les modifications"
+    tabs:
+      all: "Tous les entraîneurs"
+      substitutes: "Remplacements"
+    substitutes:
+      hint: "Aperçu pour le salaire : qui a remplacé et combien de fois."
+      month_label: "Mois"
+      filter_btn: "Filtrer"
+      reset_filter: "Réinitialiser le filtre"
+      col_trainer: "Entraîneur"
+      col_count: "Nombre"
+      col_date: "Date"
+      col_course: "Cours"
+      col_reason: "Motif"
+      details_title: "Tous les remplacements"
+      empty: "Aucun remplacement pour la période sélectionnée."
     index:
       title: "Entraîneurs"
       new_trainer: "Nouvel entraîneur"

@@ -1,0 +1,78 @@
+<div class="w-full">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+    <h1 class="font-bold text-xl sm:text-3xl text-gray-800"><%= t('trainers.index.title') %></h1>
+    <%= link_to t('trainers.index.new_trainer'), new_trainer_path, class: "w-full sm:w-auto text-center rounded-lg py-2.5 px-4 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-medium transition shadow-sm min-h-11" %>
+  </div>
+
+  <%= render "tabs", active: :substitutes %>
+
+  <p class="text-sm text-gray-500 mb-5"><%= t('trainers.substitutes.hint') %></p>
+
+  <%# Monatsfilter %>
+  <%= form_with url: substitutes_trainers_path, method: :get, class: "flex flex-wrap items-end gap-3 mb-6" do %>
+    <div>
+      <label for="month" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t('trainers.substitutes.month_label') %></label>
+      <input type="month" name="month" id="month" value="<%= @month %>"
+             class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+    </div>
+    <button type="submit"
+            class="bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer min-h-11">
+      <%= t('trainers.substitutes.filter_btn') %>
+    </button>
+    <% if @month.present? %>
+      <%= link_to t('trainers.substitutes.reset_filter'), substitutes_trainers_path,
+            class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition py-2" %>
+    <% end %>
+  <% end %>
+
+  <% if @counts_by_trainer.any? %>
+    <%# Zusammenfassung pro Trainer %>
+    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-lg overflow-hidden mb-8">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t('trainers.substitutes.col_trainer') %></th>
+            <th scope="col" class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t('trainers.substitutes.col_count') %></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+          <% @counts_by_trainer.each do |trainer, count| %>
+            <tr class="hover:bg-gray-50 transition duration-150">
+              <td class="py-3 px-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= trainer.full_name %></td>
+              <td class="py-3 px-4 whitespace-nowrap text-right text-sm font-bold text-primary-700"><%= count %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%# Details %>
+    <h2 class="font-bold text-sm text-gray-700 uppercase tracking-wide mb-3"><%= t('trainers.substitutes.details_title') %></h2>
+    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-lg overflow-hidden">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t('trainers.substitutes.col_date') %></th>
+            <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t('trainers.substitutes.col_course') %></th>
+            <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t('trainers.substitutes.col_trainer') %></th>
+            <th scope="col" class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t('trainers.substitutes.col_reason') %></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 bg-white">
+          <% @substitute_sessions.each do |session| %>
+            <tr class="hover:bg-gray-50 transition duration-150">
+              <td class="py-3 px-4 whitespace-nowrap text-sm text-gray-700">
+                <%= session.start_time&.in_time_zone&.strftime("%-d. %B %Y") || "—" %>
+              </td>
+              <td class="py-3 px-4 text-sm text-gray-700"><%= session.course.title %></td>
+              <td class="py-3 px-4 whitespace-nowrap text-sm font-medium text-gray-900"><%= session.substitute_trainer.full_name %></td>
+              <td class="py-3 px-4 text-sm text-gray-500"><%= session.substitute_reason.presence || "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% else %>
+    <p class="text-gray-500 text-center py-8"><%= t('trainers.substitutes.empty') %></p>
+  <% end %>
+</div>
