@@ -229,6 +229,8 @@ fr:
       confirm: "Supprimer définitivement"
     manage:
       header_label: "Gestion du cours"
+      manage_button: "Gérer le cours"
+      manage_title: "Gérer le cours"
       edit_course: "Modifier le cours"
       auto_generate: "Générer automatiquement"
       add_manual: "+ Ajouter manuellement"

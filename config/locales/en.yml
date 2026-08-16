@@ -229,6 +229,8 @@ en:
       confirm: "Delete permanently"
     manage:
       header_label: "Course Management"
+      manage_button: "Manage course"
+      manage_title: "Manage course"
       edit_course: "Edit course"
       auto_generate: "Auto-generate"
       add_manual: "+ Add manually"
