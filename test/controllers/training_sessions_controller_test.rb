@@ -266,7 +266,7 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
 
     assert_enqueued_email_with TrainingSessionMailer, :training_cancelled_admin_notice,
       args: [ @training_session, users(:admin) ] do
-      post cancel_training_session_url(@training_session)
+      post cancel_training_session_url(@training_session), params: { cancellation_reason: "Hallenausfall wegen Bauarbeiten" }
     end
 
     admin_notice_jobs = enqueued_jobs.select { |j| j[:args][0..1] == [ "TrainingSessionMailer", "training_cancelled_admin_notice" ] }
@@ -279,10 +279,15 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Hallenausfall wegen Bauarbeiten", @training_session.reload.cancellation_reason
   end
 
-  test "cancel speichert nil, wenn kein Grund angegeben wurde" do
-    post cancel_training_session_url(@training_session), params: { cancellation_reason: "   " }
+  test "cancel wird abgelehnt, wenn kein Grund angegeben wurde" do
+    assert_no_enqueued_emails do
+      post cancel_training_session_url(@training_session), params: { cancellation_reason: "   " }
+    end
 
-    assert_nil @training_session.reload.cancellation_reason
+    @training_session.reload
+    assert_not @training_session.is_canceled?
+    assert_nil @training_session.cancellation_reason
+    assert_equal I18n.t("training_sessions.show.cancel_reason_required"), flash[:alert]
   end
 
   test "cancellation_notice-Mail enthält den Grund" do

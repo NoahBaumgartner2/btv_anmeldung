@@ -1036,6 +1036,7 @@ en:
       reminder_confirm: "Send %{name} a reminder to contact you for an unsubscription?"
       reminder_sent: "Reminder sent to %{name}."
       reminder_invalid: "Reminder could not be sent – no valid email address on file."
+      cancel_reason_required: "Please state a reason for the cancellation."
       manage_button: "Manage training"
       manage_title: "Manage training"
       substitute_title: "Substitute trainer"

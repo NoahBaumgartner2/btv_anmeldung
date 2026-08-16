@@ -87,7 +87,12 @@ class TrainingSessionsController < ApplicationController
     authorize_trainer!
     return if performed?
 
-    @training_session.update!(is_canceled: true, cancellation_reason: params[:cancellation_reason].to_s.strip.presence)
+    reason = params[:cancellation_reason].to_s.strip
+    if reason.blank?
+      return redirect_to @training_session, alert: t("training_sessions.show.cancel_reason_required")
+    end
+
+    @training_session.update!(is_canceled: true, cancellation_reason: reason)
 
     @training_session.course.course_registrations
       .where(status: "bestätigt")

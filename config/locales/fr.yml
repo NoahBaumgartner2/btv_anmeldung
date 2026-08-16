@@ -1030,6 +1030,7 @@ fr:
       reminder_confirm: "Envoyer à %{name} un rappel de te contacter pour une désinscription ?"
       reminder_sent: "Rappel envoyé à %{name}."
       reminder_invalid: "Le rappel n'a pas pu être envoyé – aucune adresse e-mail valide enregistrée."
+      cancel_reason_required: "Merci d'indiquer un motif pour l'annulation."
       manage_button: "Gérer l'entraînement"
       manage_title: "Gérer l'entraînement"
       substitute_title: "Formateur remplaçant"
