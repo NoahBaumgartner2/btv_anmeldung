@@ -1,5 +1,11 @@
 <% content_for :title, "Scanner – #{@training_session.course.title}" %>
 <% content_for :full_width, true %>
+<%# Kamera-Stream ist stateful (getUserMedia) und verträgt sich schlecht mit
+    Turbos Seiten-Cache (bfcache-artiges Snapshot-Restore) – no-cache erzwingt
+    bei jedem Besuch einen frischen Visit inkl. sauberem Script-Neustart. %>
+<% content_for :head do %>
+  <%= tag.meta name: "turbo-cache-control", content: "no-cache" %>
+<% end %>
 
 <%
   session     = @training_session
@@ -174,25 +180,70 @@
 
 <%# ── CSP-Hinweis ─────────────────────────────────────────────────────────
     Der TrainingSessionsController#scanner-Action erweitert die CSP gezielt:
-      script-src     :self + https://unpkg.com (+ Nonce für Inline)
+      script-src     :self (+ Nonce für Inline)
       style-src-attr :unsafe_inline (für inline style="..." der Library und
                      unserer JS-gesetzten video-Properties)
       worker-src     :self + blob:  (QR-Decoder als Web-Worker)
       media-src      :self + blob:  (Kamera-Stream als Blob-URL)
       img-src        zusätzlich blob: (Canvas-Snapshots)
-    Version 2.3.8 ist gepinnt — kein 'latest' (verhindert überraschende
-    Breaking Changes durch CDN-Updates). %>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
+    Version 2.3.8 ist selbst gehostet unter app/javascript/vendor/ (kein CDN
+    mehr) — kein Warten auf unpkg.com und keine überraschenden Breaking
+    Changes durch CDN-Updates. %>
+<script src="<%= asset_path 'vendor/html5-qrcode.min.js' %>"
         type="text/javascript"
         nonce="<%= request.content_security_policy_nonce %>"></script>
 
 <script nonce="<%= request.content_security_policy_nonce %>">
 (function() {
-  // Ausserhalb von init() damit pagehide-Handler auch nach Navigation darauf zugreifen kann
-  let html5Qrcode  = null;
-  let isScanning   = false;
-  let lastDecoded  = "";
-  let lastDecodedAt = 0;
+  // Ausserhalb von init() damit die Cleanup-Handler auch nach Navigation darauf zugreifen können.
+  //
+  // Zwei Scan-Modi:
+  //  - "native": BarcodeDetector-Browser-API (Chrome/Edge/Android + Safari 17+).
+  //    Kein externer Code, kein fremdes Stream-Management – der Browser selbst
+  //    öffnet/schliesst die Kamera, das ist spürbar zuverlässiger als die
+  //    html5-qrcode-Bibliothek (bekannte Probleme beim Neustarten von Streams,
+  //    v.a. auf iOS Safari).
+  //  - "library": Fallback über html5-qrcode für Browser ohne BarcodeDetector
+  //    (z.B. Firefox). Bleibt unverändert bestehen, wird aber nur noch genutzt,
+  //    wenn die native API fehlt.
+  let scanMode        = null;   // "native" | "library" | null
+  let html5Qrcode      = null;  // library-Modus
+  let nativeStream      = null; // native-Modus: MediaStream
+  let nativeVideoEl     = null; // native-Modus: <video>-Element
+  let nativeDetector    = null; // native-Modus: BarcodeDetector-Instanz
+  let nativeRAF         = null; // native-Modus: requestAnimationFrame-Handle
+  let nativeDetecting   = false;
+  let isScanning       = false;
+  let lastDecoded      = "";
+  let lastDecodedAt    = 0;
+
+  // Kamera-Stream freigeben (beide Modi). WICHTIG für Turbo Drive: anders als
+  // bei einem echten Hard-Reload feuert "pagehide" bei einer Turbo-Navigation
+  // NICHT zuverlässig. Bleibt der MediaStream-Track dadurch offen, hält das
+  // Betriebssystem die Kamera für einige Sekunden als "belegt" – der nächste
+  // Start schlägt dann mit NotReadable/TrackStart fehl oder hängt, bis das OS
+  // sie freigibt. Wird daher zusätzlich auf "turbo:before-visit" aufgerufen,
+  // das bei JEDER Turbo-Navigation weg von dieser Seite zuverlässig feuert.
+  function stopCamera() {
+    if (nativeRAF) {
+      cancelAnimationFrame(nativeRAF);
+      nativeRAF = null;
+    }
+    if (nativeStream) {
+      nativeStream.getTracks().forEach(function(t) { try { t.stop(); } catch (e) {} });
+      nativeStream = null;
+    }
+    nativeVideoEl   = null;
+    nativeDetector  = null;
+    nativeDetecting = false;
+
+    if (html5Qrcode && isScanning) {
+      try { html5Qrcode.stop(); } catch (e) {}
+    }
+
+    isScanning = false;
+    scanMode   = null;
+  }
 
   function init() {
     // ── DOM-Refs ───────────────────────────────────────────────────────
@@ -211,8 +262,9 @@
     const errorSplashTxt = document.getElementById("error-text");
     const counter        = document.getElementById("attendance-count");
 
-    const SESSION_ID = <%= @training_session.id.to_json %>;
-    const CSRF       = document.querySelector('meta[name="csrf-token"]')?.content || "";
+    const SESSION_ID   = <%= @training_session.id.to_json %>;
+    const CSRF         = document.querySelector('meta[name="csrf-token"]')?.content || "";
+    const LIBRARY_SRC  = <%= raw asset_path('vendor/html5-qrcode.min.js').to_json %>;
 
     // ── Helpers ────────────────────────────────────────────────────────
     function show(el) { el.classList.remove("hidden"); }
@@ -236,10 +288,7 @@
     }
 
     async function closeScanner() {
-      if (html5Qrcode && isScanning) {
-        try { await html5Qrcode.stop(); } catch (e) {}
-        isScanning = false;
-      }
+      stopCamera();
       window.location.href = "<%= training_session_path(@training_session) %>";
     }
 
@@ -252,78 +301,163 @@
       show(errorView);
     }
 
-    // ── Kamera starten ─────────────────────────────────────────────────
-    async function startCamera() {
-      if (!isSecure()) {
-        showError("Der Kamera-Zugriff funktioniert nur über HTTPS. Bitte rufe diese Seite über eine sichere Verbindung auf oder nutze die manuelle Checkliste.");
+    // ── Gemeinsame Fehlerbehandlung für beide Scan-Modi ─────────────────
+    function handleCameraError(e) {
+      if (e && e.code === "library-load-failed") {
+        showError(e.message);
         return;
       }
+
+      const raw = (e && e.message) ? String(e.message) : (e ? String(e) : "Unbekannter Fehler");
+      const msg = raw.toLowerCase();
+
+      if (msg.includes("permission") || msg.includes("denied") || msg.includes("notallowed")) {
+        showError("Kamera-Zugriff wurde verweigert. Bitte erlaube den Kamera-Zugriff in den Browser-Einstellungen oder nutze die manuelle Checkliste.");
+      } else if (msg.includes("notfound") || msg.includes("nodevice") || msg.includes("not found")) {
+        showError("Es wurde keine Kamera gefunden. Bitte nutze die manuelle Checkliste.");
+      } else if (msg.includes("notreadable") || msg.includes("trackstart") || msg.includes("in use")) {
+        showError("Die Kamera wird gerade von einer anderen App verwendet. Bitte schliesse andere Apps und versuche es erneut.");
+      } else if (msg.includes("overconstrained")) {
+        showError("Die gewünschte Kamera-Konfiguration wird von diesem Gerät nicht unterstützt.");
+      } else {
+        showError("Kamera konnte nicht gestartet werden: " + raw);
+      }
+    }
+
+    // Prüft, ob der Browser QR-Codes nativ erkennen kann (Chrome/Edge/Android,
+    // Safari 17+). Firefox u.ä. haben BarcodeDetector nicht implementiert.
+    async function supportsNativeDetector() {
+      if (typeof BarcodeDetector === "undefined") return false;
+      try {
+        const formats = await BarcodeDetector.getSupportedFormats();
+        return formats.includes("qr_code");
+      } catch (e) {
+        return false;
+      }
+    }
+
+    // ── Kamera starten: nativ (BarcodeDetector) mit Fallback auf html5-qrcode ──
+    async function startNativeCamera() {
+      let stream = null;
+      let lastErr = null;
+      // Bevorzugt Rückkamera (environment), Fallback Frontkamera (user).
+      for (const videoConstraints of [{ facingMode: { ideal: "environment" } }, { facingMode: "user" }]) {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
+          break;
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      if (!stream) throw lastErr || new Error("NotFoundError");
+
+      const readerEl = document.getElementById("reader");
+      readerEl.innerHTML = "";
+      const video = document.createElement("video");
+      video.setAttribute("playsinline", "true");
+      video.setAttribute("muted", "true");
+      video.muted = true;
+      video.style.objectFit = "cover";
+      video.style.width  = "100%";
+      video.style.height = "100%";
+      video.style.position = "absolute";
+      video.style.top  = "0";
+      video.style.left = "0";
+      readerEl.appendChild(video);
+      video.srcObject = stream;
+      await video.play();
+
+      nativeStream   = stream;
+      nativeVideoEl  = video;
+      nativeDetector = new BarcodeDetector({ formats: ["qr_code"] });
+      scanMode       = "native";
+      isScanning     = true;
+
+      const scanLoop = async () => {
+        if (scanMode !== "native" || !isScanning) return;
+        if (!nativeDetecting && nativeVideoEl.readyState >= 2) {
+          nativeDetecting = true;
+          try {
+            const barcodes = await nativeDetector.detect(nativeVideoEl);
+            if (barcodes.length > 0) onScanSuccess(barcodes[0].rawValue);
+          } catch (e) {
+            // Einzelner Frame fehlgeschlagen – nächster Frame versucht es erneut
+          }
+          nativeDetecting = false;
+        }
+        nativeRAF = requestAnimationFrame(scanLoop);
+      };
+      nativeRAF = requestAnimationFrame(scanLoop);
+    }
+
+    async function startLibraryCamera() {
       if (typeof Html5Qrcode === "undefined") {
         try {
           await new Promise((resolve, reject) => {
             const s = document.createElement("script");
-            s.src = "https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js";
+            s.src = LIBRARY_SRC;
             s.onload = resolve;
             s.onerror = reject;
             document.head.appendChild(s);
           });
         } catch (e) {
-          showError("Scanner-Bibliothek konnte nicht geladen werden. Bitte Internet-Verbindung prüfen und erneut versuchen.");
-          return;
+          const err = new Error("Scanner-Bibliothek konnte nicht geladen werden. Bitte Internet-Verbindung prüfen und erneut versuchen.");
+          err.code = "library-load-failed";
+          throw err;
         }
       }
 
+      html5Qrcode = new Html5Qrcode("reader", { verbose: false });
+
+      const config = {
+        fps: 10,
+        qrbox: function(viewfinderWidth, viewfinderHeight) {
+          const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
+          const size = Math.floor(minEdge * 0.7);
+          return { width: size, height: size };
+        },
+        disableFlip: false
+      };
+
+      // Bevorzugt Rückkamera (environment), Fallback Frontkamera (user).
       try {
-        html5Qrcode = new Html5Qrcode("reader", { verbose: false });
+        await html5Qrcode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailureSilent);
+      } catch (envErr) {
+        await html5Qrcode.start({ facingMode: "user" }, config, onScanSuccess, onScanFailureSilent);
+      }
 
-        const config = {
-          fps: 10,
-          qrbox: function(viewfinderWidth, viewfinderHeight) {
-            const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-            const size = Math.floor(minEdge * 0.7);
-            return { width: size, height: size };
-          },
-          disableFlip: false
-        };
+      scanMode   = "library";
+      isScanning = true;
 
-        // Bevorzugt Rückkamera (environment), Fallback Frontkamera (user).
-        try {
-          await html5Qrcode.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailureSilent);
-        } catch (envErr) {
-          await html5Qrcode.start({ facingMode: "user" }, config, onScanSuccess, onScanFailureSilent);
+      // iOS-Safari: playsinline + object-fit cover für true fullscreen
+      const video = document.querySelector("#reader video");
+      if (video) {
+        video.setAttribute("playsinline", "true");
+        video.setAttribute("muted", "true");
+        video.style.objectFit = "cover";
+        video.style.width  = "100%";
+        video.style.height = "100%";
+        video.style.position = "absolute";
+        video.style.top  = "0";
+        video.style.left = "0";
+      }
+    }
+
+    async function startCamera() {
+      if (!isSecure()) {
+        showError("Der Kamera-Zugriff funktioniert nur über HTTPS. Bitte rufe diese Seite über eine sichere Verbindung auf oder nutze die manuelle Checkliste.");
+        return;
+      }
+
+      try {
+        if (await supportsNativeDetector()) {
+          await startNativeCamera();
+        } else {
+          await startLibraryCamera();
         }
-
-        isScanning = true;
-
-        // iOS-Safari: playsinline + object-fit cover für true fullscreen
-        const video = document.querySelector("#reader video");
-        if (video) {
-          video.setAttribute("playsinline", "true");
-          video.setAttribute("muted", "true");
-          video.style.objectFit = "cover";
-          video.style.width  = "100%";
-          video.style.height = "100%";
-          video.style.position = "absolute";
-          video.style.top  = "0";
-          video.style.left = "0";
-        }
-
         showScannerUI();
       } catch (e) {
-        const raw = (e && e.message) ? String(e.message) : (e ? String(e) : "Unbekannter Fehler");
-        const msg = raw.toLowerCase();
-
-        if (msg.includes("permission") || msg.includes("denied") || msg.includes("notallowed")) {
-          showError("Kamera-Zugriff wurde verweigert. Bitte erlaube den Kamera-Zugriff in den Browser-Einstellungen oder nutze die manuelle Checkliste.");
-        } else if (msg.includes("notfound") || msg.includes("nodevice") || msg.includes("not found")) {
-          showError("Es wurde keine Kamera gefunden. Bitte nutze die manuelle Checkliste.");
-        } else if (msg.includes("notreadable") || msg.includes("trackstart") || msg.includes("in use")) {
-          showError("Die Kamera wird gerade von einer anderen App verwendet. Bitte schliesse andere Apps und versuche es erneut.");
-        } else if (msg.includes("overconstrained")) {
-          showError("Die gewünschte Kamera-Konfiguration wird von diesem Gerät nicht unterstützt.");
-        } else {
-          showError("Kamera konnte nicht gestartet werden: " + raw);
-        }
+        handleCameraError(e);
       }
     }
 
@@ -415,13 +549,8 @@
       show(gate);
     });
 
-    // Cleanup beim Verlassen der Seite (Kamera-Stream stoppen)
-    window.addEventListener("pagehide", function() {
-      if (html5Qrcode && isScanning) {
-        try { html5Qrcode.stop(); } catch (e) {}
-        isScanning = false;
-      }
-    });
+    // Cleanup beim Verlassen der Seite (Hard-Reload/Tab schliessen)
+    window.addEventListener("pagehide", stopCamera);
   } // end init()
 
   // Verhindert Doppel-Init: Flag damit init() nur einmal pro Page-Load läuft
@@ -446,7 +575,13 @@
   // turbo:render feuert auch bei Turbo-Frame-Updates
   document.addEventListener("turbo:render", safeInit);
 
-  // Flag zurücksetzen wenn User die Seite verlässt, damit zweites Öffnen funktioniert
-  document.addEventListener("turbo:before-visit", function() { _initialized = false; });
+  // Kamera stoppen + Flag zurücksetzen, sobald der User die Seite via Turbo
+  // verlässt – zuverlässiger als "pagehide" bei Turbo-Navigation (siehe
+  // stopCamera-Kommentar oben) und Voraussetzung dafür, dass ein erneutes
+  // Öffnen des Scanners die Kamera sofort wieder bekommt statt "belegt" zu sein.
+  document.addEventListener("turbo:before-visit", function() {
+    stopCamera();
+    _initialized = false;
+  });
 })();
 </script>

@@ -48,7 +48,6 @@ class RefundService
       return { refunded: false, reason: "no_amount_after_deduction", sessions_count: sessions_count, abzug_cents: abzug_cents }
     end
 
-    amount = (refund_cents / 100.0).round(2)
     txn_id = registration.sumup_transaction_id
 
     # Root Cause (siehe developer.sumup.com/api/transactions/refund): v0.1/me/refund/{id}
@@ -65,12 +64,20 @@ class RefundService
       "Content-Type"  => "application/json",
       "Authorization" => "Bearer #{SumupConfig.access_token}"
     })
-    request.body = { amount: amount }.to_json
+    # WICHTIG: Trotz offizieller SumUp-OpenAPI-Spec ("amount" als Franken-Dezimalzahl,
+    # z.B. 5 = CHF 5.00) hat diese Route empirisch bestätigt in Rappen gerechnet
+    # (ein Versuch mit amount: 125.0 für CHF 125.00 hat real nur CHF 1.25 erstattet –
+    # exakt Faktor 100 zu wenig). Wir senden daher den vollen Rappen-Betrag als
+    # Ganzzahl. Falls SumUp die Route künftig doch spec-konform auf Franken umstellt,
+    # muss das hier erneut angepasst werden – die nächsten automatischen
+    # Rückerstattungen bitte im SumUp-Dashboard gegenprüfen.
+    request.body = { amount: refund_cents }.to_json
 
     response = http.request(request)
 
-    # v1.0 antwortet bei Erfolg mit 200 + leerem JSON-Body (nicht mehr 204 wie v0.1).
-    unless response.code.to_i == 200
+    # Laut offizieller SumUp-OpenAPI-Spec liefert dieser Endpunkt bei Erfolg 201
+    # (Created) + leeren Body, nicht 200. 204 zusätzlich toleriert als Sicherheitsnetz.
+    unless [ 200, 201, 204 ].include?(response.code.to_i)
       parsed     = (JSON.parse(response.body) rescue {})
       parsed     = {} unless parsed.is_a?(Hash)
       error_code = parsed["error_code"].presence
@@ -87,7 +94,7 @@ class RefundService
     end
 
     registration.update_column(:refunded_at, Time.current) if registration.persisted?
-    Rails.logger.info "[RefundService] Rückerstattung CHF #{amount} für Registration #{registration.id} erfolgreich (txn: #{txn_id})"
+    Rails.logger.info "[RefundService] Rückerstattung CHF #{(refund_cents / 100.0).round(2)} (#{refund_cents}¢) für Registration #{registration.id} erfolgreich (txn: #{txn_id})"
     { refunded: true, amount_cents: refund_cents, sessions_count: sessions_count }
 
   rescue SocketError, Timeout::Error, Errno::ECONNREFUSED, Net::OpenTimeout, Net::ReadTimeout => e
