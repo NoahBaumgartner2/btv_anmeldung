@@ -218,6 +218,34 @@ class Course < ApplicationRecord
     end
   end
 
+  # Storniert bestehende Abo-Einzelbuchungen (abo_source_registration_id gesetzt)
+  # von participant in DIESEM Kurs und erstattet die verbrauchten Abo-Eintritte
+  # zurück. Wird nach einer neuen, bestätigten Semesteranmeldung aufgerufen: die
+  # Semesteranmeldung deckt die betroffenen Termine jetzt ohnehin ab – ohne
+  # diesen Aufruf bliebe der Termin im Profil fälschlich als "per Abo gebucht"
+  # markiert und der Abo-Eintritt dauerhaft verbraucht. Gibt die Anzahl der
+  # stornierten Buchungen zurück.
+  def reclaim_abo_bookings!(participant)
+    bookings = CourseRegistration.where(
+      participant_id: participant.id, course_id: id
+    ).where.not(abo_source_registration_id: nil).where.not(status: "storniert")
+
+    count = 0
+    bookings.find_each do |booking|
+      booking.with_lock do
+        booking.reload
+        next if booking.status == "storniert"
+
+        training_session_id = booking.training_session_id
+        booking.update!(status: "storniert", cancelled_at: Time.current)
+        booking.refund_abo_entry!
+        WaitlistPromotionService.promote_next_from_waitlist(self, training_session_id: training_session_id) if training_session_id
+        count += 1
+      end
+    end
+    count
+  end
+
   # ── Teilnehmerzählung (zentral, für ALLE Übersichten) ──────────────────────
   # Belegte Plätze = bestätigt + schnuppern + platz_frei (CourseRegistration::OCCUPYING_STATUSES),
   # eindeutig pro Teilnehmer:in. Maßgeblich für jede Teilnehmer-/Kapazitätsanzeige und deckt sich

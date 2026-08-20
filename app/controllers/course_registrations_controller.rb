@@ -344,17 +344,15 @@ class CourseRegistrationsController < ApplicationController
     end
 
     if save_result
-      # Hinweis, falls bereits Sessions dieses Kurses per Abo gebucht wurden: diese
-      # Buchungen bleiben unabhängig bestehen und werden der neuen Semesteranmeldung
-      # nicht zusätzlich angerechnet (ponytail: nur bei direkter Bestätigung gezeigt,
-      # nicht mehr nach SumUp-Checkout-Redirect – dort müsste der Hinweis über die
-      # Zahlungsbestätigungsseite transportiert werden).
-      if erfolgs_nachricht.present? && !is_trial
-        abo_bookings_count = CourseRegistration.where(
-          participant_id: participant.id, course_id: course.id
-        ).where.not(abo_source_registration_id: nil).where.not(status: "storniert").count
-        if abo_bookings_count.positive?
-          erfolgs_nachricht += " Hinweis: #{participant.first_name} hat bereits #{abo_bookings_count} Training(s) für diesen Kurs über ein Abo gebucht – diese bleiben unabhängig bestehen und werden nicht zusätzlich verrechnet."
+      # Bereits per Abo gebuchte Einzelsessions dieses Kurses werden jetzt durch die
+      # neue Semesteranmeldung abgedeckt: die Abo-Buchungen stornieren und die
+      # verbrauchten Abo-Eintritte zurückerstatten (siehe Course#reclaim_abo_bookings!).
+      # Erst bei "bestätigt" (nicht bei "ausstehend"/Zahlung ausstehend oder Warteliste),
+      # damit ein abgebrochener Checkout die Abo-Buchung nicht grundlos storniert.
+      if !is_trial && @course_registration.status == "bestätigt"
+        reclaimed_count = course.reclaim_abo_bookings!(participant)
+        if reclaimed_count.positive? && erfolgs_nachricht.present?
+          erfolgs_nachricht += " Hinweis: #{reclaimed_count} bereits per Abo gebuchte(s) Training(s) für diesen Kurs wurde(n) storniert und die Abo-Eintritte zurückerstattet – die Teilnahme läuft jetzt über die Semesteranmeldung."
         end
       end
 
