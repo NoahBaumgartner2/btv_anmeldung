@@ -63,6 +63,15 @@ class PaymentSyncService
       CourseRegistrationMailer.confirmation(registration).deliver_later
       CourseRegistrationMailer.payment_receipt(registration).deliver_later
       Rails.logger.info "[PaymentSyncService] Bestätigungs- und Quittungs-Mail verschickt für Registration #{registration.id}"
+
+      # Analog zum Gratiskurs-Pfad in CourseRegistrationsController#create: bereits per
+      # Abo gebuchte Einzelsessions dieses Kurses jetzt stornieren + Abo-Eintritte
+      # zurückerstatten, da die neu bezahlte Semesteranmeldung sie bereits abdeckt.
+      # Ausgenommen: die Registration ist selbst eine Abo-Session-Buchung oder ein
+      # Abo-Pass-Kauf – dort ergibt ein Reclaim gegen den eigenen Kurs keinen Sinn.
+      unless registration.abo_booking? || course.abo?
+        course.reclaim_abo_bookings!(registration.participant)
+      end
     end
   end
 

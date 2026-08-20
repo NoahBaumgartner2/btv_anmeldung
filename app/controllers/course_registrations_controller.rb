@@ -184,9 +184,14 @@ class CourseRegistrationsController < ApplicationController
     # Gratiskurse und CourseRegistration#merge_into_existing_abo! für den Bezahlkurs-Fall nach
     # erfolgreicher Zahlung in PaymentSyncService.mark_paid!).
     if course && participant && course.registration_mode != "single_session" && !course.abo?
+      # abo_source_registration_id gesetzt → nur eine einzelne, per Abo gebuchte Session,
+      # keine vollwertige Kursanmeldung. Zählt NICHT als Duplikat (siehe auch
+      # CourseRegistration#no_duplicate_semester_registration), sonst könnte sich niemand
+      # mehr fürs Semester anmelden, nachdem bereits einzelne Trainings per Abo besucht wurden.
       existing_reg = CourseRegistration.where(
         participant_id: participant.id,
-        course_id: course.id
+        course_id: course.id,
+        abo_source_registration_id: nil
       ).where.not(status: [ "storniert", "ausstehend" ]).first
 
       if existing_reg
@@ -339,6 +344,18 @@ class CourseRegistrationsController < ApplicationController
     end
 
     if save_result
+      # Bereits per Abo gebuchte Einzelsessions dieses Kurses werden jetzt durch die
+      # neue Semesteranmeldung abgedeckt: die Abo-Buchungen stornieren und die
+      # verbrauchten Abo-Eintritte zurückerstatten (siehe Course#reclaim_abo_bookings!).
+      # Erst bei "bestätigt" (nicht bei "ausstehend"/Zahlung ausstehend oder Warteliste),
+      # damit ein abgebrochener Checkout die Abo-Buchung nicht grundlos storniert.
+      if !is_trial && @course_registration.status == "bestätigt"
+        reclaimed_count = course.reclaim_abo_bookings!(participant)
+        if reclaimed_count.positive? && erfolgs_nachricht.present?
+          erfolgs_nachricht += " Hinweis: #{reclaimed_count} bereits per Abo gebuchte(s) Training(s) für diesen Kurs wurde(n) storniert und die Abo-Eintritte zurückerstattet – die Teilnahme läuft jetzt über die Semesteranmeldung."
+        end
+      end
+
       unless @course_registration.status == "ausstehend"
         CourseRegistrationMailer.confirmation(@course_registration).deliver_later
       end
@@ -553,7 +570,17 @@ class CourseRegistrationsController < ApplicationController
     attendance = @training_session.attendances.find_or_initialize_by(
       course_registration_id: @course_registration.id
     )
-    attendance.update!(status: "abgemeldet")
+    attendance.status = "abgemeldet"
+
+    if @course_registration.course.grants_abo_makeup_entry?
+      # Registration merken, die den Ausgleichseintritt bekommen hat: bei einer
+      # späteren Wieder-Anmeldung (siehe #resubscribe_to_session) muss der Eintritt
+      # zurückgenommen bzw. die Wieder-Anmeldung blockiert werden – sonst liesse
+      # sich per Ab-/Wieder-Anmelden beliebig oft ein Abo-Eintritt "farmen".
+      attendance.abo_makeup_registration = @course_registration.course.grant_abo_makeup_entry!(@course_registration.participant)
+    end
+
+    attendance.save!
 
     @course_registration.course.trainers.includes(:user).each do |trainer|
       next unless trainer.user&.email.present?
@@ -585,6 +612,18 @@ class CourseRegistrationsController < ApplicationController
       course_registration_id: @course_registration.id,
       status: "abgemeldet"
     )
+
+    # Wurde bei der Abmeldung automatisch ein Abo-Ausgleichseintritt gutgeschrieben,
+    # muss er beim Wieder-Anmelden zurückgenommen werden – sonst liesse sich per
+    # Ab-/Wieder-Anmelden beliebig oft ein zusätzlicher Eintritt "farmen". Ist der
+    # Eintritt inzwischen bereits verbraucht, wird die Wieder-Anmeldung blockiert.
+    if attendance&.abo_makeup_registration.present?
+      unless attendance.abo_makeup_registration.claw_back_makeup_entry!
+        redirect_to participants_path, alert: t("participants.index.resubscribe_abo_entry_used")
+        return
+      end
+    end
+
     attendance&.destroy!
 
     participant_name = @course_registration.participant.first_name
@@ -843,10 +882,15 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
-    already_booked = @course_registration.abo_bookings
-                                         .where(training_session_id: session.id)
-                                         .where.not(status: "storniert")
-                                         .exists?
+    # Global geprüft (nicht nur innerhalb der abo_bookings dieses Passes): der
+    # Unique-Index index_course_registrations_unique_session gilt pro Teilnehmer:in
+    # + Session unabhängig vom Abo-Pass. Ohne diesen globalen Check kann ein alter,
+    # verwaister Eintrag eines anderen (evtl. bereits stornierten) Abo-Passes einen
+    # unbehandelten RecordNotUnique/500 statt der verständlichen Fehlermeldung auslösen.
+    already_booked = CourseRegistration
+                        .where(participant_id: @course_registration.participant_id, training_session_id: session.id)
+                        .where.not(status: [ "storniert", "ausstehend" ])
+                        .exists?
     if already_booked
       redirect_to abo_sessions_course_registration_path(@course_registration),
                   alert: t("course_registrations.flash.abo_already_booked")

@@ -96,6 +96,33 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     assert_match I18n.t("course_registrations.errors.duplicate_registration"), duplicate.errors.full_messages.join
   end
 
+  test "allows semester registration despite existing abo-booked session in the same course" do
+    # Reproduces: participant has an Abo (separate course) and already booked a single
+    # session of courses(:one) via that Abo (abo_source_registration_id set, same
+    # course_id). Registering for the full semester course must NOT be blocked by that.
+    course = courses(:one)
+    participant = participants(:parent_only_child)
+
+    abo_course = Course.new(title: "Abo-Kurs", registration_type: "abo", registration_mode: "abo",
+      abo_size: 10, has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    abo_course.save!(validate: false)
+    abo_pass = CourseRegistration.new(course: abo_course, participant: participant,
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false,
+      abo_entries_total: 10, abo_entries_used: 1)
+    abo_pass.save!(validate: false)
+
+    abo_booking = CourseRegistration.new(course: course, participant: participant,
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false,
+      abo_source_registration_id: abo_pass.id)
+    abo_booking.save!(validate: false)
+
+    semester_registration = CourseRegistration.new(course: course, participant: participant,
+      payment_cleared: false, holiday_deduction_claimed: false)
+
+    assert semester_registration.valid?,
+      "Expected no duplicate error despite existing abo booking, got: #{semester_registration.errors.full_messages.join(', ')}"
+  end
+
   test "shows schnuppern-specific error when normal registration attempted with existing schnuppern" do
     course = Course.new(title: "Schnupper-Test", registration_type: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
@@ -365,6 +392,28 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     assert_not_includes ids, session_b.id, "stornierte Buchung darf NICHT in abo_booked_session_ids sein"
   end
 
+  test "stornieren des Abo-Passes storniert auch noch aktive abo_bookings kaskadierend" do
+    setup = make_abo_setup
+    abo_reg      = setup[:abo_reg]
+    target_course = setup[:target_course]
+
+    session = target_course.training_sessions.create!(
+      start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: false
+    )
+    booking = CourseRegistration.new(
+      course: target_course, participant: participants(:one),
+      training_session: session,
+      abo_source_registration_id: abo_reg.id,
+      status: "bestätigt", payment_cleared: true
+    )
+    booking.save!(validate: false)
+
+    abo_reg.update!(status: "storniert", cancelled_at: Time.current)
+
+    assert_equal "storniert", booking.reload.status,
+      "Kinder-Buchung muss beim Stornieren des Abo-Passes automatisch storniert werden"
+  end
+
   test "allows normal registration after schnuppern is storniert" do
     course = Course.new(title: "Schnupper-Storniert-Test", registration_type: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
@@ -496,5 +545,44 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     reg.save!(validate: false)
 
     assert_nil reg.merge_into_existing_abo!
+  end
+
+  # ── claw_back_makeup_entry! ───────────────────────────────────────────────────
+
+  test "claw_back_makeup_entry! nimmt einen ungenutzten Ausgleichseintritt zurück" do
+    abo_course = Course.new(title: "Abo", registration_type: "abo", registration_mode: "abo",
+      abo_size: 10, has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    abo_course.save!(validate: false)
+    reg = CourseRegistration.new(course: abo_course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false, abo_entries_total: 4, abo_entries_used: 2)
+    reg.save!(validate: false)
+
+    assert reg.claw_back_makeup_entry!
+    assert_equal 3, reg.reload.abo_entries_total
+    assert_equal 2, reg.abo_entries_used
+  end
+
+  test "claw_back_makeup_entry! storniert einen frisch angelegten, ungenutzten 1er-Pass komplett" do
+    abo_course = Course.new(title: "Abo", registration_type: "abo", registration_mode: "abo",
+      abo_size: 10, has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    abo_course.save!(validate: false)
+    reg = CourseRegistration.new(course: abo_course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false, abo_entries_total: 1, abo_entries_used: 0)
+    reg.save!(validate: false)
+
+    assert reg.claw_back_makeup_entry!
+    assert_equal "storniert", reg.reload.status
+  end
+
+  test "claw_back_makeup_entry! gibt false zurück, wenn der Eintritt bereits verbraucht ist" do
+    abo_course = Course.new(title: "Abo", registration_type: "abo", registration_mode: "abo",
+      abo_size: 10, has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    abo_course.save!(validate: false)
+    reg = CourseRegistration.new(course: abo_course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false, abo_entries_total: 3, abo_entries_used: 3)
+    reg.save!(validate: false)
+
+    assert_not reg.claw_back_makeup_entry!
+    assert_equal 3, reg.reload.abo_entries_total
   end
 end

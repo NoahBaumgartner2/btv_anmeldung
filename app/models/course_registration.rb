@@ -45,6 +45,12 @@ class CourseRegistration < ApplicationRecord
   before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") }
   before_save :set_trial_expiry,
     if: -> { will_save_change_to_status?(to: TRIAL_STATUS) && trial_expires_at.nil? }
+  # Wird ein Abo-Pass storniert (z.B. via trainer_cancel), müssen auch seine noch
+  # aktiven Einzelsession-Buchungen (abo_bookings) storniert werden – sonst bleiben
+  # sie als "bestätigt" verwaist stehen und blockieren später (Unique-Index auf
+  # participant_id+training_session_id) das erneute Buchen derselben Session über
+  # einen neuen Abo-Pass mit einem 500er statt einer verständlichen Fehlermeldung.
+  after_update :cancel_abo_bookings, if: -> { saved_change_to_status?(to: "storniert") && abo_entries_total.present? }
 
   def trial?
     status == TRIAL_STATUS
@@ -110,6 +116,28 @@ class CourseRegistration < ApplicationRecord
 
   def abo_booking?
     abo_source_registration_id.present?
+  end
+
+  # Nimmt einen zuvor automatisch gutgeschriebenen Ausgleichseintritt (siehe
+  # Course#grant_abo_makeup_entry!) wieder zurück, wenn er noch nicht verbraucht
+  # wurde – wird beim Wieder-Anmelden zu einem abgemeldeten Training gebraucht,
+  # sonst könnte man sich beliebig oft ab-/wieder anmelden und dabei jedes Mal
+  # einen zusätzlichen Abo-Eintritt "farmen". Gibt false zurück (ohne etwas zu
+  # ändern), wenn der Eintritt bereits verbraucht ist – der Aufrufer muss die
+  # Wieder-Anmeldung dann blockieren.
+  def claw_back_makeup_entry!
+    with_lock do
+      reload
+      return false if abo_entries_remaining.to_i <= 0
+
+      new_total = abo_entries_total.to_i - 1
+      if new_total.zero? && abo_entries_used.to_i.zero?
+        update!(status: "storniert", cancelled_at: Time.current, abo_entries_total: 0)
+      else
+        update_columns(abo_entries_total: new_total, updated_at: Time.current)
+      end
+    end
+    true
   end
 
   # Nach einem (erneuten) Abo-Kauf: existiert für dieselbe Person im selben Kurs
@@ -184,6 +212,17 @@ class CourseRegistration < ApplicationRecord
 
   private
 
+  # Siehe after_update-Callback oben: storniert alle noch aktiven Kinder-Buchungen
+  # dieses Abo-Passes (kein Refund nötig, der Pass selbst ist ja bereits storniert).
+  def cancel_abo_bookings
+    abo_bookings.where.not(status: "storniert").find_each do |booking|
+      course = booking.course
+      training_session_id = booking.training_session_id
+      booking.update!(status: "storniert", cancelled_at: Time.current)
+      WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id) if training_session_id
+    end
+  end
+
   # Zahlungsfrist beim Statuswechsel zu "ausstehend":
   # - Stammt die Anmeldung aus einem Schnupperplatz (trial_expires_at gesetzt),
   #   gilt die zugesicherte Frist "Schnuppertraining + 7 Tage". Eine 48h-Untergrenze
@@ -233,9 +272,15 @@ class CourseRegistration < ApplicationRecord
     return if course.blank? || participant_id.blank?
     return if course.registration_mode == "single_session"
 
+    # Über ein Abo gebuchte einzelne Sessions (abo_source_registration_id gesetzt)
+    # teilen sich den course_id mit dem Semesterkurs, sind aber keine vollwertige
+    # Anmeldung – zählen daher NICHT als Duplikat, sonst kann sich niemand mehr
+    # für das Semester anmelden, nachdem er/sie schon einzelne Trainings per Abo
+    # besucht hat.
     existing = CourseRegistration.where(
       participant_id: participant_id,
-      course_id: course_id
+      course_id: course_id,
+      abo_source_registration_id: nil
     ).where.not(status: [ "storniert", "ausstehend" ]).first
 
     return unless existing

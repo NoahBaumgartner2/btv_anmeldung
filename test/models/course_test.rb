@@ -344,4 +344,84 @@ class CourseTest < ActiveSupport::TestCase
     assert_not course.reload.full?
     assert_nil course.spots_remaining
   end
+
+  # ── grant_abo_makeup_entry! ──────────────────────────────────────────────────
+
+  test "grant_abo_makeup_entry! legt neues 1er-Abo an, wenn noch keines existiert" do
+    semester_course = Course.new(base_attrs.merge(category: "Turnen"))
+    semester_course.save!(validate: false)
+    abo_course = Course.new(base_attrs.merge(
+      title: "Turnen Abo", category: "Turnen", registration_type: "abo", registration_mode: "abo", abo_size: 10
+    ))
+    abo_course.save!(validate: false)
+
+    result = semester_course.grant_abo_makeup_entry!(participants(:one))
+
+    assert_equal abo_course, result.course
+    assert_equal 1, result.abo_entries_total
+    assert_equal "bestätigt", result.status
+  end
+
+  test "grant_abo_makeup_entry! stockt bestehendes Abo derselben Kategorie um 1 auf" do
+    semester_course = Course.new(base_attrs.merge(category: "Turnen"))
+    semester_course.save!(validate: false)
+    abo_course = Course.new(base_attrs.merge(
+      title: "Turnen Abo", category: "Turnen", registration_type: "abo", registration_mode: "abo", abo_size: 10
+    ))
+    abo_course.save!(validate: false)
+    existing_abo = CourseRegistration.new(
+      course: abo_course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false,
+      abo_entries_total: 4, abo_entries_used: 2
+    )
+    existing_abo.save!(validate: false)
+
+    result = semester_course.grant_abo_makeup_entry!(participants(:one))
+
+    assert_equal existing_abo, result
+    assert_equal 5, result.reload.abo_entries_total
+  end
+
+  test "grant_abo_makeup_entry! ist ein No-Op ohne passenden Abo-Kurs" do
+    semester_course = Course.new(base_attrs.merge(category: "Unbekannt"))
+    semester_course.save!(validate: false)
+
+    assert_nil semester_course.grant_abo_makeup_entry!(participants(:one))
+  end
+
+  # ── reclaim_abo_bookings! ─────────────────────────────────────────────────────
+
+  test "reclaim_abo_bookings! storniert Abo-Buchungen im selben Kurs und erstattet Eintritte" do
+    semester_course = Course.new(base_attrs.merge(category: "Turnen"))
+    semester_course.save!(validate: false)
+    abo_course = Course.new(base_attrs.merge(
+      title: "Turnen Abo", category: "Turnen", registration_type: "abo", registration_mode: "abo", abo_size: 10
+    ))
+    abo_course.save!(validate: false)
+    abo_pass = CourseRegistration.new(
+      course: abo_course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false,
+      abo_entries_total: 10, abo_entries_used: 3
+    )
+    abo_pass.save!(validate: false)
+    abo_booking = CourseRegistration.new(
+      course: semester_course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false,
+      abo_source_registration_id: abo_pass.id
+    )
+    abo_booking.save!(validate: false)
+
+    reclaimed_count = semester_course.reclaim_abo_bookings!(participants(:one))
+
+    assert_equal 1, reclaimed_count
+    assert_equal "storniert", abo_booking.reload.status
+    assert_equal 2, abo_pass.reload.abo_entries_used
+  end
+
+  test "reclaim_abo_bookings! ist ein No-Op ohne bestehende Abo-Buchungen" do
+    semester_course = Course.new(base_attrs.merge(category: "Turnen"))
+    semester_course.save!(validate: false)
+
+    assert_equal 0, semester_course.reclaim_abo_bookings!(participants(:one))
+  end
 end

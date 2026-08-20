@@ -292,6 +292,15 @@
         </div>
       </div>
 
+      <div class="mt-4 flex items-start gap-3">
+        <%= form.check_box :grants_abo_makeup_entry,
+              class: "h-5 w-5 mt-0.5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+        <div>
+          <%= form.label :grants_abo_makeup_entry, "Ausgleichs-Abo-Eintritt bei Trainingsabmeldung", class: "text-sm font-medium text-gray-800 cursor-pointer block" %>
+          <p class="text-xs text-gray-400 mt-0.5">Meldet sich jemand von einem einzelnen Training ab, wird automatisch ein kostenloser Einzeleintritt im Abo derselben Kategorie gutgeschrieben (bestehendes Abo +1, sonst neues 1er-Abo).</p>
+        </div>
+      </div>
+
       <%# Abo-Grösse – nur sichtbar wenn Anmeldemodus = abo %>
       <div id="abo-size-field"
            data-registration-mode-target="aboField"

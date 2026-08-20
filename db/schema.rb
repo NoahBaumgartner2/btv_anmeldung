@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_15_224500) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_20_170500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -43,11 +43,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_224500) do
   end
 
   create_table "attendances", force: :cascade do |t|
+    t.bigint "abo_makeup_registration_id"
     t.bigint "course_registration_id", null: false
     t.datetime "created_at", null: false
     t.string "status"
     t.bigint "training_session_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["abo_makeup_registration_id"], name: "index_attendances_on_abo_makeup_registration_id"
     t.index ["course_registration_id"], name: "index_attendances_on_course_registration_id"
     t.index ["training_session_id", "course_registration_id"], name: "index_attendances_unique_per_session", unique: true
     t.index ["training_session_id"], name: "index_attendances_on_training_session_id"
@@ -161,6 +163,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_224500) do
     t.text "email_note"
     t.boolean "enable_waitlist", default: true, null: false
     t.datetime "end_date"
+    t.boolean "grants_abo_makeup_entry", default: false, null: false
     t.boolean "has_payment"
     t.boolean "has_ticketing"
     t.boolean "is_js_training", default: false, null: false
@@ -428,6 +431,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_15_224500) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "attendances", "course_registrations"
+  add_foreign_key "attendances", "course_registrations", column: "abo_makeup_registration_id"
   add_foreign_key "attendances", "training_sessions"
   add_foreign_key "course_access_grants", "courses"
   add_foreign_key "course_access_grants", "users"
