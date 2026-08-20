@@ -407,7 +407,7 @@ class CourseRegistrationsController < ApplicationController
     end
 
     session = @course_registration.training_session
-    unless session.nil? || session.start_time > 1.hour.from_now
+    unless session.nil? || session.start_time > Time.current
       redirect_to participants_path, alert: t("course_registrations.flash.already_cancelled")
       return
     end
@@ -521,8 +521,8 @@ class CourseRegistrationsController < ApplicationController
 
     @training_session = @course_registration.course.training_sessions.find(params[:training_session_id])
 
-    unless @training_session.start_time > 1.hour.from_now
-      redirect_to participants_path, alert: "Du kannst dich nur bis 1 Stunde vor Trainingsbeginn abmelden."
+    unless @training_session.start_time > Time.current
+      redirect_to participants_path, alert: t("participants.index.unsubscribe_too_late")
       return
     end
 

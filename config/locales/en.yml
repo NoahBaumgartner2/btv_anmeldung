@@ -399,6 +399,7 @@ en:
       resubscribe_btn: "Re-register"
       resubscribe_success: "%{name} has been re-registered for the training on %{date}."
       resubscribe_too_late: "Re-registration is possible until the training starts."
+      unsubscribe_too_late: "Unsubscribing is possible until the training starts."
       unsubscribe_session_confirm: "Unsubscribe %{name} from the training on %{date}?"
       cancel: "Cancel"
       confirm_unsubscribe: "Yes, unsubscribe from course"
