@@ -864,10 +864,15 @@ class CourseRegistrationsController < ApplicationController
       return
     end
 
-    already_booked = @course_registration.abo_bookings
-                                         .where(training_session_id: session.id)
-                                         .where.not(status: "storniert")
-                                         .exists?
+    # Global geprüft (nicht nur innerhalb der abo_bookings dieses Passes): der
+    # Unique-Index index_course_registrations_unique_session gilt pro Teilnehmer:in
+    # + Session unabhängig vom Abo-Pass. Ohne diesen globalen Check kann ein alter,
+    # verwaister Eintrag eines anderen (evtl. bereits stornierten) Abo-Passes einen
+    # unbehandelten RecordNotUnique/500 statt der verständlichen Fehlermeldung auslösen.
+    already_booked = CourseRegistration
+                        .where(participant_id: @course_registration.participant_id, training_session_id: session.id)
+                        .where.not(status: [ "storniert", "ausstehend" ])
+                        .exists?
     if already_booked
       redirect_to abo_sessions_course_registration_path(@course_registration),
                   alert: t("course_registrations.flash.abo_already_booked")

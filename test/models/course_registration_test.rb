@@ -392,6 +392,28 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     assert_not_includes ids, session_b.id, "stornierte Buchung darf NICHT in abo_booked_session_ids sein"
   end
 
+  test "stornieren des Abo-Passes storniert auch noch aktive abo_bookings kaskadierend" do
+    setup = make_abo_setup
+    abo_reg      = setup[:abo_reg]
+    target_course = setup[:target_course]
+
+    session = target_course.training_sessions.create!(
+      start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: false
+    )
+    booking = CourseRegistration.new(
+      course: target_course, participant: participants(:one),
+      training_session: session,
+      abo_source_registration_id: abo_reg.id,
+      status: "bestätigt", payment_cleared: true
+    )
+    booking.save!(validate: false)
+
+    abo_reg.update!(status: "storniert", cancelled_at: Time.current)
+
+    assert_equal "storniert", booking.reload.status,
+      "Kinder-Buchung muss beim Stornieren des Abo-Passes automatisch storniert werden"
+  end
+
   test "allows normal registration after schnuppern is storniert" do
     course = Course.new(title: "Schnupper-Storniert-Test", registration_type: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false)

@@ -45,6 +45,12 @@ class CourseRegistration < ApplicationRecord
   before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") }
   before_save :set_trial_expiry,
     if: -> { will_save_change_to_status?(to: TRIAL_STATUS) && trial_expires_at.nil? }
+  # Wird ein Abo-Pass storniert (z.B. via trainer_cancel), müssen auch seine noch
+  # aktiven Einzelsession-Buchungen (abo_bookings) storniert werden – sonst bleiben
+  # sie als "bestätigt" verwaist stehen und blockieren später (Unique-Index auf
+  # participant_id+training_session_id) das erneute Buchen derselben Session über
+  # einen neuen Abo-Pass mit einem 500er statt einer verständlichen Fehlermeldung.
+  after_update :cancel_abo_bookings, if: -> { saved_change_to_status?(to: "storniert") && abo_entries_total.present? }
 
   def trial?
     status == TRIAL_STATUS
@@ -183,6 +189,17 @@ class CourseRegistration < ApplicationRecord
   end
 
   private
+
+  # Siehe after_update-Callback oben: storniert alle noch aktiven Kinder-Buchungen
+  # dieses Abo-Passes (kein Refund nötig, der Pass selbst ist ja bereits storniert).
+  def cancel_abo_bookings
+    abo_bookings.where.not(status: "storniert").find_each do |booking|
+      course = booking.course
+      training_session_id = booking.training_session_id
+      booking.update!(status: "storniert", cancelled_at: Time.current)
+      WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id) if training_session_id
+    end
+  end
 
   # Zahlungsfrist beim Statuswechsel zu "ausstehend":
   # - Stammt die Anmeldung aus einem Schnupperplatz (trial_expires_at gesetzt),

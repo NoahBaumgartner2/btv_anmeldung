@@ -879,7 +879,7 @@ fr:
       abo_exhausted: "L'abonnement n'a plus d'entrées disponibles."
       abo_session_not_found: "Séance introuvable."
       abo_wrong_category: "Cette séance n'appartient pas à la catégorie de cet abonnement."
-      abo_already_booked: "Cette séance est déjà réservée via cet abonnement."
+      abo_already_booked: "Cette séance est déjà réservée."
       abo_booked: "Séance du %{date} réservée avec succès."
       abo_waitlisted: "La séance du %{date} est complète – vous avez été ajouté(e) à la liste d'attente."
       abo_session_full: "Cette séance est complète et ne gère pas de liste d'attente."

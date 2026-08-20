@@ -885,7 +885,7 @@ en:
       abo_exhausted: "The subscription has no remaining entries."
       abo_session_not_found: "Session not found."
       abo_wrong_category: "This session does not belong to the category of this subscription."
-      abo_already_booked: "This session is already booked via this subscription."
+      abo_already_booked: "This session is already booked."
       abo_booked: "Session on %{date} successfully booked."
       abo_waitlisted: "The session on %{date} is full – you have been added to the waitlist."
       abo_session_full: "This session is full and has no waitlist."
