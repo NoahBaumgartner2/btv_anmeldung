@@ -438,6 +438,7 @@ de:
       resubscribe_btn: "Wieder anmelden"
       resubscribe_success: "%{name} wurde wieder für das Training am %{date} angemeldet."
       resubscribe_too_late: "Eine Wiederanmeldung ist bis zum Trainingsbeginn möglich."
+      unsubscribe_too_late: "Eine Abmeldung ist bis zum Trainingsbeginn möglich."
       unsubscribe_session_confirm: "%{name} vom Training am %{date} abmelden?"
       cancel: "Abbrechen"
       confirm_unsubscribe: "Ja, vom Kurs abmelden"
