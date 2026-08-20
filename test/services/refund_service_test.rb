@@ -1,8 +1,18 @@
 require "test_helper"
 
 class RefundServiceTest < ActiveSupport::TestCase
-  # v1.0-Refund-Endpoint antwortet bei Erfolg mit 200 + leerem JSON-Body (siehe Fix).
+  # Laut offizieller SumUp-OpenAPI-Spec antwortet der v1.0-Refund-Endpoint bei
+  # Erfolg mit 201 (Created) + leerem JSON-Body.
   def success_response
+    r = Net::HTTPCreated.new("1.1", "201", "Created")
+    r.instance_variable_set(:@body, "{}")
+    r.instance_variable_set(:@read, true)
+    r
+  end
+
+  # Sicherheitsnetz-Test: 200 wird ebenfalls toleriert, falls SumUp den Code
+  # doch mal ändert (siehe Kommentar in refund_service.rb).
+  def success_response_200
     r = Net::HTTPOK.new("1.1", "200", "OK")
     r.instance_variable_set(:@body, "{}")
     r.instance_variable_set(:@read, true)
@@ -24,6 +34,17 @@ class RefundServiceTest < ActiveSupport::TestCase
     obj.define_singleton_method(:open_timeout=) { |_| }
     obj.define_singleton_method(:read_timeout=) { |_| }
     obj.define_singleton_method(:request) { |_req| response }
+    obj
+  end
+
+  # Wie fake_http, aber merkt sich den Request-Body für spätere Assertions
+  # (z.B. um die gesendete Betrags-Einheit zu prüfen).
+  def fake_http_capturing(response, captured_body)
+    obj = Object.new
+    obj.define_singleton_method(:use_ssl=) { |_| }
+    obj.define_singleton_method(:open_timeout=) { |_| }
+    obj.define_singleton_method(:read_timeout=) { |_| }
+    obj.define_singleton_method(:request) { |req| captured_body[:value] = req.body; response }
     obj
   end
 
@@ -159,6 +180,33 @@ class RefundServiceTest < ActiveSupport::TestCase
       assert_equal 7000, result[:amount_cents]
       assert_equal 2, result[:sessions_count]
     end
+  end
+
+  test "tolerates a 200 response as success too" do
+    reg = build_registration(price_cents: 10000, training_value_cents: 1500)
+    stub_sessions_count(reg, 0)
+
+    with_http_stub(fake_http(success_response_200)) do
+      result = RefundService.process(reg)
+      assert_equal true, result[:refunded]
+    end
+  end
+
+  # Root-Cause-Regressionstest: eine echte Rückerstattung wurde mit amount als
+  # Franken-Dezimalzahl (z.B. 125.0 für CHF 125.00) fälschlich nur zu CHF 1.25
+  # ausgeführt (Faktor 100 zu wenig) – siehe Kommentar in refund_service.rb.
+  # Der Request muss den vollen Rappen-Betrag als Ganzzahl senden.
+  test "sends the refund amount as an integer in Rappen, not as a francs decimal" do
+    reg = build_registration(price_cents: 10000, training_value_cents: 1500)
+    stub_sessions_count(reg, 2) # refund = 7000 Rappen = CHF 70.00
+
+    captured = {}
+    with_http_stub(fake_http_capturing(success_response, captured)) do
+      RefundService.process(reg)
+    end
+
+    body = JSON.parse(captured[:value])
+    assert_equal 7000, body["amount"]
   end
 
   # ── SumUp API Fehler ──────────────────────────────────────────────────────
