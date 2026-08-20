@@ -96,6 +96,33 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     assert_match I18n.t("course_registrations.errors.duplicate_registration"), duplicate.errors.full_messages.join
   end
 
+  test "allows semester registration despite existing abo-booked session in the same course" do
+    # Reproduces: participant has an Abo (separate course) and already booked a single
+    # session of courses(:one) via that Abo (abo_source_registration_id set, same
+    # course_id). Registering for the full semester course must NOT be blocked by that.
+    course = courses(:one)
+    participant = participants(:parent_only_child)
+
+    abo_course = Course.new(title: "Abo-Kurs", registration_type: "abo", registration_mode: "abo",
+      abo_size: 10, has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    abo_course.save!(validate: false)
+    abo_pass = CourseRegistration.new(course: abo_course, participant: participant,
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false,
+      abo_entries_total: 10, abo_entries_used: 1)
+    abo_pass.save!(validate: false)
+
+    abo_booking = CourseRegistration.new(course: course, participant: participant,
+      status: "bestätigt", payment_cleared: true, holiday_deduction_claimed: false,
+      abo_source_registration_id: abo_pass.id)
+    abo_booking.save!(validate: false)
+
+    semester_registration = CourseRegistration.new(course: course, participant: participant,
+      payment_cleared: false, holiday_deduction_claimed: false)
+
+    assert semester_registration.valid?,
+      "Expected no duplicate error despite existing abo booking, got: #{semester_registration.errors.full_messages.join(', ')}"
+  end
+
   test "shows schnuppern-specific error when normal registration attempted with existing schnuppern" do
     course = Course.new(title: "Schnupper-Test", registration_type: "semester",
       has_payment: false, has_ticketing: false, allows_holiday_deduction: false)

@@ -233,9 +233,15 @@ class CourseRegistration < ApplicationRecord
     return if course.blank? || participant_id.blank?
     return if course.registration_mode == "single_session"
 
+    # Über ein Abo gebuchte einzelne Sessions (abo_source_registration_id gesetzt)
+    # teilen sich den course_id mit dem Semesterkurs, sind aber keine vollwertige
+    # Anmeldung – zählen daher NICHT als Duplikat, sonst kann sich niemand mehr
+    # für das Semester anmelden, nachdem er/sie schon einzelne Trainings per Abo
+    # besucht hat.
     existing = CourseRegistration.where(
       participant_id: participant_id,
-      course_id: course_id
+      course_id: course_id,
+      abo_source_registration_id: nil
     ).where.not(status: [ "storniert", "ausstehend" ]).first
 
     return unless existing

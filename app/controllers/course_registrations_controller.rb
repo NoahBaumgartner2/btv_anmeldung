@@ -184,9 +184,14 @@ class CourseRegistrationsController < ApplicationController
     # Gratiskurse und CourseRegistration#merge_into_existing_abo! für den Bezahlkurs-Fall nach
     # erfolgreicher Zahlung in PaymentSyncService.mark_paid!).
     if course && participant && course.registration_mode != "single_session" && !course.abo?
+      # abo_source_registration_id gesetzt → nur eine einzelne, per Abo gebuchte Session,
+      # keine vollwertige Kursanmeldung. Zählt NICHT als Duplikat (siehe auch
+      # CourseRegistration#no_duplicate_semester_registration), sonst könnte sich niemand
+      # mehr fürs Semester anmelden, nachdem bereits einzelne Trainings per Abo besucht wurden.
       existing_reg = CourseRegistration.where(
         participant_id: participant.id,
-        course_id: course.id
+        course_id: course.id,
+        abo_source_registration_id: nil
       ).where.not(status: [ "storniert", "ausstehend" ]).first
 
       if existing_reg
@@ -339,6 +344,20 @@ class CourseRegistrationsController < ApplicationController
     end
 
     if save_result
+      # Hinweis, falls bereits Sessions dieses Kurses per Abo gebucht wurden: diese
+      # Buchungen bleiben unabhängig bestehen und werden der neuen Semesteranmeldung
+      # nicht zusätzlich angerechnet (ponytail: nur bei direkter Bestätigung gezeigt,
+      # nicht mehr nach SumUp-Checkout-Redirect – dort müsste der Hinweis über die
+      # Zahlungsbestätigungsseite transportiert werden).
+      if erfolgs_nachricht.present? && !is_trial
+        abo_bookings_count = CourseRegistration.where(
+          participant_id: participant.id, course_id: course.id
+        ).where.not(abo_source_registration_id: nil).where.not(status: "storniert").count
+        if abo_bookings_count.positive?
+          erfolgs_nachricht += " Hinweis: #{participant.first_name} hat bereits #{abo_bookings_count} Training(s) für diesen Kurs über ein Abo gebucht – diese bleiben unabhängig bestehen und werden nicht zusätzlich verrechnet."
+        end
+      end
+
       unless @course_registration.status == "ausstehend"
         CourseRegistrationMailer.confirmation(@course_registration).deliver_later
       end
