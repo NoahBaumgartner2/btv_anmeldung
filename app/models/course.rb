@@ -181,6 +181,43 @@ class Course < ApplicationRecord
     registration_mode == "abo"
   end
 
+  # Abo-Kurs derselben Kategorie, in dem ein automatischer Ausgleichs-Eintritt
+  # (siehe #grant_abo_makeup_entry!) gutgeschrieben wird. Bei mehreren
+  # passenden Abo-Kursen wird der zuletzt angelegte gewählt.
+  def matching_abo_course
+    return nil unless category.present?
+    Course.where(category: category, registration_mode: "abo").where.not(id: id).order(created_at: :desc).first
+  end
+
+  # Schreibt participant einen kostenlosen Einzel-Abo-Eintritt gut (siehe
+  # grants_abo_makeup_entry?): erhöht ein bestehendes Abo derselben Kategorie
+  # um 1 Eintritt, oder legt bei Bedarf ein neues Ein-Eintritt-Abo an.
+  # No-op ohne passenden Abo-Kurs (z.B. keine Kategorie gesetzt).
+  def grant_abo_makeup_entry!(participant)
+    target_course = matching_abo_course
+    return nil unless target_course
+
+    target_course.with_lock do
+      existing_abo = CourseRegistration.where(
+        participant_id: participant.id, course_id: target_course.id, status: "bestätigt"
+      ).where.not(abo_entries_total: nil).first
+
+      if existing_abo
+        existing_abo.increment!(:abo_entries_total, 1)
+        existing_abo
+      else
+        CourseRegistration.create!(
+          course: target_course,
+          participant: participant,
+          status: "bestätigt",
+          payment_cleared: true,
+          abo_entries_total: 1,
+          abo_entries_used: 0
+        )
+      end
+    end
+  end
+
   # ── Teilnehmerzählung (zentral, für ALLE Übersichten) ──────────────────────
   # Belegte Plätze = bestätigt + schnuppern + platz_frei (CourseRegistration::OCCUPYING_STATUSES),
   # eindeutig pro Teilnehmer:in. Maßgeblich für jede Teilnehmer-/Kapazitätsanzeige und deckt sich

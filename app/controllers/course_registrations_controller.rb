@@ -555,6 +555,10 @@ class CourseRegistrationsController < ApplicationController
     )
     attendance.update!(status: "abgemeldet")
 
+    if @course_registration.course.grants_abo_makeup_entry?
+      @course_registration.course.grant_abo_makeup_entry!(@course_registration.participant)
+    end
+
     @course_registration.course.trainers.includes(:user).each do |trainer|
       next unless trainer.user&.email.present?
       next unless trainer.user.admin_notification_enabled?("session_unsubscription")
