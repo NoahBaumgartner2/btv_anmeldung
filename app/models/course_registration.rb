@@ -118,6 +118,28 @@ class CourseRegistration < ApplicationRecord
     abo_source_registration_id.present?
   end
 
+  # Nimmt einen zuvor automatisch gutgeschriebenen Ausgleichseintritt (siehe
+  # Course#grant_abo_makeup_entry!) wieder zurück, wenn er noch nicht verbraucht
+  # wurde – wird beim Wieder-Anmelden zu einem abgemeldeten Training gebraucht,
+  # sonst könnte man sich beliebig oft ab-/wieder anmelden und dabei jedes Mal
+  # einen zusätzlichen Abo-Eintritt "farmen". Gibt false zurück (ohne etwas zu
+  # ändern), wenn der Eintritt bereits verbraucht ist – der Aufrufer muss die
+  # Wieder-Anmeldung dann blockieren.
+  def claw_back_makeup_entry!
+    with_lock do
+      reload
+      return false if abo_entries_remaining.to_i <= 0
+
+      new_total = abo_entries_total.to_i - 1
+      if new_total.zero? && abo_entries_used.to_i.zero?
+        update!(status: "storniert", cancelled_at: Time.current, abo_entries_total: 0)
+      else
+        update_columns(abo_entries_total: new_total, updated_at: Time.current)
+      end
+    end
+    true
+  end
+
   # Nach einem (erneuten) Abo-Kauf: existiert für dieselbe Person im selben Kurs
   # bereits ein anderer aktiver Abo-Pass, werden die neu gekauften Eintritte dort
   # aufsummiert (z.B. 3 verbleibende + neues 10er-Abo = 13) und diese Anmeldung

@@ -546,4 +546,43 @@ class CourseRegistrationTest < ActiveSupport::TestCase
 
     assert_nil reg.merge_into_existing_abo!
   end
+
+  # ── claw_back_makeup_entry! ───────────────────────────────────────────────────
+
+  test "claw_back_makeup_entry! nimmt einen ungenutzten Ausgleichseintritt zurück" do
+    abo_course = Course.new(title: "Abo", registration_type: "abo", registration_mode: "abo",
+      abo_size: 10, has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    abo_course.save!(validate: false)
+    reg = CourseRegistration.new(course: abo_course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false, abo_entries_total: 4, abo_entries_used: 2)
+    reg.save!(validate: false)
+
+    assert reg.claw_back_makeup_entry!
+    assert_equal 3, reg.reload.abo_entries_total
+    assert_equal 2, reg.abo_entries_used
+  end
+
+  test "claw_back_makeup_entry! storniert einen frisch angelegten, ungenutzten 1er-Pass komplett" do
+    abo_course = Course.new(title: "Abo", registration_type: "abo", registration_mode: "abo",
+      abo_size: 10, has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    abo_course.save!(validate: false)
+    reg = CourseRegistration.new(course: abo_course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false, abo_entries_total: 1, abo_entries_used: 0)
+    reg.save!(validate: false)
+
+    assert reg.claw_back_makeup_entry!
+    assert_equal "storniert", reg.reload.status
+  end
+
+  test "claw_back_makeup_entry! gibt false zurück, wenn der Eintritt bereits verbraucht ist" do
+    abo_course = Course.new(title: "Abo", registration_type: "abo", registration_mode: "abo",
+      abo_size: 10, has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    abo_course.save!(validate: false)
+    reg = CourseRegistration.new(course: abo_course, participant: participants(:one), status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false, abo_entries_total: 3, abo_entries_used: 3)
+    reg.save!(validate: false)
+
+    assert_not reg.claw_back_makeup_entry!
+    assert_equal 3, reg.reload.abo_entries_total
+  end
 end

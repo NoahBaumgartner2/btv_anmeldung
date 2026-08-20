@@ -438,6 +438,7 @@ de:
       resubscribe_btn: "Wieder anmelden"
       resubscribe_success: "%{name} wurde wieder für das Training am %{date} angemeldet."
       resubscribe_too_late: "Eine Wiederanmeldung ist bis zum Trainingsbeginn möglich."
+      resubscribe_abo_entry_used: "Eine Wiederanmeldung ist nicht mehr möglich, da der bei der Abmeldung gutgeschriebene Abo-Eintritt bereits verwendet wurde."
       unsubscribe_too_late: "Eine Abmeldung ist bis zum Trainingsbeginn möglich."
       unsubscribe_session_confirm: "%{name} vom Training am %{date} abmelden?"
       cancel: "Abbrechen"

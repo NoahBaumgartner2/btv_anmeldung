@@ -570,11 +570,17 @@ class CourseRegistrationsController < ApplicationController
     attendance = @training_session.attendances.find_or_initialize_by(
       course_registration_id: @course_registration.id
     )
-    attendance.update!(status: "abgemeldet")
+    attendance.status = "abgemeldet"
 
     if @course_registration.course.grants_abo_makeup_entry?
-      @course_registration.course.grant_abo_makeup_entry!(@course_registration.participant)
+      # Registration merken, die den Ausgleichseintritt bekommen hat: bei einer
+      # späteren Wieder-Anmeldung (siehe #resubscribe_to_session) muss der Eintritt
+      # zurückgenommen bzw. die Wieder-Anmeldung blockiert werden – sonst liesse
+      # sich per Ab-/Wieder-Anmelden beliebig oft ein Abo-Eintritt "farmen".
+      attendance.abo_makeup_registration = @course_registration.course.grant_abo_makeup_entry!(@course_registration.participant)
     end
+
+    attendance.save!
 
     @course_registration.course.trainers.includes(:user).each do |trainer|
       next unless trainer.user&.email.present?
@@ -606,6 +612,18 @@ class CourseRegistrationsController < ApplicationController
       course_registration_id: @course_registration.id,
       status: "abgemeldet"
     )
+
+    # Wurde bei der Abmeldung automatisch ein Abo-Ausgleichseintritt gutgeschrieben,
+    # muss er beim Wieder-Anmelden zurückgenommen werden – sonst liesse sich per
+    # Ab-/Wieder-Anmelden beliebig oft ein zusätzlicher Eintritt "farmen". Ist der
+    # Eintritt inzwischen bereits verbraucht, wird die Wieder-Anmeldung blockiert.
+    if attendance&.abo_makeup_registration.present?
+      unless attendance.abo_makeup_registration.claw_back_makeup_entry!
+        redirect_to participants_path, alert: t("participants.index.resubscribe_abo_entry_used")
+        return
+      end
+    end
+
     attendance&.destroy!
 
     participant_name = @course_registration.participant.first_name

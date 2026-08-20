@@ -135,6 +135,70 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_not_equal "storniert", @registration.status
   end
 
+  # ── unsubscribe/resubscribe + grants_abo_makeup_entry Ausgleichseintritt ────
+
+  def make_makeup_registration
+    semester_course = Course.new(
+      title: "Makeup-Test", registration_type: "semester", registration_mode: "semester",
+      category: "MakeupKategorie", has_payment: false, has_ticketing: false,
+      allows_holiday_deduction: false, grants_abo_makeup_entry: true
+    )
+    semester_course.save!(validate: false)
+    Course.new(
+      title: "Makeup-Test Abo", registration_type: "abo", registration_mode: "abo",
+      category: "MakeupKategorie", abo_size: 10, has_payment: false, has_ticketing: false,
+      allows_holiday_deduction: false
+    ).save!(validate: false)
+
+    future_session = semester_course.training_sessions.create!(
+      start_time: 3.days.from_now, end_time: 3.days.from_now + 1.hour, is_canceled: false
+    )
+    reg = CourseRegistration.new(
+      course: semester_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+
+    { reg: reg, session: future_session }
+  end
+
+  test "resubscribe nimmt den beim Abmelden gutgeschriebenen Ausgleichseintritt wieder zurück" do
+    sign_in @parent
+    setup = make_makeup_registration
+
+    post unsubscribe_from_session_course_registration_path(setup[:reg]),
+         params: { training_session_id: setup[:session].id }
+    makeup_reg = Attendance.last.abo_makeup_registration
+    assert makeup_reg.present?, "Abmelden soll einen Ausgleichseintritt gutschreiben"
+    assert_equal 1, makeup_reg.abo_entries_total
+
+    post resubscribe_to_session_course_registration_path(setup[:reg]),
+         params: { training_session_id: setup[:session].id }
+
+    assert_redirected_to participants_path
+    assert_equal "storniert", makeup_reg.reload.status,
+      "der frisch angelegte, ungenutzte Ausgleichs-Pass muss beim Wieder-Anmelden storniert werden"
+    assert_equal 0, setup[:session].attendances.where(status: "abgemeldet").count
+  end
+
+  test "resubscribe blockiert Wieder-Anmeldung, wenn der Ausgleichseintritt bereits verbraucht ist" do
+    sign_in @parent
+    setup = make_makeup_registration
+
+    post unsubscribe_from_session_course_registration_path(setup[:reg]),
+         params: { training_session_id: setup[:session].id }
+    makeup_reg = Attendance.last.abo_makeup_registration
+    makeup_reg.update_columns(abo_entries_used: 1) # Eintritt inzwischen anderweitig verbraucht
+
+    post resubscribe_to_session_course_registration_path(setup[:reg]),
+         params: { training_session_id: setup[:session].id }
+
+    assert_redirected_to participants_path
+    assert_equal I18n.t("participants.index.resubscribe_abo_entry_used"), flash[:alert]
+    assert_equal "abgemeldet", setup[:session].attendances.find_by(course_registration_id: setup[:reg].id).status,
+      "Attendance darf nicht entfernt werden, solange der Ausgleichseintritt nicht zurückgenommen werden konnte"
+  end
+
   # ── scan ────────────────────────────────────────────────────────────────────
 
   test "scan redirects with alert when session_id not found" do

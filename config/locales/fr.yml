@@ -399,6 +399,7 @@ fr:
       resubscribe_btn: "Se réinscrire"
       resubscribe_success: "%{name} a été réinscrit(e) pour l'entraînement du %{date}."
       resubscribe_too_late: "La réinscription est possible jusqu'au début de l'entraînement."
+      resubscribe_abo_entry_used: "La réinscription n'est plus possible : la séance d'abonnement créditée lors de la désinscription a déjà été utilisée."
       unsubscribe_too_late: "La désinscription est possible jusqu'au début de l'entraînement."
       unsubscribe_session_confirm: "Désinscrire %{name} de l'entraînement du %{date} ?"
       cancel: "Annuler"
