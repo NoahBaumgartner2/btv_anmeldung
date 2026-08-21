@@ -97,6 +97,10 @@ Rails.application.routes.draw do
     collection do
       post :send_email
     end
+    member do
+      patch :update_image
+      delete :destroy_image
+    end
   end
 
   resources :course_registrations, except: [ :destroy ] do

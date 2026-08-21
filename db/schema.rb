@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_20_170500) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_21_113000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -92,6 +92,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_20_170500) do
     t.index ["course_id", "user_id"], name: "index_course_access_grants_on_course_id_and_user_id", unique: true
     t.index ["course_id"], name: "index_course_access_grants_on_course_id"
     t.index ["user_id"], name: "index_course_access_grants_on_user_id"
+  end
+
+  create_table "course_categories", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_course_categories_on_name", unique: true
   end
 
   create_table "course_registrations", force: :cascade do |t|

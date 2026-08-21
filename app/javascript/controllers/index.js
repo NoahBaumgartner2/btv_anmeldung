@@ -25,6 +25,7 @@ import TermModeController from "controllers/term_mode_controller"
 import NotificationToggleController from "controllers/notification_toggle_controller"
 import NotificationPreviewController from "controllers/notification_preview_controller"
 import TrainingActionsController from "controllers/training_actions_controller"
+import AutoSubmitController from "controllers/auto_submit_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -53,3 +54,4 @@ application.register("term-mode", TermModeController)
 application.register("notification-toggle", NotificationToggleController)
 application.register("notification-preview", NotificationPreviewController)
 application.register("training-actions", TrainingActionsController)
+application.register("auto-submit", AutoSubmitController)
