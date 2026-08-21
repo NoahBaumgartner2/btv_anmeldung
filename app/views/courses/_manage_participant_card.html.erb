@@ -35,6 +35,10 @@
               <% end %>
             </div>
 
+            <% if reg.status == 'schnuppern' && reg.trial_date.present? %>
+              <p class="text-xs text-gray-500 mb-2"><%= I18n.l(reg.trial_date, format: "%-d. %B %Y, %H:%M") %></p>
+            <% end %>
+
             <%# Zahlungsstatus %>
             <% if @course.has_payment? %>
               <div class="mb-3">
