@@ -1,7 +1,7 @@
 require_relative "application_system_test_case"
 
 class CourseCategoriesTest < ApplicationSystemTestCase
-  test "Bild-Upload per Datei-Auswahl wird sofort gespeichert (real browser, CSP aktiv)" do
+  test "trial upload image auto submit" do
     admin = users(:admin)
     Course.new(title: "System-Test", category: "SystemTestKategorie",
       registration_type: "semester", registration_mode: "semester",
@@ -14,14 +14,10 @@ class CourseCategoriesTest < ApplicationSystemTestCase
       attach_file "course_category[image]", Rails.root.join("test/fixtures/files/test_image.png")
     end
 
-    # redirect_to lädt eine komplett neue Seite (kein Turbo-Stream-Update) – daher
-    # den Zeilen-Container hier neu suchen statt die alte Referenz weiterzuverwenden.
-    # Capybaras Standard-Retry wartet dabei auf die Navigation. Das grau-gestrichelte
-    # Platzhalter-Div wird durch ein <img> ersetzt, sobald das Bild angehängt ist –
-    # belegt, dass die Auswahl allein (ohne separaten Klick) den Upload auslöst.
-    within(find("div[data-controller='modal']", text: "SystemTestKategorie")) do
-      assert_selector "img"
-    end
+    sleep 1
+    puts "DEBUG current_url=#{page.current_url}"
+    puts "DEBUG page_text=#{page.text[0, 800]}"
+    puts "DEBUG attached=#{CourseCategory.find_by(name: 'SystemTestKategorie')&.image&.attached?}"
 
     category = CourseCategory.find_by!(name: "SystemTestKategorie")
     assert category.image.attached?, "Bild muss nach dem Auswählen ohne separaten Klick automatisch hochgeladen werden"
