@@ -382,6 +382,17 @@ class CourseRegistrationsController < ApplicationController
     end
     @my_participants = current_user.participants
     @course = course
+
+    if @course_registration.status == "schnuppern"
+      load_trial_sessions(course)
+      # Aktuell gewähltes Schnuppertraining immer in der Auswahl anzeigen, auch wenn
+      # es (z.B. weil bereits vergangen) nicht mehr in den künftigen Sessions steckt –
+      # sonst würde das Bearbeiten-Formular den bisherigen Termin nicht anzeigen.
+      current_trial = @course_registration.trial_session
+      if current_trial && @trial_sessions&.exclude?(current_trial)
+        @trial_sessions = (@trial_sessions.to_a + [ current_trial ]).sort_by(&:start_time)
+      end
+    end
   end
 
   # NEU: Die Änderungen in der Datenbank speichern
@@ -405,6 +416,10 @@ class CourseRegistrationsController < ApplicationController
 
       redirect_to course_path(@course_registration.course), notice: t("course_registrations.flash.updated")
     else
+      @selectable_courses = course.category.present? ? Course.where(category: course.category).order(:title) : Course.where(registration_type: course.registration_type).order(:title)
+      @my_participants = current_user.participants
+      @course = course
+      load_trial_sessions(course) if @course_registration.status == "schnuppern"
       render :edit, status: :unprocessable_entity
     end
   end

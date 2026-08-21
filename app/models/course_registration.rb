@@ -100,6 +100,13 @@ class CourseRegistration < ApplicationRecord
     trial? && (trial_expires_at || created_at + 7.days) < Time.current
   end
 
+  # Datum des Schnuppertrainings: bei Semesterkursen über trial_session_id
+  # gewählt, bei Drop-In-Kursen ist die Schnupper-Anmeldung selbst direkt an
+  # die (einzige) training_session gebunden.
+  def trial_date
+    trial_session&.start_time || training_session&.start_time
+  end
+
   def status_label
     I18n.t("course_registrations.statuses.#{status}", default: status.to_s.humanize)
   end

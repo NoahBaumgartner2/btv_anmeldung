@@ -106,7 +106,6 @@
 
                 <% if current_user.admin? %>
                   <%= link_to t("nav.admin_dashboard"), dashboards_admin_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
-                  <%= link_to t("nav.nds"), admin_nds_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
                 <% end %>
               <% end %>
             </div>
@@ -170,9 +169,6 @@
 
             <% if current_user.admin? %>
               <%= link_to t("nav.admin_dashboard"), dashboards_admin_path,
-                    data: { action: "click->mobile-menu#close" },
-                    class: "block px-3 py-2.5 rounded-lg text-base font-bold text-red-600 hover:text-red-800 hover:bg-red-50 transition" %>
-              <%= link_to t("nav.nds"), admin_nds_path,
                     data: { action: "click->mobile-menu#close" },
                     class: "block px-3 py-2.5 rounded-lg text-base font-bold text-red-600 hover:text-red-800 hover:bg-red-50 transition" %>
             <% end %>

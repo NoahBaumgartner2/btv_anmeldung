@@ -199,6 +199,52 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       "Attendance darf nicht entfernt werden, solange der Ausgleichseintritt nicht zurückgenommen werden konnte"
   end
 
+  # ── edit/update: Schnupperdatum ändern ───────────────────────────────────────
+
+  def make_trial_registration
+    course = Course.new(title: "Schnupper-Edit-Test", registration_type: "semester",
+      registration_mode: "semester", has_payment: false, has_ticketing: false,
+      allows_holiday_deduction: false, allows_trial: true)
+    course.save!(validate: false)
+    old_session = course.training_sessions.create!(
+      start_time: 2.days.ago, end_time: 2.days.ago + 1.hour, is_canceled: false
+    )
+    new_session = course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
+    reg = CourseRegistration.new(
+      course: course, participant: participants(:one), status: "schnuppern",
+      trial_session: old_session, payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+
+    { reg: reg, old_session: old_session, new_session: new_session }
+  end
+
+  test "edit zeigt das aktuelle (bereits vergangene) Schnupperdatum in der Auswahl an" do
+    sign_in users(:admin)
+    setup = make_trial_registration
+
+    get edit_course_registration_path(setup[:reg])
+
+    assert_response :success
+    assert_select "select#course_registration_trial_session_id option[value=?]", setup[:old_session].id.to_s
+  end
+
+  test "update ändert das Schnupperdatum auf eine neue Session" do
+    sign_in users(:admin)
+    setup = make_trial_registration
+
+    patch course_registration_path(setup[:reg]),
+          params: { course_registration: {
+            course_id: setup[:reg].course_id, participant_id: setup[:reg].participant_id,
+            status: "schnuppern", payment_cleared: false, trial_session_id: setup[:new_session].id
+          } }
+
+    assert_redirected_to course_path(setup[:reg].course)
+    assert_equal setup[:new_session].id, setup[:reg].reload.trial_session_id
+  end
+
   # ── scan ────────────────────────────────────────────────────────────────────
 
   test "scan redirects with alert when session_id not found" do
