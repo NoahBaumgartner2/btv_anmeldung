@@ -245,6 +245,32 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal setup[:new_session].id, setup[:reg].reload.trial_session_id
   end
 
+  # ── show: Preis/Zahlung nicht bei Schnuppern anzeigen ────────────────────────
+
+  test "show zeigt bei Schnupperanmeldung weder Preis noch Zahlungsstatus" do
+    sign_in @trial_parent
+
+    paid_course = Course.new(title: "Bezahlkurs Schnuppern", registration_type: "semester",
+      registration_mode: "semester", has_payment: true, has_ticketing: false,
+      allows_holiday_deduction: false, allows_trial: true)
+    paid_course.price_cents = 10000
+    paid_course.save!(validate: false)
+    trial_session = paid_course.training_sessions.create!(
+      start_time: 3.days.from_now, end_time: 3.days.from_now + 1.hour, is_canceled: false
+    )
+    reg = CourseRegistration.new(
+      course: paid_course, participant: @trial_participant, status: "schnuppern",
+      trial_session: trial_session, payment_cleared: false, holiday_deduction_claimed: false
+    )
+    reg.save!(validate: false)
+
+    get course_registration_path(reg)
+
+    assert_response :success
+    assert_no_match "CHF 100.00", response.body
+    assert_no_match I18n.t("course_registrations.show.status.pending"), response.body
+  end
+
   # ── scan ────────────────────────────────────────────────────────────────────
 
   test "scan redirects with alert when session_id not found" do
