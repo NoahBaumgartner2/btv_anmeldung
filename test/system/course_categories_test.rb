@@ -10,12 +10,19 @@ class CourseCategoriesTest < ApplicationSystemTestCase
     login_as admin, scope: :user
 
     visit course_categories_path
-    category_row = find("div[data-controller='modal']", text: "SystemTestKategorie")
-    within(category_row) do
-      attach_file "course_category[image]", Rails.root.join("test/fixtures/files/test_image.png"), visible: false
+    within(find("div[data-controller='modal']", text: "SystemTestKategorie")) do
+      attach_file "course_category[image]", Rails.root.join("test/fixtures/files/test_image.png")
     end
 
-    assert_text "wurde gespeichert"
+    # redirect_to lädt eine komplett neue Seite (kein Turbo-Stream-Update) – daher
+    # den Zeilen-Container hier neu suchen statt die alte Referenz weiterzuverwenden.
+    # Capybaras Standard-Retry wartet dabei auf die Navigation. Das grau-gestrichelte
+    # Platzhalter-Div wird durch ein <img> ersetzt, sobald das Bild angehängt ist –
+    # belegt, dass die Auswahl allein (ohne separaten Klick) den Upload auslöst.
+    within(find("div[data-controller='modal']", text: "SystemTestKategorie")) do
+      assert_selector "img"
+    end
+
     category = CourseCategory.find_by!(name: "SystemTestKategorie")
     assert category.image.attached?, "Bild muss nach dem Auswählen ohne separaten Klick automatisch hochgeladen werden"
   end
