@@ -10,7 +10,10 @@ class CourseCategoriesTest < ApplicationSystemTestCase
     login_as admin, scope: :user
 
     visit course_categories_path
-    attach_file "course_category[image]", Rails.root.join("test/fixtures/files/test_image.png"), visible: false
+    category_row = find("div[data-controller='modal']", text: "SystemTestKategorie")
+    within(category_row) do
+      attach_file "course_category[image]", Rails.root.join("test/fixtures/files/test_image.png"), visible: false
+    end
 
     assert_text "wurde gespeichert"
     category = CourseCategory.find_by!(name: "SystemTestKategorie")
