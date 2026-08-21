@@ -245,6 +245,36 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal setup[:new_session].id, setup[:reg].reload.trial_session_id
   end
 
+  test "update verschickt eine E-Mail an die Eltern, wenn sich das Schnupperdatum ändert" do
+    sign_in users(:admin)
+    setup = make_trial_registration
+
+    assert_enqueued_jobs 1 do
+      patch course_registration_path(setup[:reg]),
+            params: { course_registration: {
+              course_id: setup[:reg].course_id, participant_id: setup[:reg].participant_id,
+              status: "schnuppern", payment_cleared: false, trial_session_id: setup[:new_session].id
+            } }
+    end
+
+    mail_args = enqueued_jobs.last[:args]
+    assert_equal "CourseRegistrationMailer", mail_args[0]
+    assert_equal "trial_date_changed", mail_args[1]
+  end
+
+  test "update verschickt KEINE E-Mail, wenn sich das Schnupperdatum nicht ändert" do
+    sign_in users(:admin)
+    setup = make_trial_registration
+
+    assert_no_enqueued_emails do
+      patch course_registration_path(setup[:reg]),
+            params: { course_registration: {
+              course_id: setup[:reg].course_id, participant_id: setup[:reg].participant_id,
+              status: "schnuppern", payment_cleared: true, trial_session_id: setup[:old_session].id
+            } }
+    end
+  end
+
   # ── show: Preis/Zahlung nicht bei Schnuppern anzeigen ────────────────────────
 
   test "show zeigt bei Schnupperanmeldung weder Preis noch Zahlungsstatus" do

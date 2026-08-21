@@ -137,6 +137,14 @@ class NotificationPreviewBuilder
       CourseRegistrationMailer.trial_expired(fake_registration(status: "storniert", trial_expires_at: 1.day.ago))
     end
 
+    def trial_date_changed
+      session = fake_training_session
+      CourseRegistrationMailer.trial_date_changed(
+        fake_registration(course: session.course, status: "schnuppern", trial_session: session),
+        previous_date: 3.days.from_now
+      )
+    end
+
     def payment_receipt
       reg = fake_registration(status: "bestätigt", sumup_transaction_id: "TX-BEISPIEL-123", sumup_checkout_id: "CO-BEISPIEL-456")
       CourseRegistrationMailer.payment_receipt(reg)

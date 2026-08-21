@@ -1484,6 +1484,10 @@ de:
         name: "Neuanmeldung möglich"
         description: "Wird verschickt, wenn ein Nachfolge-Kurs erstellt wurde und bisherige Teilnehmende sich vorab neu anmelden können."
         recipient: "Eltern bisheriger Teilnehmer:innen"
+      trial_date_changed:
+        name: "Schnupperdatum geändert"
+        description: "Wird verschickt, wenn ein Admin/Trainer das Schnupperdatum einer bestehenden Schnupperanmeldung nachträglich ändert."
+        recipient: "Eltern des Schnupper-Teilnehmers"
       self_cancelled:
         name: "Selbst-Abmeldung bestätigt"
         description: "Bestätigung, wenn sich jemand selbst über 'Mein Profil' vom Kurs abmeldet."

@@ -175,6 +175,28 @@ class CourseRegistrationMailerTest < ActionMailer::TestCase
     assert_match(/Schnupper/, body, "trial_expired-Mail muss den Schnupper-Bezug erwähnen")
   end
 
+  test "trial_date_changed rendert und nennt bisheriges und neues Datum" do
+    course = Course.new(title: "Schnupper-Datum-Test", registration_type: "semester",
+      registration_mode: "semester", has_payment: false, has_ticketing: false,
+      allows_holiday_deduction: false, allows_trial: true)
+    course.save!(validate: false)
+    new_session = course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
+    reg = CourseRegistration.new(course: course, participant: @participant, status: "schnuppern",
+      trial_session: new_session, payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+    previous_date = 2.days.from_now
+
+    mail = CourseRegistrationMailer.trial_date_changed(reg, previous_date: previous_date)
+
+    assert_equal [ @recipient.email ], mail.to
+    assert_match "Schnupperdatum geändert", mail.subject
+    body = mail.body.encoded
+    assert_match I18n.l(previous_date.to_date), body
+    assert_match I18n.l(new_session.start_time.to_date), body
+  end
+
   test "payment_expired wird für Schnupperplätze nicht verschickt (trial_expired ist zuständig)" do
     @registration.update_columns(status: "schnuppern")
 
