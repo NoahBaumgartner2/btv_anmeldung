@@ -5,7 +5,34 @@ class DashboardsController < ApplicationController
 
   def admin
     authorize_admin!
-    @courses = Course.includes(:course_registrations).order(start_date: :asc)
+    all_courses = Course.includes(:course_registrations, :term).order(start_date: :asc)
+
+    today = Date.current
+    @courses          = all_courses.reject { |c| c.end_date.present? && c.end_date < today }
+    archived_courses  = all_courses.select { |c| c.end_date.present? && c.end_date < today }
+
+    # Archiv gruppiert nach Zeitraum (Term, z.B. "HS2026") – der beim Erstellen
+    # angegebene Semester-/Quartals-Zeitraum, nicht zu verwechseln mit
+    # registration_mode (Anmelde-Kadenz). Kurse ohne Term (Alt-Kurse ohne
+    # Zeitraum-Zuordnung) landen in einer eigenen Sammel-Gruppe, neuester
+    # Zeitraum zuerst.
+    @archived_courses_by_term = archived_courses
+      .group_by(&:term)
+      .sort_by { |term, _courses| term&.start_date || Date.new(0) }
+      .reverse
+
+    @course_categories = @courses.map(&:category).compact_blank.uniq.sort
+    @course_registration_modes = @courses.map(&:registration_mode).compact_blank.uniq
+
+    course_q = params[:course_q].to_s.strip
+    @courses = @courses.select { |c| c.title.to_s.downcase.include?(course_q.downcase) } if course_q.present?
+    @courses = @courses.select { |c| c.category == params[:category] } if params[:category].present?
+    @courses = @courses.select { |c| c.registration_mode == params[:registration_mode] } if params[:registration_mode].present?
+
+    @course_limit = [ params[:course_limit].to_i, 10 ].max
+    @courses_total_count = @courses.size
+    @courses = @courses.first(@course_limit)
+
     @export_profiles = ExportProfile.order(:name)
 
     q = params[:q].to_s.strip

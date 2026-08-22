@@ -237,51 +237,127 @@
   </div>
 
   <%# ── Kurs-Übersicht ──────────────────────────────────────────────────── %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden mb-10 sm:mb-16">
+  <%= turbo_frame_tag "course_overview" do %>
+    <%= form_with url: dashboards_admin_path, method: :get,
+          data: { controller: "auto-submit" }, class: "flex flex-col sm:flex-row gap-3 mb-4" do %>
+      <%= text_field_tag :course_q, params[:course_q],
+            placeholder: t("dashboards.admin.table.search_placeholder"),
+            data: { action: "change->auto-submit#submit" },
+            class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+      <%= select_tag :category,
+            options_for_select([ [ t("dashboards.admin.table.all_categories"), "" ] ] + @course_categories.map { |c| [ c, c ] }, params[:category]),
+            data: { action: "change->auto-submit#submit" },
+            class: "rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+      <%= select_tag :registration_mode,
+            options_for_select([ [ t("dashboards.admin.table.all_modes"), "" ] ] + @course_registration_modes.map { |m| [ Course.new(registration_mode: m).registration_mode_label, m ] }, params[:registration_mode]),
+            data: { action: "change->auto-submit#submit" },
+            class: "rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+      <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white font-bold px-5 py-2.5 rounded-lg text-sm transition cursor-pointer"><%= t("dashboards.admin.table.filter_btn") %></button>
+    <% end %>
 
-    <%# Mobile: Cards %>
-    <div class="sm:hidden divide-y divide-gray-100">
-      <% @courses.each do |course| %>
-        <div class="p-4">
-          <div class="flex items-start justify-between gap-3 mb-2">
-            <div class="min-w-0">
-              <h3 class="font-bold text-gray-900 text-sm truncate"><%= course.title %></h3>
-              <p class="text-xs text-gray-500 mt-0.5"><%= course.registration_type_label %></p>
+    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
+
+      <%# Mobile: Cards %>
+      <div class="sm:hidden divide-y divide-gray-100">
+        <% @courses.each do |course| %>
+          <div class="p-4">
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <div class="min-w-0">
+                <h3 class="font-bold text-gray-900 text-sm truncate"><%= course.title %></h3>
+                <p class="text-xs text-gray-500 mt-0.5"><%= course.registration_type_label %></p>
+              </div>
+              <span class="shrink-0 text-xs font-bold text-primary-600 bg-primary-50 px-2 py-1 rounded-md">
+                <%= course.occupied_spots %> TN
+              </span>
             </div>
-            <span class="shrink-0 text-xs font-bold text-primary-600 bg-primary-50 px-2 py-1 rounded-md">
-              <%= course.occupied_spots %> TN
-            </span>
+            <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course),
+                  class: "block w-full text-center text-red-600 font-bold bg-red-50 active:bg-red-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
           </div>
-          <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course),
-                class: "block w-full text-center text-red-600 font-bold bg-red-50 active:bg-red-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
-        </div>
-      <% end %>
+        <% end %>
+        <% if @courses.empty? %>
+          <p class="p-6 text-center text-sm text-gray-400"><%= t("dashboards.admin.table.no_results") %></p>
+        <% end %>
+      </div>
+
+      <%# Desktop: Tabelle %>
+      <table class="hidden sm:table min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.course") %></th>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.category") %></th>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.registrations") %></th>
+            <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.action") %></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <% @courses.each do |course| %>
+            <tr class="hover:bg-gray-50">
+              <td class="py-4 px-4 font-bold text-gray-900 text-sm"><%= course.title %></td>
+              <td class="py-4 px-4 text-sm text-gray-500"><%= course.registration_type_label %></td>
+              <td class="py-4 px-4 text-sm font-medium text-primary-600"><%= course.occupied_spots %> <%= t("dashboards.admin.table.participants") %></td>
+              <td class="py-4 px-4 text-right">
+                <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
+              </td>
+            </tr>
+          <% end %>
+          <% if @courses.empty? %>
+            <tr><td colspan="4" class="py-6 text-center text-sm text-gray-400"><%= t("dashboards.admin.table.no_results") %></td></tr>
+          <% end %>
+        </tbody>
+      </table>
     </div>
 
-    <%# Desktop: Tabelle %>
-    <table class="hidden sm:table min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
-        <tr>
-          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.course") %></th>
-          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.category") %></th>
-          <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.registrations") %></th>
-          <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.action") %></th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-200">
-        <% @courses.each do |course| %>
-          <tr class="hover:bg-gray-50">
-            <td class="py-4 px-4 font-bold text-gray-900 text-sm"><%= course.title %></td>
-            <td class="py-4 px-4 text-sm text-gray-500"><%= course.registration_type_label %></td>
-            <td class="py-4 px-4 text-sm font-medium text-primary-600"><%= course.occupied_spots %> <%= t("dashboards.admin.table.participants") %></td>
-            <td class="py-4 px-4 text-right">
-              <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
-            </td>
-          </tr>
+    <div class="text-center mt-4 mb-10 sm:mb-16">
+      <% if @courses_total_count > @course_limit %>
+        <%= link_to t("dashboards.admin.table.show_more"),
+              dashboards_admin_path(course_q: params[:course_q], category: params[:category],
+                                     registration_mode: params[:registration_mode], course_limit: @course_limit + 10),
+              class: "inline-block bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-2.5 px-6 rounded-lg shadow-sm text-sm transition" %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ── Archiv: Kurse mit vergangenem Enddatum, gruppiert nach Zeitraum ──── %>
+  <% if @archived_courses_by_term.any? %>
+    <details class="mb-10 sm:mb-16 group">
+      <summary class="flex items-center gap-2 cursor-pointer list-none select-none text-sm font-bold text-gray-400 hover:text-gray-600 transition min-h-11">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+        <%= t("dashboards.admin.archive.title") %>
+        <span class="font-normal text-gray-300">(<%= @archived_courses_by_term.sum { |_, courses| courses.size } %>)</span>
+      </summary>
+
+      <div class="mt-4 space-y-6">
+        <% @archived_courses_by_term.each do |term, courses| %>
+          <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-100">
+              <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                <%= term&.name || t("dashboards.admin.archive.no_term") %>
+              </p>
+            </div>
+            <ul class="divide-y divide-gray-100">
+              <% courses.each do |course| %>
+                <li class="flex items-center justify-between gap-3 px-4 py-3">
+                  <div class="min-w-0">
+                    <p class="text-sm font-bold text-gray-700 truncate"><%= course.title %></p>
+                    <p class="text-xs text-gray-400 mt-0.5">
+                      <%= course.registration_type_label %>
+                      <% if course.end_date.present? %>
+                        &middot; <%= t("dashboards.admin.archive.ended", date: I18n.l(course.end_date.to_date)) %>
+                      <% end %>
+                    </p>
+                  </div>
+                  <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course),
+                        class: "shrink-0 text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
+                </li>
+              <% end %>
+            </ul>
+          </div>
         <% end %>
-      </tbody>
-    </table>
-  </div>
+      </div>
+    </details>
+  <% end %>
 
   <%# ── Teilnehmer-Suche ────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-5 gap-3 sm:gap-4">
