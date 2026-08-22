@@ -301,6 +301,62 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match I18n.t("course_registrations.show.status.pending"), response.body
   end
 
+  # ── change_trial_session (Eltern-Selbst-Service) ─────────────────────────────
+
+  test "change_trial_session ändert den Termin und verschickt eine E-Mail" do
+    sign_in @parent
+    setup = make_trial_registration
+    setup[:reg].update_columns(trial_session_id: setup[:new_session].id) # sicher in der Zukunft
+    later_session = setup[:reg].course.training_sessions.create!(
+      start_time: 10.days.from_now, end_time: 10.days.from_now + 1.hour, is_canceled: false
+    )
+
+    assert_enqueued_jobs 1 do
+      post change_trial_session_course_registration_path(setup[:reg]),
+           params: { trial_session_id: later_session.id }
+    end
+
+    assert_redirected_to participants_path
+    assert_equal later_session.id, setup[:reg].reload.trial_session_id
+  end
+
+  test "change_trial_session blockiert, wenn der bisherige Termin schon begonnen hat" do
+    sign_in @parent
+    setup = make_trial_registration # trial_session = old_session, bereits in der Vergangenheit
+
+    assert_no_enqueued_emails do
+      post change_trial_session_course_registration_path(setup[:reg]),
+           params: { trial_session_id: setup[:new_session].id }
+    end
+
+    assert_redirected_to participants_path
+    assert_equal I18n.t("participants.index.trial_date_change_too_late"), flash[:alert]
+    assert_equal setup[:old_session].id, setup[:reg].reload.trial_session_id
+  end
+
+  test "change_trial_session lehnt eine ungültige Session ab" do
+    sign_in @parent
+    setup = make_trial_registration
+    setup[:reg].update_columns(trial_session_id: setup[:new_session].id)
+
+    post change_trial_session_course_registration_path(setup[:reg]),
+         params: { trial_session_id: 0 }
+
+    assert_redirected_to participants_path
+    assert_equal I18n.t("participants.index.trial_date_change_invalid_session"), flash[:alert]
+  end
+
+  test "change_trial_session verweigert Zugriff für fremde Eltern" do
+    sign_in @other_parent
+    setup = make_trial_registration
+    setup[:reg].update_columns(trial_session_id: setup[:new_session].id)
+
+    post change_trial_session_course_registration_path(setup[:reg]),
+         params: { trial_session_id: setup[:new_session].id }
+
+    assert_redirected_to root_path
+  end
+
   # ── scan ────────────────────────────────────────────────────────────────────
 
   test "scan redirects with alert when session_id not found" do
