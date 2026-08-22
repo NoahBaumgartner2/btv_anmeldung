@@ -318,6 +318,10 @@ class CoursesController < ApplicationController
   # (siehe Trainer#self_participant). Keine "Kinder" erstellbar – nur der
   # eigene, an das Trainer-Profil gekoppelte Teilnehmer-Datensatz.
   def self_enroll
+    unless FeatureSetting.current.trainer_self_enroll_enabled? && @course.allows_trainer_self_enroll?
+      return redirect_to course_path(@course), alert: "Die Gratis-Selbstanmeldung für Trainer ist für diesen Kurs nicht aktiviert."
+    end
+
     trainer = Trainer.find_by(user: current_user)
     unless trainer
       return redirect_to course_path(@course), alert: "Nur für Trainer verfügbar."
@@ -544,7 +548,7 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :term_id, :public_registration_days, :auto_rollover, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :grants_abo_makeup_entry, :restricted, :allows_talent_marking, :email_note, trainer_ids: [], payment_methods: [], holiday_type_ids: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :term_id, :public_registration_days, :auto_rollover, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :grants_abo_makeup_entry, :allows_trainer_self_enroll, :restricted, :allows_talent_marking, :email_note, trainer_ids: [], payment_methods: [], holiday_type_ids: [])
     end
 
     # Stuft nach einer Kapazitätserhöhung Wartelisten-Anmeldungen hoch.

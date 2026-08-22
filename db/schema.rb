@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_161500) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_22_171500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -157,6 +157,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_161500) do
     t.integer "abo_size"
     t.boolean "allows_holiday_deduction"
     t.boolean "allows_talent_marking", default: false, null: false
+    t.boolean "allows_trainer_self_enroll", default: true, null: false
     t.boolean "allows_trial", default: false, null: false
     t.boolean "auto_rollover", default: true, null: false
     t.string "category"
@@ -237,6 +238,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_161500) do
     t.string "row_sep", default: "\\n"
     t.string "schedule", default: "none"
     t.string "sort_by", default: "last_name"
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "feature_settings", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "trainer_self_enroll_enabled", default: true, null: false
     t.datetime "updated_at", null: false
   end
 

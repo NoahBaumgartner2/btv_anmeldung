@@ -27,6 +27,7 @@ Rails.application.routes.draw do
     resource :club_setting, only: [ :show, :edit, :update ] do
       delete :destroy_logo, on: :member
     end
+    resource :feature_setting, only: [ :update ]
     resources :export_profiles, only: %i[index new create edit update destroy] do
       member { get :download }
     end

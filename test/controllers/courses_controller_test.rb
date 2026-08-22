@@ -770,4 +770,37 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to my_profile_path
   end
+
+  test "self_enroll ist blockiert, wenn der Kurs es nicht erlaubt" do
+    trainer = build_fresh_trainer
+    course = Course.new(title: "Kein Selbst-Enroll", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false, allows_trainer_self_enroll: false)
+    course.save!(validate: false)
+
+    sign_in trainer.user
+
+    assert_no_difference "CourseRegistration.count" do
+      post self_enroll_course_path(course)
+    end
+
+    assert_redirected_to course_path(course)
+    assert_match "nicht aktiviert", flash[:alert]
+  end
+
+  test "self_enroll ist blockiert, wenn der globale Schalter aus ist" do
+    FeatureSetting.current.update!(trainer_self_enroll_enabled: false)
+    trainer = build_fresh_trainer
+    course = Course.new(title: "Global aus", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+
+    sign_in trainer.user
+
+    assert_no_difference "CourseRegistration.count" do
+      post self_enroll_course_path(course)
+    end
+
+    assert_redirected_to course_path(course)
+    assert_match "nicht aktiviert", flash[:alert]
+  end
 end
