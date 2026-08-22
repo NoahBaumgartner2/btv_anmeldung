@@ -20,6 +20,8 @@ class Trainer < ApplicationRecord
 
   validates(*REQUIRED_PROFILE_FIELDS, presence: true, on: :profile_completion)
 
+  normalizes :phone, with: PhoneNumberFormatter
+
   validate :phone_format, if: -> { phone.present? }
   validate :date_of_birth_plausible, if: -> { date_of_birth.present? }
 
