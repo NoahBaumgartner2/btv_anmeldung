@@ -653,6 +653,44 @@ class CourseRegistrationsController < ApplicationController
                           name: participant_name, date: session_date)
   end
 
+  # Selbst-Service für Eltern: Schnuppertermin auf eine andere künftige Session
+  # desselben Kurses verschieben. Analog zum Admin-Pfad in #update, aber ohne
+  # die übrigen (admin-only) Felder – nur trial_session_id.
+  def change_trial_session
+    @course_registration = CourseRegistration.find(params[:id])
+    authorize_parent_owns_registration!(@course_registration)
+    return if performed?
+
+    unless @course_registration.trial? && !@course_registration.trial_expired?
+      redirect_to participants_path, alert: t("participants.index.trial_date_change_invalid")
+      return
+    end
+
+    current_trial_session = @course_registration.trial_session
+    if current_trial_session && current_trial_session.start_time <= Time.current
+      redirect_to participants_path, alert: t("participants.index.trial_date_change_too_late")
+      return
+    end
+
+    new_session = @course_registration.course.training_sessions
+      .where(is_canceled: false)
+      .where("start_time > ?", Time.current)
+      .find_by(id: params[:trial_session_id])
+    unless new_session
+      redirect_to participants_path, alert: t("participants.index.trial_date_change_invalid_session")
+      return
+    end
+
+    previous_date = current_trial_session&.start_time
+    @course_registration.update!(trial_session: new_session)
+
+    if @course_registration.saved_change_to_trial_session_id?
+      CourseRegistrationMailer.trial_date_changed(@course_registration, previous_date: previous_date).deliver_later
+    end
+
+    redirect_to participants_path, notice: t("participants.index.trial_date_changed_notice")
+  end
+
   def trial_eligible
     course = Course.find_by(id: params[:course_id])
     if course.nil?
