@@ -52,11 +52,13 @@
           <div>
             <%= f.label :first_name, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.first_name_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :first_name, placeholder: "Laura",
+                  data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div>
             <%= f.label :last_name, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.last_name_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :last_name, placeholder: "Müller",
+                  data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
         </div>
@@ -92,6 +94,7 @@
           <div class="col-span-2">
             <%= f.label :street, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.street_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :street, placeholder: "Musterstrasse",
+                  data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div>
@@ -110,6 +113,7 @@
           <div class="col-span-2">
             <%= f.label :city, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.city_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :city, placeholder: "Bern",
+                  data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
         </div>

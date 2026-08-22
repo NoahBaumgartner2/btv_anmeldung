@@ -46,6 +46,7 @@
         <%= form.text_field :first_name,
               placeholder: t("participants.form.first_name_placeholder"),
               autocomplete: "given-name",
+              data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
               class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       participant.errors[:first_name].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if participant.errors[:first_name].any? %>
@@ -58,6 +59,7 @@
         <%= form.text_field :last_name,
               placeholder: t("participants.form.last_name_placeholder"),
               autocomplete: "family-name",
+              data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
               class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       participant.errors[:last_name].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if participant.errors[:last_name].any? %>
@@ -157,6 +159,7 @@
         <%= form.text_field :street,
               placeholder: t("participants.form.street_placeholder"),
               autocomplete: "street-address",
+              data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
               class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
       <div>
@@ -187,6 +190,7 @@
         <%= form.text_field :city,
               placeholder: "Bern",
               autocomplete: "address-level2",
+              data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
               class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>

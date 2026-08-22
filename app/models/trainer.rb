@@ -23,6 +23,7 @@ class Trainer < ApplicationRecord
   normalizes :phone, with: PhoneNumberFormatter
   normalizes :ahv_number, with: AhvNumberFormatter
   normalizes :iban, with: IbanFormatter
+  normalizes :first_name, :last_name, :street, :city, with: NameCapitalizer
 
   validate :phone_format, if: -> { phone.present? }
   validate :date_of_birth_plausible, if: -> { date_of_birth.present? }

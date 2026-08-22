@@ -27,6 +27,7 @@ class User < ApplicationRecord
   MANDATORY_NOTIFICATION_TYPES = %w[attendance_reminder].freeze
 
   normalizes :phone_number, with: PhoneNumberFormatter
+  normalizes :first_name, :last_name, :street, :city, with: NameCapitalizer
 
   validates :phone_number, :street, :zip_code, :city,
             presence: true,

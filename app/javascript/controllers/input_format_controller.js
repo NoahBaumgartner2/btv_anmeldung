@@ -32,6 +32,14 @@ const FORMATTERS = {
     if (!chars) return raw
     return chars.match(/.{1,4}/g).join(" ")
   },
+
+  capitalize(raw) {
+    if (!raw) return raw
+    return raw
+      .split(/([\s-])/)
+      .map((part) => (/^\p{L}/u.test(part) ? part[0].toUpperCase() + part.slice(1) : part))
+      .join("")
+  },
 }
 
 export default class extends Controller {
@@ -57,14 +65,14 @@ export default class extends Controller {
   // IBAN auch Buchstaben) — Trennzeichen wie Leerzeichen/Punkte zählen nicht,
   // damit die Cursorposition nach dem Reformatieren stabil bleibt.
   countSignificant(str) {
-    return (str.match(/[\dA-Za-z+]/g) || []).length
+    return (str.match(/[\d+\p{L}]/gu) || []).length
   }
 
   positionForCount(str, count) {
     if (count <= 0) return 0
     let seen = 0
     for (let i = 0; i < str.length; i++) {
-      if (/[\dA-Za-z+]/.test(str[i])) seen++
+      if (/[\d+\p{L}]/u.test(str[i])) seen++
       if (seen === count) return i + 1
     }
     return str.length

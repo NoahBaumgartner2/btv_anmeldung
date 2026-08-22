@@ -20,6 +20,7 @@ class Participant < ApplicationRecord
 
   normalizes :phone_number, with: PhoneNumberFormatter
   normalizes :ahv_number, with: AhvNumberFormatter
+  normalizes :first_name, :last_name, :street, :city, with: NameCapitalizer
 
   validates :first_name, :last_name, :date_of_birth, :gender, :phone_number, presence: true
   validates :gender, inclusion: { in: GENDERS }
