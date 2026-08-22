@@ -90,16 +90,19 @@
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
         <p class="text-xs font-bold text-gray-400 uppercase tracking-wider"><%= t("participants.my_profile.section_address") %></p>
 
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-3 gap-4" data-controller="address-split">
           <div class="col-span-2">
             <%= f.label :street, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.street_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :street, placeholder: "Musterstrasse",
-                  data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
+                  data: { controller: "input-format", input_format_type_value: "capitalize",
+                          address_split_target: "street",
+                          action: "input->address-split#split input->input-format#format" },
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div>
             <%= f.label :house_number, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.house_number_label") %> <span class="text-red-500">*</span><% end %>
             <%= f.text_field :house_number, placeholder: "12",
+                  data: { address_split_target: "houseNumber" },
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
         </div>
@@ -140,6 +143,7 @@
           <%= f.label :ahv_number, class: "block text-sm font-semibold text-gray-700 mb-1" do %><%= t("participants.my_profile.ahv_label") %> <span class="text-red-500">*</span><% end %>
           <p class="text-xs text-gray-400 mb-1.5"><%= t("participants.my_profile.ahv_format_hint") %></p>
           <%= f.text_field :ahv_number, placeholder: "756.1234.5678.90",
+                inputmode: "numeric",
                 data: { controller: "input-format", input_format_type_value: "ahv", action: "input->input-format#format" },
                 class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-500" %>
         </div>

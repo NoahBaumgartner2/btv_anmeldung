@@ -138,6 +138,7 @@
             pattern: "756\\.\\d{4}\\.\\d{4}\\.\\d{2}",
             title: t("participants.form.ahv_title"),
             required: ahv_required,
+            inputmode: "numeric",
             data: { controller: "input-format", input_format_type_value: "ahv", action: "input->input-format#format" },
             class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                     participant.errors[:ahv_number].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
@@ -153,19 +154,22 @@
   <div data-manual-enroll-target="detailFields" class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6 mb-4">
     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-5"><%= t("participants.form.section_address") %></p>
 
-    <div class="grid grid-cols-3 gap-5 mb-5">
+    <div class="grid grid-cols-3 gap-5 mb-5" data-controller="address-split">
       <div class="col-span-2">
         <%= form.label :street, t("participants.form.street_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= form.text_field :street,
               placeholder: t("participants.form.street_placeholder"),
               autocomplete: "street-address",
-              data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
+              data: { controller: "input-format", input_format_type_value: "capitalize",
+                      address_split_target: "street",
+                      action: "input->address-split#split input->input-format#format" },
               class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
       <div>
         <%= form.label :house_number, t("participants.form.house_number_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= form.text_field :house_number,
               placeholder: "12a",
+              data: { address_split_target: "houseNumber" },
               class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
