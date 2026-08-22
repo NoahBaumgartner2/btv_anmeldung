@@ -10,8 +10,12 @@ export default class extends Controller {
   split() {
     const match = this.streetTarget.value.match(/^(.+?),?\s+(\d+[a-zA-Z]?)$/)
     if (!match) return
-    if (this.houseNumberTarget.value.trim() !== "") return
 
+    // Ein Treffer heisst: das Strassenfeld enthält Name+Nummer zusammen -
+    // das passiert nur durch Autofill, das die ganze Adresse reinkippt (und
+    // dabei oft auch gleich ein falsches/leeres Nr.-Feld setzt). Deshalb hier
+    // bewusst immer überschreiben, statt ein evtl. falsches Nr.-Feld stehen
+    // zu lassen.
     const [, street, houseNumber] = match
     this.streetTarget.value = street.trim()
     this.houseNumberTarget.value = houseNumber

@@ -162,7 +162,7 @@
               autocomplete: "street-address",
               data: { controller: "input-format", input_format_type_value: "capitalize",
                       address_split_target: "street",
-                      action: "input->address-split#split input->input-format#format" },
+                      action: "input->address-split#split change->address-split#split input->input-format#format" },
               class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
       <div>
