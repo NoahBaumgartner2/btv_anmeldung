@@ -403,6 +403,7 @@ class CourseRegistrationsController < ApplicationController
     was_occupying       = CourseRegistration::OCCUPYING_STATUSES.include?(@course_registration.status)
     course              = @course_registration.course
     training_session_id = @course_registration.training_session_id
+    previous_trial_date = @course_registration.trial_session&.start_time
 
     if @course_registration.update(course_registration_params)
       # cancelled_at konsistent setzen (analog cancel/trainer_cancel), falls hier storniert wurde.
@@ -412,6 +413,10 @@ class CourseRegistrationsController < ApplicationController
 
       if was_occupying && !CourseRegistration::OCCUPYING_STATUSES.include?(@course_registration.status)
         WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
+      end
+
+      if @course_registration.saved_change_to_trial_session_id?
+        CourseRegistrationMailer.trial_date_changed(@course_registration, previous_date: previous_trial_date).deliver_later
       end
 
       redirect_to course_path(@course_registration.course), notice: t("course_registrations.flash.updated")

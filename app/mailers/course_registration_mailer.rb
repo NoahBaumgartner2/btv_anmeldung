@@ -223,6 +223,26 @@ class CourseRegistrationMailer < ApplicationMailer
     )
   end
 
+  # Wird verschickt, wenn ein Admin/Trainer das Schnupperdatum einer bestehenden
+  # Schnupperanmeldung nachträglich ändert (course_registrations#update).
+  def trial_date_changed(course_registration, previous_date:)
+    @course_registration = course_registration
+    @course = course_registration.course
+    @participant = course_registration.participant
+    @recipient = @participant.user
+    return if @recipient.nil?
+
+    return unless MailSetting.mail_enabled?(:trial_date_changed)
+
+    @previous_date = previous_date
+    @trial_session = course_registration.trial_session || course_registration.training_session
+
+    mail(
+      to: @recipient.email,
+      subject: "Schnupperdatum geändert: #{@course.title}"
+    )
+  end
+
   def payment_receipt(course_registration)
     @course_registration = course_registration
     @course = course_registration.course

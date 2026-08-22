@@ -37,6 +37,7 @@ class NotificationCatalog
     entry(key: "abo_imported",              category: "registration", toggleable: true, preview_method: :abo_imported),
     entry(key: "abo_exhausted",             category: "registration", toggleable: true, preview_method: :abo_exhausted),
     entry(key: "renewal_available",         category: "registration", toggleable: true, preview_method: :renewal_available),
+    entry(key: "trial_date_changed",        category: "registration", toggleable: true, preview_method: :trial_date_changed),
 
     # ── Abmeldung & Stornierung ────────────────────────────────────────────
     # Hinweis: admin_cancel_notice existiert im Mailer, wird aber aktuell von

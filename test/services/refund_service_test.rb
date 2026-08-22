@@ -133,15 +133,15 @@ class RefundServiceTest < ActiveSupport::TestCase
 
   # ── Abzugs-Logik ─────────────────────────────────────────────────────────
 
-  test "no_amount_after_deduction when sessions cost equals price" do
-    # price = 3000, 2 sessions * 1500 = 3000 → refund = 0
+  test "no_amount_after_deduction when billable sessions cost equals price" do
+    # price = 3000, 3 sessions besucht: erste gratis, 2 abgerechnet * 1500 = 3000 → refund = 0
     reg = build_registration(price_cents: 3000, training_value_cents: 1500)
-    stub_sessions_count(reg, 2)
+    stub_sessions_count(reg, 3)
 
     result = RefundService.process(reg)
     assert_equal false, result[:refunded]
     assert_equal "no_amount_after_deduction", result[:reason]
-    assert_equal 2, result[:sessions_count]
+    assert_equal 3, result[:sessions_count]
     assert_equal 3000, result[:abzug_cents]
   end
 
@@ -169,16 +169,29 @@ class RefundServiceTest < ActiveSupport::TestCase
     end
   end
 
-  test "deducts sessions from refund amount" do
-    # price = 10000, 2 sessions * 1500 = 3000 → refund = 7000
+  test "first attended session is free and does not reduce the refund" do
+    # price = 10000, 1 Training besucht → gratis, voller Betrag bleibt
     reg = build_registration(price_cents: 10000, training_value_cents: 1500)
-    stub_sessions_count(reg, 2)
+    stub_sessions_count(reg, 1)
+
+    with_http_stub(fake_http(success_response)) do
+      result = RefundService.process(reg)
+      assert_equal true, result[:refunded]
+      assert_equal 10000, result[:amount_cents]
+      assert_equal 1, result[:sessions_count]
+    end
+  end
+
+  test "deducts sessions from refund amount, first session excluded" do
+    # price = 10000, 3 sessions besucht: erste gratis, 2 abgerechnet * 1500 = 3000 → refund = 7000
+    reg = build_registration(price_cents: 10000, training_value_cents: 1500)
+    stub_sessions_count(reg, 3)
 
     with_http_stub(fake_http(success_response)) do
       result = RefundService.process(reg)
       assert_equal true, result[:refunded]
       assert_equal 7000, result[:amount_cents]
-      assert_equal 2, result[:sessions_count]
+      assert_equal 3, result[:sessions_count]
     end
   end
 
@@ -198,7 +211,7 @@ class RefundServiceTest < ActiveSupport::TestCase
   # Der Request muss den vollen Rappen-Betrag als Ganzzahl senden.
   test "sends the refund amount as an integer in Rappen, not as a francs decimal" do
     reg = build_registration(price_cents: 10000, training_value_cents: 1500)
-    stub_sessions_count(reg, 2) # refund = 7000 Rappen = CHF 70.00
+    stub_sessions_count(reg, 3) # erste gratis, 2 abgerechnet → refund = 7000 Rappen = CHF 70.00
 
     captured = {}
     with_http_stub(fake_http_capturing(success_response, captured)) do
@@ -207,6 +220,22 @@ class RefundServiceTest < ActiveSupport::TestCase
 
     body = JSON.parse(captured[:value])
     assert_equal 7000, body["amount"]
+  end
+
+  # ── calculate_amount_cents (Vorschau ohne echten Refund) ────────────────────
+
+  test "calculate_amount_cents lässt das erste Training ebenfalls gratis" do
+    reg = build_registration(price_cents: 10000, training_value_cents: 1500)
+    stub_sessions_count(reg, 1)
+
+    assert_equal 10000, RefundService.calculate_amount_cents(reg)
+  end
+
+  test "calculate_amount_cents zieht ab dem zweiten Training ab" do
+    reg = build_registration(price_cents: 10000, training_value_cents: 1500)
+    stub_sessions_count(reg, 3)
+
+    assert_equal 7000, RefundService.calculate_amount_cents(reg)
   end
 
   # ── SumUp API Fehler ──────────────────────────────────────────────────────
