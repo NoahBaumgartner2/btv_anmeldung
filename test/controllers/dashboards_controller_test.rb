@@ -94,6 +94,28 @@ class DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match "Turnen A", response.body
   end
 
+  test "Kommandozentrale packt Kurse mit vergangenem Enddatum ins Archiv" do
+    active = Course.new(title: "Läuft noch", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      end_date: 1.month.from_now)
+    active.save!(validate: false)
+    ended = Course.new(title: "Ist beendet", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      end_date: 1.month.ago, term: terms(:one))
+    ended.save!(validate: false)
+
+    sign_in users(:admin)
+    get dashboards_admin_path
+
+    assert_response :success
+    # In der Haupt-Kursübersicht (Tabelle) darf der beendete Kurs nicht mehr auftauchen,
+    # im Archiv-Bereich (unter dem Term-Namen) aber schon.
+    assert_select "table td", text: "Läuft noch"
+    assert_select "table td", text: "Ist beendet", count: 0
+    assert_match "Ist beendet", response.body
+    assert_match terms(:one).name, response.body
+  end
+
   test "Kommandozentrale filtert Kurse nach Semester/Quartal" do
     make_dashboard_course(title: "Turnen A", category: "Turnen", registration_mode: "semester")
     make_dashboard_course(title: "Pilates B", category: "Pilates", registration_mode: "quartal")

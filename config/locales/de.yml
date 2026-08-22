@@ -663,6 +663,10 @@ de:
         all_modes: "Alle Anmelde-Arten"
         filter_btn: "Filtern"
         no_results: "Keine Kurse gefunden."
+      archive:
+        title: "Archiv (vergangene Kurse)"
+        no_term: "Ohne Zeitraum"
+        ended: "beendet am %{date}"
       search:
         title: "Teilnehmer-Suche"
         subtitle: "Suche nach Name oder E-Mail-Adresse des verknüpften Kontos."

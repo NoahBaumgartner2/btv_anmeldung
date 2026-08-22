@@ -5,7 +5,21 @@ class DashboardsController < ApplicationController
 
   def admin
     authorize_admin!
-    @courses = Course.includes(:course_registrations).order(start_date: :asc)
+    all_courses = Course.includes(:course_registrations, :term).order(start_date: :asc)
+
+    today = Date.current
+    @courses          = all_courses.reject { |c| c.end_date.present? && c.end_date < today }
+    archived_courses  = all_courses.select { |c| c.end_date.present? && c.end_date < today }
+
+    # Archiv gruppiert nach Zeitraum (Term, z.B. "HS2026") – der beim Erstellen
+    # angegebene Semester-/Quartals-Zeitraum, nicht zu verwechseln mit
+    # registration_mode (Anmelde-Kadenz). Kurse ohne Term (Alt-Kurse ohne
+    # Zeitraum-Zuordnung) landen in einer eigenen Sammel-Gruppe, neuester
+    # Zeitraum zuerst.
+    @archived_courses_by_term = archived_courses
+      .group_by(&:term)
+      .sort_by { |term, _courses| term&.start_date || Date.new(0) }
+      .reverse
 
     @course_categories = @courses.map(&:category).compact_blank.uniq.sort
     @course_registration_modes = @courses.map(&:registration_mode).compact_blank.uniq
