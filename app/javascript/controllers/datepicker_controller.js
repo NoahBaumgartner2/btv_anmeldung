@@ -83,10 +83,20 @@ export default class extends Controller {
         }
       }],
     })
+
+    // Mit allowInput:true öffnet Flatpickr den Kalender nur über das
+    // "focus"-Event des Felds. Ist das Feld (z.B. nach dem Schliessen per
+    // Auswahl) bereits fokussiert, feuert ein erneuter Klick kein neues
+    // focus-Event mehr - der Kalender bliebe beim zweiten Klick zu.
+    this.clickHandler = () => {
+      if (this.fp && !this.fp.isOpen) this.fp.open()
+    }
+    this.fp.altInput.addEventListener("click", this.clickHandler)
   }
 
   disconnect() {
     if (this.fp) {
+      this.fp.altInput?.removeEventListener("click", this.clickHandler)
       this.fp.destroy()
       this.fp = null
     }
