@@ -9,13 +9,7 @@ class RefundService
     paid_cents = registration.applied_price_cents || course.price_cents
     return nil unless paid_cents.present? && paid_cents > 0
 
-    sessions_count = course.training_sessions
-      .where(is_canceled: false)
-      .where("start_time <= ?", Time.current)
-      .where("start_time >= ?", registration.created_at)
-      .count
-
-    refund_cents = paid_cents - (sessions_count * course.training_value_cents)
+    refund_cents = paid_cents - deduction_cents(registration)
     refund_cents.positive? ? refund_cents : nil
   end
 
@@ -33,13 +27,8 @@ class RefundService
     paid_cents = registration.applied_price_cents || course.price_cents
     return { refunded: false, reason: "no_price" } unless paid_cents.present? && paid_cents > 0
 
-    sessions_count = course.training_sessions
-      .where(is_canceled: false)
-      .where("start_time <= ?", Time.current)
-      .where("start_time >= ?", registration.created_at)
-      .count
-
-    abzug_cents = sessions_count * course.training_value_cents
+    sessions_count = attended_sessions_count(registration)
+    abzug_cents = deduction_cents(registration)
     refund_cents = paid_cents - abzug_cents
 
     Rails.logger.info "[RefundService] Registration #{registration.id}: paid=#{paid_cents}¢, sessions=#{sessions_count}, abzug=#{abzug_cents}¢, refund=#{refund_cents}¢"
@@ -122,4 +111,23 @@ class RefundService
       "Unbekannte Ursache – bitte die Transaktion im SumUp-Dashboard prüfen und manuell per e-Banking erstatten."
     end
   end
+
+  # Anzahl bereits stattgefundener (nicht abgesagter) Trainings seit der Anmeldung.
+  def self.attended_sessions_count(registration)
+    registration.course.training_sessions
+      .where(is_canceled: false)
+      .where("start_time <= ?", Time.current)
+      .where("start_time >= ?", registration.created_at)
+      .count
+  end
+
+  # Das erste besuchte Training ist kostenlos (Schnupper-Charakter) und mindert
+  # die Rückerstattung NICHT – erst ab dem zweiten Training wird pro Training
+  # der Trainingswert abgezogen.
+  def self.deduction_cents(registration)
+    billable_sessions = [ attended_sessions_count(registration) - 1, 0 ].max
+    billable_sessions * registration.course.training_value_cents
+  end
+
+  private_class_method :attended_sessions_count, :deduction_cents
 end
