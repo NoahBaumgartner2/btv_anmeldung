@@ -58,6 +58,28 @@ class DashboardsControllerTest < ActionDispatch::IntegrationTest
     course
   end
 
+  test "Kommandozentrale zeigt maximal 10 Kurse und einen Mehr-anzeigen-Link" do
+    12.times { |i| make_dashboard_course(title: "Limit-Kurs #{i}", category: "Turnen", registration_mode: "semester") }
+
+    sign_in users(:admin)
+    get dashboards_admin_path
+
+    assert_response :success
+    assert_select "table tbody tr", count: 10
+    assert_select "a", text: I18n.t("dashboards.admin.table.show_more")
+  end
+
+  test "Kommandozentrale zeigt mehr Kurse mit course_limit-Parameter und blendet den Link dann aus" do
+    12.times { |i| make_dashboard_course(title: "Limit-Kurs #{i}", category: "Turnen", registration_mode: "semester") }
+
+    sign_in users(:admin)
+    get dashboards_admin_path, params: { course_limit: 20, category: "Turnen" }
+
+    assert_response :success
+    assert_select "table tbody tr", count: 12
+    assert_select "a", text: I18n.t("dashboards.admin.table.show_more"), count: 0
+  end
+
   test "Kommandozentrale zeigt ohne Filter alle Kurse" do
     make_dashboard_course(title: "Turnen A", category: "Turnen", registration_mode: "semester")
     make_dashboard_course(title: "Pilates B", category: "Pilates", registration_mode: "quartal")

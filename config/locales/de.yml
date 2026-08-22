@@ -663,6 +663,7 @@ de:
         all_modes: "Alle Anmelde-Arten"
         filter_btn: "Filtern"
         no_results: "Keine Kurse gefunden."
+        show_more: "Mehr anzeigen"
       archive:
         title: "Archiv (vergangene Kurse)"
         no_term: "Ohne Zeitraum"

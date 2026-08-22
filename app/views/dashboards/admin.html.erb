@@ -255,7 +255,7 @@
       <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white font-bold px-5 py-2.5 rounded-lg text-sm transition cursor-pointer"><%= t("dashboards.admin.table.filter_btn") %></button>
     <% end %>
 
-    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden mb-10 sm:mb-16">
+    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
 
       <%# Mobile: Cards %>
       <div class="sm:hidden divide-y divide-gray-100">
@@ -305,6 +305,15 @@
           <% end %>
         </tbody>
       </table>
+    </div>
+
+    <div class="text-center mt-4 mb-10 sm:mb-16">
+      <% if @courses_total_count > @course_limit %>
+        <%= link_to t("dashboards.admin.table.show_more"),
+              dashboards_admin_path(course_q: params[:course_q], category: params[:category],
+                                     registration_mode: params[:registration_mode], course_limit: @course_limit + 10),
+              class: "inline-block bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold py-2.5 px-6 rounded-lg shadow-sm text-sm transition" %>
+      <% end %>
     </div>
   <% end %>
 

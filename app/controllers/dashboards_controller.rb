@@ -29,6 +29,10 @@ class DashboardsController < ApplicationController
     @courses = @courses.select { |c| c.category == params[:category] } if params[:category].present?
     @courses = @courses.select { |c| c.registration_mode == params[:registration_mode] } if params[:registration_mode].present?
 
+    @course_limit = [ params[:course_limit].to_i, 10 ].max
+    @courses_total_count = @courses.size
+    @courses = @courses.first(@course_limit)
+
     @export_profiles = ExportProfile.order(:name)
 
     q = params[:q].to_s.strip
