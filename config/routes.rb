@@ -27,6 +27,7 @@ Rails.application.routes.draw do
     resource :club_setting, only: [ :show, :edit, :update ] do
       delete :destroy_logo, on: :member
     end
+    resource :feature_setting, only: [ :update ]
     resources :export_profiles, only: %i[index new create edit update destroy] do
       member { get :download }
     end
@@ -56,6 +57,7 @@ Rails.application.routes.draw do
     get "einstellungen/verein",        to: "settings#club",          as: :settings_club
     get "einstellungen/zahlungen",     to: "settings#payments",      as: :settings_payments
     get "einstellungen/daten",         to: "settings#data",          as: :settings_data
+    get "einstellungen/funktionen",    to: "settings#features",      as: :settings_features
   end
 
   resources :trainers do
@@ -74,6 +76,7 @@ Rails.application.routes.draw do
   resources :terms
 
   get "my_profile", to: "participants#my_profile", as: :my_profile
+  get "my_trainings", to: "participants#my_trainings", as: :my_trainings
 
   resources :participants
 
@@ -90,6 +93,7 @@ Rails.application.routes.draw do
       post :send_custom_email
       post :toggle_talent
       post :roll_over
+      post :self_enroll
     end
   end
 

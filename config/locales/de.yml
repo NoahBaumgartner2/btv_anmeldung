@@ -561,6 +561,8 @@ de:
     my_profile:
       title: "Mein Profil"
       subtitle: "Pflege hier deine persönlichen Angaben. Diese Daten werden für Lohnabrechnungen und J+S-Meldungen verwendet."
+      tab_profile: "Profil"
+      tab_trainings: "Meine Trainings"
       section_account: "Konto"
       email_label: "E-Mail-Adresse"
       account_settings: "Kontoeinstellungen"
@@ -596,6 +598,11 @@ de:
         other: "Es gibt %{count} Fehler:"
       admin_title: "Admin-Konto"
       admin_body_html: "Als Administrator hast du kein Trainer-Profil. Deine Kontoeinstellungen findest du %{link}."
+    my_trainings:
+      title: "Meine Trainings"
+      subtitle: "Trainings, für die du dich selbst kostenlos angemeldet hast."
+      empty: "Du bist aktuell für keine Trainings angemeldet."
+      browse_courses: "Kurse durchsuchen"
 
   dashboards:
     admin:
@@ -616,6 +623,8 @@ de:
         settings_payments_desc: "SumUp & Payment-Setup"
         settings_data: "Daten & Exporte"
         settings_data_desc: "Exportprofile, Berichte & NDS"
+        settings_features: "Funktionen"
+        settings_features_desc: "Globale Ein-/Ausschalter für App-Funktionen"
         trainers: "Trainer"
         trainers_desc: "Trainer verwalten & zuweisen"
         holidays: "Ferientage"
@@ -1289,6 +1298,7 @@ de:
         club: "Verein"
         payments: "Zahlungen"
         data: "Daten & Exporte"
+        features: "Funktionen"
       communication:
         smtp_title: "E-Mail-Versand (SMTP)"
         smtp_desc: "SMTP-Zugangsdaten, Absender und App-URL für ausgehende E-Mails."
@@ -1319,6 +1329,11 @@ de:
         reports_desc: "Auswertungen & Statistiken"
         nds_label: "NDS / J+S"
         nds_desc: "Datenaustausch mit J+S"
+      features:
+        title: "Funktionseinstellungen"
+        desc: "Globale Ein-/Ausschalter für einzelne Funktionen der App."
+        trainer_self_enroll_label: "Gratis-Selbstanmeldung für Trainer"
+        trainer_self_enroll_desc: "Erlaubt Trainern, sich kostenlos für Trainings anzumelden. Kann zusätzlich pro Kurs deaktiviert werden."
     notification_preferences:
       mandatory_badge: "Immer aktiv"
       attendance_reminder_mandatory_hint: "Diese Erinnerung ist für alle Trainer verpflichtend aktiv."

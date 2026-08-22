@@ -24,6 +24,9 @@ module Admin
 
       get admin_settings_data_path
       assert_response :success
+
+      get admin_settings_features_path
+      assert_response :success
     end
 
     test "admin_settings_path zeigt auf den Kommunikation-Tab" do
@@ -46,6 +49,9 @@ module Admin
       assert_redirected_to root_path
 
       get admin_settings_data_path
+      assert_redirected_to root_path
+
+      get admin_settings_features_path
       assert_redirected_to root_path
     end
 

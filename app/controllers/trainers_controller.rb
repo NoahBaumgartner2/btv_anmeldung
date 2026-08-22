@@ -68,6 +68,7 @@ def index
     @trainer.user ||= current_user
 
     if @trainer.save
+      @trainer.sync_self_participant!
       if @trainer.user == current_user
         redirect_to my_profile_path, notice: "Profil wurde erstellt."
       else
@@ -157,6 +158,7 @@ def index
     end
 
     trainer = Trainer.create!(user: user, first_name: first_name, last_name: last_name, phone: phone)
+    trainer.sync_self_participant!
     TrainerInvitationMailer.invite(trainer, raw_token).deliver_later
 
     redirect_to trainers_path,
@@ -175,6 +177,7 @@ def index
 
   def update
     if @trainer.update(trainer_params)
+      @trainer.sync_self_participant!
       redirect_to trainers_path, notice: "Trainer wurde aktualisiert."
     else
       render :edit, status: :unprocessable_entity
@@ -203,6 +206,7 @@ def index
     end
     @trainer.assign_attributes(profile_params)
     if @trainer.save(context: :profile_completion)
+      @trainer.sync_self_participant!
       redirect_to my_profile_path, notice: "Dein Profil wurde aktualisiert."
     else
       render "participants/my_profile", status: :unprocessable_entity

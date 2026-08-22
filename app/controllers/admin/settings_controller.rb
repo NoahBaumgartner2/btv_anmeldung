@@ -23,5 +23,9 @@ module Admin
     def data
       load_data_settings
     end
+
+    def features
+      load_features_settings
+    end
   end
 end

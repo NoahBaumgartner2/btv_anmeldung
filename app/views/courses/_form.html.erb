@@ -301,6 +301,15 @@
         </div>
       </div>
 
+      <div class="mt-4 flex items-start gap-3">
+        <%= form.check_box :allows_trainer_self_enroll,
+              class: "h-5 w-5 mt-0.5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+        <div>
+          <%= form.label :allows_trainer_self_enroll, "Gratis-Selbstanmeldung für Trainer erlauben", class: "text-sm font-medium text-gray-800 cursor-pointer block" %>
+          <p class="text-xs text-gray-400 mt-0.5">Trainer können sich für diesen Kurs kostenlos selbst anmelden (Altersbeschränkung gilt weiterhin). Zusätzlich über den globalen Schalter im Admin-Dashboard steuerbar.</p>
+        </div>
+      </div>
+
       <%# Abo-Grösse – nur sichtbar wenn Anmeldemodus = abo %>
       <div id="abo-size-field"
            data-registration-mode-target="aboField"

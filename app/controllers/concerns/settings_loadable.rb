@@ -27,4 +27,8 @@ module SettingsLoadable
   def load_data_settings
     @export_profiles ||= ExportProfile.order(:name)
   end
+
+  def load_features_settings
+    @feature_setting ||= FeatureSetting.current
+  end
 end

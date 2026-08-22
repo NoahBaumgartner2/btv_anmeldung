@@ -684,4 +684,123 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     post roll_over_course_url(course)
     assert_redirected_to root_path
   end
+
+  # ── self_enroll (Trainer meldet sich selbst gratis an) ───────────────────────
+
+  def build_fresh_trainer(date_of_birth: Date.new(1990, 1, 1))
+    user = User.create!(
+      email: "self-enroll-#{SecureRandom.hex(4)}@example.com",
+      password: "password123", confirmed_at: Time.current, privacy_accepted: true
+    )
+    trainer = Trainer.create!(
+      user: user, first_name: "Test", last_name: "Trainer",
+      phone: "+41 79 111 22 33", date_of_birth: date_of_birth, gender: "weiblich",
+      ahv_number: "756.9999.8888.77", street: "Weg", house_number: "1",
+      zip_code: "3000", city: "Bern", country: "CH", nationality: "CH", mother_tongue: "DE"
+    )
+    trainer.sync_self_participant!
+    trainer
+  end
+
+  test "self_enroll meldet den Trainer kostenlos und bestätigt an" do
+    trainer = build_fresh_trainer
+    course = Course.new(title: "Gratis-Test", registration_type: "semester", registration_mode: "semester",
+      has_payment: true, has_ticketing: false, allows_holiday_deduction: false)
+    course.price_cents = 10000
+    course.save!(validate: false)
+
+    sign_in trainer.user
+
+    assert_difference "CourseRegistration.count", 1 do
+      post self_enroll_course_path(course)
+    end
+
+    reg = CourseRegistration.last
+    assert_equal "bestätigt", reg.status
+    assert reg.payment_cleared?
+    assert_equal trainer.self_participant, reg.participant
+    assert_redirected_to course_path(course)
+  end
+
+  test "self_enroll blockiert bei Altersbeschränkung" do
+    trainer = build_fresh_trainer(date_of_birth: Date.new(1990, 1, 1)) # 36 Jahre alt
+    course = Course.new(title: "Nur für Kinder", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false, min_age: 5, max_age: 12)
+    course.save!(validate: false)
+
+    sign_in trainer.user
+
+    assert_no_difference "CourseRegistration.count" do
+      post self_enroll_course_path(course)
+    end
+
+    assert_redirected_to course_path(course)
+    assert_match "Altersbeschränkung", flash[:alert]
+  end
+
+  test "self_enroll lehnt eine erneute Anmeldung ab" do
+    trainer = build_fresh_trainer
+    course = Course.new(title: "Doppelt", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+    CourseRegistration.new(course: course, participant: trainer.self_participant, status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false).save!(validate: false)
+
+    sign_in trainer.user
+
+    assert_no_difference "CourseRegistration.count" do
+      post self_enroll_course_path(course)
+    end
+
+    assert_match "bereits", flash[:alert]
+  end
+
+  test "self_enroll ohne vollständiges Trainer-Profil verweist auf Mein Profil" do
+    trainer = build_fresh_trainer
+    trainer.self_participant.update_columns(date_of_birth: nil)
+    course = Course.new(title: "Profil-Check", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+
+    sign_in trainer.user
+
+    assert_no_difference "CourseRegistration.count" do
+      post self_enroll_course_path(course)
+    end
+
+    assert_redirected_to my_profile_path
+  end
+
+  test "self_enroll ist blockiert, wenn der Kurs es nicht erlaubt" do
+    trainer = build_fresh_trainer
+    course = Course.new(title: "Kein Selbst-Enroll", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false, allows_trainer_self_enroll: false)
+    course.save!(validate: false)
+
+    sign_in trainer.user
+
+    assert_no_difference "CourseRegistration.count" do
+      post self_enroll_course_path(course)
+    end
+
+    assert_redirected_to course_path(course)
+    assert_match "nicht aktiviert", flash[:alert]
+  end
+
+  test "self_enroll ist blockiert, wenn der globale Schalter aus ist" do
+    FeatureSetting.current.update!(trainer_self_enroll_enabled: false)
+    trainer = build_fresh_trainer
+    course = Course.new(title: "Global aus", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+
+    sign_in trainer.user
+
+    assert_no_difference "CourseRegistration.count" do
+      post self_enroll_course_path(course)
+    end
+
+    assert_redirected_to course_path(course)
+    assert_match "nicht aktiviert", flash[:alert]
+  end
 end

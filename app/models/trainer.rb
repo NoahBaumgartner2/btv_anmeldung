@@ -1,5 +1,6 @@
 class Trainer < ApplicationRecord
   belongs_to :user
+  belongs_to :self_participant, class_name: "Participant", optional: true
 
   has_many :course_trainers, dependent: :destroy
   has_many :courses, through: :course_trainers
@@ -50,6 +51,26 @@ class Trainer < ApplicationRecord
 
   def profile_complete?
     REQUIRED_PROFILE_FIELDS.all? { |f| public_send(f).present? }
+  end
+
+  # Hält den Selbst-Teilnehmer-Datensatz (für die kostenlose Selbst-Anmeldung
+  # zu Trainings, siehe Course#self_enroll) mit dem Trainer-Profil synchron.
+  # Ein Trainer-Account kann laut #user_must_not_have_participants ohnehin
+  # nie eigene "Kinder" haben – dieser eine Datensatz ist also garantiert
+  # der einzige Participant unter diesem User.
+  def sync_self_participant!
+    participant = self_participant || Participant.new(user: user, is_trainer_self: true)
+    participant.assign_attributes(
+      user: user, is_trainer_self: true,
+      first_name: first_name, last_name: last_name, date_of_birth: date_of_birth,
+      gender: gender, phone_number: phone, ahv_number: ahv_number,
+      street: street, house_number: house_number, zip_code: zip_code, city: city,
+      country: country, nationality: nationality, mother_tongue: mother_tongue,
+      js_person_number: js_person_number
+    )
+    participant.save!(validate: false)
+    update_column(:self_participant_id, participant.id) if self_participant_id != participant.id
+    participant
   end
 
   private
