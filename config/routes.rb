@@ -57,6 +57,7 @@ Rails.application.routes.draw do
     get "einstellungen/verein",        to: "settings#club",          as: :settings_club
     get "einstellungen/zahlungen",     to: "settings#payments",      as: :settings_payments
     get "einstellungen/daten",         to: "settings#data",          as: :settings_data
+    get "einstellungen/funktionen",    to: "settings#features",      as: :settings_features
   end
 
   resources :trainers do

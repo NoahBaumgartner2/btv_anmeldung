@@ -7,7 +7,6 @@ class DashboardsController < ApplicationController
     authorize_admin!
     @courses = Course.includes(:course_registrations).order(start_date: :asc)
     @export_profiles = ExportProfile.order(:name)
-    @feature_setting = FeatureSetting.current
 
     q = params[:q].to_s.strip
     if q.length >= 2
