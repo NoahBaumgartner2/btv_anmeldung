@@ -32,6 +32,12 @@ export default class extends Controller {
       altFormat: this.dateFormatValue,
       altInputClass: this.element.className,
       allowInput: true,
+      // Ohne dies fällt Flatpickr auf Mobilgeräten automatisch auf den
+      // nativen Datums-Picker zurück (eigene Kalender-UI nur auf Desktop) -
+      // das native <input type="date"> rendert auf iOS Safari deutlich
+      // höher als unsere anderen Felder, disableMobile erzwingt überall
+      // die eigene (gleich hohe) UI.
+      disableMobile: true,
       minDate: this.minDateValue || null,
       maxDate: this.maxDateValue || null,
       onOpen: [(_dates, _str, instance) => {
