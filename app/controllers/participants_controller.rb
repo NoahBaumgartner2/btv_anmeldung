@@ -7,7 +7,32 @@ class ParticipantsController < ApplicationController
       redirect_to my_profile_path and return
     end
 
-    @participants = current_user.participants
+    build_participant_index_ivars(current_user.participants)
+  end
+
+  def my_profile
+    unless current_user.admin? || Trainer.exists?(user: current_user)
+      redirect_to participants_path and return
+    end
+    @trainer = Trainer.find_or_initialize_by(user: current_user)
+  end
+
+  # Zweiter Tab von "Mein Profil": identische Anzeige wie #index (siehe
+  # _participant_card-Partial), aber beschränkt auf den einen Selbst-
+  # Teilnehmer-Datensatz des Trainers (Trainer#self_participant,
+  # CoursesController#self_enroll) – kein "Kind erfassen" möglich.
+  def my_trainings
+    unless Trainer.exists?(user: current_user)
+      redirect_to my_profile_path and return
+    end
+    @trainer = Trainer.find_by(user: current_user)
+    build_participant_index_ivars(Participant.where(id: @trainer.self_participant_id))
+  end
+
+  private
+
+  def build_participant_index_ivars(participants_scope)
+    @participants = participants_scope
       .includes(course_registrations: [ :course, :training_session, :trial_session ])
 
     all_regs = @participants.flat_map(&:course_registrations)
@@ -51,28 +76,7 @@ class ParticipantsController < ApplicationController
       .group_by(&:category)
   end
 
-  def my_profile
-    unless current_user.admin? || Trainer.exists?(user: current_user)
-      redirect_to participants_path and return
-    end
-    @trainer = Trainer.find_or_initialize_by(user: current_user)
-  end
-
-  # Zweiter Tab von "Mein Profil": Trainings, für die sich der/die Trainer:in
-  # selbst angemeldet hat (siehe Trainer#self_participant, CoursesController#self_enroll).
-  def my_trainings
-    unless Trainer.exists?(user: current_user)
-      redirect_to my_profile_path and return
-    end
-    @trainer = Trainer.find_by(user: current_user)
-    participant = @trainer.self_participant
-    @registrations = if participant
-      participant.course_registrations.includes(:course, :training_session, :trial_session)
-                 .where.not(status: "storniert").order(created_at: :desc)
-    else
-      CourseRegistration.none
-    end
-  end
+  public
 
   def show
   end

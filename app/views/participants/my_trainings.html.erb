@@ -1,47 +1,22 @@
 <% content_for :title, t("participants.my_trainings.title") %>
 
-<div class="max-w-2xl mx-auto w-full px-4 mt-8 mb-16">
-  <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900 mb-2"><%= t("participants.my_trainings.title") %></h1>
-  <p class="text-gray-500 text-sm mb-8"><%= t("participants.my_trainings.subtitle") %></p>
+<div class="max-w-5xl mx-auto w-full px-4 sm:px-6 mt-6 sm:mt-10 mb-16">
+  <h1 class="font-extrabold text-2xl sm:text-4xl text-gray-900 tracking-tight"><%= t("participants.my_trainings.title") %></h1>
+  <p class="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-lg mb-6 sm:mb-8"><%= t("participants.my_trainings.subtitle") %></p>
 
   <%= render "participants/profile_tabs", active: :trainings %>
 
-  <% if @registrations.empty? %>
+  <% if @participants.any? %>
+    <div class="space-y-6 sm:space-y-10">
+      <% @participants.each do |participant| %>
+        <%= render "participant_card", participant: participant %>
+      <% end %>
+    </div>
+  <% else %>
     <div class="bg-white rounded-2xl border border-dashed border-gray-300 p-8 text-center">
       <p class="text-gray-500 text-sm"><%= t("participants.my_trainings.empty") %></p>
       <%= link_to t("participants.my_trainings.browse_courses"), courses_path,
             class: "inline-block mt-4 text-primary-600 font-bold text-sm hover:text-primary-800 transition" %>
-    </div>
-  <% else %>
-    <div class="space-y-4">
-      <% @registrations.each do |reg| %>
-        <% course = reg.course %>
-        <% session = reg.trial? ? reg.trial_session : reg.training_session %>
-        <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-          <div class="flex items-start justify-between gap-3 mb-1">
-            <div class="min-w-0">
-              <%= link_to course.title, course_path(course), class: "font-bold text-gray-900 hover:text-primary-700 transition" %>
-              <p class="text-xs text-gray-400"><%= course.category %></p>
-            </div>
-            <% case reg.status %>
-            <% when "bestätigt" %>
-              <span class="shrink-0 bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("participants.index.confirmed") %></span>
-            <% when "warteliste" %>
-              <span class="shrink-0 bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("participants.index.waitlist") %></span>
-            <% when "schnuppern" %>
-              <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
-            <% else %>
-              <span class="shrink-0 bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full"><%= reg.status_label %></span>
-            <% end %>
-          </div>
-
-          <% if session&.start_time %>
-            <p class="text-sm text-gray-600 mt-2"><%= I18n.l(session.start_time, format: "%-d. %B %Y, %H:%M") %></p>
-          <% elsif course.registration_mode != "single_session" %>
-            <p class="text-sm text-gray-400 mt-2"><%= t("participants.index.upcoming_trainings") %>: <%= course.representative_session&.start_time&.strftime("%A, %H:%M") %></p>
-          <% end %>
-        </div>
-      <% end %>
     </div>
   <% end %>
 </div>
