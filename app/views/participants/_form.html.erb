@@ -113,6 +113,7 @@
               autocomplete: "tel",
               pattern: "[+\\d][\\d\\s\\-\\/]{6,}",
               title: t("participants.form.phone_title"),
+              data: { controller: "input-format", input_format_type_value: "phone", action: "input->input-format#format" },
               class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       participant.errors[:phone_number].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if participant.errors[:phone_number].any? %>
@@ -135,6 +136,7 @@
             pattern: "756\\.\\d{4}\\.\\d{4}\\.\\d{2}",
             title: t("participants.form.ahv_title"),
             required: ahv_required,
+            data: { controller: "input-format", input_format_type_value: "ahv", action: "input->input-format#format" },
             class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                     participant.errors[:ahv_number].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
       <% if participant.errors[:ahv_number].any? %>
