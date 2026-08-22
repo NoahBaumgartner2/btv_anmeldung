@@ -47,4 +47,62 @@ class DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p.text-orange-500", { text: "3" },
       "Wartelisten-Kennzahl muss nur echte 'warteliste'-Einträge zählen"
   end
+
+  # ── Kommandozentrale: Kurs-Suche/Filter ──────────────────────────────────────
+
+  def make_dashboard_course(title:, category:, registration_mode:)
+    course = Course.new(title: title, category: category, registration_type: registration_mode,
+      registration_mode: registration_mode, has_payment: false, has_ticketing: false,
+      allows_holiday_deduction: false)
+    course.save!(validate: false)
+    course
+  end
+
+  test "Kommandozentrale zeigt ohne Filter alle Kurse" do
+    make_dashboard_course(title: "Turnen A", category: "Turnen", registration_mode: "semester")
+    make_dashboard_course(title: "Pilates B", category: "Pilates", registration_mode: "quartal")
+
+    sign_in users(:admin)
+    get dashboards_admin_path
+
+    assert_response :success
+    assert_match "Turnen A", response.body
+    assert_match "Pilates B", response.body
+  end
+
+  test "Kommandozentrale filtert Kurse nach Suchbegriff" do
+    make_dashboard_course(title: "Turnen A", category: "Turnen", registration_mode: "semester")
+    make_dashboard_course(title: "Pilates B", category: "Pilates", registration_mode: "quartal")
+
+    sign_in users(:admin)
+    get dashboards_admin_path, params: { course_q: "Turnen" }
+
+    assert_response :success
+    assert_match "Turnen A", response.body
+    assert_no_match "Pilates B", response.body
+  end
+
+  test "Kommandozentrale filtert Kurse nach Kategorie" do
+    make_dashboard_course(title: "Turnen A", category: "Turnen", registration_mode: "semester")
+    make_dashboard_course(title: "Pilates B", category: "Pilates", registration_mode: "quartal")
+
+    sign_in users(:admin)
+    get dashboards_admin_path, params: { category: "Pilates" }
+
+    assert_response :success
+    assert_match "Pilates B", response.body
+    assert_no_match "Turnen A", response.body
+  end
+
+  test "Kommandozentrale filtert Kurse nach Semester/Quartal" do
+    make_dashboard_course(title: "Turnen A", category: "Turnen", registration_mode: "semester")
+    make_dashboard_course(title: "Pilates B", category: "Pilates", registration_mode: "quartal")
+
+    sign_in users(:admin)
+    get dashboards_admin_path, params: { registration_mode: "quartal" }
+
+    assert_response :success
+    assert_match "Pilates B", response.body
+    assert_no_match "Turnen A", response.body
+  end
 end

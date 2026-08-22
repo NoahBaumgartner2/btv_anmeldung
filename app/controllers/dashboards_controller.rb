@@ -6,6 +6,15 @@ class DashboardsController < ApplicationController
   def admin
     authorize_admin!
     @courses = Course.includes(:course_registrations).order(start_date: :asc)
+
+    @course_categories = @courses.map(&:category).compact_blank.uniq.sort
+    @course_registration_modes = @courses.map(&:registration_mode).compact_blank.uniq
+
+    course_q = params[:course_q].to_s.strip
+    @courses = @courses.select { |c| c.title.to_s.downcase.include?(course_q.downcase) } if course_q.present?
+    @courses = @courses.select { |c| c.category == params[:category] } if params[:category].present?
+    @courses = @courses.select { |c| c.registration_mode == params[:registration_mode] } if params[:registration_mode].present?
+
     @export_profiles = ExportProfile.order(:name)
 
     q = params[:q].to_s.strip

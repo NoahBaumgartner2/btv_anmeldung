@@ -658,6 +658,11 @@ de:
         action: "Aktion"
         participants: "Teilnehmende"
         manage: "Verwalten"
+        search_placeholder: "Kurs suchen…"
+        all_categories: "Alle Kategorien"
+        all_modes: "Alle Anmelde-Arten"
+        filter_btn: "Filtern"
+        no_results: "Keine Kurse gefunden."
       search:
         title: "Teilnehmer-Suche"
         subtitle: "Suche nach Name oder E-Mail-Adresse des verknüpften Kontos."
