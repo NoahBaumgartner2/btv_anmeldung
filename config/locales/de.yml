@@ -561,6 +561,8 @@ de:
     my_profile:
       title: "Mein Profil"
       subtitle: "Pflege hier deine persönlichen Angaben. Diese Daten werden für Lohnabrechnungen und J+S-Meldungen verwendet."
+      tab_profile: "Profil"
+      tab_trainings: "Meine Trainings"
       section_account: "Konto"
       email_label: "E-Mail-Adresse"
       account_settings: "Kontoeinstellungen"
@@ -596,6 +598,11 @@ de:
         other: "Es gibt %{count} Fehler:"
       admin_title: "Admin-Konto"
       admin_body_html: "Als Administrator hast du kein Trainer-Profil. Deine Kontoeinstellungen findest du %{link}."
+    my_trainings:
+      title: "Meine Trainings"
+      subtitle: "Trainings, für die du dich selbst kostenlos angemeldet hast."
+      empty: "Du bist aktuell für keine Trainings angemeldet."
+      browse_courses: "Kurse durchsuchen"
 
   dashboards:
     admin:

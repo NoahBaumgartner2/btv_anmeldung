@@ -1,0 +1,16 @@
+<%# Tab-Navigation für "Mein Profil" (nur relevant für Trainer:innen mit
+    Selbst-Anmeldungen). Local: active (:profile|:trainings) %>
+<% tabs = [
+     [ :profile,   t("participants.my_profile.tab_profile"),   my_profile_path ],
+     [ :trainings, t("participants.my_profile.tab_trainings"), my_trainings_path ],
+   ] %>
+<div class="border-b border-gray-200 mb-6">
+  <nav class="-mb-px flex gap-1 sm:gap-2 overflow-x-auto" aria-label="Tabs">
+    <% tabs.each do |key, label, path| %>
+      <% is_active = key == active %>
+      <%= link_to label, path,
+            "aria-current": (is_active ? "page" : nil),
+            class: "shrink-0 whitespace-nowrap px-3 sm:px-4 py-3 text-sm font-bold border-b-2 transition min-h-11 #{is_active ? 'border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}" %>
+    <% end %>
+  </nav>
+</div>

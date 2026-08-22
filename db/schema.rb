@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_21_113000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_22_161500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -317,6 +317,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_113000) do
     t.string "first_name"
     t.string "gender"
     t.string "house_number"
+    t.boolean "is_trainer_self", default: false, null: false
     t.string "js_person_number"
     t.string "last_name"
     t.string "mother_tongue", default: "DE"
@@ -371,10 +372,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_113000) do
     t.string "mother_tongue", default: "DE"
     t.string "nationality", default: "CH"
     t.string "phone"
+    t.bigint "self_participant_id"
     t.string "street"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.string "zip_code"
+    t.index ["self_participant_id"], name: "index_trainers_on_self_participant_id"
     t.index ["user_id"], name: "index_trainers_on_user_id"
   end
 
@@ -456,6 +459,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_113000) do
   add_foreign_key "courses_holiday_types", "holiday_types"
   add_foreign_key "holidays", "holiday_types"
   add_foreign_key "participants", "users"
+  add_foreign_key "trainers", "participants", column: "self_participant_id"
   add_foreign_key "trainers", "users"
   add_foreign_key "training_sessions", "courses"
   add_foreign_key "training_sessions", "trainers", column: "substitute_trainer_id"

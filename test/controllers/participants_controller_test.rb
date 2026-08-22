@@ -174,4 +174,37 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
     assert_response :redirect # Admins werden zu my_profile umgeleitet, nicht zum Formular
     assert_not_includes response.redirect_url, "edit"
   end
+
+  # ── my_trainings ──────────────────────────────────────────────────────────────
+
+  test "my_trainings zeigt die Selbst-Anmeldungen des Trainers" do
+    sign_out @user
+    trainer_user = User.create!(
+      email: "my-trainings-#{SecureRandom.hex(4)}@example.com",
+      password: "password123", confirmed_at: Time.current, privacy_accepted: true
+    )
+    trainer = Trainer.create!(
+      user: trainer_user, first_name: "Test", last_name: "Trainer",
+      phone: "+41 79 111 22 33", date_of_birth: Date.new(1990, 1, 1), gender: "weiblich",
+      ahv_number: "756.9999.8888.77", street: "Weg", house_number: "1",
+      zip_code: "3000", city: "Bern", country: "CH", nationality: "CH", mother_tongue: "DE"
+    )
+    trainer.sync_self_participant!
+    course = Course.new(title: "Trainings-Test", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+    CourseRegistration.new(course: course, participant: trainer.self_participant, status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false).save!(validate: false)
+
+    sign_in trainer_user
+    get my_trainings_path
+
+    assert_response :success
+    assert_match course.title, response.body
+  end
+
+  test "my_trainings ist für Nicht-Trainer nicht zugänglich" do
+    get my_trainings_path
+    assert_redirected_to my_profile_path
+  end
 end

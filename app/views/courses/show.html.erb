@@ -140,6 +140,22 @@
 
     <% if @course.restricted? && !@course.accessible_by?(current_user) %>
       <%# No registration buttons for users without access to restricted courses %>
+    <% elsif user_signed_in? && Trainer.exists?(user: current_user) && !@course.abo? && @course.registration_mode != 'single_session' %>
+      <% trainer = Trainer.find_by(user: current_user) %>
+      <% already_self_registered = @course.course_registrations.where(participant: trainer.self_participant).where.not(status: "storniert").exists? %>
+      <% if already_self_registered %>
+        <span class="flex-1 md:flex-none text-center bg-gray-100 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-gray-500">Du bist bereits angemeldet</span>
+      <% elsif trainer.self_participant.nil? || trainer.self_participant.date_of_birth.blank? %>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 max-w-xs">
+          <p class="font-semibold mb-1">Profil unvollständig</p>
+          <p><%= link_to "Profil vervollständigen", my_profile_path, class: "underline font-semibold" %>, um dich selbst für Trainings anzumelden (für die Altersprüfung wird dein Geburtsdatum benötigt).</p>
+        </div>
+      <% elsif !@course.accepts_participant_age?(trainer.self_participant) %>
+        <span class="flex-1 md:flex-none text-center bg-gray-100 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-gray-500">Altersbeschränkung nicht erfüllt (<%= @course.age_range_label %>)</span>
+      <% else %>
+        <%= button_to "Gratis für mich anmelden", self_enroll_course_path(@course), method: :post,
+              class: "text-center bg-secondary-600 py-3 px-6 shadow-sm text-sm font-bold rounded-xl text-white hover:bg-secondary-700 transition cursor-pointer" %>
+      <% end %>
     <% elsif user_signed_in? && (current_user.admin? || Trainer.exists?(user: current_user)) %>
       <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 max-w-xs">
         <p class="font-semibold mb-1">Anmeldung nicht möglich</p>
@@ -224,7 +240,21 @@
                 </div>
 
                 <div>
-                  <% if user_signed_in? && (current_user.admin? || Trainer.exists?(user: current_user)) %>
+                  <% if user_signed_in? && Trainer.exists?(user: current_user) %>
+                    <% trainer = Trainer.find_by(user: current_user) %>
+                    <% self_registered_session = @course.course_registrations.where(participant: trainer.self_participant, training_session_id: session.id).where.not(status: "storniert").exists? %>
+                    <% if self_registered_session %>
+                      <span class="block w-full sm:w-auto bg-gray-100 text-gray-500 font-bold py-2.5 px-5 rounded-xl text-sm text-center whitespace-nowrap">Du bist angemeldet</span>
+                    <% elsif trainer.self_participant.nil? || trainer.self_participant.date_of_birth.blank? %>
+                      <%= link_to "Profil vervollständigen", my_profile_path,
+                            class: "block w-full sm:w-auto bg-amber-500 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-amber-600 transition text-sm text-center shadow-sm whitespace-nowrap" %>
+                    <% elsif !@course.accepts_participant_age?(trainer.self_participant) %>
+                      <span class="block w-full sm:w-auto bg-gray-100 text-gray-500 font-bold py-2.5 px-5 rounded-xl text-sm text-center whitespace-nowrap">Alter passt nicht</span>
+                    <% else %>
+                      <%= button_to "Gratis für mich anmelden", self_enroll_course_path(@course, training_session_id: session.id), method: :post,
+                            class: "block w-full sm:w-auto bg-secondary-600 text-white font-bold py-2.5 px-5 rounded-xl hover:bg-secondary-700 transition text-sm text-center shadow-sm whitespace-nowrap cursor-pointer" %>
+                    <% end %>
+                  <% elsif user_signed_in? && current_user.admin? %>
                     <%# Kein Button — Hinweis ist oben auf der Seite sichtbar %>
                   <% elsif is_full %>
                     <% if @course.enable_waitlist? %>

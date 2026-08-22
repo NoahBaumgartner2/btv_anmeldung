@@ -58,6 +58,22 @@ class ParticipantsController < ApplicationController
     @trainer = Trainer.find_or_initialize_by(user: current_user)
   end
 
+  # Zweiter Tab von "Mein Profil": Trainings, für die sich der/die Trainer:in
+  # selbst angemeldet hat (siehe Trainer#self_participant, CoursesController#self_enroll).
+  def my_trainings
+    unless Trainer.exists?(user: current_user)
+      redirect_to my_profile_path and return
+    end
+    @trainer = Trainer.find_by(user: current_user)
+    participant = @trainer.self_participant
+    @registrations = if participant
+      participant.course_registrations.includes(:course, :training_session, :trial_session)
+                 .where.not(status: "storniert").order(created_at: :desc)
+    else
+      CourseRegistration.none
+    end
+  end
+
   def show
   end
 

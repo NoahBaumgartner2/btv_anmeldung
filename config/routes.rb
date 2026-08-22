@@ -74,6 +74,7 @@ Rails.application.routes.draw do
   resources :terms
 
   get "my_profile", to: "participants#my_profile", as: :my_profile
+  get "my_trainings", to: "participants#my_trainings", as: :my_trainings
 
   resources :participants
 
@@ -90,6 +91,7 @@ Rails.application.routes.draw do
       post :send_custom_email
       post :toggle_talent
       post :roll_over
+      post :self_enroll
     end
   end
 

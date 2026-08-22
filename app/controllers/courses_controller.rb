@@ -1,9 +1,9 @@
 class CoursesController < ApplicationController
   # Für neue Kurse oder Bearbeitung MUSS man Admin sein
-  before_action :authorize_admin!, except: [ :index, :show, :manage, :participant_search, :manual_enroll, :send_custom_email, :toggle_talent ]
+  before_action :authorize_admin!, except: [ :index, :show, :manage, :participant_search, :manual_enroll, :send_custom_email, :toggle_talent, :self_enroll ]
   # GET /courses or /courses.json
-  before_action :authorize_trainer!, only: [ :manage, :send_custom_email, :toggle_talent ]
-  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email toggle_talent roll_over ]
+  before_action :authorize_trainer!, only: [ :manage, :send_custom_email, :toggle_talent, :self_enroll ]
+  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email toggle_talent roll_over self_enroll ]
   def index
     all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users, :training_sessions)
     @restricted_courses = if current_user&.admin?
@@ -311,6 +311,80 @@ class CoursesController < ApplicationController
         email_only: email_only, reset_password_token: reset_password_token)
     else
       redirect_to manage_course_path(@course), alert: "Bitte Teilnehmer auswählen oder neue Familie erfassen."
+    end
+  end
+
+  # POST /courses/:id/self_enroll — Trainer meldet sich selbst kostenlos an
+  # (siehe Trainer#self_participant). Keine "Kinder" erstellbar – nur der
+  # eigene, an das Trainer-Profil gekoppelte Teilnehmer-Datensatz.
+  def self_enroll
+    trainer = Trainer.find_by(user: current_user)
+    unless trainer
+      return redirect_to course_path(@course), alert: "Nur für Trainer verfügbar."
+    end
+
+    participant = trainer.self_participant
+    if participant.nil? || participant.date_of_birth.blank?
+      return redirect_to my_profile_path, alert: "Bitte zuerst dein Profil vervollständigen, bevor du dich für ein Training anmeldest."
+    end
+
+    unless @course.accepts_participant_age?(participant)
+      return redirect_to course_path(@course),
+        alert: "Du erfüllst die Altersbeschränkung dieses Kurses nicht (#{@course.age_range_label})."
+    end
+
+    if @course.course_registrations.where(participant: participant).where.not(status: "storniert").exists?
+      return redirect_to course_path(@course), alert: "Du bist bereits für diesen Kurs angemeldet."
+    end
+
+    training_session = nil
+    if @course.registration_mode == "single_session"
+      training_session = @course.training_sessions.where(is_canceled: false).not_past.find_by(id: params[:training_session_id])
+      unless training_session
+        return redirect_to course_path(@course), alert: "Bitte ein gültiges Training auswählen."
+      end
+    end
+
+    status = nil
+    reg = nil
+    full = false
+
+    Course.find(@course.id).with_lock do
+      belegte = if training_session
+        @course.course_registrations
+               .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: training_session.id)
+               .distinct.count(:participant_id)
+      else
+        @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
+      end
+
+      if @course.max_participants.present? && belegte >= @course.max_participants
+        if @course.enable_waitlist?
+          status = "warteliste"
+        else
+          full = true
+        end
+      else
+        status = "bestätigt"
+      end
+
+      unless full
+        reg = CourseRegistration.new(
+          course: @course, participant: participant, status: status,
+          training_session: training_session, payment_cleared: true, holiday_deduction_claimed: false
+        )
+        reg.save(validate: false)
+      end
+    end
+
+    if full
+      redirect_to course_path(@course), alert: "Der Kurs ist ausgebucht und führt keine Warteliste."
+    elsif reg&.persisted?
+      CourseRegistrationMailer.confirmation(reg).deliver_later
+      notice = status == "warteliste" ? "Du wurdest auf die Warteliste gesetzt." : "Du bist erfolgreich und kostenlos angemeldet."
+      redirect_to course_path(@course), notice: notice
+    else
+      redirect_to course_path(@course), alert: "Anmeldung fehlgeschlagen."
     end
   end
 
