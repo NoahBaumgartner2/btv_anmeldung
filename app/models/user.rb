@@ -26,6 +26,9 @@ class User < ApplicationRecord
   # Verpflichtende Benachrichtigungen können nicht abgeschaltet werden.
   MANDATORY_NOTIFICATION_TYPES = %w[attendance_reminder].freeze
 
+  normalizes :phone_number, with: PhoneNumberFormatter
+  normalizes :first_name, :last_name, :street, :city, with: NameCapitalizer
+
   validates :phone_number, :street, :zip_code, :city,
             presence: true,
             if: :family_data_completed?

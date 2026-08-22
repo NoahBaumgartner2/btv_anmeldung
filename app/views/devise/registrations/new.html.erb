@@ -16,6 +16,7 @@
             <%= f.label :first_name, t("devise.registrations.first_name"), class: "block text-sm font-medium text-gray-700" %>
             <div class="mt-1">
               <%= f.text_field :first_name, autofocus: true, autocomplete: "given-name",
+                    data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
                     class: "appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-base sm:text-sm" %>
             </div>
           </div>
@@ -23,6 +24,7 @@
             <%= f.label :last_name, t("devise.registrations.last_name"), class: "block text-sm font-medium text-gray-700" %>
             <div class="mt-1">
               <%= f.text_field :last_name, autocomplete: "family-name",
+                    data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
                     class: "appearance-none block w-full px-3 py-2.5 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary-500 focus:border-primary-500 text-base sm:text-sm" %>
             </div>
           </div>

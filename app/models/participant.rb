@@ -18,6 +18,10 @@ class Participant < ApplicationRecord
     TT TN TR TM TC TV UG UA AE GB US UM UY UZ VU VE VN VG VI WF EH YE ZM ZW
   ].freeze
 
+  normalizes :phone_number, with: PhoneNumberFormatter
+  normalizes :ahv_number, with: AhvNumberFormatter
+  normalizes :first_name, :last_name, :street, :city, with: NameCapitalizer
+
   validates :first_name, :last_name, :date_of_birth, :gender, :phone_number, presence: true
   validates :gender, inclusion: { in: GENDERS }
   validates :first_name, uniqueness: {

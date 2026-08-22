@@ -96,6 +96,7 @@
                     value: @invite_first_name,
                     placeholder: "Max",
                     autocomplete: "given-name",
+                    data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
                     class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
             </div>
             <div>
@@ -104,6 +105,7 @@
                     value: @invite_last_name,
                     placeholder: "Mustermann",
                     autocomplete: "family-name",
+                    data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
                     class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
             </div>
           </div>

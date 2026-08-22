@@ -29,12 +29,14 @@
         <%= f.label :first_name, t("devise.registrations.first_name"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= f.text_field :first_name,
               autocomplete: "given-name",
+              data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
               class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
       <div>
         <%= f.label :last_name, t("devise.registrations.last_name"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= f.text_field :last_name,
               autocomplete: "family-name",
+              data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
               class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
       </div>
     </div>
@@ -49,6 +51,7 @@
       <%= f.telephone_field :phone_number,
             placeholder: "+41 79 123 45 67",
             autocomplete: "tel",
+            data: { controller: "input-format", input_format_type_value: "phone", action: "input->input-format#format" },
             class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                     @user.errors[:phone_number].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
       <% if @user.errors[:phone_number].any? %>
@@ -61,7 +64,7 @@
   <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-5 space-y-4">
     <p class="text-xs font-bold text-gray-400 uppercase tracking-wider"><%= t("onboarding.section_address") %></p>
 
-    <div class="grid grid-cols-3 gap-3">
+    <div class="grid grid-cols-3 gap-3" data-controller="address-split">
       <div class="col-span-2">
         <%= f.label :street, t("onboarding.street_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= f.text_field :street,
@@ -69,6 +72,9 @@
               autocomplete: "street-address",
               pattern: "[^0-9]*",
               title: "Bitte nur den Strassennamen ohne Nummer eingeben",
+              data: { controller: "input-format", input_format_type_value: "capitalize",
+                      address_split_target: "street",
+                      action: "input->address-split#split change->address-split#split input->input-format#format" },
               class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       @user.errors[:street].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if @user.errors[:street].any? %>
@@ -79,6 +85,7 @@
         <%= f.label :house_number, t("onboarding.house_number_label"), class: "block text-sm font-semibold text-gray-700 mb-1" %>
         <%= f.text_field :house_number,
               required: true,
+              data: { address_split_target: "houseNumber" },
               class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       @user.errors[:house_number].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if @user.errors[:house_number].any? %>
@@ -105,6 +112,7 @@
         <%= f.text_field :city,
               placeholder: "Bern",
               autocomplete: "address-level2",
+              data: { controller: "input-format", input_format_type_value: "capitalize", action: "input->input-format#format" },
               class: ["block w-full rounded-lg border px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2",
                       @user.errors[:city].any? ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-primary-500"] %>
         <% if @user.errors[:city].any? %>

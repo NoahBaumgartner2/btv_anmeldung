@@ -136,7 +136,9 @@
           </div>
           <div>
             <%= f.label :contact_phone, "Telefon (optional)", class: "block text-xs font-medium text-gray-600 mb-1" %>
-            <%= f.telephone_field :contact_phone, placeholder: "+41 31 123 45 67", class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+            <%= f.telephone_field :contact_phone, placeholder: "+41 31 123 45 67",
+                  data: { controller: "input-format", input_format_type_value: "phone", action: "input->input-format#format" },
+                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
           </div>
           <div class="sm:col-span-2">
             <%= f.label :contact_website, "Website (optional)", class: "block text-xs font-medium text-gray-600 mb-1" %>

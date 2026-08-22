@@ -1,6 +1,8 @@
 class ClubSetting < ApplicationRecord
   has_one_attached :logo
 
+  normalizes :contact_phone, with: PhoneNumberFormatter
+
   validates :primary_color,   format: { with: /\A#[0-9A-Fa-f]{6}\z/, allow_blank: true }
   validates :secondary_color, format: { with: /\A#[0-9A-Fa-f]{6}\z/, allow_blank: true }
 
