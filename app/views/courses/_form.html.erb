@@ -485,6 +485,15 @@
             <p class="text-xs text-gray-400 mt-1">Wird für automatische Rückerstattungen bei Abmeldung verwendet (z.B. 15.00)</p>
           </div>
 
+          <div class="pt-4 border-t border-gray-100 flex items-start gap-3">
+            <%= form.check_box :allows_late_registration_deduction,
+                  class: "h-5 w-5 mt-0.5 text-primary-600 rounded border-gray-300 focus:ring-primary-500 cursor-pointer shrink-0" %>
+            <div>
+              <%= form.label :allows_late_registration_deduction, "Späteres Anmelden mit Preisreduktion erlauben", class: "text-sm font-medium text-gray-800 cursor-pointer block" %>
+              <p class="text-xs text-gray-400 mt-0.5">Wer erst einsteigt, nachdem der Kurs schon läuft, zahlt weniger: Das erste bereits stattgefundene Training zählt noch normal, ab jedem weiteren wird "Wert pro Training" abgezogen.</p>
+            </div>
+          </div>
+
           <%# Preisreduktion (Geschwister / Zweitkurs) %>
           <div class="pt-4 border-t border-gray-100" data-controller="discount-toggle">
             <label class="flex items-center gap-3 cursor-pointer">

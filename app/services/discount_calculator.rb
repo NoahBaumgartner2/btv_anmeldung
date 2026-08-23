@@ -24,8 +24,35 @@ class DiscountCalculator
       end
     end
 
+    # Späteres Anmelden: wer erst einsteigt, nachdem der Kurs schon läuft,
+    # zahlt nicht den vollen Preis für bereits verpasste Trainings. Das erste
+    # bereits stattgefundene Training zählt noch normal (Schnupper-Charakter,
+    # analog RefundService), erst ab dem zweiten wird pro Training abgezogen.
+    if course.allows_late_registration_deduction? && course.training_value_cents.present? && course.training_value_cents.positive?
+      deduction = late_registration_deduction_cents(registration)
+      if deduction.positive?
+        candidates << { price_cents: [ full_price[:price_cents] - deduction, 0 ].max, discount: "late_registration" }
+      end
+    end
+
     candidates.min_by { |c| c[:price_cents] } || full_price
   end
+
+  # Anzahl bereits stattgefundener (nicht abgesagter) Trainings des Kurses,
+  # bis zum Anmeldezeitpunkt.
+  def self.passed_sessions_count(registration)
+    registration.course.training_sessions
+      .where(is_canceled: false)
+      .where("start_time <= ?", registration.created_at)
+      .count
+  end
+  private_class_method :passed_sessions_count
+
+  def self.late_registration_deduction_cents(registration)
+    billable_sessions = [ passed_sessions_count(registration) - 1, 0 ].max
+    billable_sessions * registration.course.training_value_cents
+  end
+  private_class_method :late_registration_deduction_cents
 
   # Jugendpreis greift, wenn das Alter zum Kursstart <= youth_max_age ist.
   def self.youth_eligible?(registration)
