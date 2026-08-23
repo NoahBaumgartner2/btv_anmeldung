@@ -1232,7 +1232,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     reg
   end
 
-  test "Schnupper-Versuch auf vollem Kurs landet auf Warteliste statt sofort schnuppern" do
+  test "Schnupper-Versuch auf vollem Kurs (Warteliste aktiv) wird abgelehnt statt schnuppern/Warteliste" do
     @trial_course.update_columns(max_participants: 1, enable_waitlist: true)
     CourseRegistration.new(
       course: @trial_course, participant: participants(:one),
@@ -1240,7 +1240,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     ).save!(validate: false)
 
     sign_in @trial_parent
-    assert_difference "CourseRegistration.count", 1 do
+    assert_no_difference "CourseRegistration.count" do
       post course_registrations_path, params: {
         course_registration: {
           course_id: @trial_course.id, participant_id: @trial_participant.id,
@@ -1250,7 +1250,28 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_equal "warteliste", CourseRegistration.last.status
+    assert_response :unprocessable_entity
+  end
+
+  test "Schnupper-Versuch auf vollem Kurs ohne Warteliste wird ebenfalls abgelehnt" do
+    @trial_course.update_columns(max_participants: 1, enable_waitlist: false)
+    CourseRegistration.new(
+      course: @trial_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    sign_in @trial_parent
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id, participant_id: @trial_participant.id,
+          trial_session_id: @trial_session.id
+        },
+        trial: "true"
+      }
+    end
+
+    assert_response :unprocessable_entity
   end
 
   test "accept_spot register bestätigt Gratiskurs-Platz" do

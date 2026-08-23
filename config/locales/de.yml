@@ -969,6 +969,7 @@ de:
       move_duplicate: "Verschieben nicht möglich: Der Teilnehmer hat im Zielkurs bereits eine aktive Anmeldung."
     errors:
       course_full: "Dieser Kurs ist leider bereits ausgebucht und hat keine Warteliste."
+      trial_full: "Schnuppern ist bei ausgebuchtem Kurs leider nicht möglich. Bitte melde dich regulär an, um auf die Warteliste zu kommen."
       duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
       duplicate_registration: "Diese Person ist bereits für diesen Kurs angemeldet."
       duplicate_schnuppern: "Diese Person hat bereits einen Schnupperplatz in diesem Kurs."
