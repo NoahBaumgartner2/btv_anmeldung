@@ -408,14 +408,29 @@
             </svg>
             <%= t("courses.manage.cancelled_registrations_label", count: cancelled_registrations.count) %>
           </summary>
-          <div class="divide-y divide-gray-100 bg-gray-50/50">
+
+          <%# Mobile: Card-Layout %>
+          <div class="sm:hidden divide-y divide-gray-100 bg-gray-50/50">
             <% cancelled_registrations.each do |reg| %>
-              <% p = reg.participant %>
-              <div class="px-4 sm:px-6 py-3 flex items-center justify-between gap-3 opacity-60">
-                <span class="text-sm font-medium text-gray-600"><%= p.first_name %> <%= p.last_name %></span>
-                <span class="text-xs font-bold px-2 py-0.5 rounded-full bg-gray-200 text-gray-500"><%= t("course_registrations.statuses.storniert") %></span>
-              </div>
+              <%= render "manage_participant_card", reg: reg %>
             <% end %>
+          </div>
+
+          <%# Desktop: Tabelle %>
+          <div class="overflow-hidden">
+            <table class="hidden sm:table w-full table-fixed divide-y divide-gray-200">
+              <colgroup>
+                <col class="w-[40%]">
+                <col class="w-[22%]">
+                <col class="w-[20%]">
+                <col class="w-[18%]">
+              </colgroup>
+              <tbody class="divide-y divide-gray-200 bg-gray-50/50">
+                <% cancelled_registrations.each do |reg| %>
+                  <%= render "manage_participant_row", reg: reg %>
+                <% end %>
+              </tbody>
+            </table>
           </div>
         </details>
       <% end %>
