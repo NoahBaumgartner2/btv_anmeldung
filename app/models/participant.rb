@@ -75,7 +75,7 @@ class Participant < ApplicationRecord
       .where(
         "(course_registrations.trial_expires_at IS NOT NULL AND course_registrations.trial_expires_at > :now) OR " \
         "(course_registrations.trial_expires_at IS NULL AND course_registrations.created_at > :cutoff)",
-        now: Time.current, cutoff: 7.days.ago
+        now: Time.current, cutoff: 5.days.ago
       )
       .exists?
   end

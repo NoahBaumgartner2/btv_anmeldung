@@ -481,7 +481,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "creates semester trial with trial_session and sets expiry to session start plus 7 days" do
+  test "creates semester trial with trial_session and sets expiry to session start plus 5 days" do
     sign_in @trial_parent
 
     assert_difference "CourseRegistration.count", 1 do
@@ -497,7 +497,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
     reg = CourseRegistration.last
     assert_equal @trial_session.id, reg.trial_session_id
-    assert_in_delta (@trial_session.start_time + 7.days).to_f, reg.trial_expires_at.to_f, 1.0
+    assert_in_delta (@trial_session.start_time + 5.days).to_f, reg.trial_expires_at.to_f, 1.0
   end
 
   test "rejects trial with session belonging to another course" do
@@ -544,7 +544,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    # Der Schnupperplatz bleibt erhalten (Platz reserviert, 7-Tage-Frist läuft weiter),
+    # Der Schnupperplatz bleibt erhalten (Platz reserviert, 5-Tage-Frist läuft weiter),
     # bis die Zahlung bestätigt ist – nicht "ausstehend".
     assert_equal "schnuppern", existing.reload.status
     assert_redirected_to checkout_preview_registration_path(existing)
@@ -1225,7 +1225,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
   def make_offered_registration(course)
     reg = CourseRegistration.new(
       course: course, participant: @trial_participant,
-      status: "platz_frei", payment_expires_at: 7.days.from_now,
+      status: "platz_frei", payment_expires_at: 5.days.from_now,
       payment_cleared: false, holiday_deduction_claimed: false
     )
     reg.save!(validate: false)

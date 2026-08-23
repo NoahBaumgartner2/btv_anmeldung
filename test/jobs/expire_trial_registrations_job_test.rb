@@ -51,7 +51,7 @@ class ExpireTrialRegistrationsJobTest < ActiveJob::TestCase
       status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
     )
     legacy.save!(validate: false)
-    # Altbestand: keine Frist gesetzt, aber Anmeldung älter als 7 Tage
+    # Altbestand: keine Frist gesetzt, aber Anmeldung älter als 5 Tage
     legacy.update_columns(trial_expires_at: nil, created_at: 8.days.ago)
 
     ExpireTrialRegistrationsJob.new.perform

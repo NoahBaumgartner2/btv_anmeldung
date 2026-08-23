@@ -1,7 +1,7 @@
 Hallo <%= greeting_name(@recipient) %>,
 
 <% if @course_registration.status == "schnuppern" %>
-<%= @participant.first_name %> hat einen Schnupperplatz für 7 Tage gesichert. Danach ist eine reguläre Anmeldung nötig.
+<%= @participant.first_name %> hat einen Schnupperplatz für 5 Tage gesichert. Danach ist eine reguläre Anmeldung nötig.
 <% elsif @course_registration.status == "bestätigt" %>
 die Anmeldung von <%= @participant.first_name %> <%= @participant.last_name %> wurde erfolgreich bestätigt.
 <% elsif @course_registration.status == "warteliste" %>

@@ -724,7 +724,7 @@ class CoursesController < ApplicationController
       # Wie beim Eltern-Self-Service: bei Drop-In-Kursen (single_session) legt die
       # gewählte Session direkt training_session_id fest (Kapazität wird pro Session
       # gezählt); bei Semesterkursen ist es eine separate trial_session (Kapazität
-      # gilt kursweit, das Schnuppertraining bestimmt nur die 7-Tage-Frist).
+      # gilt kursweit, das Schnuppertraining bestimmt nur die 5-Tage-Frist).
       training_session_id_for_capacity = nil
       trial_session = nil
 

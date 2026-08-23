@@ -162,7 +162,7 @@ class WaitlistPromotionServiceTest < ActiveSupport::TestCase
 
     waitlisted.reload
     assert_equal "platz_frei", waitlisted.status
-    assert waitlisted.payment_expires_at.present?, "7-Tage-Entscheidfrist muss gesetzt sein"
+    assert waitlisted.payment_expires_at.present?, "5-Tage-Entscheidfrist muss gesetzt sein"
   end
 
   test "promotes to bestätigt (no choice) when participant already trialed in category" do
@@ -198,7 +198,7 @@ class WaitlistPromotionServiceTest < ActiveSupport::TestCase
                          allows_trial: true, category: "Belegt-Test")
 
     offered = CourseRegistration.new(course: course, participant: participants(:one),
-      status: "platz_frei", payment_expires_at: 7.days.from_now,
+      status: "platz_frei", payment_expires_at: 5.days.from_now,
       payment_cleared: false, holiday_deduction_claimed: false)
     offered.save!(validate: false)
 

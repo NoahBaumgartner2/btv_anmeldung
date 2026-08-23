@@ -1557,7 +1557,7 @@ de:
         recipient: "Eltern der betroffenen Anmeldung"
       trial_expired:
         name: "Schnupperfrist abgelaufen"
-        description: "Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Frist (Training + 7 Tage) automatisch storniert wurde."
+        description: "Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Frist (Training + 5 Tage) automatisch storniert wurde."
         recipient: "Eltern des Schnupper-Teilnehmers"
       payment_receipt:
         name: "Zahlungsbeleg"

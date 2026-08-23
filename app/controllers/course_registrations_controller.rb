@@ -207,7 +207,7 @@ class CourseRegistrationsController < ApplicationController
 
         if course.has_payment? && course.price_cents.to_i > 0
           # Schnupperplatz bleibt "schnuppern", bis die Zahlung bestätigt ist –
-          # so bleibt der Platz reserviert (und die 7-Tage-Frist läuft weiter),
+          # so bleibt der Platz reserviert (und die 5-Tage-Frist läuft weiter),
           # falls die Zahlung abgebrochen wird. payable? lässt "schnuppern" zu;
           # mark_paid! wandelt den Status nach erfolgreicher Zahlung in "bestätigt".
           # Bestätigt-aber-unbezahlt bleibt "bestätigt" und geht direkt zur Zahlung.
@@ -276,9 +276,9 @@ class CourseRegistrationsController < ApplicationController
           @course_registration.status = "schnuppern"
           trial_date_session = @course_registration.trial_session || @course_registration.training_session
           erfolgs_nachricht = if trial_date_session
-            "Super! #{participant.first_name} schnuppert am #{I18n.l(trial_date_session.start_time.to_date)}. Der Platz ist bis 7 Tage nach dem Schnuppertraining gesichert."
+            "Super! #{participant.first_name} schnuppert am #{I18n.l(trial_date_session.start_time.to_date)}. Der Platz ist bis 5 Tage nach dem Schnuppertraining gesichert."
           else
-            "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+            "Super! #{participant.first_name} hat einen Schnupperplatz für 5 Tage. Danach muss eine reguläre Anmeldung erfolgen."
           end
         end
         save_result = @course_registration.save unless full_no_waitlist
@@ -1088,7 +1088,7 @@ class CourseRegistrationsController < ApplicationController
 
   # accept_spot: Wartender wählt "schnuppern". Eligibility erneut prüfen; bei Semesterkursen
   # muss ein konkretes Schnuppertraining gewählt sein. trial_expires_at zurücksetzen, damit
-  # set_trial_expiry die 7-Tage-Frist (ab Schnuppertraining) neu setzt.
+  # set_trial_expiry die 5-Tage-Frist (ab Schnuppertraining) neu setzt.
   def accept_spot_as_trial(course)
     participant = @course_registration.participant
 

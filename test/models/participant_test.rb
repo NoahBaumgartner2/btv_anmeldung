@@ -19,7 +19,7 @@ class ParticipantTest < ActiveSupport::TestCase
     assert_not @participant.has_trialed_in_category?("Kids Gym")
   end
 
-  test "has_trialed_in_category? returns true when active trial exists within 7 days" do
+  test "has_trialed_in_category? returns true when active trial exists within 5 days" do
     reg = CourseRegistration.new(
       course: @course, participant: @participant,
       status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false
@@ -39,7 +39,7 @@ class ParticipantTest < ActiveSupport::TestCase
     assert_not @participant.has_trialed_in_category?("Krabbel Gym")
   end
 
-  test "has_trialed_in_category? returns false when trial is older than 7 days" do
+  test "has_trialed_in_category? returns false when trial is older than 5 days" do
     reg = CourseRegistration.new(
       course: @course, participant: @participant,
       status: "schnuppern", payment_cleared: false, holiday_deduction_claimed: false

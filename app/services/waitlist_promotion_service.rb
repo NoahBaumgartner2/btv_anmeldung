@@ -41,7 +41,7 @@ class WaitlistPromotionService
 
         # Darf der Teilnehmer in dieser Kategorie noch schnuppern (hat seine einmalige
         # Schnuppermöglichkeit noch nicht genutzt)? Dann bekommt er den Platz "auf Probe":
-        # Status "platz_frei" mit 7-Tage-Frist, und entscheidet selbst zwischen Schnuppern
+        # Status "platz_frei" mit 5-Tage-Frist, und entscheidet selbst zwischen Schnuppern
         # und regulärer Anmeldung (siehe CourseRegistrations#accept_spot). Hinweis: bewusst
         # ever_trialed_in_category? (nicht schnupper_eligible_for_category?), da die eigene
         # Wartelisten-Anmeldung sich sonst selbst als "bereits registriert" blockieren würde.
@@ -50,7 +50,7 @@ class WaitlistPromotionService
                              !next_in_line.participant.ever_trialed_in_category?(course.category)
 
         if eligible_to_choose
-          next_in_line.update!(status: "platz_frei", payment_expires_at: 7.days.from_now)
+          next_in_line.update!(status: "platz_frei", payment_expires_at: 5.days.from_now)
         else
           # Abo-Buchungen sind immer vorausbezahlt – niemals auf "ausstehend" setzen.
           new_status = (paid_course && !next_in_line.abo_booking?) ? "ausstehend" : "bestätigt"
