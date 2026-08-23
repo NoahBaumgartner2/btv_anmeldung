@@ -271,6 +271,7 @@
               </span>
             </div>
             <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course),
+                  data: { turbo_frame: "_top" },
                   class: "block w-full text-center text-red-600 font-bold bg-red-50 active:bg-red-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
           </div>
         <% end %>
@@ -296,7 +297,7 @@
               <td class="py-4 px-4 text-sm text-gray-500"><%= course.registration_type_label %></td>
               <td class="py-4 px-4 text-sm font-medium text-primary-600"><%= course.occupied_spots %> <%= t("dashboards.admin.table.participants") %></td>
               <td class="py-4 px-4 text-right">
-                <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course), class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
+                <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course), data: { turbo_frame: "_top" }, class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
               </td>
             </tr>
           <% end %>
@@ -349,6 +350,7 @@
                     </p>
                   </div>
                   <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course),
+                        data: { turbo_frame: "_top" },
                         class: "shrink-0 text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
                 </li>
               <% end %>
