@@ -634,6 +634,11 @@ class CoursesController < ApplicationController
       else
         []
       end
+      @enroll_sessions = if @course.registration_mode == "single_session"
+        @course.training_sessions.where(is_canceled: false).not_past.order(:start_time)
+      else
+        []
+      end
     end
 
     def enroll_participant(participant, trial: false, trial_session_id: nil, email_only: false, reset_password_token: nil)
@@ -644,7 +649,25 @@ class CoursesController < ApplicationController
 
       return enroll_participant_as_trial(participant, trial_session_id) if trial
 
-      bestaetigte = @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
+      # Drop-In-Kurse (single_session) sind pro Training buchbar - ohne
+      # training_session_id würde die Anmeldung (via CourseRegistration
+      # .applicable_to_session) fälschlich für jedes Training des Kurses
+      # gelten, statt nur für das gewählte Datum.
+      training_session = nil
+      if @course.registration_mode == "single_session"
+        training_session = @course.training_sessions.where(is_canceled: false).not_past.find_by(id: params[:training_session_id])
+        unless training_session
+          return redirect_to manage_course_path(@course), alert: "Bitte ein gültiges Training auswählen."
+        end
+      end
+
+      bestaetigte = if training_session
+        @course.course_registrations
+               .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: training_session.id)
+               .distinct.count(:participant_id)
+      else
+        @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
+      end
       status = if @course.max_participants.present? && bestaetigte >= @course.max_participants
         "warteliste"
       else
@@ -657,6 +680,7 @@ class CoursesController < ApplicationController
         course: @course,
         participant: participant,
         status: status,
+        training_session: training_session,
         payment_cleared: false,
         holiday_deduction_claimed: false
       )

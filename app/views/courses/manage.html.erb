@@ -243,6 +243,24 @@
           </div>
         <% end %>
 
+        <% if @course.registration_mode == "single_session" %>
+          <div class="mb-5 p-3 bg-blue-50 border border-blue-200 rounded-lg" data-manual-enroll-target="enrollSessionWrap">
+            <% if @enroll_sessions.any? %>
+              <label class="block text-sm font-bold text-blue-800 mb-1">Training (Datum) *</label>
+              <p class="text-xs text-blue-600 mb-2">Drop-In-Kurs: Anmeldung gilt nur für das gewählte Training, nicht für den ganzen Kurs.</p>
+              <%= select_tag :manual_training_session,
+                    options_from_collection_for_select(@enroll_sessions, :id, ->(s) { I18n.l(s.start_time) }),
+                    prompt: "Bitte Training wählen",
+                    data: { "manual-enroll-target": "enrollSessionSelect", action: "change->manual-enroll#syncEnrollSession" },
+                    class: "block w-full rounded-lg border border-blue-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white" %>
+            <% else %>
+              <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-600">
+                Keine anstehenden Trainings gefunden.
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
         <% if @course.abo? %>
           <div class="mb-5 p-3 bg-emerald-50 border border-emerald-200 rounded-lg">
             <label class="block text-sm font-bold text-emerald-800 mb-1"><%= t("courses.manage.abo_import_label") %></label>
@@ -286,6 +304,9 @@
             <%= f.hidden_field :participant_id, data: { "manual-enroll-target": "participantId" } %>
             <%= f.hidden_field :trial, value: "false", data: { "manual-enroll-target": "trialField" } %>
             <%= f.hidden_field :trial_session_id, data: { "manual-enroll-target": "trialSessionField" } %>
+            <% if @course.registration_mode == "single_session" %>
+              <%= f.hidden_field :training_session_id, data: { "manual-enroll-target": "enrollSessionField" } %>
+            <% end %>
             <% if @course.abo? %>
               <%= f.hidden_field :abo_remaining_entries, data: { "manual-enroll-target": "aboEntriesField" } %>
             <% end %>

@@ -272,6 +272,10 @@
     <%= hidden_field_tag :trial_session_id, nil, data: { "manual-enroll-target": "trialSessionField" } %>
   <% end %>
 
+  <% if local_assigns[:manual_enroll_mode] && local_assigns[:course]&.registration_mode == "single_session" %>
+    <%= hidden_field_tag :training_session_id, nil, data: { "manual-enroll-target": "enrollSessionField" } %>
+  <% end %>
+
   <% if local_assigns[:manual_enroll_mode] && local_assigns[:course]&.abo? %>
     <%= hidden_field_tag :abo_remaining_entries, nil, data: { "manual-enroll-target": "aboEntriesField" } %>
   <% end %>
