@@ -4,6 +4,7 @@ export default class extends Controller {
   static targets = ["searchTab", "createTab", "searchPanel", "createPanel",
                     "searchInput", "searchResults", "participantId", "enrollForm",
                     "trialCheckbox", "trialSessionWrap", "trialSessionSelect", "trialField", "trialSessionField",
+                    "enrollSessionWrap", "enrollSessionSelect", "enrollSessionField",
                     "aboEntriesDisplay", "aboEntriesField",
                     "emailOnlyCheckbox", "emailOnlyField", "detailFields"]
 
@@ -79,13 +80,27 @@ export default class extends Controller {
     if (this.hasTrialSessionWrapTarget) {
       this.trialSessionWrapTarget.classList.toggle("hidden", !checked)
     }
+    // Bei Drop-In-Kursen hat "Schnuppern" seine eigene Trainings-Auswahl -
+    // die reguläre Trainings-Auswahl wird währenddessen ausgeblendet, damit
+    // nicht zwei Datumsfelder gleichzeitig verwirren.
+    if (this.hasEnrollSessionWrapTarget) {
+      this.enrollSessionWrapTarget.classList.toggle("hidden", checked)
+    }
     this.syncTrialSession()
+    this.syncEnrollSession()
   }
 
   syncTrialSession() {
     const val = (this.hasTrialSessionSelectTarget && this.trialCheckboxTarget.checked)
       ? this.trialSessionSelectTarget.value : ""
     this.trialSessionFieldTargets.forEach(f => f.value = val)
+  }
+
+  syncEnrollSession() {
+    const trialChecked = this.hasTrialCheckboxTarget && this.trialCheckboxTarget.checked
+    const val = (this.hasEnrollSessionSelectTarget && !trialChecked)
+      ? this.enrollSessionSelectTarget.value : ""
+    this.enrollSessionFieldTargets.forEach(f => f.value = val)
   }
 
   syncAboEntries() {

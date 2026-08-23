@@ -368,6 +368,32 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to manage_course_path(course)
   end
 
+  test "manual_enroll ohne trial bei Drop-In-Kurs verlangt training_session_id und meldet nur fürs gewählte Training an" do
+    course = Course.new(
+      title: "Krabbel Gym Test", category: "Turnen",
+      registration_type: "pro_training", registration_mode: "single_session",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 5
+    )
+    course.save!(validate: false)
+    session = course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false
+    )
+
+    assert_no_difference("CourseRegistration.count") do
+      post manual_enroll_course_url(course), params: { participant_id: participants(:one).id }
+    end
+
+    post manual_enroll_course_url(course), params: {
+      participant_id: participants(:one).id, training_session_id: session.id
+    }
+
+    reg = CourseRegistration.last
+    assert_equal "bestätigt", reg.status
+    assert_equal session.id, reg.training_session_id
+    assert_redirected_to manage_course_path(course)
+  end
+
   test "manual_enroll mit trial bei Drop-In verlangt trial_session_id" do
     course = Course.new(
       title: "Drop-In Schnupperkurs ohne Session", category: "Turnen",
