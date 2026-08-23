@@ -424,4 +424,36 @@ class CourseTest < ActiveSupport::TestCase
 
     assert_equal 0, semester_course.reclaim_abo_bookings!(participants(:one))
   end
+
+  # ── late_registration_deduction_cents / effective_price_display ─────────────
+
+  test "effective_price_display zeigt den vollen Preis ohne bereits vergangene Trainings" do
+    course = Course.new(base_attrs.merge(has_payment: true, price_cents: 10_000, training_value_cents: 1_000,
+      allows_late_registration_deduction: true))
+    course.save!(validate: false)
+
+    assert_equal "CHF 100.00", course.effective_price_display
+  end
+
+  test "effective_price_display reduziert den Preis ab dem zweiten bereits stattgefundenen Training" do
+    course = Course.new(base_attrs.merge(has_payment: true, price_cents: 10_000, training_value_cents: 1_000,
+      allows_late_registration_deduction: true))
+    course.save!(validate: false)
+    course.training_sessions.create!(start_time: 10.days.ago, end_time: 10.days.ago + 1.hour, is_canceled: false)
+    course.training_sessions.create!(start_time: 3.days.ago, end_time: 3.days.ago + 1.hour, is_canceled: false)
+
+    assert_equal "CHF 90.00", course.effective_price_display
+    assert_equal 1_000, course.late_registration_deduction_cents
+  end
+
+  test "effective_price_display bleibt voller Preis wenn allows_late_registration_deduction deaktiviert ist" do
+    course = Course.new(base_attrs.merge(has_payment: true, price_cents: 10_000, training_value_cents: 1_000,
+      allows_late_registration_deduction: false))
+    course.save!(validate: false)
+    course.training_sessions.create!(start_time: 10.days.ago, end_time: 10.days.ago + 1.hour, is_canceled: false)
+    course.training_sessions.create!(start_time: 3.days.ago, end_time: 3.days.ago + 1.hour, is_canceled: false)
+
+    assert_equal "CHF 100.00", course.effective_price_display
+    assert_equal 0, course.late_registration_deduction_cents
+  end
 end

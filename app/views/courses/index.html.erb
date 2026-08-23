@@ -118,7 +118,12 @@
                     </dl>
                     <div class="mt-auto pt-4 border-t border-gray-100">
                       <div class="flex items-baseline justify-between gap-3 mb-4">
-                        <span class="text-2xl font-extrabold text-gray-900 break-words"><%= course.price_display %></span>
+                        <span class="text-2xl font-extrabold text-gray-900 break-words">
+                          <% if course.late_registration_deduction_cents.positive? %>
+                            <span class="block text-sm font-semibold text-gray-400 line-through"><%= course.price_display %></span>
+                          <% end %>
+                          <%= course.effective_price_display %>
+                        </span>
                         <% if current_user&.admin? %>
                           <%= link_to t("courses.index.actions.manage"), manage_course_path(course),
                                 class: "shrink-0 inline-flex items-center justify-center text-xs font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition min-h-[36px]" %>
@@ -265,7 +270,10 @@
                   <div class="mt-auto pt-4 border-t border-gray-100">
                     <div class="flex items-baseline justify-between gap-3 mb-4">
                       <span class="text-2xl font-extrabold text-gray-900 break-words">
-                        <%= course.price_display %>
+                        <% if course.late_registration_deduction_cents.positive? %>
+                          <span class="block text-sm font-semibold text-gray-400 line-through"><%= course.price_display %></span>
+                        <% end %>
+                        <%= course.effective_price_display %>
                       </span>
                       <% if current_user&.admin? %>
                         <%= link_to t("courses.index.actions.manage"), manage_course_path(course),
