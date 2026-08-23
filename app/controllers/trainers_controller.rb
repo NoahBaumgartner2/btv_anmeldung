@@ -207,6 +207,7 @@ def index
     @trainer.assign_attributes(profile_params)
     if @trainer.save(context: :profile_completion)
       @trainer.sync_self_participant!
+      notify_admins_of_profile_change
       redirect_to my_profile_path, notice: "Dein Profil wurde aktualisiert."
     else
       render "participants/my_profile", status: :unprocessable_entity
@@ -214,6 +215,25 @@ def index
   end
 
   private
+
+  # Menschenlesbare Labels für die trainer_profile_updated_admin-Benachrichtigung.
+  PROFILE_FIELD_LABELS = {
+    "first_name" => "Vorname", "last_name" => "Nachname", "phone" => "Telefonnummer",
+    "ahv_number" => "AHV-Nummer", "date_of_birth" => "Geburtsdatum", "gender" => "Geschlecht",
+    "street" => "Strasse", "house_number" => "Hausnummer", "zip_code" => "PLZ", "city" => "Ort",
+    "country" => "Land", "nationality" => "Nationalität", "mother_tongue" => "Muttersprache",
+    "js_person_number" => "J+S Personennummer", "iban" => "IBAN", "js_anerkennung" => "J+S-Anerkennung"
+  }.freeze
+
+  def notify_admins_of_profile_change
+    changed_labels = @trainer.saved_changes.keys.filter_map { |key| PROFILE_FIELD_LABELS[key] }
+    return if changed_labels.empty?
+
+    User.where(admin: true).find_each do |admin_user|
+      next unless admin_user.admin_notification_enabled?("trainer_profile_updated")
+      CourseTrainerMailer.profile_updated_admin_notice(@trainer, changed_labels, admin_user).deliver_later
+    end
+  end
     # Use callbacks to share common setup or constraints between actions.
     def set_trainer
       @trainer = Trainer.find(params.expect(:id))

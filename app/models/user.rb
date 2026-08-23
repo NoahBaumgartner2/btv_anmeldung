@@ -22,6 +22,7 @@ class User < ApplicationRecord
     refund_failed
     substitute_assigned_admin
     participant_profile_updated
+    trainer_profile_updated
   ].freeze
 
   # Verpflichtende Benachrichtigungen können nicht abgeschaltet werden.

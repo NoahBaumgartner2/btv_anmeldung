@@ -1603,6 +1603,10 @@ de:
         name: "Ersatztrainer eingetragen – Admin-Info"
         description: "Informiert Admins mit Grundangabe, wenn ein Trainer für ein Training eine:n Ersatztrainer:in einträgt."
         recipient: "Admins – jede:r Admin kann diese Mail zusätzlich für sich selbst abschalten (unter 'Meine Benachrichtigungen')"
+      trainer_profile_updated_admin:
+        name: "Trainerprofil geändert – Admin-Info"
+        description: "Informiert Admins, wenn ein Trainer sein eigenes Profil ändert (z.B. Adresse, Telefonnummer, IBAN)."
+        recipient: "Admins – jede:r Admin kann diese Mail zusätzlich für sich selbst abschalten (unter 'Meine Benachrichtigungen')"
       participant_complete_profile:
         name: "Angaben ergänzen"
         description: "Bittet darum, fehlende Angaben zu einem Teilnehmer zu ergänzen."
