@@ -61,6 +61,79 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to participants_url
   end
 
+  test "update mit geänderter Adresse benachrichtigt Admin, wenn Kurs die Option aktiviert hat" do
+    course = Course.new(title: "Notify-Kurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      notify_admin_on_participant_profile_change: true)
+    course.save!(validate: false)
+    CourseRegistration.create!(course: course, participant: @participant, status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false)
+
+    assert_enqueued_email_with ParticipantMailer, :profile_updated_admin_notice,
+      args: [ @participant, [ "Telefonnummer", "Strasse" ], users(:admin) ] do
+      patch participant_url(@participant), params: {
+        participant: {
+          ahv_number:    @participant.ahv_number,
+          date_of_birth: @participant.date_of_birth,
+          first_name:    @participant.first_name,
+          gender:        @participant.gender,
+          last_name:     @participant.last_name,
+          phone_number:  @participant.phone_number,
+          street:        "Neue Strasse"
+        }
+      }
+    end
+  end
+
+  test "update ohne aktivierte Kurs-Option benachrichtigt Admin nicht" do
+    course = Course.new(title: "Kein-Notify-Kurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      notify_admin_on_participant_profile_change: false)
+    course.save!(validate: false)
+    CourseRegistration.create!(course: course, participant: @participant, status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false)
+
+    assert_no_enqueued_emails do
+      patch participant_url(@participant), params: {
+        participant: {
+          ahv_number:    @participant.ahv_number,
+          date_of_birth: @participant.date_of_birth,
+          first_name:    @participant.first_name,
+          gender:        @participant.gender,
+          last_name:     @participant.last_name,
+          phone_number:  @participant.phone_number,
+          street:        "Neue Strasse"
+        }
+      }
+    end
+  end
+
+  test "update durch Admin selbst benachrichtigt niemanden" do
+    course = Course.new(title: "Admin-Edit-Kurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      notify_admin_on_participant_profile_change: true)
+    course.save!(validate: false)
+    CourseRegistration.create!(course: course, participant: @participant, status: "bestätigt",
+      payment_cleared: true, holiday_deduction_claimed: false)
+
+    sign_out @user
+    sign_in users(:admin)
+
+    assert_no_enqueued_emails do
+      patch participant_url(@participant), params: {
+        participant: {
+          ahv_number:    @participant.ahv_number,
+          date_of_birth: @participant.date_of_birth,
+          first_name:    @participant.first_name,
+          gender:        @participant.gender,
+          last_name:     @participant.last_name,
+          phone_number:  @participant.phone_number,
+          street:        "Neue Strasse"
+        }
+      }
+    end
+  end
+
   test "should destroy participant" do
     assert_difference("Participant.count", -1) do
       delete participant_url(@participant)

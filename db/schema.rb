@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_171500) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_23_174304) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -156,6 +156,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_171500) do
   create_table "courses", force: :cascade do |t|
     t.integer "abo_size"
     t.boolean "allows_holiday_deduction"
+    t.boolean "allows_late_registration_deduction", default: true, null: false
     t.boolean "allows_talent_marking", default: false, null: false
     t.boolean "allows_trainer_self_enroll", default: true, null: false
     t.boolean "allows_trial", default: false, null: false
@@ -180,6 +181,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_171500) do
     t.integer "max_age"
     t.integer "max_participants"
     t.integer "min_age"
+    t.boolean "notify_admin_on_participant_profile_change", default: false, null: false
     t.string "payment_methods", default: ["card"], null: false, array: true
     t.bigint "previous_course_id"
     t.integer "price_cents"

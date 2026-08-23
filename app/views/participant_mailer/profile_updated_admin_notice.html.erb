@@ -1,0 +1,39 @@
+<% primary = @_club&.effective_primary_color || "#2563eb" %>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0;font-size:15px;font-weight:600;color:#1e40af;font-family:Arial,Helvetica,sans-serif;">
+        Ein Teilnehmerprofil wurde geändert.
+      </p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 20px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Hallo <%= greeting_name(@admin_user) %>,<br><br>
+  zur Info: <%= @participant.first_name %> <%= @participant.last_name %> hat soeben Angaben im eigenen Profil geändert.
+</p>
+
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9fafb;border-radius:8px;margin-bottom:24px;">
+  <tr>
+    <td style="padding:16px 20px;">
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Teilnehmer</p>
+      <p style="margin:0 0 12px 0;font-size:16px;font-weight:600;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @participant.first_name %> <%= @participant.last_name %></p>
+      <p style="margin:0 0 6px 0;font-size:14px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;font-family:Arial,Helvetica,sans-serif;">Geänderte Felder</p>
+      <p style="margin:0;font-size:16px;color:#111827;font-family:Arial,Helvetica,sans-serif;"><%= @changed_field_labels.join(", ") %></p>
+    </td>
+  </tr>
+</table>
+
+<p style="margin:0 0 24px 0;font-size:15px;color:#374151;font-family:Arial,Helvetica,sans-serif;">
+  Diese Benachrichtigung kannst du unter "Meine Benachrichtigungen" für dich persönlich abschalten.
+</p>
+
+<table cellpadding="0" cellspacing="0" style="margin-bottom:32px;">
+  <tr>
+    <td style="background:<%= primary %>;border-radius:8px;padding:12px 24px;">
+      <a href="<%= @participant_url %>" style="color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;font-family:Arial,Helvetica,sans-serif;">Profil ansehen</a>
+    </td>
+  </tr>
+</table>

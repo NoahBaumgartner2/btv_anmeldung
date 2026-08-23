@@ -25,6 +25,7 @@
           rows << [ "refund_done", "Rückerstattung erfolgt", "Wenn ein Trainer einen Teilnehmer abmeldet und die Rückerstattung automatisch erfolgt ist", "admin" ]
           rows << [ "refund_failed", "Rückerstattung fehlgeschlagen", "Wenn eine automatische Rückerstattung technisch fehlgeschlagen ist", "admin" ]
           rows << [ "substitute_assigned_admin", "Ersatztrainer eingetragen", "Wenn ein Trainer für ein Training eine:n Ersatztrainer:in einträgt (mit Grund)", "admin" ]
+          rows << [ "participant_profile_updated", "Teilnehmerprofil geändert", "Wenn ein angemeldeter Teilnehmer sein Profil ändert (z.B. Adresse, Telefonnummer) - nur bei Kursen mit aktivierter Option", "admin" ]
         end
         rows.each do |type, name, description, role| %>
           <% mandatory = User::MANDATORY_NOTIFICATION_TYPES.include?(type) %>

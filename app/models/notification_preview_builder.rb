@@ -189,6 +189,10 @@ class NotificationPreviewBuilder
       TrainingSessionMailer.substitute_assigned_admin_notice(session, fake_trainer, fake_admin)
     end
 
+    def participant_profile_updated_admin
+      ParticipantMailer.profile_updated_admin_notice(fake_participant, [ "Strasse", "PLZ" ], fake_admin)
+    end
+
     def custom_trainer_message
       CourseRegistrationMailer.custom_message(
         fake_registration, subject: "Wichtige Info zum Training", sender: fake_trainer,

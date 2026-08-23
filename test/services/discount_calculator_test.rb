@@ -5,7 +5,8 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
 
   def make_course(title: "Rabatt-Kurs", category: "polysport", price: 10_000,
                   discounts: true, sibling: 6_000, second: 7_000,
-                  youth: nil, youth_max_age: 20)
+                  youth: nil, youth_max_age: 20,
+                  training_value: nil, allows_late_registration_deduction: true)
     course = Course.new(title: title, registration_type: "semester",
       has_payment: true, has_ticketing: false, allows_holiday_deduction: false,
       category: category)
@@ -15,6 +16,8 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     course.second_course_price_cents = second
     course.youth_price_cents = youth
     course.youth_max_age = youth_max_age
+    course.training_value_cents = training_value
+    course.allows_late_registration_deduction = allows_late_registration_deduction
     course.save!(validate: false)
     course
   end
@@ -26,11 +29,16 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     participant
   end
 
-  def make_registration(course, participant, status: "ausstehend", payment_cleared: false)
+  def make_registration(course, participant, status: "ausstehend", payment_cleared: false, created_at: Time.current)
     reg = CourseRegistration.new(course: course, participant: participant,
       status: status, payment_cleared: payment_cleared, holiday_deduction_claimed: false)
     reg.save!(validate: false)
+    reg.update_column(:created_at, created_at)
     reg
+  end
+
+  def make_session(course, start_time:, canceled: false)
+    course.training_sessions.create!(start_time: start_time, end_time: start_time + 1.hour, is_canceled: canceled)
   end
 
   # ── Grundfälle ───────────────────────────────────────────────────────────────
@@ -231,6 +239,87 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     child   = make_participant(users(:one), first_name: "Anna")
     sibling = make_participant(users(:one), first_name: "Ben")
     make_registration(course, sibling, status: "ausstehend", payment_cleared: true)
+
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 6_000, result[:price_cents]
+    assert_equal "sibling", result[:discount]
+  end
+
+  # ── Späteres Anmelden (Preisreduktion) ───────────────────────────────────────
+
+  test "voller Preis wenn erst ein Training stattgefunden hat (Schnupper-Training zählt nicht)" do
+    course = make_course(discounts: false, training_value: 1_000)
+    child  = make_participant(users(:one), first_name: "Anna")
+    make_session(course, start_time: 3.days.ago)
+
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 10_000, result[:price_cents]
+    assert_nil result[:discount]
+  end
+
+  test "ab dem zweiten bereits stattgefundenen Training wird pro Training abgezogen" do
+    course = make_course(discounts: false, training_value: 1_000)
+    child  = make_participant(users(:one), first_name: "Anna")
+    make_session(course, start_time: 10.days.ago)
+    make_session(course, start_time: 3.days.ago)
+    make_session(course, start_time: 2.days.from_now) # noch nicht stattgefunden - zählt nicht
+
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 9_000, result[:price_cents] # 10'000 - (2-1) * 1'000
+    assert_equal "late_registration", result[:discount]
+  end
+
+  test "abgesagte Trainings zählen nicht bei der Preisreduktion" do
+    course = make_course(discounts: false, training_value: 1_000)
+    child  = make_participant(users(:one), first_name: "Anna")
+    make_session(course, start_time: 10.days.ago)
+    make_session(course, start_time: 5.days.ago, canceled: true)
+    make_session(course, start_time: 3.days.ago)
+
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 9_000, result[:price_cents]
+    assert_equal "late_registration", result[:discount]
+  end
+
+  test "keine Preisreduktion wenn allows_late_registration_deduction deaktiviert" do
+    course = make_course(discounts: false, training_value: 1_000, allows_late_registration_deduction: false)
+    child  = make_participant(users(:one), first_name: "Anna")
+    make_session(course, start_time: 10.days.ago)
+    make_session(course, start_time: 3.days.ago)
+
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 10_000, result[:price_cents]
+    assert_nil result[:discount]
+  end
+
+  test "keine Preisreduktion ohne gesetzten Wert pro Training" do
+    course = make_course(discounts: false, training_value: nil)
+    child  = make_participant(users(:one), first_name: "Anna")
+    make_session(course, start_time: 10.days.ago)
+    make_session(course, start_time: 3.days.ago)
+
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 10_000, result[:price_cents]
+    assert_nil result[:discount]
+  end
+
+  test "Preisreduktion nie unter 0" do
+    course = make_course(discounts: false, price: 2_000, training_value: 1_000)
+    child  = make_participant(users(:one), first_name: "Anna")
+    5.times { |i| make_session(course, start_time: (10 - i).days.ago) }
+
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 0, result[:price_cents]
+    assert_equal "late_registration", result[:discount]
+  end
+
+  test "günstigerer Geschwister-Rabatt gewinnt gegen Preisreduktion für spätes Anmelden" do
+    course  = make_course(training_value: 1_000, sibling: 6_000)
+    child   = make_participant(users(:one), first_name: "Anna")
+    sibling = make_participant(users(:one), first_name: "Ben")
+    make_registration(course, sibling, status: "bestätigt")
+    make_session(course, start_time: 10.days.ago)
+    make_session(course, start_time: 3.days.ago)
 
     result = DiscountCalculator.call(make_registration(course, child))
     assert_equal 6_000, result[:price_cents]
