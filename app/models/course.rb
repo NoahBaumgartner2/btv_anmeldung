@@ -118,6 +118,31 @@ class Course < ApplicationRecord
     "CHF #{price_chf}"
   end
 
+  # Abzug (in Rappen) für eine Anmeldung, die erst nach Kursstart erfolgt -
+  # das erste bereits stattgefundene Training zählt noch normal, ab jedem
+  # weiteren wird der Trainingswert abgezogen (siehe DiscountCalculator, das
+  # dieselbe Methode für die tatsächliche Registration nutzt).
+  def late_registration_deduction_cents(at: Time.current)
+    return 0 unless allows_late_registration_deduction? && training_value_cents.present? && training_value_cents.positive?
+
+    passed_sessions = training_sessions.where(is_canceled: false).where("start_time <= ?", at).count
+    billable_sessions = [ passed_sessions - 1, 0 ].max
+    billable_sessions * training_value_cents
+  end
+
+  # Der Preis, den ein *neuer* Teilnehmer aktuell zahlen würde (ohne
+  # personenbezogene Rabatte wie Geschwister/Zweitkurs - siehe
+  # DiscountCalculator für die vollständige, registrierungsbezogene Version).
+  def effective_price_cents(at: Time.current)
+    return price_cents.to_i unless has_payment? && price_cents.present?
+    [ price_cents - late_registration_deduction_cents(at: at), 0 ].max
+  end
+
+  def effective_price_display
+    return I18n.t("courses.free") unless has_payment? && price_cents
+    "CHF #{format('%.2f', effective_price_cents / 100.0)}"
+  end
+
   # ── Preisreduktion (Geschwister / Zweitkurs) ───────────────────────────────
   validate :discount_prices_must_be_valid, if: :discounts_enabled?
 
