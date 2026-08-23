@@ -969,6 +969,7 @@ de:
       move_duplicate: "Verschieben nicht möglich: Der Teilnehmer hat im Zielkurs bereits eine aktive Anmeldung."
     errors:
       course_full: "Dieser Kurs ist leider bereits ausgebucht und hat keine Warteliste."
+      trial_full: "Schnuppern ist bei ausgebuchtem Kurs leider nicht möglich. Bitte melde dich regulär an, um auf die Warteliste zu kommen."
       duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
       duplicate_registration: "Diese Person ist bereits für diesen Kurs angemeldet."
       duplicate_schnuppern: "Diese Person hat bereits einen Schnupperplatz in diesem Kurs."
@@ -1557,7 +1558,7 @@ de:
         recipient: "Eltern der betroffenen Anmeldung"
       trial_expired:
         name: "Schnupperfrist abgelaufen"
-        description: "Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Frist (Training + 7 Tage) automatisch storniert wurde."
+        description: "Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Frist (Training + 5 Tage) automatisch storniert wurde."
         recipient: "Eltern des Schnupper-Teilnehmers"
       payment_receipt:
         name: "Zahlungsbeleg"
@@ -1602,6 +1603,10 @@ de:
       substitute_assigned_admin:
         name: "Ersatztrainer eingetragen – Admin-Info"
         description: "Informiert Admins mit Grundangabe, wenn ein Trainer für ein Training eine:n Ersatztrainer:in einträgt."
+        recipient: "Admins – jede:r Admin kann diese Mail zusätzlich für sich selbst abschalten (unter 'Meine Benachrichtigungen')"
+      trainer_profile_updated_admin:
+        name: "Trainerprofil geändert – Admin-Info"
+        description: "Informiert Admins, wenn ein Trainer sein eigenes Profil ändert (z.B. Adresse, Telefonnummer, IBAN)."
         recipient: "Admins – jede:r Admin kann diese Mail zusätzlich für sich selbst abschalten (unter 'Meine Benachrichtigungen')"
       participant_complete_profile:
         name: "Angaben ergänzen"

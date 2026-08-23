@@ -481,7 +481,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "creates semester trial with trial_session and sets expiry to session start plus 7 days" do
+  test "creates semester trial with trial_session and sets expiry to session start plus 5 days" do
     sign_in @trial_parent
 
     assert_difference "CourseRegistration.count", 1 do
@@ -497,7 +497,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
     reg = CourseRegistration.last
     assert_equal @trial_session.id, reg.trial_session_id
-    assert_in_delta (@trial_session.start_time + 7.days).to_f, reg.trial_expires_at.to_f, 1.0
+    assert_in_delta (@trial_session.start_time + 5.days).to_f, reg.trial_expires_at.to_f, 1.0
   end
 
   test "rejects trial with session belonging to another course" do
@@ -544,7 +544,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    # Der Schnupperplatz bleibt erhalten (Platz reserviert, 7-Tage-Frist läuft weiter),
+    # Der Schnupperplatz bleibt erhalten (Platz reserviert, 5-Tage-Frist läuft weiter),
     # bis die Zahlung bestätigt ist – nicht "ausstehend".
     assert_equal "schnuppern", existing.reload.status
     assert_redirected_to checkout_preview_registration_path(existing)
@@ -1225,14 +1225,14 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
   def make_offered_registration(course)
     reg = CourseRegistration.new(
       course: course, participant: @trial_participant,
-      status: "platz_frei", payment_expires_at: 7.days.from_now,
+      status: "platz_frei", payment_expires_at: 5.days.from_now,
       payment_cleared: false, holiday_deduction_claimed: false
     )
     reg.save!(validate: false)
     reg
   end
 
-  test "Schnupper-Versuch auf vollem Kurs landet auf Warteliste statt sofort schnuppern" do
+  test "Schnupper-Versuch auf vollem Kurs (Warteliste aktiv) wird abgelehnt statt schnuppern/Warteliste" do
     @trial_course.update_columns(max_participants: 1, enable_waitlist: true)
     CourseRegistration.new(
       course: @trial_course, participant: participants(:one),
@@ -1240,7 +1240,7 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     ).save!(validate: false)
 
     sign_in @trial_parent
-    assert_difference "CourseRegistration.count", 1 do
+    assert_no_difference "CourseRegistration.count" do
       post course_registrations_path, params: {
         course_registration: {
           course_id: @trial_course.id, participant_id: @trial_participant.id,
@@ -1250,7 +1250,28 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
       }
     end
 
-    assert_equal "warteliste", CourseRegistration.last.status
+    assert_response :unprocessable_entity
+  end
+
+  test "Schnupper-Versuch auf vollem Kurs ohne Warteliste wird ebenfalls abgelehnt" do
+    @trial_course.update_columns(max_participants: 1, enable_waitlist: false)
+    CourseRegistration.new(
+      course: @trial_course, participant: participants(:one),
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    sign_in @trial_parent
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: {
+        course_registration: {
+          course_id: @trial_course.id, participant_id: @trial_participant.id,
+          trial_session_id: @trial_session.id
+        },
+        trial: "true"
+      }
+    end
+
+    assert_response :unprocessable_entity
   end
 
   test "accept_spot register bestätigt Gratiskurs-Platz" do

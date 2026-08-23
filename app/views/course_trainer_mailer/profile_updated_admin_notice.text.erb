@@ -1,0 +1,13 @@
+Hallo <%= greeting_name(@admin_user) %>,
+
+zur Info: <%= @trainer.full_name %> hat soeben Angaben im eigenen Profil geändert.
+
+Trainer:          <%= @trainer.full_name %>
+Geänderte Felder: <%= @changed_field_labels.join(", ") %>
+
+Profil ansehen: <%= @trainer_url %>
+
+Diese Benachrichtigung kannst du unter "Meine Benachrichtigungen" für dich persönlich abschalten.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

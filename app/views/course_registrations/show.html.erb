@@ -87,7 +87,7 @@
   <% if @course_registration.trial? %>
     <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6">
       <p class="text-sm font-bold text-amber-800">Schnupper-Anmeldung aktiv</p>
-      <% trial_deadline = @course_registration.trial_expires_at || (@course_registration.created_at + 7.days) %>
+      <% trial_deadline = @course_registration.trial_expires_at || (@course_registration.created_at + 5.days) %>
       <% if @course_registration.trial_session.present? %>
         <p class="text-sm text-amber-700 mt-1">
           Schnuppertraining: <%= I18n.l(@course_registration.trial_session.start_time, format: :long) %>

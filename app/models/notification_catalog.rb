@@ -67,6 +67,7 @@ class NotificationCatalog
     entry(key: "custom_trainer_message",      category: "trainer", toggleable: false, preview_method: :custom_trainer_message),
     entry(key: "substitute_assigned",         category: "trainer", toggleable: true,  preview_method: :substitute_assigned),
     entry(key: "substitute_assigned_admin",   category: "trainer", toggleable: true,  preview_method: :substitute_assigned_admin, scope: :global_and_personal),
+    entry(key: "trainer_profile_updated_admin", category: "trainer", toggleable: true, preview_method: :trainer_profile_updated_admin, scope: :global_and_personal),
 
     # ── Sonstiges ──────────────────────────────────────────────────────────
     entry(key: "participant_complete_profile", category: "other", toggleable: true, preview_method: :participant_complete_profile),

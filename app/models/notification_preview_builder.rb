@@ -193,6 +193,10 @@ class NotificationPreviewBuilder
       ParticipantMailer.profile_updated_admin_notice(fake_participant, [ "Strasse", "PLZ" ], fake_admin)
     end
 
+    def trainer_profile_updated_admin
+      CourseTrainerMailer.profile_updated_admin_notice(fake_trainer, [ "Strasse", "IBAN" ], fake_admin)
+    end
+
     def custom_trainer_message
       CourseRegistrationMailer.custom_message(
         fake_registration, subject: "Wichtige Info zum Training", sender: fake_trainer,

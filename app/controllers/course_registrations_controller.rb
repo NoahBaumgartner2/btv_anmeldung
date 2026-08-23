@@ -207,7 +207,7 @@ class CourseRegistrationsController < ApplicationController
 
         if course.has_payment? && course.price_cents.to_i > 0
           # Schnupperplatz bleibt "schnuppern", bis die Zahlung bestätigt ist –
-          # so bleibt der Platz reserviert (und die 7-Tage-Frist läuft weiter),
+          # so bleibt der Platz reserviert (und die 5-Tage-Frist läuft weiter),
           # falls die Zahlung abgebrochen wird. payable? lässt "schnuppern" zu;
           # mark_paid! wandelt den Status nach erfolgreicher Zahlung in "bestätigt".
           # Bestätigt-aber-unbezahlt bleibt "bestätigt" und geht direkt zur Zahlung.
@@ -251,11 +251,14 @@ class CourseRegistrationsController < ApplicationController
     # Voller Kurs OHNE Warteliste → Anmeldung ablehnen statt bestätigen/zur Zahlung leiten
     # (verhindert Überbuchung, wenn die Warteliste deaktiviert ist).
     full_no_waitlist = false
+    # Schnuppern bei vollem Kurs ist grundsätzlich nicht buchbar (auch nicht auf die
+    # Warteliste) - die Familie muss sich stattdessen regulär anmelden.
+    trial_full = false
 
     if is_trial
-      # Kapazitätsprüfung unter Lock: Ist der Kurs voll und Warteliste aktiv, kommt auch
-      # ein Schnupper-Versuch auf die Warteliste (verhindert Überbuchung via Schnupper-Pfad).
-      # Beim Hochstufen darf der Wartende dann zwischen Schnuppern und Anmelden wählen.
+      # Kapazitätsprüfung unter Lock: Ist der Kurs voll, ist Schnuppern nicht buchbar -
+      # egal ob Warteliste aktiv ist oder nicht. Die Familie muss sich stattdessen
+      # regulär anmelden (landet dann ggf. auf der Warteliste).
       Course.find(course.id).with_lock do
         belegte_plaetze = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
           course.course_registrations
@@ -266,22 +269,17 @@ class CourseRegistrationsController < ApplicationController
         end
 
         if course.max_participants.present? && belegte_plaetze >= course.max_participants
-          if course.enable_waitlist?
-            @course_registration.status = "warteliste"
-            erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
-          else
-            full_no_waitlist = true
-          end
+          trial_full = true
         else
           @course_registration.status = "schnuppern"
           trial_date_session = @course_registration.trial_session || @course_registration.training_session
           erfolgs_nachricht = if trial_date_session
-            "Super! #{participant.first_name} schnuppert am #{I18n.l(trial_date_session.start_time.to_date)}. Der Platz ist bis 7 Tage nach dem Schnuppertraining gesichert."
+            "Super! #{participant.first_name} schnuppert am #{I18n.l(trial_date_session.start_time.to_date)}. Der Platz ist bis 5 Tage nach dem Schnuppertraining gesichert."
           else
-            "Super! #{participant.first_name} hat einen Schnupperplatz für 7 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+            "Super! #{participant.first_name} hat einen Schnupperplatz für 5 Tage. Danach muss eine reguläre Anmeldung erfolgen."
           end
         end
-        save_result = @course_registration.save unless full_no_waitlist
+        save_result = @course_registration.save unless trial_full
       end
     elsif course.has_payment? && course.price_cents.to_i > 0
       # Kostenpflichtiger Kurs → erst nach Bezahlung bestätigt.
@@ -339,6 +337,12 @@ class CourseRegistrationsController < ApplicationController
 
     if full_no_waitlist
       @course_registration.errors.add(:base, t("course_registrations.errors.course_full"))
+      setup_new_form(course)
+      return render :new, status: :unprocessable_entity
+    end
+
+    if trial_full
+      @course_registration.errors.add(:base, t("course_registrations.errors.trial_full"))
       setup_new_form(course)
       return render :new, status: :unprocessable_entity
     end
@@ -1088,7 +1092,7 @@ class CourseRegistrationsController < ApplicationController
 
   # accept_spot: Wartender wählt "schnuppern". Eligibility erneut prüfen; bei Semesterkursen
   # muss ein konkretes Schnuppertraining gewählt sein. trial_expires_at zurücksetzen, damit
-  # set_trial_expiry die 7-Tage-Frist (ab Schnuppertraining) neu setzt.
+  # set_trial_expiry die 5-Tage-Frist (ab Schnuppertraining) neu setzt.
   def accept_spot_as_trial(course)
     participant = @course_registration.participant
 

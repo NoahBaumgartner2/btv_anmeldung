@@ -77,7 +77,7 @@ class CourseRegistration < ApplicationRecord
   # Zahlung ist möglich/nötig: Kurs kostenpflichtig, noch nicht bezahlt, und die
   # Anmeldung ist aktiv. "schnuppern" ist bewusst zahlbar: Beim Umwandeln eines
   # Schnupperplatzes in eine reguläre Anmeldung bleibt der Status "schnuppern"
-  # (Platz bleibt belegt, 7-Tage-Frist läuft weiter) bis die Zahlung bestätigt
+  # (Platz bleibt belegt, 5-Tage-Frist läuft weiter) bis die Zahlung bestätigt
   # ist – wird die Zahlung abgebrochen, geht der Schnupperplatz nicht verloren.
   def payable?
     course.has_payment? && course.price_cents.to_i > 0 &&
@@ -97,7 +97,7 @@ class CourseRegistration < ApplicationRecord
   end
 
   def trial_expired?
-    trial? && (trial_expires_at || created_at + 7.days) < Time.current
+    trial? && (trial_expires_at || created_at + 5.days) < Time.current
   end
 
   # Datum des Schnuppertrainings: bei Semesterkursen über trial_session_id
@@ -232,7 +232,7 @@ class CourseRegistration < ApplicationRecord
 
   # Zahlungsfrist beim Statuswechsel zu "ausstehend":
   # - Stammt die Anmeldung aus einem Schnupperplatz (trial_expires_at gesetzt),
-  #   gilt die zugesicherte Frist "Schnuppertraining + 7 Tage". Eine 48h-Untergrenze
+  #   gilt die zugesicherte Frist "Schnuppertraining + 5 Tage". Eine 48h-Untergrenze
   #   verhindert eine sofortige Stornierung, falls die Konversion erst spät erfolgt.
   # - Reguläre Anmeldungen ohne Schnupperhintergrund erhalten die übliche 48h-Frist.
   def set_payment_expiry
@@ -244,11 +244,11 @@ class CourseRegistration < ApplicationRecord
       end
   end
 
-  # Die 7-Tage-Frist beginnt erst NACH dem Schnuppertraining.
+  # Die 5-Tage-Frist beginnt erst NACH dem Schnuppertraining.
   # Bei Drop-In-Trials wird die bereits gesetzte training_session als Basis genutzt.
   def set_trial_expiry
     base = (trial_session || training_session)&.start_time
-    self.trial_expires_at = (base || Time.current) + 7.days
+    self.trial_expires_at = (base || Time.current) + 5.days
   end
 
   def trial_session_bookable

@@ -70,6 +70,43 @@ class TrainersControllerTest < ActionDispatch::IntegrationTest
     assert_not trainers(:incomplete).reload.profile_complete?
   end
 
+  test "update_profile mit geänderter Adresse benachrichtigt Admins" do
+    sign_out users(:admin)
+    trainer = trainers(:two)
+    sign_in trainer.user
+
+    assert_enqueued_email_with CourseTrainerMailer, :profile_updated_admin_notice,
+      args: [ trainer, [ "Strasse" ], users(:admin) ] do
+      patch update_profile_trainer_url(trainer), params: {
+        trainer: {
+          first_name: trainer.first_name, last_name: trainer.last_name, phone: trainer.phone,
+          date_of_birth: trainer.date_of_birth, gender: trainer.gender, ahv_number: trainer.ahv_number,
+          street: "Neue Strasse", house_number: trainer.house_number, zip_code: trainer.zip_code,
+          city: trainer.city, country: trainer.country, nationality: trainer.nationality,
+          mother_tongue: trainer.mother_tongue
+        }
+      }
+    end
+  end
+
+  test "update_profile ohne echte Änderung benachrichtigt niemanden" do
+    sign_out users(:admin)
+    trainer = trainers(:two)
+    sign_in trainer.user
+
+    assert_no_enqueued_emails do
+      patch update_profile_trainer_url(trainer), params: {
+        trainer: {
+          first_name: trainer.first_name, last_name: trainer.last_name, phone: trainer.phone,
+          date_of_birth: trainer.date_of_birth, gender: trainer.gender, ahv_number: trainer.ahv_number,
+          street: trainer.street, house_number: trainer.house_number, zip_code: trainer.zip_code,
+          city: trainer.city, country: trainer.country, nationality: trainer.nationality,
+          mother_tongue: trainer.mother_tongue
+        }
+      }
+    end
+  end
+
   test "substitutes zeigt Ersatztrainings gruppiert nach Trainer:in" do
     training_sessions(:one).update!(substitute_trainer: trainers(:two))
 
