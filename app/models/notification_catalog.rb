@@ -70,6 +70,7 @@ class NotificationCatalog
 
     # ── Sonstiges ──────────────────────────────────────────────────────────
     entry(key: "participant_complete_profile", category: "other", toggleable: true, preview_method: :participant_complete_profile),
+    entry(key: "participant_profile_updated_admin", category: "other", toggleable: true, preview_method: :participant_profile_updated_admin, scope: :global_and_personal),
     entry(key: "course_rollover_ready",        category: "other", toggleable: true, preview_method: :course_rollover_ready),
 
     # ── Konto (immer aktiv, Devise) ────────────────────────────────────────

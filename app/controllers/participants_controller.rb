@@ -107,6 +107,14 @@ class ParticipantsController < ApplicationController
     end
   end
 
+  # Menschenlesbare Labels für die profile_updated_admin-Benachrichtigung.
+  PROFILE_FIELD_LABELS = {
+    "first_name" => "Vorname", "last_name" => "Nachname", "phone_number" => "Telefonnummer",
+    "ahv_number" => "AHV-Nummer", "date_of_birth" => "Geburtsdatum", "gender" => "Geschlecht",
+    "street" => "Strasse", "house_number" => "Hausnummer", "zip_code" => "PLZ", "city" => "Ort",
+    "country" => "Land", "nationality" => "Nationalität", "mother_tongue" => "Muttersprache"
+  }.freeze
+
   def update
     # Platzhalter aus einer E-Mail-only-Anmeldung sind unvollständig (fehlendes
     # Geburtsdatum/Gender/etc.) und daher noch nicht valide.
@@ -126,6 +134,7 @@ class ParticipantsController < ApplicationController
           end
         end
       end
+      notify_admins_of_profile_change unless current_user.admin?
       redirect_to participants_path, notice: "#{@participant.first_name} wurde erfolgreich aktualisiert."
     else
       render :edit, status: :unprocessable_entity
@@ -151,5 +160,25 @@ class ParticipantsController < ApplicationController
                 :street, :house_number, :zip_code, :city, :country, :nationality, :mother_tongue ]
     allowed += [ :js_person_number, :user_id ] if current_user.admin?
     params.expect(participant: allowed)
+  end
+
+  # Informiert Admins, wenn der Teilnehmer für einen Kurs mit aktivierter
+  # notify_admin_on_participant_profile_change-Option angemeldet ist (siehe
+  # Course-Formular). Nur echte Feldänderungen zählen, nicht z.B. updated_at.
+  def notify_admins_of_profile_change
+    changed_labels = @participant.saved_changes.keys.filter_map { |key| PROFILE_FIELD_LABELS[key] }
+    return if changed_labels.empty?
+
+    relevant = @participant.course_registrations
+      .where.not(status: "storniert")
+      .joins(:course)
+      .where(courses: { notify_admin_on_participant_profile_change: true })
+      .exists?
+    return unless relevant
+
+    User.where(admin: true).find_each do |admin_user|
+      next unless admin_user.admin_notification_enabled?("participant_profile_updated")
+      ParticipantMailer.profile_updated_admin_notice(@participant, changed_labels, admin_user).deliver_later
+    end
   end
 end

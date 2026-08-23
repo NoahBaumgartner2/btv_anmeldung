@@ -1607,6 +1607,10 @@ de:
         name: "Angaben ergänzen"
         description: "Bittet darum, fehlende Angaben zu einem Teilnehmer zu ergänzen."
         recipient: "Eltern des betroffenen Teilnehmers"
+      participant_profile_updated_admin:
+        name: "Teilnehmerprofil geändert – Admin-Info"
+        description: "Informiert Admins, wenn ein für einen Kurs mit aktivierter Option angemeldeter Teilnehmer sein Profil ändert (z.B. Adresse, Telefonnummer)."
+        recipient: "Admins – jede:r Admin kann diese Mail zusätzlich für sich selbst abschalten (unter 'Meine Benachrichtigungen')"
       course_rollover_ready:
         name: "Bereit zur Verlängerung"
         description: "Informiert Admins, wenn ein Kurs bereit für die manuelle Verlängerung in die nächste Periode ist."
