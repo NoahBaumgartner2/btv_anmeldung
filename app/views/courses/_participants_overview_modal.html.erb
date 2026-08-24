@@ -1,0 +1,68 @@
+<div data-modal-target="dialog"
+     data-action="click->modal#backdropClose"
+     class="hidden fixed inset-0 z-50 items-center justify-center bg-gray-900/60 backdrop-blur-sm p-4">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-6 text-left">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-lg font-extrabold text-gray-900"><%= t("courses.manage.participants_overview_title") %></h3>
+      <button type="button" data-action="click->modal#close"
+              class="text-gray-400 hover:text-gray-600 transition cursor-pointer" aria-label="<%= t("courses.manage.close") %>">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <% if registrations.any? %>
+      <div class="max-h-[60vh] overflow-y-auto -mx-2 px-2">
+        <table class="w-full text-sm">
+          <thead class="sticky top-0 bg-white">
+            <tr class="border-b border-gray-200">
+              <th class="py-2 pr-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("courses.manage.col_name") %></th>
+              <th class="py-2 pr-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("courses.manage.overview_age") %></th>
+              <th class="py-2 pr-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("courses.manage.overview_gender") %></th>
+              <th class="py-2 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("courses.manage.col_status") %></th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            <% registrations.each do |reg| %>
+              <% p = reg.participant %>
+              <tr>
+                <td class="py-2.5 pr-3 font-semibold text-gray-900 whitespace-nowrap"><%= p.first_name %> <%= p.last_name %></td>
+                <td class="py-2.5 pr-3 text-gray-700 whitespace-nowrap">
+                  <%= p.age_at(Date.current) || "—" %>
+                </td>
+                <td class="py-2.5 pr-3 text-gray-500 whitespace-nowrap"><%= p.gender&.capitalize || "—" %></td>
+                <td class="py-2.5 whitespace-nowrap">
+                  <% case reg.status %>
+                  <% when 'bestätigt' %>
+                    <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_confirmed") %></span>
+                  <% when 'warteliste' %>
+                    <span class="inline-flex items-center gap-1.5 bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full">
+                      <%= t("courses.manage.status_waitlist") %>
+                      <span class="w-1 h-1 rounded-full bg-orange-400"></span>
+                      <%= t("courses.manage.waitlist_position", position: reg.waitlist_position) %>
+                    </span>
+                  <% when 'ausstehend' %>
+                    <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
+                  <% when 'schnuppern' %>
+                    <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
+                  <% else %>
+                    <span class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-0.5 rounded-full"><%= reg.status_label %></span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-sm text-gray-500 py-6 text-center"><%= t("courses.manage.participants_overview_empty") %></p>
+    <% end %>
+
+    <button type="button"
+            data-action="click->modal#close"
+            class="w-full mt-5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2.5 rounded-xl transition cursor-pointer min-h-11">
+      <%= t("courses.manage.close") %>
+    </button>
+  </div>
+</div>
