@@ -252,7 +252,7 @@
             options_for_select([ [ t("dashboards.admin.table.all_modes"), "" ] ] + @course_registration_modes.map { |m| [ Course.new(registration_mode: m).registration_mode_label, m ] }, params[:registration_mode]),
             data: { action: "change->auto-submit#submit" },
             class: "rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
-      <button type="submit" class="bg-gray-800 hover:bg-gray-900 text-white font-bold px-5 py-2.5 rounded-lg text-sm transition cursor-pointer"><%= t("dashboards.admin.table.filter_btn") %></button>
+      <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white font-bold px-5 py-2.5 rounded-lg text-sm transition cursor-pointer"><%= t("dashboards.admin.table.filter_btn") %></button>
     <% end %>
 
     <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
