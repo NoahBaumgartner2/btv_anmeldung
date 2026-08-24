@@ -4,8 +4,8 @@ one:
   title: MyString
   description: MyText
   location: MyString
-  start_date: 2026-03-16 12:54:10
-  end_date: 2026-03-16 12:54:10
+  start_date: <%= 1.year.ago.to_date %>
+  end_date: <%= 1.year.from_now.to_date %>
   allows_holiday_deduction: false
   registration_type: MyString
   has_ticketing: false
@@ -15,8 +15,8 @@ two:
   title: MyString
   description: MyText
   location: MyString
-  start_date: 2026-03-16 12:54:10
-  end_date: 2026-03-16 12:54:10
+  start_date: <%= 1.year.ago.to_date %>
+  end_date: <%= 1.year.from_now.to_date %>
   allows_holiday_deduction: false
   registration_type: MyString
   has_ticketing: false
