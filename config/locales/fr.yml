@@ -425,6 +425,10 @@ fr:
         one: "1 séance"
         other: "%{count} séances"
       no_active_dates: "Aucune séance active"
+      waitlist_dates_count:
+        one: "1 sur liste d'attente"
+        other: "%{count} sur liste d'attente"
+      waitlist_position: "Liste d'attente, place %{position}"
       unsubscribe_course_btn: "Se désinscrire du cours"
       more_courses_in_category: "Voir d'autres cours %{category}"
       unsubscribe_course_confirm: "Désinscrire %{name} définitivement du cours ?"

@@ -111,6 +111,16 @@ class CourseRegistration < ApplicationRecord
     I18n.t("course_registrations.statuses.#{status}", default: status.to_s.humanize)
   end
 
+  # Position auf der Warteliste (1-basiert), gleiche Reihenfolge/Scoping wie
+  # WaitlistPromotionService#promote_next_from_waitlist (Anmeldedatum, pro
+  # Training bei Drop-In-Kursen bzw. kursweit bei Semesterkursen).
+  def waitlist_position
+    return nil unless status == "warteliste"
+
+    scope = course.course_registrations.where(status: "warteliste", training_session_id: training_session_id)
+    scope.where("created_at < ?", created_at).count + 1
+  end
+
   def abo_entries_remaining
     return nil unless abo_entries_total.present?
     abo_entries_total - abo_entries_used.to_i

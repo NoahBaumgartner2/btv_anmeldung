@@ -425,6 +425,10 @@ en:
         one: "1 session"
         other: "%{count} sessions"
       no_active_dates: "No active sessions"
+      waitlist_dates_count:
+        one: "1 waitlisted"
+        other: "%{count} waitlisted"
+      waitlist_position: "Waitlist, spot %{position}"
       unsubscribe_course_btn: "Unsubscribe from course"
       more_courses_in_category: "View more %{category} courses"
       unsubscribe_course_confirm: "Fully unsubscribe %{name} from the course?"

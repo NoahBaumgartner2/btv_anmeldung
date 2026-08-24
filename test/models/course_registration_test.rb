@@ -585,4 +585,36 @@ class CourseRegistrationTest < ActiveSupport::TestCase
     assert_not reg.claw_back_makeup_entry!
     assert_equal 3, reg.reload.abo_entries_total
   end
+
+  # --- waitlist_position ---
+
+  test "waitlist_position gibt nil zurück, wenn nicht auf der Warteliste" do
+    course = Course.new(title: "Kurs", registration_type: "kurs", registration_mode: "single_session",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+    reg = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt")
+    reg.save!(validate: false)
+
+    assert_nil reg.waitlist_position
+  end
+
+  test "waitlist_position zaehlt frühere Wartelisten-Anmeldungen der gleichen Trainingssession" do
+    course = Course.new(title: "Drop-In Warteliste", registration_type: "pro_training", registration_mode: "single_session",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+    session = course.training_sessions.create!(start_time: 1.day.from_now, end_time: 1.day.from_now + 1.hour, is_canceled: false)
+    other_session = course.training_sessions.create!(start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: false)
+
+    first = CourseRegistration.new(course: course, participant: participants(:one), training_session: session, status: "warteliste")
+    first.save!(validate: false)
+    second = CourseRegistration.new(course: course, participant: participants(:two), training_session: session, status: "warteliste")
+    second.save!(validate: false)
+    # Warteliste einer anderen Trainingssession darf nicht mitzählen.
+    other = CourseRegistration.new(course: course, participant: participants(:parent_only_child), training_session: other_session, status: "warteliste")
+    other.save!(validate: false)
+
+    assert_equal 1, first.reload.waitlist_position
+    assert_equal 2, second.reload.waitlist_position
+    assert_equal 1, other.reload.waitlist_position
+  end
 end
