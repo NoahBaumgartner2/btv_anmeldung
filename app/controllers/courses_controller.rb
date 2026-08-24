@@ -362,7 +362,8 @@ class CoursesController < ApplicationController
         @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
       end
 
-      if @course.max_participants.present? && belegte >= @course.max_participants
+      limit = training_session&.effective_max_participants || @course.max_participants
+      if limit.present? && belegte >= limit
         if @course.enable_waitlist?
           status = "warteliste"
         else
@@ -668,7 +669,8 @@ class CoursesController < ApplicationController
       else
         @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
       end
-      status = if @course.max_participants.present? && bestaetigte >= @course.max_participants
+      limit = training_session&.effective_max_participants || @course.max_participants
+      status = if limit.present? && bestaetigte >= limit
         "warteliste"
       else
         "bestätigt"
@@ -754,7 +756,12 @@ class CoursesController < ApplicationController
           @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
         end
 
-        if @course.max_participants.present? && belegte >= @course.max_participants
+        limit = if training_session_id_for_capacity
+          TrainingSession.find(training_session_id_for_capacity).effective_max_participants
+        else
+          @course.max_participants
+        end
+        if limit.present? && belegte >= limit
           if @course.enable_waitlist?
             status = "warteliste"
           else
