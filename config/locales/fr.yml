@@ -1035,6 +1035,10 @@ fr:
       mark_present_aria: "Marquer %{name} comme présent"
       status_present: "Présent"
       no_participants: "Aucun participant confirmé."
+      waitlist_title: "Liste d'attente"
+      waitlist_count:
+        one: "1 personne"
+        other: "%{count} personnes"
       confirm_attendance_btn: "Terminer le contrôle de présence"
       attendance_confirmed_title: "Contrôle de présence terminé"
       attendance_confirmed_meta: "Terminé le %{date} par %{name}"

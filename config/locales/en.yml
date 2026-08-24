@@ -1041,6 +1041,10 @@ en:
       mark_present_aria: "Mark %{name} as present"
       status_present: "Present"
       no_participants: "No confirmed participants."
+      waitlist_title: "Waitlist"
+      waitlist_count:
+        one: "1 person"
+        other: "%{count} people"
       confirm_attendance_btn: "Complete attendance check"
       attendance_confirmed_title: "Attendance check completed"
       attendance_confirmed_meta: "Completed on %{date} by %{name}"

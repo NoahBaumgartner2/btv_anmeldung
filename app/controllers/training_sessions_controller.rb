@@ -39,6 +39,12 @@ class TrainingSessionsController < ApplicationController
       .select { |reg| reg.status != "schnuppern" || trial_for_this_session?(reg) }
       .uniq(&:participant_id)
     @attendances_by_reg_id = @training_session.attendances.index_by(&:course_registration_id)
+    @waitlist_registrations = @training_session.course.course_registrations
+      .includes(:participant)
+      .where(status: "warteliste")
+      .applicable_to_session(@training_session.id)
+      .order(:created_at)
+      .to_a
   end
 
   def new

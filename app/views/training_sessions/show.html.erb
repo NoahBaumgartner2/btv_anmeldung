@@ -360,6 +360,29 @@
     <% end %>
   </div>
 
+  <%# ── Warteliste ─────────────────────────────────────────────────────── %>
+  <% if @waitlist_registrations.any? %>
+    <div class="bg-white border border-orange-200 rounded-xl shadow-sm overflow-hidden mt-6">
+      <div class="px-5 py-4 border-b border-orange-100 flex items-center justify-between">
+        <h2 class="font-bold text-gray-900"><%= t("training_sessions.show.waitlist_title") %></h2>
+        <span class="text-xs text-orange-600 font-bold"><%= t("training_sessions.show.waitlist_count", count: @waitlist_registrations.size) %></span>
+      </div>
+      <ul class="divide-y divide-gray-100">
+        <% @waitlist_registrations.each_with_index do |reg, index| %>
+          <% participant = reg.participant %>
+          <li class="px-4 sm:px-5 py-3 flex items-center gap-3">
+            <span class="shrink-0 w-7 h-7 rounded-full bg-orange-100 text-orange-800 text-xs font-extrabold flex items-center justify-center">
+              <%= index + 1 %>
+            </span>
+            <span class="text-sm font-semibold text-gray-800 truncate">
+              <%= participant.first_name %> <%= participant.last_name %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
   <%# ── Präsenzkontrolle abschliessen / wieder öffnen ────────────────────── %>
   <% unless @training_session.is_canceled? %>
     <% if @training_session.attendance_confirmed? %>
