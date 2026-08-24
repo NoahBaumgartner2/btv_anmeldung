@@ -124,4 +124,32 @@ class TrainingSessionTest < ActiveSupport::TestCase
     assert_equal 0, session.occupied_spots
     assert_equal 0, session.attending_count
   end
+
+  # --- effective_max_participants ---
+
+  def make_dropin_course(max_participants: 10)
+    course = Course.new(
+      title: "Drop-In Test", registration_type: "pro_training", registration_mode: "single_session",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: max_participants
+    )
+    course.save!(validate: false)
+    course
+  end
+
+  test "effective_max_participants nutzt eigenes Limit, wenn gesetzt" do
+    course = make_dropin_course(max_participants: 10)
+    session = course.training_sessions.create!(start_time: 1.day.from_now, end_time: 1.day.from_now + 1.hour,
+      is_canceled: false, max_participants: 3)
+
+    assert_equal 3, session.effective_max_participants
+  end
+
+  test "effective_max_participants fällt auf Kurs-Standardwert zurück, wenn nichts gesetzt" do
+    course = make_dropin_course(max_participants: 10)
+    session = course.training_sessions.create!(start_time: 1.day.from_now, end_time: 1.day.from_now + 1.hour,
+      is_canceled: false)
+
+    assert_equal 10, session.effective_max_participants
+  end
 end

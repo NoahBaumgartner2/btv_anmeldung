@@ -107,6 +107,7 @@ fr:
       confirmation: "ne correspond pas à %{attribute}"
       empty: "ne peut pas être vide"
       invalid: "est invalide"
+      required: "doit exister"
       taken: "est déjà pris"
       too_long:
         one: "est trop long (maximum 1 caractère)"
@@ -262,6 +263,7 @@ fr:
       payment_pending: "Paiement en attente"
       status_confirmed: "Confirmé"
       status_waitlist: "Liste d'attente"
+      waitlist_position: "Place %{position}"
       status_open: "En attente"
       paid: "Payé"
       mark_paid_confirm: "Marquer le paiement de %{name} comme reçu ?"
@@ -424,6 +426,10 @@ fr:
         one: "1 séance"
         other: "%{count} séances"
       no_active_dates: "Aucune séance active"
+      waitlist_dates_count:
+        one: "1 sur liste d'attente"
+        other: "%{count} sur liste d'attente"
+      waitlist_position: "Liste d'attente, place %{position}"
       unsubscribe_course_btn: "Se désinscrire du cours"
       more_courses_in_category: "Voir d'autres cours %{category}"
       unsubscribe_course_confirm: "Désinscrire %{name} définitivement du cours ?"
@@ -1030,6 +1036,10 @@ fr:
       mark_present_aria: "Marquer %{name} comme présent"
       status_present: "Présent"
       no_participants: "Aucun participant confirmé."
+      waitlist_title: "Liste d'attente"
+      waitlist_count:
+        one: "1 personne"
+        other: "%{count} personnes"
       confirm_attendance_btn: "Terminer le contrôle de présence"
       attendance_confirmed_title: "Contrôle de présence terminé"
       attendance_confirmed_meta: "Terminé le %{date} par %{name}"

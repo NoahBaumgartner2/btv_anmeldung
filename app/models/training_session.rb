@@ -47,6 +47,13 @@ class TrainingSession < ApplicationRecord
     end_time.present? && end_time < 7.days.ago && admin_notified_at.nil? && !attendance_recorded?
   end
 
+  # Bei Drop-In-Kursen ist die Teilnehmerzahl pro Training individuell
+  # einstellbar (z.B. weniger Plätze am Feiertag). Ist für diese Session
+  # nichts gesetzt, gilt der Kurs-Standardwert.
+  def effective_max_participants
+    max_participants || course.max_participants
+  end
+
   # Belegte Plätze für DIESE Session: Semester-Anmeldungen (training_session_id
   # nil) zählen für jede Session des Kurses mit, da diese Teilnehmer:innen jedes
   # Mal anwesend sind – sonst würden Abo-Buchungen sie überbuchen.

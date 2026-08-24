@@ -38,6 +38,27 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "show zeigt Wartelisten-Anmeldungen für dieses Training in Reihenfolge der Anmeldung" do
+    course = Course.new(title: "Drop-In Warteliste Show", registration_type: "pro_training", registration_mode: "single_session",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+    session = course.training_sessions.create!(start_time: 1.day.from_now, end_time: 1.day.from_now + 1.hour, is_canceled: false)
+
+    first = CourseRegistration.new(course: course, participant: participants(:one), training_session: session, status: "warteliste")
+    first.save!(validate: false)
+    second = CourseRegistration.new(course: course, participant: participants(:two), training_session: session, status: "warteliste")
+    second.save!(validate: false)
+
+    get training_session_url(session)
+
+    assert_response :success
+    first_pos  = response.body.index(participants(:one).first_name)
+    second_pos = response.body.index(participants(:two).first_name)
+    assert first_pos, "#{participants(:one).first_name} nicht in der Warteliste angezeigt"
+    assert second_pos, "#{participants(:two).first_name} nicht in der Warteliste angezeigt"
+    assert first_pos < second_pos, "Wartelisten-Reihenfolge stimmt nicht mit der Anmeldereihenfolge überein"
+  end
+
   test "Schnupper-Anmeldung erscheint nur beim gewählten Training in der Präsenzkontrolle" do
     course = Course.new(
       title: "Schnupper-Präsenz", registration_type: "semester", registration_mode: "semester",

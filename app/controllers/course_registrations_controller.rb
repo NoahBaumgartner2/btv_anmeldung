@@ -11,8 +11,12 @@ class CourseRegistrationsController < ApplicationController
         break unless @course_registration.status == "ausstehend"
 
         course     = @course_registration.course
-        confirmed  = course.course_registrations.where(status: "bestätigt").count
-        max        = course.max_participants
+        confirmed  = if course.registration_mode == "single_session" && @course_registration.training_session_id.present?
+          course.course_registrations.where(status: "bestätigt", training_session_id: @course_registration.training_session_id).count
+        else
+          course.course_registrations.where(status: "bestätigt").count
+        end
+        max        = effective_max_participants(course, @course_registration.training_session_id)
         new_status = (max.present? && confirmed >= max) ? "warteliste" : "bestätigt"
         CourseRegistration.where(id: @course_registration.id, status: "ausstehend")
                           .update_all(status: new_status)
@@ -268,7 +272,8 @@ class CourseRegistrationsController < ApplicationController
           course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
         end
 
-        if course.max_participants.present? && belegte_plaetze >= course.max_participants
+        limit = effective_max_participants(course, @course_registration.training_session_id)
+        if limit.present? && belegte_plaetze >= limit
           trial_full = true
         else
           @course_registration.status = "schnuppern"
@@ -297,7 +302,8 @@ class CourseRegistrationsController < ApplicationController
           course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
         end
 
-        if course.max_participants.present? && belegte_plaetze >= course.max_participants
+        limit = effective_max_participants(course, @course_registration.training_session_id)
+        if limit.present? && belegte_plaetze >= limit
           if course.enable_waitlist?
             @course_registration.status = "warteliste"
             erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
@@ -320,7 +326,8 @@ class CourseRegistrationsController < ApplicationController
           course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
         end
 
-        if course.max_participants.present? && bestaetigte_plaetze >= course.max_participants
+        limit = effective_max_participants(course, @course_registration.training_session_id)
+        if limit.present? && bestaetigte_plaetze >= limit
           if course.enable_waitlist?
             @course_registration.status = "warteliste"
             erfolgs_nachricht = t("course_registrations.flash.waitlisted", name: participant.first_name)
@@ -964,7 +971,8 @@ class CourseRegistrationsController < ApplicationController
 
     session.course.with_lock do
       spots_taken = session.occupied_spots
-      is_full = session.course.max_participants.present? && spots_taken >= session.course.max_participants
+      limit = session.effective_max_participants
+      is_full = limit.present? && spots_taken >= limit
 
       if is_full && !session.course.enable_waitlist?
         full_no_waitlist = true
@@ -1009,12 +1017,12 @@ class CourseRegistrationsController < ApplicationController
       @course_registration.reload
       next if @course_registration.payment_cleared?
 
-      new_status = if course.max_participants.present?
-        confirmed = course.course_registrations
-                          .where(status: "bestätigt")
-                          .where.not(id: @course_registration.id)
-                          .count
-        confirmed >= course.max_participants ? "warteliste" : "bestätigt"
+      limit = effective_max_participants(course, @course_registration.training_session_id)
+      new_status = if limit.present?
+        confirmed_scope = course.course_registrations.where(status: "bestätigt").where.not(id: @course_registration.id)
+        confirmed_scope = confirmed_scope.where(training_session_id: @course_registration.training_session_id) if
+          course.registration_mode == "single_session" && @course_registration.training_session_id.present?
+        confirmed_scope.count >= limit ? "warteliste" : "bestätigt"
       else
         "bestätigt"
       end
@@ -1069,6 +1077,17 @@ class CourseRegistrationsController < ApplicationController
   end
 
   private
+
+  # Bei Drop-In-Kursen (single_session) hat jedes Training sein eigenes Limit
+  # (Course::TrainingSession#effective_max_participants); sonst gilt das
+  # Kurs-weite Limit.
+  def effective_max_participants(course, training_session_id)
+    if course.registration_mode == "single_session" && training_session_id.present?
+      TrainingSession.find(training_session_id).effective_max_participants
+    else
+      course.max_participants
+    end
+  end
 
   # accept_spot: Wartender wählt "regulär anmelden". Gratiskurs → direkt bestätigt;
   # Bezahlkurs → ausstehend (payment_expires_at via set_payment_expiry neu auf 48h) und

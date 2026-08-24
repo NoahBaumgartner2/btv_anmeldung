@@ -61,23 +61,27 @@
                   <div class="p-5 flex-1 flex flex-col">
                     <div class="flex flex-wrap items-center gap-2 mb-3 min-h-[24px]">
                       <span class="inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full">Eingeschränkt</span>
-                      <% if is_full %>
-                        <span class="inline-flex items-center bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                          <%= t("courses.index.status.full") %>
-                        </span>
-                      <% elsif remaining && remaining <= 3 %>
-                        <span class="inline-flex items-center bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">
-                          <%= t("courses.index.status.spots_last", count: remaining) %>
-                        </span>
-                      <% elsif remaining %>
-                        <span class="inline-flex items-center bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                          <%= t("courses.index.status.spots_free", count: remaining) %>
-                        </span>
-                      <% end %>
-                      <% if waitlist_count > 0 %>
-                        <span class="inline-flex items-center bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold px-2.5 py-1 rounded-full">
-                          <%= t("courses.index.status.waitlist", count: waitlist_count) %>
-                        </span>
+                      <%# Drop-In-Kurse: Limit ist pro Training separat, ein Kurs-weiter Wert wäre
+                          hier irreführend - Plätze werden erst bei der Terminauswahl angezeigt. %>
+                      <% unless is_single %>
+                        <% if is_full %>
+                          <span class="inline-flex items-center bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <%= t("courses.index.status.full") %>
+                          </span>
+                        <% elsif remaining && remaining <= 3 %>
+                          <span class="inline-flex items-center bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <%= t("courses.index.status.spots_last", count: remaining) %>
+                          </span>
+                        <% elsif remaining %>
+                          <span class="inline-flex items-center bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <%= t("courses.index.status.spots_free", count: remaining) %>
+                          </span>
+                        <% end %>
+                        <% if waitlist_count > 0 %>
+                          <span class="inline-flex items-center bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold px-2.5 py-1 rounded-full">
+                            <%= t("courses.index.status.waitlist", count: waitlist_count) %>
+                          </span>
+                        <% end %>
                       <% end %>
                     </div>
                     <h3 class="text-lg sm:text-xl font-extrabold text-gray-900 leading-snug mb-3 break-words">
@@ -196,6 +200,9 @@
                         <%= t("courses.index.status.drop_in") %>
                       </span>
                     <% end %>
+                    <%# Drop-In-Kurse: Limit ist pro Training separat, ein Kurs-weiter Wert wäre
+                        hier irreführend - Plätze werden erst bei der Terminauswahl angezeigt. %>
+                    <% unless is_single %>
                     <% if is_full %>
                       <span class="inline-flex items-center bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
                         <%= t("courses.index.status.full") %>
@@ -213,6 +220,7 @@
                       <span class="inline-flex items-center bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold px-2.5 py-1 rounded-full">
                         <%= t("courses.index.status.waitlist", count: waitlist_count) %>
                       </span>
+                    <% end %>
                     <% end %>
                     <% if course.age_restricted? %>
                       <span class="inline-flex items-center bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full">

@@ -17,7 +17,15 @@ class WaitlistPromotionService
 
     course.with_lock do
       return unless course.enable_waitlist?
-      return if course.max_participants.blank?
+
+      # Bei Drop-In-Kursen hat jedes Training sein eigenes Limit (siehe
+      # TrainingSession#effective_max_participants); sonst gilt das Kurs-Limit.
+      limit = if training_session_id.present?
+        TrainingSession.find(training_session_id).effective_max_participants
+      else
+        course.max_participants
+      end
+      return if limit.blank?
 
       paid_course = course.has_payment? && course.price_cents.to_i > 0
       # Belegte Plätze: einheitliche Definition über CourseRegistration::OCCUPYING_STATUSES
@@ -34,7 +42,7 @@ class WaitlistPromotionService
       end
 
       MAX_PROMOTIONS_PER_CALL.times do
-        break if confirmed_scope.distinct.count(:participant_id) >= course.max_participants
+        break if confirmed_scope.distinct.count(:participant_id) >= limit
 
         next_in_line = waitlist_scope.order(:created_at).first
         break unless next_in_line

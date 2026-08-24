@@ -25,7 +25,11 @@
                 <% when 'bestätigt' %>
                   <span class="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_confirmed") %></span>
                 <% when 'warteliste' %>
-                  <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
+                  <span class="inline-flex items-center gap-1.5 bg-orange-100 text-orange-800 text-xs font-bold px-2.5 py-1 rounded-full">
+                    <%= t("courses.manage.status_waitlist") %>
+                    <span class="w-1 h-1 rounded-full bg-orange-400"></span>
+                    <%= t("courses.manage.waitlist_position", position: reg.waitlist_position) %>
+                  </span>
                 <% when 'ausstehend' %>
                   <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2.5 py-1 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
                 <% when 'schnuppern' %>
@@ -175,7 +179,11 @@
                             <% when 'bestätigt' %>
                               <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_confirmed") %></span>
                             <% when 'warteliste' %>
-                              <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_waitlist") %></span>
+                              <span class="inline-flex items-center gap-1.5 bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full">
+                                <%= t("courses.manage.status_waitlist") %>
+                                <span class="w-1 h-1 rounded-full bg-orange-400"></span>
+                                <%= t("courses.manage.waitlist_position", position: reg.waitlist_position) %>
+                              </span>
                             <% when 'ausstehend' %>
                               <span class="bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= t("courses.manage.status_payment_open") %></span>
                             <% when 'schnuppern' %>

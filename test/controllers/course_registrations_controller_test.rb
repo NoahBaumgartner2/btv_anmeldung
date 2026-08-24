@@ -1274,6 +1274,31 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "Drop-In-Anmeldung nutzt das Limit der einzelnen Trainingssession statt des Kurs-Standardwerts" do
+    course = Course.new(
+      title: "Drop-In Limit Test", registration_type: "pro_training", registration_mode: "single_session",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false,
+      max_participants: 10, enable_waitlist: true
+    )
+    course.save!(validate: false)
+    session = course.training_sessions.create!(
+      start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false, max_participants: 1
+    )
+    CourseRegistration.new(
+      course: course, participant: participants(:one), training_session: session,
+      status: "bestätigt", payment_cleared: false, holiday_deduction_claimed: false
+    ).save!(validate: false)
+
+    sign_in @trial_parent
+    post course_registrations_path, params: {
+      course_registration: { course_id: course.id, participant_id: @trial_participant.id, training_session_id: session.id }
+    }
+
+    reg = CourseRegistration.last
+    assert_equal "warteliste", reg.status,
+      "Session-Limit (1) ist erreicht, obwohl der Kurs-Standardwert (10) noch Platz hätte"
+  end
+
   test "accept_spot register bestätigt Gratiskurs-Platz" do
     reg = make_offered_registration(@trial_course)
     sign_in @trial_parent

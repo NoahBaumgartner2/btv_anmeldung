@@ -5,11 +5,14 @@ class CoursesController < ApplicationController
   before_action :authorize_trainer!, only: [ :manage, :send_custom_email, :toggle_talent, :self_enroll ]
   before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email toggle_talent roll_over self_enroll ]
   def index
+    today = Date.current
+    not_ended = ->(c) { c.end_date.blank? || c.end_date >= today }
+
     all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users, :training_sessions)
     @restricted_courses = if current_user&.admin?
-      all_restricted
+      all_restricted.select(&not_ended)
     elsif current_user
-      all_restricted.select { |c| c.accessible_by?(current_user) && c.registration_window_open_for?(current_user) }
+      all_restricted.select { |c| not_ended.call(c) && c.accessible_by?(current_user) && c.registration_window_open_for?(current_user) }
     else
       []
     end
@@ -17,9 +20,9 @@ class CoursesController < ApplicationController
 
     public_scope = Course.where(restricted: false).includes(:course_registrations, :training_sessions)
     @public_courses = if current_user&.admin?
-      public_scope.to_a
+      public_scope.select(&not_ended)
     else
-      public_scope.select { |c| c.registration_window_open_for?(current_user) }
+      public_scope.select { |c| not_ended.call(c) && c.registration_window_open_for?(current_user) }
     end
     @public_courses = @public_courses.sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
   end
@@ -362,7 +365,8 @@ class CoursesController < ApplicationController
         @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
       end
 
-      if @course.max_participants.present? && belegte >= @course.max_participants
+      limit = training_session&.effective_max_participants || @course.max_participants
+      if limit.present? && belegte >= limit
         if @course.enable_waitlist?
           status = "warteliste"
         else
@@ -668,7 +672,8 @@ class CoursesController < ApplicationController
       else
         @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
       end
-      status = if @course.max_participants.present? && bestaetigte >= @course.max_participants
+      limit = training_session&.effective_max_participants || @course.max_participants
+      status = if limit.present? && bestaetigte >= limit
         "warteliste"
       else
         "bestätigt"
@@ -754,7 +759,12 @@ class CoursesController < ApplicationController
           @course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).distinct.count(:participant_id)
         end
 
-        if @course.max_participants.present? && belegte >= @course.max_participants
+        limit = if training_session_id_for_capacity
+          TrainingSession.find(training_session_id_for_capacity).effective_max_participants
+        else
+          @course.max_participants
+        end
+        if limit.present? && belegte >= limit
           if @course.enable_waitlist?
             status = "warteliste"
           else

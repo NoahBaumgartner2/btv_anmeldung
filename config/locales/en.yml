@@ -107,6 +107,7 @@ en:
       confirmation: "doesn't match %{attribute}"
       empty: "can't be empty"
       invalid: "is invalid"
+      required: "must exist"
       taken: "has already been taken"
       too_long:
         one: "is too long (maximum is 1 character)"
@@ -262,6 +263,7 @@ en:
       payment_pending: "Payment pending"
       status_confirmed: "Confirmed"
       status_waitlist: "Waitlist"
+      waitlist_position: "Spot %{position}"
       status_open: "Pending"
       paid: "Paid"
       mark_paid_confirm: "Mark payment for %{name} as received?"
@@ -424,6 +426,10 @@ en:
         one: "1 session"
         other: "%{count} sessions"
       no_active_dates: "No active sessions"
+      waitlist_dates_count:
+        one: "1 waitlisted"
+        other: "%{count} waitlisted"
+      waitlist_position: "Waitlist, spot %{position}"
       unsubscribe_course_btn: "Unsubscribe from course"
       more_courses_in_category: "View more %{category} courses"
       unsubscribe_course_confirm: "Fully unsubscribe %{name} from the course?"
@@ -1036,6 +1042,10 @@ en:
       mark_present_aria: "Mark %{name} as present"
       status_present: "Present"
       no_participants: "No confirmed participants."
+      waitlist_title: "Waitlist"
+      waitlist_count:
+        one: "1 person"
+        other: "%{count} people"
       confirm_attendance_btn: "Complete attendance check"
       attendance_confirmed_title: "Attendance check completed"
       attendance_confirmed_meta: "Completed on %{date} by %{name}"

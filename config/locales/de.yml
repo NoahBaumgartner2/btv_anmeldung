@@ -82,6 +82,7 @@ de:
     errors:
       messages:
         record_invalid: "Validierung fehlgeschlagen: %{errors}"
+        required: "muss ausgefüllt werden"
         restrict_dependent_destroy:
           has_one: "Datensatz kann nicht gelöscht werden, da ein abhängiger %{record} existiert"
           has_many: "Datensatz kann nicht gelöscht werden, da abhängige %{record} existieren"
@@ -93,6 +94,7 @@ de:
         accepted: "muss akzeptiert werden"
         blank: "muss ausgefüllt werden"
         present: "muss leer sein"
+        required: "muss ausgefüllt werden"
         too_long:
           one: "ist zu lang (maximal 1 Zeichen)"
           other: "ist zu lang (maximal %{count} Zeichen)"
@@ -151,6 +153,7 @@ de:
       odd: "muss ungerade sein"
       other_than: "muss ungleich %{count} sein"
       present: "muss leer sein"
+      required: "muss ausgefüllt werden"
       taken: "ist bereits vergeben"
       too_long:
         one: "ist zu lang (maximal 1 Zeichen)"
@@ -301,6 +304,7 @@ de:
       payment_pending: "Zahlung ausstehend"
       status_confirmed: "Bestätigt"
       status_waitlist: "Warteliste"
+      waitlist_position: "Platz %{position}"
       status_open: "Offen"
       paid: "Bezahlt"
       mark_paid_confirm: "Zahlung für %{name} als erhalten markieren?"
@@ -463,6 +467,10 @@ de:
         one: "1 Termin"
         other: "%{count} Termine"
       no_active_dates: "Keine aktiven Termine"
+      waitlist_dates_count:
+        one: "1 auf Warteliste"
+        other: "%{count} auf Warteliste"
+      waitlist_position: "Warteliste, Platz %{position}"
       unsubscribe_course_btn: "Vom Kurs abmelden"
       more_courses_in_category: "Weitere %{category}-Kurse ansehen"
       unsubscribe_course_confirm: "%{name} vollständig vom Kurs abmelden?"
@@ -1105,6 +1113,10 @@ de:
       mark_present_aria: "%{name} als anwesend markieren"
       status_present: "Anwesend"
       no_participants: "Keine bestätigten Teilnehmenden."
+      waitlist_title: "Warteliste"
+      waitlist_count:
+        one: "1 Person"
+        other: "%{count} Personen"
       confirm_attendance_btn: "Präsenzkontrolle abschliessen"
       attendance_confirmed_title: "Präsenzkontrolle abgeschlossen"
       attendance_confirmed_meta: "Abgeschlossen am %{date} von %{name}"

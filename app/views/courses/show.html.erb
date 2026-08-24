@@ -95,8 +95,8 @@
             </li>
           <% end %>
 
-          <%# Kapazität %>
-          <% if @course.max_participants.present? %>
+          <%# Kapazität (bei Drop-In-Kursen pro Training separat, siehe Terminauswahl unten) %>
+          <% if @course.max_participants.present? && @course.registration_mode != "single_session" %>
             <%# Belegt-Zählung identisch zur Anmelde-/Warteliste-Logik (OCCUPYING_STATUSES,
                 ohne "ausstehend" – abgebrochene Checkouts belegen keinen Platz). %>
             <% confirmed = @course.occupied_spots %>
@@ -218,7 +218,8 @@
               <%
                 spots_taken = @course.course_registrations
                   .where(status: CourseRegistration::OCCUPYING_STATUSES, training_session_id: session.id).count
-                is_full = @course.max_participants.present? && spots_taken >= @course.max_participants
+                session_limit = session.effective_max_participants
+                is_full = session_limit.present? && spots_taken >= session_limit
               %>
               <li class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:bg-secondary-50/50 transition">
                 <div>
@@ -231,10 +232,10 @@
                       <span class="text-gray-400 mx-2">·</span>
                       <%= @course.location %>
                     <% end %>
-                    <% if @course.max_participants.present? %>
+                    <% if session_limit.present? %>
                       <span class="text-gray-400 mx-2">·</span>
                       <span class="<%= is_full ? 'text-red-500' : 'text-green-600' %> font-bold">
-                        <%= is_full ? t("courses.show.fully_booked") : t("courses.show.spots_free", count: @course.max_participants - spots_taken) %>
+                        <%= is_full ? t("courses.show.fully_booked") : t("courses.show.spots_free", count: session_limit - spots_taken) %>
                       </span>
                     <% end %>
                   </p>
