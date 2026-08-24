@@ -304,6 +304,7 @@ de:
       payment_pending: "Zahlung ausstehend"
       status_confirmed: "Bestätigt"
       status_waitlist: "Warteliste"
+      waitlist_position: "Platz %{position}"
       status_open: "Offen"
       paid: "Bezahlt"
       mark_paid_confirm: "Zahlung für %{name} als erhalten markieren?"

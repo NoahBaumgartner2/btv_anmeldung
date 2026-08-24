@@ -263,6 +263,7 @@ en:
       payment_pending: "Payment pending"
       status_confirmed: "Confirmed"
       status_waitlist: "Waitlist"
+      waitlist_position: "Spot %{position}"
       status_open: "Pending"
       paid: "Paid"
       mark_paid_confirm: "Mark payment for %{name} as received?"
