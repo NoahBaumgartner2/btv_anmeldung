@@ -95,8 +95,8 @@
             </li>
           <% end %>
 
-          <%# Kapazität %>
-          <% if @course.max_participants.present? %>
+          <%# Kapazität (bei Drop-In-Kursen pro Training separat, siehe Terminauswahl unten) %>
+          <% if @course.max_participants.present? && @course.registration_mode != "single_session" %>
             <%# Belegt-Zählung identisch zur Anmelde-/Warteliste-Logik (OCCUPYING_STATUSES,
                 ohne "ausstehend" – abgebrochene Checkouts belegen keinen Platz). %>
             <% confirmed = @course.occupied_spots %>
