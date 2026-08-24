@@ -107,6 +107,7 @@ fr:
       confirmation: "ne correspond pas à %{attribute}"
       empty: "ne peut pas être vide"
       invalid: "est invalide"
+      required: "doit exister"
       taken: "est déjà pris"
       too_long:
         one: "est trop long (maximum 1 caractère)"

@@ -82,6 +82,7 @@ de:
     errors:
       messages:
         record_invalid: "Validierung fehlgeschlagen: %{errors}"
+        required: "muss ausgefüllt werden"
         restrict_dependent_destroy:
           has_one: "Datensatz kann nicht gelöscht werden, da ein abhängiger %{record} existiert"
           has_many: "Datensatz kann nicht gelöscht werden, da abhängige %{record} existieren"
@@ -93,6 +94,7 @@ de:
         accepted: "muss akzeptiert werden"
         blank: "muss ausgefüllt werden"
         present: "muss leer sein"
+        required: "muss ausgefüllt werden"
         too_long:
           one: "ist zu lang (maximal 1 Zeichen)"
           other: "ist zu lang (maximal %{count} Zeichen)"
@@ -151,6 +153,7 @@ de:
       odd: "muss ungerade sein"
       other_than: "muss ungleich %{count} sein"
       present: "muss leer sein"
+      required: "muss ausgefüllt werden"
       taken: "ist bereits vergeben"
       too_long:
         one: "ist zu lang (maximal 1 Zeichen)"
