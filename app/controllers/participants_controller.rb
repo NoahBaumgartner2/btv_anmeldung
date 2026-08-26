@@ -55,7 +55,7 @@ class ParticipantsController < ApplicationController
       .order(:start_time)
 
     @upcoming_by_course = upcoming.each_with_object(Hash.new { |h, k| h[k] = [] }) do |session, hash|
-      hash[session.course_id] << session if hash[session.course_id].size < 3
+      hash[session.course_id] << session
     end
 
     @unsubscribed_pairs = Attendance

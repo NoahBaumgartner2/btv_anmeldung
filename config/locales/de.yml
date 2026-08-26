@@ -451,6 +451,7 @@ de:
       confirmed: "Bestätigt"
       waitlist: "Warteliste"
       upcoming_trainings: "Nächste Trainings"
+      show_all_sessions_btn: "Alle Trainings anzeigen"
       unsubscribed: "Abgemeldet"
       unsubscribe_btn: "Abmelden"
       resubscribe_btn: "Wieder anmelden"
