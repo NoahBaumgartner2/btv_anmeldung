@@ -118,16 +118,30 @@ class Course < ApplicationRecord
     "CHF #{price_chf}"
   end
 
-  # Abzug (in Rappen) für eine Anmeldung, die erst nach Kursstart erfolgt -
-  # das erste bereits stattgefundene Training zählt noch normal, ab jedem
-  # weiteren wird der Trainingswert abgezogen (siehe DiscountCalculator, das
-  # dieselbe Methode für die tatsächliche Registration nutzt).
+  # Abzug (in Rappen) für eine Anmeldung, die erst nach Kursstart erfolgt.
+  #
+  # Berechnung: price_cents / training_value_cents (abgerundet) ergibt die
+  # Anzahl Trainings, die der Kurspreis abdeckt; +1, weil ein Training wie
+  # gratis mitgerechnet wird. Diese Anzahl bildet das Rabattfenster, gezählt
+  # vom Enddatum des Kurses rückwärts (bei kurzen Kursen mit weniger
+  # Trainings als Fensterbreite beginnt das Fenster einfach beim ersten
+  # Training). Ab dem ersten Training im Fenster greift sofort der erste
+  # Rabatt, ab dann ein Trainingswert weniger pro bereits vergangenem
+  # Training im Fenster - dadurch ist am Ende des Kurses das letzte
+  # Training faktisch gratis. Siehe DiscountCalculator, das dieselbe Methode
+  # für die tatsächliche Registration nutzt.
   def late_registration_deduction_cents(at: Time.current)
     return 0 unless allows_late_registration_deduction? && training_value_cents.present? && training_value_cents.positive?
 
-    passed_sessions = training_sessions.where(is_canceled: false).where("start_time <= ?", at).count
-    billable_sessions = [ passed_sessions - 1, 0 ].max
-    billable_sessions * training_value_cents
+    sessions = training_sessions.where(is_canceled: false).order(:start_time).to_a
+    return 0 if sessions.empty?
+
+    deductible_units = price_cents.to_i / training_value_cents
+    window_size = deductible_units + 1
+    window = sessions.last(window_size)
+
+    passed_in_window = window.count { |s| s.start_time <= at }
+    passed_in_window * training_value_cents
   end
 
   # Der Preis, den ein *neuer* Teilnehmer aktuell zahlen würde (ohne

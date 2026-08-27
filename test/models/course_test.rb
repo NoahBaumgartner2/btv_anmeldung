@@ -435,15 +435,34 @@ class CourseTest < ActiveSupport::TestCase
     assert_equal "CHF 100.00", course.effective_price_display
   end
 
-  test "effective_price_display reduziert den Preis ab dem zweiten bereits stattgefundenen Training" do
+  test "effective_price_display reduziert den Preis pro vergangenem Training im Rabattfenster" do
+    # Rabattfenster = price_cents / training_value_cents + 1 = 10 + 1 = 11 Trainings,
+    # vom Enddatum rückwärts gezählt. Bei nur 2 Trainings total liegt der ganze Kurs
+    # im Fenster, beide vergangenen Trainings zählen also voll.
     course = Course.new(base_attrs.merge(has_payment: true, price_cents: 10_000, training_value_cents: 1_000,
       allows_late_registration_deduction: true))
     course.save!(validate: false)
     course.training_sessions.create!(start_time: 10.days.ago, end_time: 10.days.ago + 1.hour, is_canceled: false)
     course.training_sessions.create!(start_time: 3.days.ago, end_time: 3.days.ago + 1.hour, is_canceled: false)
 
-    assert_equal "CHF 90.00", course.effective_price_display
-    assert_equal 1_000, course.late_registration_deduction_cents
+    assert_equal "CHF 80.00", course.effective_price_display
+    assert_equal 2_000, course.late_registration_deduction_cents
+  end
+
+  test "late_registration_deduction_cents zählt nur Trainings innerhalb des Rabattfensters vom Enddatum aus" do
+    # Rabattfenster = 10_000 / 5_000 + 1 = 3 Trainings. Bei 5 Trainings total beginnt
+    # das Fenster erst beim 3. Training - die ersten beiden zählen nie mit, egal wie
+    # weit sie in der Vergangenheit liegen.
+    course = Course.new(base_attrs.merge(has_payment: true, price_cents: 10_000, training_value_cents: 5_000,
+      allows_late_registration_deduction: true))
+    course.save!(validate: false)
+    [ 50, 40, 30, 20, 10 ].each do |days_ago|
+      course.training_sessions.create!(start_time: days_ago.days.ago, end_time: days_ago.days.ago + 1.hour, is_canceled: false)
+    end
+
+    # Nur Training 3, 4, 5 (die letzten 3) liegen im Fenster; alle sind vergangen.
+    assert_equal 15_000, course.late_registration_deduction_cents
+    assert_equal 0, course.effective_price_cents # gedeckelt, da Abzug > Preis
   end
 
   test "effective_price_display bleibt voller Preis wenn allows_late_registration_deduction deaktiviert ist" do

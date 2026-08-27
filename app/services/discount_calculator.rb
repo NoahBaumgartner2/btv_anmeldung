@@ -24,13 +24,20 @@ class DiscountCalculator
       end
     end
 
-    # Späteres Anmelden: wer erst einsteigt, nachdem der Kurs schon läuft,
-    # zahlt nicht den vollen Preis für bereits verpasste Trainings. Das erste
-    # bereits stattgefundene Training zählt noch normal (Schnupper-Charakter,
-    # analog RefundService), erst ab dem zweiten wird pro Training abgezogen.
-    # Berechnung via Course#late_registration_deduction_cents (auch von
-    # courses#index für die Preisanzeige vor der eigentlichen Anmeldung genutzt).
-    deduction = course.late_registration_deduction_cents(at: registration.created_at)
+    # Späteres Anmelden: wer erst einsteigt, nachdem der Kurs schon läuft, zahlt
+    # nicht den vollen Preis für bereits verpasste Trainings. Berechnung via
+    # Course#late_registration_deduction_cents (auch von courses#index für die
+    # Preisanzeige vor der eigentlichen Anmeldung genutzt). Das darin eingebaute
+    # eine "gratis" Training deckt bei einer Schnupper-Umwandlung genau das
+    # bereits stattgefundene Schnuppertraining ab - kein separater Rabatt nötig.
+    #
+    # "at": Für frische Anmeldungen ist created_at ~ jetzt. Eine Schnupper-Anmeldung
+    # kann dagegen tagelang mit demselben created_at bestehen bleiben, bis sie nach
+    # dem Schnuppertraining in eine reguläre Anmeldung umgewandelt wird - dort muss
+    # ab dem Umwandlungszeitpunkt (jetzt) gerechnet werden, nicht ab der alten
+    # Schnupper-Erstellung.
+    at = registration.trial? ? Time.current : registration.created_at
+    deduction = course.late_registration_deduction_cents(at: at)
     if deduction.positive?
       candidates << { price_cents: [ full_price[:price_cents] - deduction, 0 ].max, discount: "late_registration" }
     end
