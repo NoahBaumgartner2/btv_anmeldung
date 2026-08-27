@@ -1217,6 +1217,7 @@ fr:
       discount_second_course: "Rabais deuxième cours appliqué"
       discount_youth: "Tarif jeune appliqué"
       discount_late_registration: "Réduit pour inscription tardive"
+      discount_trial_remaining: "Prix pour les entraînements restants"
       section_payment_methods: "Méthodes de paiement acceptées"
       credit_card: "Carte de crédit"
       secure_payment: "Paiement sécurisé via SumUp · Chiffrement SSL"

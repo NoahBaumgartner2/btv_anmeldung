@@ -1223,6 +1223,7 @@ en:
       discount_second_course: "Second-course discount applied"
       discount_youth: "Youth price applied"
       discount_late_registration: "Reduced for late enrollment"
+      discount_trial_remaining: "Price for the remaining sessions"
       section_payment_methods: "Accepted payment methods"
       credit_card: "Credit card"
       secure_payment: "Secure payment via SumUp · SSL encrypted"

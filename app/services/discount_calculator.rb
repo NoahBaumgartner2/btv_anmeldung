@@ -24,15 +24,23 @@ class DiscountCalculator
       end
     end
 
-    # Späteres Anmelden: wer erst einsteigt, nachdem der Kurs schon läuft,
-    # zahlt nicht den vollen Preis für bereits verpasste Trainings. Das erste
-    # bereits stattgefundene Training zählt noch normal (Schnupper-Charakter,
-    # analog RefundService), erst ab dem zweiten wird pro Training abgezogen.
-    # Berechnung via Course#late_registration_deduction_cents (auch von
-    # courses#index für die Preisanzeige vor der eigentlichen Anmeldung genutzt).
-    deduction = course.late_registration_deduction_cents(at: registration.created_at)
-    if deduction.positive?
-      candidates << { price_cents: [ full_price[:price_cents] - deduction, 0 ].max, discount: "late_registration" }
+    if course.allows_late_registration_deduction? && course.training_value_cents.present? && course.training_value_cents.positive?
+      if registration.trial? && registration.trial_date.present? && registration.trial_date <= Time.current
+        # Schnuppertraining bereits verbraucht: das war das "gratis" Training,
+        # kein zusätzliches Freitraining mehr übrig (kein +1-Fenster wie unten).
+        # Preis = Anzahl noch verbleibender Trainings * Trainingswert.
+        remaining = course.training_sessions.where(is_canceled: false).where("start_time > ?", Time.current).count
+        candidates << { price_cents: remaining * course.training_value_cents, discount: "trial_remaining" }
+      else
+        # Späteres Anmelden: wer erst einsteigt, nachdem der Kurs schon läuft,
+        # zahlt nicht den vollen Preis für bereits verpasste Trainings.
+        # Berechnung via Course#late_registration_deduction_cents (auch von
+        # courses#index für die Preisanzeige vor der eigentlichen Anmeldung genutzt).
+        deduction = course.late_registration_deduction_cents(at: registration.created_at)
+        if deduction.positive?
+          candidates << { price_cents: [ full_price[:price_cents] - deduction, 0 ].max, discount: "late_registration" }
+        end
+      end
     end
 
     candidates.min_by { |c| c[:price_cents] } || full_price

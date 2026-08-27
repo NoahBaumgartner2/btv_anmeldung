@@ -245,6 +245,38 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     assert_equal "sibling", result[:discount]
   end
 
+  # ── Schnuppertraining verbraucht → nur noch verbleibende Trainings ───────────
+
+  test "nach verbrauchtem Schnuppertraining zählt nur der Preis der verbleibenden Trainings" do
+    course = make_course(discounts: false, training_value: 1_000)
+    child  = make_participant(users(:one), first_name: "Anna")
+    trial_session = make_session(course, start_time: 3.days.ago)
+    make_session(course, start_time: 2.days.from_now)
+    make_session(course, start_time: 9.days.from_now)
+
+    reg = CourseRegistration.new(course: course, participant: child, status: "schnuppern",
+      trial_session: trial_session, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+
+    result = DiscountCalculator.call(reg)
+    assert_equal 2_000, result[:price_cents] # 2 verbleibende Trainings * 1'000, kein Freitraining mehr
+    assert_equal "trial_remaining", result[:discount]
+  end
+
+  test "noch bevorstehendes Schnuppertraining bekommt weiterhin den vollen Preis" do
+    course = make_course(discounts: false, training_value: 1_000)
+    child  = make_participant(users(:one), first_name: "Anna")
+    trial_session = make_session(course, start_time: 2.days.from_now)
+
+    reg = CourseRegistration.new(course: course, participant: child, status: "schnuppern",
+      trial_session: trial_session, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+
+    result = DiscountCalculator.call(reg)
+    assert_equal 10_000, result[:price_cents]
+    assert_nil result[:discount]
+  end
+
   # ── Späteres Anmelden (Preisreduktion) ───────────────────────────────────────
 
   test "ein bereits stattgefundenes Training reduziert den Preis (kurzer Kurs, Fenster ab erstem Training)" do
