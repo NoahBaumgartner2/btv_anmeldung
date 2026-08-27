@@ -24,23 +24,22 @@ class DiscountCalculator
       end
     end
 
-    if course.allows_late_registration_deduction? && course.training_value_cents.present? && course.training_value_cents.positive?
-      if registration.trial? && registration.trial_date.present? && registration.trial_date <= Time.current
-        # Schnuppertraining bereits verbraucht: das war das "gratis" Training,
-        # kein zusätzliches Freitraining mehr übrig (kein +1-Fenster wie unten).
-        # Preis = Anzahl noch verbleibender Trainings * Trainingswert.
-        remaining = course.training_sessions.where(is_canceled: false).where("start_time > ?", Time.current).count
-        candidates << { price_cents: remaining * course.training_value_cents, discount: "trial_remaining" }
-      else
-        # Späteres Anmelden: wer erst einsteigt, nachdem der Kurs schon läuft,
-        # zahlt nicht den vollen Preis für bereits verpasste Trainings.
-        # Berechnung via Course#late_registration_deduction_cents (auch von
-        # courses#index für die Preisanzeige vor der eigentlichen Anmeldung genutzt).
-        deduction = course.late_registration_deduction_cents(at: registration.created_at)
-        if deduction.positive?
-          candidates << { price_cents: [ full_price[:price_cents] - deduction, 0 ].max, discount: "late_registration" }
-        end
-      end
+    # Späteres Anmelden: wer erst einsteigt, nachdem der Kurs schon läuft, zahlt
+    # nicht den vollen Preis für bereits verpasste Trainings. Berechnung via
+    # Course#late_registration_deduction_cents (auch von courses#index für die
+    # Preisanzeige vor der eigentlichen Anmeldung genutzt). Das darin eingebaute
+    # eine "gratis" Training deckt bei einer Schnupper-Umwandlung genau das
+    # bereits stattgefundene Schnuppertraining ab - kein separater Rabatt nötig.
+    #
+    # "at": Für frische Anmeldungen ist created_at ~ jetzt. Eine Schnupper-Anmeldung
+    # kann dagegen tagelang mit demselben created_at bestehen bleiben, bis sie nach
+    # dem Schnuppertraining in eine reguläre Anmeldung umgewandelt wird - dort muss
+    # ab dem Umwandlungszeitpunkt (jetzt) gerechnet werden, nicht ab der alten
+    # Schnupper-Erstellung.
+    at = registration.trial? ? Time.current : registration.created_at
+    deduction = course.late_registration_deduction_cents(at: at)
+    if deduction.positive?
+      candidates << { price_cents: [ full_price[:price_cents] - deduction, 0 ].max, discount: "late_registration" }
     end
 
     candidates.min_by { |c| c[:price_cents] } || full_price
