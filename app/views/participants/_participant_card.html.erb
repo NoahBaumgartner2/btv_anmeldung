@@ -59,14 +59,17 @@
                     .sort_by { |r| r.training_session&.start_time || Time.at(0) }
                 }
 
-              active_single  = single_session_all.select { |_, regs|
-                c = regs.first.course
-                c.end_date.nil? || c.end_date >= today
-              }
-              past_single    = single_session_all.reject { |_, regs|
-                c = regs.first.course
-                c.end_date.nil? || c.end_date >= today
-              }
+              # Aufteilung pro Session statt pro Kurs: vergangene Trainings
+              # eines noch laufenden Drop-In-Kurses gehören zu "Vergangene",
+              # auch wenn der Kurs selbst noch nicht beendet ist.
+              active_single = single_session_all.filter_map { |course_id, regs|
+                upcoming = regs.reject { |r| r.training_session.nil? || r.training_session.past? }
+                [course_id, upcoming] if upcoming.any?
+              }.to_h
+              past_single = single_session_all.filter_map { |course_id, regs|
+                past = regs.select { |r| r.training_session.nil? || r.training_session.past? }
+                [course_id, past] if past.any?
+              }.to_h
 
               any_active = active_semester.any? || active_single.any?
               any_past   = past_semester.any?   || past_single.any?
