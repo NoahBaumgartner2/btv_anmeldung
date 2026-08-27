@@ -247,17 +247,21 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
 
   # ── Späteres Anmelden (Preisreduktion) ───────────────────────────────────────
 
-  test "voller Preis wenn erst ein Training stattgefunden hat (Schnupper-Training zählt nicht)" do
+  test "ein bereits stattgefundenes Training reduziert den Preis (kurzer Kurs, Fenster ab erstem Training)" do
+    # Rabattfenster = 10'000 / 1'000 + 1 = 11 Trainings. Der Kurs hat nur 1 Training,
+    # das Fenster beginnt also beim ersten und einzigen Training.
     course = make_course(discounts: false, training_value: 1_000)
     child  = make_participant(users(:one), first_name: "Anna")
     make_session(course, start_time: 3.days.ago)
 
     result = DiscountCalculator.call(make_registration(course, child))
-    assert_equal 10_000, result[:price_cents]
-    assert_nil result[:discount]
+    assert_equal 9_000, result[:price_cents]
+    assert_equal "late_registration", result[:discount]
   end
 
-  test "ab dem zweiten bereits stattgefundenen Training wird pro Training abgezogen" do
+  test "jedes vergangene Training im Rabattfenster wird abgezogen" do
+    # Rabattfenster = 11 Trainings, Kurs hat nur 3 - das ganze Fenster deckt den
+    # ganzen Kurs ab. Beide vergangenen Trainings zählen voll, das zukünftige nicht.
     course = make_course(discounts: false, training_value: 1_000)
     child  = make_participant(users(:one), first_name: "Anna")
     make_session(course, start_time: 10.days.ago)
@@ -265,7 +269,7 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     make_session(course, start_time: 2.days.from_now) # noch nicht stattgefunden - zählt nicht
 
     result = DiscountCalculator.call(make_registration(course, child))
-    assert_equal 9_000, result[:price_cents] # 10'000 - (2-1) * 1'000
+    assert_equal 8_000, result[:price_cents] # 10'000 - 2 * 1'000
     assert_equal "late_registration", result[:discount]
   end
 
@@ -277,7 +281,7 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     make_session(course, start_time: 3.days.ago)
 
     result = DiscountCalculator.call(make_registration(course, child))
-    assert_equal 9_000, result[:price_cents]
+    assert_equal 8_000, result[:price_cents]
     assert_equal "late_registration", result[:discount]
   end
 
