@@ -1,0 +1,42 @@
+<%
+  # Nächste anstehende Trainingssession je aktiver Anmeldung, über alle
+  # Teilnehmer hinweg zusammengeführt und chronologisch sortiert.
+  overview_rows = participants.flat_map do |participant|
+    participant.course_registrations
+      .select { |r| %w[bestätigt schnuppern].include?(r.status) }
+      .filter_map do |reg|
+        session =
+          if reg.trial?
+            reg.trial_session
+          elsif reg.course.registration_mode == "single_session"
+            reg.training_session
+          else
+            (@upcoming_by_course[reg.course_id] || []).first
+          end
+
+        next if session.blank? || session.start_time <= Time.current
+
+        { participant: participant, course: reg.course, session: session }
+      end
+  end.sort_by { |row| row[:session].start_time }.first(15)
+%>
+
+<% if overview_rows.any? %>
+  <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+    <% overview_rows.each do |row| %>
+      <div class="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3.5 sm:py-4">
+        <div class="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm shrink-0">
+          <%= row[:participant].first_name&.first&.upcase %>
+        </div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-bold text-gray-900 truncate"><%= row[:participant].first_name %> · <%= row[:course].title %></p>
+          <p class="text-xs text-gray-500"><%= row[:session].start_time.in_time_zone.strftime("%-d. %b %Y, %H:%M") %> <%= t("misc.time_suffix") %></p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="bg-gray-50 rounded-xl p-6 text-center border border-gray-100 border-dashed">
+    <p class="text-gray-500 text-sm font-medium"><%= t("participants.index.overview_empty") %></p>
+  </div>
+<% end %>

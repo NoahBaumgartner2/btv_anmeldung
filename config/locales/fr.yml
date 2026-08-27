@@ -391,6 +391,8 @@ fr:
       subtitle: "Gérez ici vos personnes inscrites et leurs billets de cours."
       account_settings: "Paramètres du compte"
       add_participant: "+ Ajouter une personne"
+      tab_overview: "Aperçu"
+      overview_empty: "Aucun entraînement à venir."
       birthdate_prefix: "Né(e) "
       not_provided: "Non renseigné"
       edit: "Modifier"

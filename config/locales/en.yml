@@ -391,6 +391,8 @@ en:
       subtitle: "Manage your registered participants and their course tickets here."
       account_settings: "Account settings"
       add_participant: "+ Add person"
+      tab_overview: "Overview"
+      overview_empty: "No upcoming trainings."
       birthdate_prefix: "Born "
       not_provided: "Not provided"
       edit: "Edit"
