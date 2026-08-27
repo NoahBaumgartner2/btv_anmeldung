@@ -410,6 +410,7 @@ en:
       confirmed: "Confirmed"
       waitlist: "Waitlist"
       upcoming_trainings: "Upcoming trainings"
+      show_all_sessions_btn: "Show all trainings"
       unsubscribed: "Unsubscribed"
       unsubscribe_btn: "Unsubscribe"
       resubscribe_btn: "Re-register"

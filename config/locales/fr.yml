@@ -410,6 +410,7 @@ fr:
       confirmed: "Confirmé"
       waitlist: "Liste d'attente"
       upcoming_trainings: "Prochains entraînements"
+      show_all_sessions_btn: "Afficher tous les entraînements"
       unsubscribed: "Désinscrit"
       unsubscribe_btn: "Se désinscrire"
       resubscribe_btn: "Se réinscrire"
