@@ -432,6 +432,8 @@ de:
       subtitle: "Verwalte hier deine angemeldeten Personen und ihre Kurs-Tickets."
       account_settings: "Kontoeinstellungen"
       add_participant: "+ Person erfassen"
+      tab_overview: "Übersicht"
+      overview_empty: "Keine anstehenden Trainings."
       birthdate_prefix: "Geb. "
       not_provided: "Nicht angegeben"
       edit: "Bearbeiten"

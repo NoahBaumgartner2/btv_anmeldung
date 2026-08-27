@@ -28,6 +28,7 @@ import TrainingActionsController from "controllers/training_actions_controller"
 import AutoSubmitController from "controllers/auto_submit_controller"
 import InputFormatController from "controllers/input_format_controller"
 import AddressSplitController from "controllers/address_split_controller"
+import TabsController from "controllers/tabs_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -59,3 +60,4 @@ application.register("training-actions", TrainingActionsController)
 application.register("auto-submit", AutoSubmitController)
 application.register("input-format", InputFormatController)
 application.register("address-split", AddressSplitController)
+application.register("tabs", TabsController)
