@@ -111,6 +111,23 @@ export default class extends Controller {
   toggleEmailOnly() {
     const checked = this.emailOnlyCheckboxTarget.checked
     this.emailOnlyFieldTarget.value = checked ? "true" : "false"
-    this.detailFieldsTargets.forEach(el => el.classList.toggle("hidden", checked))
+    this.detailFieldsTargets.forEach(el => {
+      el.classList.toggle("hidden", checked)
+      // Ein verstecktes (display:none) Pflichtfeld (z.B. AHV-Nummer bei
+      // J+S-Kursen) kann der Browser nicht fokussieren und bricht die native
+      // Formular-Validierung lautlos ab, ohne Fehlermeldung - der Submit-Button
+      // wirkt dann als würde er nichts tun. Also required während des Ausblendens
+      // entfernen und beim erneuten Einblenden wiederherstellen.
+      const fields = checked ? el.querySelectorAll("[required]") : el.querySelectorAll("[data-was-required]")
+      fields.forEach(field => {
+        if (checked) {
+          field.dataset.wasRequired = "true"
+          field.required = false
+        } else {
+          delete field.dataset.wasRequired
+          field.required = true
+        }
+      })
+    })
   }
 }
