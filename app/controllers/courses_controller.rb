@@ -436,7 +436,7 @@ class CoursesController < ApplicationController
     else
       regs = @course.course_registrations
         .select { |r| CourseRegistration::OCCUPYING_STATUSES.include?(r.status) }
-        .uniq { |r| r.participant.user_id }
+        .uniq(&:participant_id)
       regs.each { |reg| CourseRegistrationMailer.custom_message(reg, subject: subject, body: body, sender: sender).deliver_later }
       redirect_to manage_course_path(@course), notice: "E-Mail an #{regs.size} Teilnehmer wurde in die Warteschlange gelegt."
     end
