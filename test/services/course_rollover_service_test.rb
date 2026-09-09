@@ -105,6 +105,30 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "roll_over! schickt keine Renewal-Mail an Teilnehmer, die im neuen Kurs zu alt sind" do
+    # participants(:one) ist 2015-06-15 geboren -> am neuen Kursstart (terms(:two).start_date
+    # = 2027-01-11) 11 Jahre alt. max_age: 10 blockiert eine Neuanmeldung -> keine Mail nötig.
+    course = make_course(max_age: 10)
+    reg = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt")
+    reg.save!(validate: false)
+
+    assert_no_enqueued_emails do
+      travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
+    end
+  end
+
+  test "roll_over! schickt weiterhin eine Renewal-Mail an Teilnehmer, die im neuen Kurs zu jung sind (waren ja schon dabei)" do
+    # min_age: 12 würde eine Neuanmeldung für participants(:one) (11 Jahre) blockieren,
+    # aber da sie schon im alten Kurs angemeldet war, gilt die Ausnahme -> Mail wird verschickt.
+    course = make_course(min_age: 12)
+    reg = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt")
+    reg.save!(validate: false)
+
+    assert_enqueued_emails 1 do
+      travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
+    end
+  end
+
   test "roll_over! macht nichts, wenn Kurs noch nicht rollover_due? ist" do
     terms(:two).update!(priority_registration_date: terms(:two).start_date)
     course = make_course

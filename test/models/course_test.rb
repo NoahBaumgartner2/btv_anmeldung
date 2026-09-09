@@ -475,4 +475,59 @@ class CourseTest < ActiveSupport::TestCase
     assert_equal "CHF 100.00", course.effective_price_display
     assert_equal 0, course.late_registration_deduction_cents
   end
+
+  # ── Altersbeschränkung bei Neuanmeldung ──────────────────────────────────────
+
+  def make_participant(dob:)
+    participant = Participant.new(user: users(:one), first_name: "Kind", last_name: "Test",
+      date_of_birth: dob, gender: "weiblich", phone_number: "+41790000000")
+    participant.save!(validate: false)
+    participant
+  end
+
+  test "zu alter Teilnehmer wird bei Neuanmeldung blockiert" do
+    course = Course.new(base_attrs.merge(min_age: 5, max_age: 10, start_date: Date.new(2026, 1, 1)))
+    course.save!(validate: false)
+    too_old = make_participant(dob: Date.new(2010, 1, 1)) # 16 Jahre am Kursstart
+
+    assert course.registration_blocked_by_age?(too_old)
+  end
+
+  test "zu junger Teilnehmer ohne vorherigen Kurs wird bei Neuanmeldung blockiert" do
+    course = Course.new(base_attrs.merge(min_age: 5, max_age: 10, start_date: Date.new(2026, 1, 1)))
+    course.save!(validate: false)
+    too_young = make_participant(dob: Date.new(2023, 1, 1)) # 3 Jahre am Kursstart
+
+    assert course.registration_blocked_by_age?(too_young)
+  end
+
+  test "zu junger Teilnehmer wird NICHT blockiert, wenn er schon im Vorgänger-Kurs angemeldet war" do
+    old_course = Course.new(base_attrs.merge(min_age: 5, max_age: 10, start_date: Date.new(2025, 9, 1)))
+    old_course.save!(validate: false)
+    new_course = Course.new(base_attrs.merge(min_age: 5, max_age: 10, start_date: Date.new(2026, 1, 1),
+      previous_course: old_course))
+    new_course.save!(validate: false)
+    too_young = make_participant(dob: Date.new(2023, 1, 1)) # 3 Jahre am neuen Kursstart
+
+    reg = CourseRegistration.new(course: old_course, participant: too_young, status: "bestätigt",
+      holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+
+    assert_not new_course.registration_blocked_by_age?(too_young)
+  end
+
+  test "zu alter Teilnehmer bleibt blockiert, auch wenn er im Vorgänger-Kurs angemeldet war" do
+    old_course = Course.new(base_attrs.merge(min_age: 5, max_age: 10, start_date: Date.new(2025, 9, 1)))
+    old_course.save!(validate: false)
+    new_course = Course.new(base_attrs.merge(min_age: 5, max_age: 10, start_date: Date.new(2026, 1, 1),
+      previous_course: old_course))
+    new_course.save!(validate: false)
+    too_old = make_participant(dob: Date.new(2010, 1, 1)) # 16 Jahre am neuen Kursstart
+
+    reg = CourseRegistration.new(course: old_course, participant: too_old, status: "bestätigt",
+      holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+
+    assert new_course.registration_blocked_by_age?(too_old)
+  end
 end

@@ -80,6 +80,28 @@ class Course < ApplicationRecord
     true
   end
 
+  # Für die Neuanmeldung: "zu alt" blockiert immer. "zu jung" blockiert nur,
+  # wenn der Teilnehmer nicht schon im Vorgänger-Kurs (Rollover-Vorgänger)
+  # angemeldet war - wer beim Mindestalter schon vorher dabei war, darf
+  # trotz Unterschreiten weiterhin mitmachen.
+  def registration_blocked_by_age?(participant)
+    return false unless age_restricted?
+    return true unless participant&.date_of_birth
+
+    age = participant.age_at(age_reference_date)
+    return true if max_age.present? && age > max_age
+    return false unless min_age.present? && age < min_age
+    !previously_registered_in_previous_course?(participant)
+  end
+
+  def previously_registered_in_previous_course?(participant)
+    return false if previous_course.blank? || participant.blank?
+    previous_course.course_registrations
+                    .where(participant_id: participant.id)
+                    .where.not(status: "storniert")
+                    .exists?
+  end
+
   # Hübsches Label für die Altersspanne
   def age_range_label
     return nil unless age_restricted?

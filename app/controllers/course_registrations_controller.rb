@@ -114,7 +114,7 @@ class CourseRegistrationsController < ApplicationController
     end
 
     # 2b. Alters-Check
-    if course && participant && !course.accepts_participant_age?(participant)
+    if course && participant && course.registration_blocked_by_age?(participant)
       age = participant.age_at(course.age_reference_date)
       @course_registration.errors.add(
         :base,
