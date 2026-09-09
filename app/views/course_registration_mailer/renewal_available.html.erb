@@ -12,7 +12,16 @@
   Hallo <%= greeting_name(@recipient) %>,<br><br>
   <strong><%= @participant.first_name %> <%= @participant.last_name %></strong> war im Kurs
   <strong><%= @course.title %></strong> angemeldet. Für die nächste Periode (<strong><%= @new_course.term&.name %></strong>)
-  kannst du dich ab sofort neu anmelden – noch bevor die Anmeldung für alle anderen öffnet.
+  ist nun die Zahlung von <strong><%= @new_course.price_display %></strong> wieder fällig.
+  <% if @deadline %>
+    Bitte melde dich und begleiche den Betrag bis zum <strong><%= I18n.l(@deadline, format: :long) %></strong> –
+    danach ist die Anmeldung für alle anderen geöffnet und der Platz nicht mehr reserviert.
+  <% else %>
+    Bitte melde dich zeitnah neu an, bevor die Anmeldung für alle anderen öffnet.
+  <% end %>
+  <% if @was_trial %>
+    <br><br>Das Schnuppertraining kann bis dahin ganz normal weiter besucht werden.
+  <% end %>
 </p>
 
 <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:32px;">

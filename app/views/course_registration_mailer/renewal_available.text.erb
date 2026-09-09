@@ -1,9 +1,16 @@
 Hallo,
 
 <%= @participant.first_name %> <%= @participant.last_name %> war im Kurs "<%= @course.title %>" angemeldet.
-Für die nächste Periode (<%= @new_course.term&.name %>) kannst du dich ab sofort neu anmelden – noch bevor
-die Anmeldung für alle anderen öffnet.
-
+Für die nächste Periode (<%= @new_course.term&.name %>) ist nun die Zahlung von <%= @new_course.price_display %> wieder fällig.
+<% if @deadline %>
+Bitte melde dich und begleiche den Betrag bis zum <%= I18n.l(@deadline, format: :long) %> – danach ist die
+Anmeldung für alle anderen geöffnet und der Platz nicht mehr reserviert.
+<% else %>
+Bitte melde dich zeitnah neu an, bevor die Anmeldung für alle anderen öffnet.
+<% end %>
+<% if @was_trial %>
+Das Schnuppertraining kann bis dahin ganz normal weiter besucht werden.
+<% end %>
 Jetzt neu anmelden: <%= @registration_url %>
 
 Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.
