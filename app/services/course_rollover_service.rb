@@ -43,12 +43,16 @@ class CourseRolloverService
   private
 
   # Informiert bisherige (nicht stornierte) Teilnehmende des alten Kurses,
-  # dass sie sich für die neue Periode neu anmelden können.
+  # dass sie sich für die neue Periode neu anmelden können. Wer im neuen
+  # Kurs die Altersbeschränkung nicht mehr erfüllt (zu alt), bekommt keine
+  # Mail - eine Neuanmeldung wäre für sie ohnehin blockiert.
   def notify_previous_participants(new_course)
     @course.course_registrations.where.not(status: "storniert")
            .select("DISTINCT ON (participant_id) *")
            .order(:participant_id, created_at: :desc)
            .each do |reg|
+      next if new_course.registration_blocked_by_age?(reg.participant)
+
       CourseRegistrationMailer.renewal_available(reg, new_course).deliver_later
     end
   end
