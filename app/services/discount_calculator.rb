@@ -64,8 +64,14 @@ class DiscountCalculator
   # gegenseitig als "bestehende Anmeldung" sehen und beide den Rabatt bekommen,
   # statt nur die zeitlich spätere. So zahlt immer die zuerst angemeldete
   # Person den vollen Preis, jede weitere den Rabatt.
+  #
+  # Bei Kursen mit Term (Semester/Quartal) zählen nur Anmeldungen im selben
+  # Term: sonst würde eine automatisch verlängerte Anmeldung (Nachfolge-Kurs
+  # nächstes Quartal) fälschlich als "bestehende Anmeldung in einem anderen
+  # Kurs" gelten und den Zweitkurs-/Geschwisterrabatt auslösen, obwohl es
+  # derselbe fortlaufende Kurs ist.
   def self.existing_registrations(registration)
-    CourseRegistration
+    scope = CourseRegistration
       .joins(:course)
       .where(courses: { category: registration.course.category })
       .where.not(id: registration.id)
@@ -75,6 +81,8 @@ class DiscountCalculator
         "course_registrations.created_at < ? OR (course_registrations.created_at = ? AND course_registrations.id < ?)",
         registration.created_at, registration.created_at, registration.id
       )
+    scope = scope.where(courses: { term_id: registration.course.term_id }) if registration.course.term_id.present?
+    scope
   end
   private_class_method :existing_registrations
 
