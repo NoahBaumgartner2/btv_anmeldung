@@ -6,10 +6,11 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
   def make_course(title: "Rabatt-Kurs", category: "polysport", price: 10_000,
                   discounts: true, sibling: 6_000, second: 7_000,
                   youth: nil, youth_max_age: 20,
-                  training_value: nil, allows_late_registration_deduction: true)
+                  training_value: nil, allows_late_registration_deduction: true,
+                  term: nil)
     course = Course.new(title: title, registration_type: "semester",
       has_payment: true, has_ticketing: false, allows_holiday_deduction: false,
-      category: category)
+      category: category, term: term)
     course.price_cents = price
     course.discounts_enabled = discounts
     course.sibling_price_cents = sibling
@@ -140,6 +141,32 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     make_registration(course_a, identity_a, status: "bestätigt")
 
     result = DiscountCalculator.call(make_registration(course_b, identity_b))
+    assert_equal 7_000, result[:price_cents]
+    assert_equal "second_course", result[:discount]
+  end
+
+  test "kein second_course-Rabatt für automatisch verlängerte Anmeldung im nächsten Quartal (anderer Term)" do
+    # Reproduziert den Rollover-Fall: Kurs A lief im HS2026, wird für FS2027
+    # automatisch verlängert (Kurs B). Die alte Anmeldung in Kurs A (HS2026)
+    # darf die neue Anmeldung in Kurs B (FS2027) nicht als "Zweitkurs" rabattieren -
+    # es ist derselbe fortlaufende Kurs, nur im nächsten Quartal.
+    course_a = make_course(title: "Kurs A", term: terms(:one))
+    course_b = make_course(title: "Kurs B", term: terms(:two))
+    child = make_participant(users(:one), first_name: "Anna")
+    make_registration(course_a, child, status: "bestätigt")
+
+    result = DiscountCalculator.call(make_registration(course_b, child))
+    assert_equal 10_000, result[:price_cents]
+    assert_nil result[:discount]
+  end
+
+  test "second_course-Rabatt greift weiterhin für zwei Kurse im selben Term" do
+    course_a = make_course(title: "Kurs A", term: terms(:one))
+    course_b = make_course(title: "Kurs B", term: terms(:one))
+    child = make_participant(users(:one), first_name: "Anna")
+    make_registration(course_a, child, status: "bestätigt")
+
+    result = DiscountCalculator.call(make_registration(course_b, child))
     assert_equal 7_000, result[:price_cents]
     assert_equal "second_course", result[:discount]
   end
