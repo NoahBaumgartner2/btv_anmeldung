@@ -362,7 +362,7 @@ class Course < ApplicationRecord
     priority_date = term&.priority_registration_date
     return true if previous_course_id.blank? || priority_date.blank?
 
-    public_from = priority_date + public_registration_days.to_i.days
+    public_from = public_registration_opens_on
     return true if Date.current >= public_from
     return false if Date.current < priority_date
 
@@ -371,6 +371,14 @@ class Course < ApplicationRecord
       .where(users: { id: user&.id })
       .where.not(status: "storniert")
       .exists?
+  end
+
+  # Datum, ab dem die Anmeldung für ALLE öffnet (Ende des Priority-Fensters
+  # für previous_course-Nachfolgekurse). nil ohne Term-Vorlaufdatum.
+  def public_registration_opens_on
+    priority_date = term&.priority_registration_date
+    return nil if priority_date.blank?
+    priority_date + public_registration_days.to_i.days
   end
 
   private

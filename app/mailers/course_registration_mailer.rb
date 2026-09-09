@@ -165,6 +165,8 @@ class CourseRegistrationMailer < ApplicationMailer
     return unless MailSetting.mail_enabled?(:renewal_available)
 
     @registration_url = new_course_registration_url(course_id: @new_course.id)
+    @deadline = @new_course.public_registration_opens_on
+    @was_trial = old_registration.trial?
 
     mail(to: @recipient.email, subject: "Neuanmeldung für #{@new_course.title} jetzt möglich")
   end
