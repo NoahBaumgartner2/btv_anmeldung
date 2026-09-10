@@ -42,12 +42,17 @@ class CourseRolloverService
 
   private
 
-  # Informiert bisherige (nicht stornierte) Teilnehmende des alten Kurses,
-  # dass sie sich für die neue Periode neu anmelden können. Wer im neuen
-  # Kurs die Altersbeschränkung nicht mehr erfüllt (zu alt), bekommt keine
-  # Mail - eine Neuanmeldung wäre für sie ohnehin blockiert.
+  # Informiert bisherige, tatsächlich belegte (nicht stornierte, nicht auf
+  # der Warteliste stehende) Teilnehmende des alten Kurses, dass sie sich
+  # für die neue Periode neu anmelden können. Wer im neuen Kurs die
+  # Altersbeschränkung nicht mehr erfüllt (zu alt), bekommt keine Mail -
+  # eine Neuanmeldung wäre für sie ohnehin blockiert.
+  #
+  # Warteliste explizit ausgeschlossen: diese Personen hatten nie einen
+  # bestätigten Platz, die "Jetzt neu anmelden"-Mail würde ihnen fälschlich
+  # eine Priorität suggerieren, die sie nie hatten.
   def notify_previous_participants(new_course)
-    @course.course_registrations.where.not(status: "storniert")
+    @course.course_registrations.where.not(status: %w[storniert warteliste])
            .select("DISTINCT ON (participant_id) *")
            .order(:participant_id, created_at: :desc)
            .each do |reg|
