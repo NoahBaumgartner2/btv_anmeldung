@@ -89,6 +89,20 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "roll_over! schickt keine Renewal-Mail an Teilnehmende auf der Warteliste" do
+    # Wartelisten-Teilnehmende hatten nie einen bestätigten Platz - die
+    # "Jetzt neu anmelden"-Mail würde ihnen fälschlich Priorität suggerieren.
+    course = make_course
+    confirmed = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt")
+    confirmed.save!(validate: false)
+    waitlisted = CourseRegistration.new(course: course, participant: participants(:two), status: "warteliste")
+    waitlisted.save!(validate: false)
+
+    assert_enqueued_emails 1 do
+      travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
+    end
+  end
+
   test "roll_over! schickt pro Teilnehmer nur eine Mail, auch bei mehreren aktiven Registrierungen" do
     # index_course_registrations_unique_active erlaubt Duplikate, sobald eine
     # Registrierung an ein Training gebunden ist (z.B. Schnuppertermine) —

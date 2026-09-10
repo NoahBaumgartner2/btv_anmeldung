@@ -2,6 +2,7 @@ require "test_helper"
 
 class CoursesControllerTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
+  include ActionMailer::TestHelper
 
   setup do
     @course = courses(:one)
@@ -828,5 +829,36 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to course_path(course)
     assert_match "nicht aktiviert", flash[:alert]
+  end
+
+  # ── send_custom_email: only_waitlist-Filter ──────────────────────────────────
+
+  def make_mail_test_course
+    course = Course.new(title: "Mail-Test-Kurs", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    course.save!(validate: false)
+    course
+  end
+
+  test "send_custom_email mit only_waitlist erreicht nur Wartelisten-Teilnehmende" do
+    course = make_mail_test_course
+    confirmed = CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt")
+    confirmed.save!(validate: false)
+    waitlisted = CourseRegistration.new(course: course, participant: participants(:two), status: "warteliste")
+    waitlisted.save!(validate: false)
+
+    assert_enqueued_emails 1 do
+      post send_custom_email_course_path(course), params: { subject: "Info", body: "Text", only_waitlist: "1" }
+    end
+  end
+
+  test "send_custom_email ohne only_waitlist erreicht keine Wartelisten-Teilnehmenden" do
+    course = make_mail_test_course
+    waitlisted = CourseRegistration.new(course: course, participant: participants(:two), status: "warteliste")
+    waitlisted.save!(validate: false)
+
+    assert_no_enqueued_emails do
+      post send_custom_email_course_path(course), params: { subject: "Info", body: "Text" }
+    end
   end
 end

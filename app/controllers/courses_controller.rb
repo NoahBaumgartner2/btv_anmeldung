@@ -434,8 +434,13 @@ class CoursesController < ApplicationController
       CourseRegistrationMailer.custom_message(reg, subject: subject, body: body, sender: sender).deliver_later
       redirect_to manage_course_path(@course), notice: "E-Mail an #{reg.participant.first_name} #{reg.participant.last_name} wurde gesendet."
     else
+      # ponytail: nur_warteliste ist ein befristetes Werkzeug für die Q3->Q4
+      # Rollover-Verwirrung (fälschlich verschickte Renewal-Mail an
+      # Wartelisten-Teilnehmende); bei Bedarf durch ein generisches
+      # Status-Filter-UI ersetzen.
+      allowed_statuses = params[:only_waitlist].present? ? %w[warteliste] : CourseRegistration::OCCUPYING_STATUSES
       regs = @course.course_registrations
-        .select { |r| CourseRegistration::OCCUPYING_STATUSES.include?(r.status) }
+        .select { |r| allowed_statuses.include?(r.status) }
         .uniq(&:participant_id)
       regs.each { |reg| CourseRegistrationMailer.custom_message(reg, subject: subject, body: body, sender: sender).deliver_later }
       redirect_to manage_course_path(@course), notice: "E-Mail an #{regs.size} Teilnehmer wurde in die Warteschlange gelegt."
