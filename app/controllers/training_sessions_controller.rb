@@ -91,6 +91,19 @@ class TrainingSessionsController < ApplicationController
         alert: "Vergangene Trainings können nicht gelöscht werden, um die Anwesenheitskontrolle zu erhalten."
     end
 
+    # Anmeldungen können direkt an diese Session gebunden sein (Single-Session-
+    # Buchung oder Schnuppertermin via trial_session) - die DB-Fremdschlüssel
+    # (kein on_delete) verhindern das Löschen sonst mit einer unverständlichen
+    # 500-Fehlerseite statt einer klaren Meldung.
+    bound_registrations = CourseRegistration.where(training_session_id: @training_session.id)
+      .or(CourseRegistration.where(trial_session_id: @training_session.id))
+    if bound_registrations.exists?
+      return redirect_to manage_course_path(course),
+        alert: "Dieses Training kann nicht gelöscht werden: #{bound_registrations.count} Anmeldung(en) " \
+               "sind direkt daran gebunden (z.B. Schnuppertermin oder Einzel-Training-Buchung). " \
+               "Bitte diese Anmeldungen zuerst bearbeiten oder stornieren."
+    end
+
     @training_session.destroy!
     redirect_to manage_course_path(course), notice: t("training_sessions.show.deleted_notice")
   end
