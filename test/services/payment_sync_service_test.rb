@@ -319,4 +319,34 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     assert_equal "bestätigt", reg.status
     assert_equal "tx-confirmed-sync", reg.sumup_transaction_id
   end
+
+  # Regression: ExpirePendingPaymentsJob storniert unbezahlte "ausstehend"-
+  # Reservierungen nach Ablauf der Zahlungsfrist. Trifft die SumUp-Zahlung erst
+  # danach ein, blieb die Registrierung dauerhaft unentdeckt "storniert mit
+  # fehlender Zahlung" (Bug-Report Manuela Touvet) - sync_pending muss auch
+  # stornierte Registrierungen mit offenem Checkout wieder aktivieren können.
+  test "sync_pending reaktiviert eine stornierte Anmeldung mit offenem Checkout bei PAID" do
+    course = Course.new(
+      title: "Storniert-Sync-Kurs", registration_type: "semester", has_payment: true,
+      price_cents: 20_000, has_ticketing: false, allows_holiday_deduction: false, max_participants: 10
+    )
+    course.save!(validate: false)
+
+    reg = CourseRegistration.new(
+      course: course, participant: participants(:one),
+      status: "storniert", payment_cleared: false, holiday_deduction_claimed: false,
+      sumup_checkout_id: "co-storniert-sync"
+    )
+    reg.save!(validate: false)
+
+    with_http_stub(fake_http(ok_response('{"id":"co-storniert-sync","status":"PAID","transactions":[{"id":"tx-storniert-sync"}]}'))) do
+      result = PaymentSyncService.sync_pending
+      assert_equal 1, result.paid
+    end
+
+    reg.reload
+    assert reg.payment_cleared?
+    assert_equal "bestätigt", reg.status
+    assert_equal "tx-storniert-sync", reg.sumup_transaction_id
+  end
 end

@@ -85,9 +85,17 @@ class PaymentSyncService
   # nach der Zahlung aus (z.B. Tab zu früh geschlossen), muss dieser Abgleich JEDEN
   # Status mit offenem Checkout erfassen können, nicht nur "ausstehend" – sonst bleibt
   # eine tatsächlich erfolgte Zahlung dauerhaft unentdeckt (siehe Bug-Report).
+  #
+  # "storniert" ist ebenfalls eingeschlossen: ExpirePendingPaymentsJob storniert
+  # unbezahlte "ausstehend"-Reservierungen nach Ablauf der Zahlungsfrist. Trifft
+  # die SumUp-Zahlung erst danach ein (später Checkout-Abschluss oder Verzögerung
+  # bei SumUp), wäre die Registrierung sonst für immer unentdeckt "storniert mit
+  # fehlender Zahlung" - siehe Bug-Report Manuela Touvet. mark_paid! setzt den
+  # Status ohnehin immer auf "bestätigt", egal vom Ausgangsstatus (die Zahlung
+  # gewinnt, notfalls mit bewusster Überbuchung, siehe dortiger Kommentar).
   def self.sync_pending
     pending = CourseRegistration.where(
-      status:          %w[ausstehend bestätigt schnuppern],
+      status:          %w[ausstehend bestätigt schnuppern storniert],
       payment_cleared: false
     ).where.not(sumup_checkout_id: [ nil, "" ])
 
