@@ -162,6 +162,19 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Vergangene Trainings können nicht gelöscht werden, um die Anwesenheitskontrolle zu erhalten.", flash[:alert]
   end
 
+  test "destroy blockiert Trainings mit gebundener Anmeldung (trial_session) statt DB-Fehler zu werfen" do
+    future = training_sessions(:future)
+    reg = CourseRegistration.new(course: future.course, participant: participants(:two), status: "bestätigt", trial_session: future)
+    reg.save!(validate: false)
+
+    assert_no_difference("TrainingSession.count") do
+      delete training_session_url(future)
+    end
+
+    assert_redirected_to manage_course_path(future.course)
+    assert_match "sind direkt daran gebunden", flash[:alert]
+  end
+
   test "destroy ist für Trainer ohne Adminrechte gesperrt" do
     sign_out users(:admin)
     sign_in users(:one)
