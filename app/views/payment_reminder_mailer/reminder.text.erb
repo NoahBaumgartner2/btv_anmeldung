@@ -4,7 +4,7 @@ wir möchten dich daran erinnern, dass für die Anmeldung von <%= @participant.f
 
 Teilnehmer: <%= @participant.first_name %> <%= @participant.last_name %>
 Kurs:        <%= @course.title %>
-Betrag:      <%= @course.price_display %>
+Betrag:      <%= @price_display %>
 
 <% if @course.has_payment? %>
 Jetzt bezahlen: <%= checkout_registration_url(@course_registration) %>
