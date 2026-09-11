@@ -1606,4 +1606,46 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to courses_path
     assert_match "noch nicht geöffnet", flash[:alert]
   end
+
+  # ── show: Preisfeld zeigt rabattierten Preis ─────────────────────────────────
+
+  def stub_sumup_configured(&block)
+    original = ::SumupConfig.method(:configured?)
+    ::SumupConfig.define_singleton_method(:configured?) { |*_| true }
+    block.call
+  ensure
+    ::SumupConfig.singleton_class.send(:remove_method, :configured?)
+    ::SumupConfig.define_singleton_method(:configured?, original)
+  end
+
+  test "show zeigt beim Preisfeld den rabattierten Betrag, nicht den vollen Kurspreis" do
+    # Regression: das Preisfeld zeigte immer course.price_display (voller Preis),
+    # unabhängig vom Zahlungs-CTA direkt darunter, das bereits korrekt rabattiert war -
+    # Familien mit zwei Kursen sahen dadurch fälschlich 2x den vollen Preis.
+    course_a = Course.new(title: "Kurs A Preisfeld", registration_type: "semester", category: "polysport",
+      has_payment: true, has_ticketing: false, allows_holiday_deduction: false,
+      discounts_enabled: true, price_cents: 15_000, second_course_price_cents: 12_000)
+    course_a.save!(validate: false)
+    course_b = Course.new(title: "Kurs B Preisfeld", registration_type: "semester", category: "polysport",
+      has_payment: true, has_ticketing: false, allows_holiday_deduction: false,
+      discounts_enabled: true, price_cents: 15_000, second_course_price_cents: 12_000)
+    course_b.save!(validate: false)
+
+    child = participants(:one)
+    first_reg = CourseRegistration.new(course: course_a, participant: child, status: "bestätigt",
+      payment_cleared: false, holiday_deduction_claimed: false)
+    first_reg.save!(validate: false)
+    second_reg = CourseRegistration.new(course: course_b, participant: child, status: "bestätigt",
+      payment_cleared: false, holiday_deduction_claimed: false)
+    second_reg.save!(validate: false)
+
+    sign_in @parent
+    stub_sumup_configured do
+      get course_registration_path(second_reg)
+    end
+
+    assert_response :success
+    assert_match "CHF 120.00", response.body
+    assert_no_match "CHF 150.00", response.body
+  end
 end

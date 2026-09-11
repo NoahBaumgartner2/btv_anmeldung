@@ -5,6 +5,7 @@ class PaymentReminderMailer < ApplicationMailer
     @participant = course_registration.participant
     @recipient = @participant.user
     @reminder_count = course_registration.payment_reminder_count
+    @price_display = "CHF #{format('%.2f', DiscountCalculator.call(course_registration)[:price_cents] / 100.0)}"
 
     return if @recipient.nil?
 

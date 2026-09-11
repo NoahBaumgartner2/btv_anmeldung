@@ -190,7 +190,7 @@
       <% if course.has_payment? && course.price_cents.to_i > 0 && !@course_registration.trial? %>
         <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
           <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.price") %></dt>
-          <dd class="font-semibold text-gray-900 break-words sm:text-right"><%= course.price_display %></dd>
+          <dd class="font-semibold text-gray-900 break-words sm:text-right"><%= effective_price %></dd>
         </div>
         <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
           <dt class="font-medium text-gray-500 shrink-0"><%= t("course_registrations.show.fields.payment") %></dt>
