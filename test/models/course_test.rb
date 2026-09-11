@@ -530,4 +530,28 @@ class CourseTest < ActiveSupport::TestCase
 
     assert new_course.registration_blocked_by_age?(too_old)
   end
+
+  test "Teilnehmer, der erst während der Kursdauer das Mindestalter erreicht, wird NICHT blockiert" do
+    # Kurs 15.8.2026 - 31.1.2027, min_age 3. Kind ist am Kursstart 2 Jahre alt,
+    # wird aber am 1.9.2026 (während des Kurses) 3 Jahre alt - siehe Bug-Report Indrit.
+    course = Course.new(base_attrs.merge(min_age: 3, max_age: 5,
+      start_date: Date.new(2026, 8, 15), end_date: Date.new(2027, 1, 31)))
+    course.save!(validate: false)
+    turns_three_mid_course = make_participant(dob: Date.new(2023, 9, 1))
+
+    assert_equal 2, turns_three_mid_course.age_at(course.age_reference_date)
+    assert_equal 3, turns_three_mid_course.age_at(course.min_age_reference_date)
+    assert course.accepts_participant_age?(turns_three_mid_course)
+    assert_not course.registration_blocked_by_age?(turns_three_mid_course)
+  end
+
+  test "Teilnehmer, der das Mindestalter auch bis Kursende nicht erreicht, bleibt blockiert" do
+    course = Course.new(base_attrs.merge(min_age: 3, max_age: 5,
+      start_date: Date.new(2026, 8, 15), end_date: Date.new(2027, 1, 31)))
+    course.save!(validate: false)
+    still_too_young = make_participant(dob: Date.new(2024, 3, 1)) # wird erst nach Kursende 3
+
+    assert_not course.accepts_participant_age?(still_too_young)
+    assert course.registration_blocked_by_age?(still_too_young)
+  end
 end
