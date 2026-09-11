@@ -64,9 +64,19 @@ class Course < ApplicationRecord
     min_age.present? || max_age.present?
   end
 
-  # Referenzdatum für die Altersberechnung: Kursstart, sonst heute
+  # Referenzdatum für die Höchstalter-Prüfung: Kursstart, sonst heute (am
+  # ältesten sind Teilnehmer:innen zu Kursbeginn - das ist der grosszügigste,
+  # zulässige Zeitpunkt für die Prüfung).
   def age_reference_date
     (start_date || Date.current).to_date
+  end
+
+  # Referenzdatum für die Mindestalter-Prüfung: Kursende, sonst Kursstart,
+  # sonst heute. Ein Kind, das erst während der Kursdauer das Mindestalter
+  # erreicht, soll sich trotzdem anmelden können (spätere Preisreduktion via
+  # late_registration_deduction_cents deckt die verpassten Trainings ab).
+  def min_age_reference_date
+    (end_date || start_date || Date.current).to_date
   end
 
   # Prüft, ob ein Teilnehmer altersmässig für den Kurs zugelassen ist
@@ -74,9 +84,8 @@ class Course < ApplicationRecord
     return true unless age_restricted?
     return false unless participant&.date_of_birth
 
-    age = participant.age_at(age_reference_date)
-    return false if min_age.present? && age < min_age
-    return false if max_age.present? && age > max_age
+    return false if max_age.present? && participant.age_at(age_reference_date) > max_age
+    return false if min_age.present? && participant.age_at(min_age_reference_date) < min_age
     true
   end
 
@@ -88,9 +97,8 @@ class Course < ApplicationRecord
     return false unless age_restricted?
     return true unless participant&.date_of_birth
 
-    age = participant.age_at(age_reference_date)
-    return true if max_age.present? && age > max_age
-    return false unless min_age.present? && age < min_age
+    return true if max_age.present? && participant.age_at(age_reference_date) > max_age
+    return false unless min_age.present? && participant.age_at(min_age_reference_date) < min_age
     !previously_registered_in_previous_course?(participant)
   end
 
