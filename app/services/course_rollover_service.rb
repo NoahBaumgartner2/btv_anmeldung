@@ -62,9 +62,14 @@ class CourseRolloverService
     end
   end
 
+  # Keine Zuweisungs-Mail beim Rollover: der Trainer war schon im Vorgänger-
+  # Kurs zugeteilt, eine "du wurdest zugewiesen"-Mail für eine reine
+  # Perioden-Verlängerung wäre irreführend/unerwünscht.
   def copy_trainers(new_course)
-    @course.course_trainers.each do |ct|
-      new_course.course_trainers.create!(trainer_id: ct.trainer_id, can_manually_enroll: ct.can_manually_enroll)
+    CourseTrainer.without_assignment_notifications do
+      @course.course_trainers.each do |ct|
+        new_course.course_trainers.create!(trainer_id: ct.trainer_id, can_manually_enroll: ct.can_manually_enroll)
+      end
     end
   end
 
