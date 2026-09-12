@@ -39,6 +39,19 @@ class TrainingSessionsController < ApplicationController
       .select { |reg| reg.status != "schnuppern" || trial_for_this_session?(reg) }
       .uniq(&:participant_id)
     @attendances_by_reg_id = @training_session.attendances.index_by(&:course_registration_id)
+
+    # Wurde eine Anmeldung nach der Anwesenheitserfassung in einen anderen Kurs
+    # verschoben (RegistrationMoveService), fällt sie oben aus @registrations,
+    # weil die Liste die AKTUELLE Kurszugehörigkeit abfragt - die bereits
+    # erfasste Anwesenheit für dieses Training soll aber trotzdem sichtbar
+    # bleiben, statt spurlos aus der Ansicht zu verschwinden.
+    moved_away_ids = @attendances_by_reg_id.keys - @registrations.map(&:id)
+    @moved_away_registrations = if moved_away_ids.any?
+      CourseRegistration.where(id: moved_away_ids).includes(:participant, :course)
+    else
+      CourseRegistration.none
+    end
+
     @waitlist_registrations = @training_session.course.course_registrations
       .includes(:participant)
       .where(status: "warteliste")

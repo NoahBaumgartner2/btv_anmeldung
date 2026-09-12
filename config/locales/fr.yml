@@ -1057,6 +1057,9 @@ fr:
       mark_present_aria: "Marquer %{name} comme présent"
       status_present: "Présent"
       no_participants: "Aucun participant confirmé."
+      moved_away_title: "Entre-temps déplacé vers un autre cours"
+      moved_away_hint: "La présence a été enregistrée avant le changement de cours et reste visible ici à titre documentaire."
+      moved_away_note: "Maintenant dans : %{course}"
       waitlist_title: "Liste d'attente"
       waitlist_count:
         one: "1 personne"
