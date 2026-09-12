@@ -102,6 +102,8 @@
                       <%= t("courses.manage.details") %>
                     </button>
                     <% if current_user.admin? %>
+                      <%= link_to t("courses.manage.full_profile_link"), participant_path(p),
+                            class: "block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition" %>
                       <%= link_to t("courses.manage.edit_link"), edit_course_registration_path(reg),
                             class: "block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition" %>
                       <button type="button"
@@ -172,6 +174,30 @@
                             <dd class="font-semibold text-gray-900 text-right"><%= p.ahv_number %></dd>
                           </div>
                         <% end %>
+                        <% if p.street.present? %>
+                          <div class="flex justify-between gap-4">
+                            <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.address") %></dt>
+                            <dd class="font-semibold text-gray-900 text-right"><%= "#{p.street} #{p.house_number}".strip %><br><%= "#{p.zip_code} #{p.city}".strip %></dd>
+                          </div>
+                        <% end %>
+                        <div class="flex justify-between gap-4">
+                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.nationality") %></dt>
+                          <dd class="font-semibold text-gray-900 text-right"><%= p.nationality.presence || "—" %></dd>
+                        </div>
+                        <div class="flex justify-between gap-4">
+                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.mother_tongue") %></dt>
+                          <dd class="font-semibold text-gray-900 text-right"><%= p.mother_tongue.presence || "—" %></dd>
+                        </div>
+                        <div class="flex justify-between gap-4">
+                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.photo_consent_label") %></dt>
+                          <dd class="font-semibold text-right <%= p.user.photo_consent_accepted? ? 'text-green-700' : 'text-red-600' %>">
+                            <% if p.user.photo_consent_accepted? %>
+                              <%= t("courses.manage.photo_consent_yes", date: p.user.photo_consent_accepted_at.to_date.strftime("%d.%m.%Y")) %>
+                            <% else %>
+                              <%= t("courses.manage.photo_consent_no") %>
+                            <% end %>
+                          </dd>
+                        </div>
                         <div class="flex justify-between gap-4 pt-2 border-t border-gray-100">
                           <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.registration_status") %></dt>
                           <dd class="font-semibold text-right">
