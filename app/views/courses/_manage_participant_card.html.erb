@@ -130,6 +130,30 @@
                           <dd class="font-semibold text-gray-900 text-right"><%= p.ahv_number %></dd>
                         </div>
                       <% end %>
+                      <% if p.street.present? %>
+                        <div class="flex justify-between gap-4">
+                          <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.address") %></dt>
+                          <dd class="font-semibold text-gray-900 text-right"><%= "#{p.street} #{p.house_number}".strip %><br><%= "#{p.zip_code} #{p.city}".strip %></dd>
+                        </div>
+                      <% end %>
+                      <div class="flex justify-between gap-4">
+                        <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.nationality") %></dt>
+                        <dd class="font-semibold text-gray-900 text-right"><%= p.nationality.presence || "&mdash;".html_safe %></dd>
+                      </div>
+                      <div class="flex justify-between gap-4">
+                        <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.mother_tongue") %></dt>
+                        <dd class="font-semibold text-gray-900 text-right"><%= p.mother_tongue.presence || "&mdash;".html_safe %></dd>
+                      </div>
+                      <div class="flex justify-between gap-4">
+                        <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.photo_consent_label") %></dt>
+                        <dd class="font-semibold text-right <%= p.user.photo_consent_accepted? ? 'text-green-700' : 'text-red-600' %>">
+                          <% if p.user.photo_consent_accepted? %>
+                            <%= t("courses.manage.photo_consent_yes", date: p.user.photo_consent_accepted_at.to_date.strftime("%d.%m.%Y")) %>
+                          <% else %>
+                            <%= t("courses.manage.photo_consent_no") %>
+                          <% end %>
+                        </dd>
+                      </div>
                       <div class="flex justify-between gap-4 pt-2 border-t border-gray-100">
                         <dt class="text-gray-400 font-medium shrink-0"><%= t("courses.manage.registration_status") %></dt>
                         <dd class="font-semibold text-right">
@@ -174,6 +198,13 @@
               </div>
 
               <% if current_user.admin? %>
+                <%= link_to participant_path(p),
+                      class: "flex items-center justify-center w-11 h-11 rounded-lg bg-gray-100 active:bg-gray-200 text-gray-600 shrink-0",
+                      aria: { label: t("courses.manage.full_profile_link") } do %>
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                  </svg>
+                <% end %>
                 <%= link_to edit_course_registration_path(reg),
                       class: "flex items-center justify-center w-11 h-11 rounded-lg bg-primary-50 active:bg-primary-100 text-primary-600 shrink-0",
                       aria: { label: t("courses.manage.edit_aria", name: p.first_name) } do %>

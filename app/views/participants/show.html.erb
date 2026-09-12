@@ -31,6 +31,14 @@
           <p class="text-sm font-medium text-gray-500"><%= t("participants.show.ahv_number") %></p>
           <p class="text-gray-900"><%= @participant.ahv_number.presence || "-" %></p>
         </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500"><%= t("participants.show.nationality") %></p>
+          <p class="text-gray-900"><%= @participant.nationality.presence || "-" %></p>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-gray-500"><%= t("participants.show.mother_tongue") %></p>
+          <p class="text-gray-900"><%= @participant.mother_tongue.presence || "-" %></p>
+        </div>
       </div>
     </div>
 
@@ -44,6 +52,22 @@
         <div>
           <p class="text-sm font-medium text-gray-500"><%= t("participants.show.phone_number") %></p>
           <p class="text-gray-900"><%= @participant.phone_number.presence || t("participants.show.not_provided") %></p>
+        </div>
+        <% if @participant.street.present? %>
+          <div>
+            <p class="text-sm font-medium text-gray-500"><%= t("participants.show.address") %></p>
+            <p class="text-gray-900"><%= "#{@participant.street} #{@participant.house_number}".strip %>, <%= "#{@participant.zip_code} #{@participant.city}".strip %></p>
+          </div>
+        <% end %>
+        <div>
+          <p class="text-sm font-medium text-gray-500"><%= t("participants.show.photo_consent_label") %></p>
+          <p class="<%= @participant.user.photo_consent_accepted? ? 'text-green-700' : 'text-red-600' %> font-medium">
+            <% if @participant.user.photo_consent_accepted? %>
+              <%= t("participants.show.photo_consent_yes", date: @participant.user.photo_consent_accepted_at.to_date.strftime("%d.%m.%Y")) %>
+            <% else %>
+              <%= t("participants.show.photo_consent_no") %>
+            <% end %>
+          </p>
         </div>
       </div>
     </div>
