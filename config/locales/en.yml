@@ -1063,6 +1063,9 @@ en:
       mark_present_aria: "Mark %{name} as present"
       status_present: "Present"
       no_participants: "No confirmed participants."
+      moved_away_title: "Meanwhile moved to another course"
+      moved_away_hint: "Attendance was recorded before the course change and stays visible here for documentation."
+      moved_away_note: "Now in: %{course}"
       waitlist_title: "Waitlist"
       waitlist_count:
         one: "1 person"

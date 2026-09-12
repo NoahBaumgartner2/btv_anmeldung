@@ -59,6 +59,31 @@ class TrainingSessionsControllerTest < ActionDispatch::IntegrationTest
     assert first_pos < second_pos, "Wartelisten-Reihenfolge stimmt nicht mit der Anmeldereihenfolge überein"
   end
 
+  test "show zeigt bereits erfasste Anwesenheit weiterhin an, wenn die Anmeldung inzwischen in einen anderen Kurs verschoben wurde" do
+    source_course = Course.new(title: "Verschoben Quelle", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    source_course.save!(validate: false)
+    session = source_course.training_sessions.create!(start_time: 1.day.ago, end_time: 1.day.ago + 1.hour, is_canceled: false)
+
+    target_course = Course.new(title: "Verschoben Ziel", registration_type: "semester", registration_mode: "semester",
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false)
+    target_course.save!(validate: false)
+
+    reg = CourseRegistration.new(course: source_course, participant: participants(:one), status: "bestätigt")
+    reg.save!(validate: false)
+    session.attendances.create!(course_registration_id: reg.id, status: "anwesend")
+
+    RegistrationMoveService.call(reg, target_course)
+
+    get training_session_url(session)
+
+    assert_response :success
+    assert_match participants(:one).first_name, @response.body,
+      "Bereits erfasste Anwesenheit muss trotz Kurswechsel sichtbar bleiben"
+    assert_match target_course.title, @response.body, "Zielkurs soll als Hinweis angezeigt werden"
+    assert_match I18n.t("training_sessions.show.status_present"), @response.body
+  end
+
   test "Schnupper-Anmeldung erscheint nur beim gewählten Training in der Präsenzkontrolle" do
     course = Course.new(
       title: "Schnupper-Präsenz", registration_type: "semester", registration_mode: "semester",

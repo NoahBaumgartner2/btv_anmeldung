@@ -1134,6 +1134,9 @@ de:
       mark_present_aria: "%{name} als anwesend markieren"
       status_present: "Anwesend"
       no_participants: "Keine bestätigten Teilnehmenden."
+      moved_away_title: "Inzwischen in anderen Kurs verschoben"
+      moved_away_hint: "Anwesenheit wurde vor dem Kurswechsel erfasst und bleibt hier zur Dokumentation sichtbar."
+      moved_away_note: "Jetzt in: %{course}"
       waitlist_title: "Warteliste"
       waitlist_count:
         one: "1 Person"

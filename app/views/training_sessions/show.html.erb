@@ -360,6 +360,39 @@
     <% end %>
   </div>
 
+  <%# ── Inzwischen verschoben (Anwesenheit bleibt zur Dokumentation sichtbar) ── %>
+  <% if @moved_away_registrations.any? %>
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mt-6">
+      <div class="px-5 py-4 border-b border-gray-100">
+        <h2 class="font-bold text-gray-900"><%= t("training_sessions.show.moved_away_title") %></h2>
+        <p class="text-xs text-gray-400 mt-0.5"><%= t("training_sessions.show.moved_away_hint") %></p>
+      </div>
+      <ul class="divide-y divide-gray-100">
+        <% @moved_away_registrations.each do |reg| %>
+          <% participant = reg.participant %>
+          <% attendance  = @attendances_by_reg_id[reg.id] %>
+          <% is_present  = !@training_session.is_canceled? && present_pred.call(attendance) %>
+          <li class="px-4 sm:px-5 py-4 flex items-center justify-between gap-3 opacity-70">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="h-11 w-11 shrink-0 rounded-full flex items-center justify-center font-bold text-sm bg-gray-100 text-gray-500">
+                <%= participant.first_name[0] %><%= participant.last_name[0] %>
+              </div>
+              <div class="min-w-0">
+                <p class="text-base font-bold text-gray-700 break-words leading-tight">
+                  <%= participant.first_name %> <%= participant.last_name %>
+                </p>
+                <p class="text-xs text-gray-400 mt-0.5"><%= t("training_sessions.show.moved_away_note", course: reg.course.title) %></p>
+              </div>
+            </div>
+            <span class="shrink-0 inline-flex items-center text-xs font-bold px-3 py-2 rounded-full <%= is_present ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' %>">
+              <%= is_present ? t("training_sessions.show.status_present") : t("training_sessions.show.status_absent") %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
   <%# ── Warteliste ─────────────────────────────────────────────────────── %>
   <% if @waitlist_registrations.any? %>
     <div class="bg-white border border-orange-200 rounded-xl shadow-sm overflow-hidden mt-6">
