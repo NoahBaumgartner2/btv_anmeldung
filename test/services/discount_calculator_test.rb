@@ -275,10 +275,10 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
   # ── Schnuppertraining verbraucht → dasselbe Rabattfenster, aber ab jetzt ─────
 
   test "nach verbrauchtem Schnuppertraining wird ab dem Umwandlungszeitpunkt gerechnet, nicht ab der alten Schnupper-Erstellung" do
-    # Rabattfenster = 10'000 / 1'000 + 1 = 11 Trainings, Kurs hat nur 3 - das ganze
-    # Fenster deckt den ganzen Kurs ab. created_at liegt absichtlich weit in der
-    # Vergangenheit (Schnupper-Anmeldung existiert schon lange); trotzdem muss ab
-    # jetzt gerechnet werden: nur das bereits vergangene Schnuppertraining zählt.
+    # created_at liegt absichtlich weit in der Vergangenheit (Schnupper-Anmeldung
+    # existiert schon lange); trotzdem muss ab jetzt gerechnet werden: 2 Trainings
+    # sind noch verbleibend (2 Tage/9 Tage in der Zukunft), unabhängig vom alten
+    # created_at der Schnupper-Anmeldung.
     course = make_course(discounts: false, training_value: 1_000)
     child  = make_participant(users(:one), first_name: "Anna")
     trial_session = make_session(course, start_time: 3.days.ago)
@@ -291,7 +291,8 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     reg.update_column(:created_at, 30.days.ago)
 
     result = DiscountCalculator.call(reg)
-    assert_equal 9_000, result[:price_cents] # 10'000 - 1 * 1'000 (nur das Schnuppertraining ist vergangen)
+    # 2 verbleibende Trainings, 1 gratis -> 1 * 1'000 = 1'000.
+    assert_equal 1_000, result[:price_cents]
     assert_equal "late_registration", result[:discount]
   end
 
@@ -310,50 +311,69 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
   end
 
   # ── Späteres Anmelden (Preisreduktion) ───────────────────────────────────────
+  #
+  # Modell: 1 verbleibendes Training ist gratis, jedes weitere verbleibende
+  # (zukünftige, nicht abgesagte) Training kostet training_value - aber nur,
+  # wenn das günstiger ist als der volle Kurspreis. Greift ausserdem nur,
+  # wenn der Kurs bereits läuft (mind. 1 Training schon stattgefunden hat).
 
-  test "ein bereits stattgefundenes Training reduziert den Preis (kurzer Kurs, Fenster ab erstem Training)" do
-    # Rabattfenster = 10'000 / 1'000 + 1 = 11 Trainings. Der Kurs hat nur 1 Training,
-    # das Fenster beginnt also beim ersten und einzigen Training.
+  test "nur noch das letzte (gratis) Training übrig -> Preis 0" do
     course = make_course(discounts: false, training_value: 1_000)
     child  = make_participant(users(:one), first_name: "Anna")
     make_session(course, start_time: 3.days.ago)
+    make_session(course, start_time: 2.days.from_now) # letztes verbleibendes Training
 
     result = DiscountCalculator.call(make_registration(course, child))
-    assert_equal 9_000, result[:price_cents]
+    assert_equal 0, result[:price_cents]
     assert_equal "late_registration", result[:discount]
   end
 
-  test "jedes vergangene Training im Rabattfenster wird abgezogen" do
-    # Rabattfenster = 11 Trainings, Kurs hat nur 3 - das ganze Fenster deckt den
-    # ganzen Kurs ab. Beide vergangenen Trainings zählen voll, das zukünftige nicht.
+  test "nur die verbleibenden Trainings zählen, nicht die bereits vergangenen" do
     course = make_course(discounts: false, training_value: 1_000)
     child  = make_participant(users(:one), first_name: "Anna")
     make_session(course, start_time: 10.days.ago)
     make_session(course, start_time: 3.days.ago)
-    make_session(course, start_time: 2.days.from_now) # noch nicht stattgefunden - zählt nicht
+    make_session(course, start_time: 2.days.from_now)
+    make_session(course, start_time: 9.days.from_now)
+    make_session(course, start_time: 16.days.from_now)
 
+    # 3 verbleibende Trainings, 1 gratis -> 2 * 1'000 = 2'000.
     result = DiscountCalculator.call(make_registration(course, child))
-    assert_equal 8_000, result[:price_cents] # 10'000 - 2 * 1'000
+    assert_equal 2_000, result[:price_cents]
     assert_equal "late_registration", result[:discount]
   end
 
-  test "abgesagte Trainings zählen nicht bei der Preisreduktion" do
+  test "abgesagte Trainings zählen nicht zu den verbleibenden Trainings" do
     course = make_course(discounts: false, training_value: 1_000)
     child  = make_participant(users(:one), first_name: "Anna")
-    make_session(course, start_time: 10.days.ago)
-    make_session(course, start_time: 5.days.ago, canceled: true)
     make_session(course, start_time: 3.days.ago)
+    make_session(course, start_time: 2.days.from_now, canceled: true)
+    make_session(course, start_time: 5.days.from_now)
+    make_session(course, start_time: 9.days.from_now)
+
+    # 2 verbleibende (nicht abgesagte) Trainings, 1 gratis -> 1 * 1'000 = 1'000.
+    result = DiscountCalculator.call(make_registration(course, child))
+    assert_equal 1_000, result[:price_cents]
+    assert_equal "late_registration", result[:discount]
+  end
+
+  test "keine Preisreduktion vor Kursbeginn, auch wenn die Rechnung rechnerisch günstiger wäre" do
+    # Kein Training hat bisher stattgefunden -> Kurs läuft noch nicht -> voller Preis,
+    # unabhängig davon ob (verbleibende - 1) * training_value günstiger wäre.
+    course = make_course(discounts: false, training_value: 1_000)
+    child  = make_participant(users(:one), first_name: "Anna")
+    make_session(course, start_time: 2.days.from_now)
 
     result = DiscountCalculator.call(make_registration(course, child))
-    assert_equal 8_000, result[:price_cents]
-    assert_equal "late_registration", result[:discount]
+    assert_equal 10_000, result[:price_cents]
+    assert_nil result[:discount]
   end
 
   test "keine Preisreduktion wenn allows_late_registration_deduction deaktiviert" do
     course = make_course(discounts: false, training_value: 1_000, allows_late_registration_deduction: false)
     child  = make_participant(users(:one), first_name: "Anna")
     make_session(course, start_time: 10.days.ago)
-    make_session(course, start_time: 3.days.ago)
+    make_session(course, start_time: 3.days.from_now)
 
     result = DiscountCalculator.call(make_registration(course, child))
     assert_equal 10_000, result[:price_cents]
@@ -364,17 +384,18 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     course = make_course(discounts: false, training_value: nil)
     child  = make_participant(users(:one), first_name: "Anna")
     make_session(course, start_time: 10.days.ago)
-    make_session(course, start_time: 3.days.ago)
+    make_session(course, start_time: 3.days.from_now)
 
     result = DiscountCalculator.call(make_registration(course, child))
     assert_equal 10_000, result[:price_cents]
     assert_nil result[:discount]
   end
 
-  test "Preisreduktion nie unter 0" do
-    course = make_course(discounts: false, price: 2_000, training_value: 1_000)
+  test "Preisreduktion nie unter 0, auch bei hohem Trainingswert" do
+    course = make_course(discounts: false, price: 2_000, training_value: 5_000)
     child  = make_participant(users(:one), first_name: "Anna")
-    5.times { |i| make_session(course, start_time: (10 - i).days.ago) }
+    make_session(course, start_time: 10.days.ago)
+    make_session(course, start_time: 3.days.from_now) # letztes verbleibendes Training
 
     result = DiscountCalculator.call(make_registration(course, child))
     assert_equal 0, result[:price_cents]
@@ -386,9 +407,11 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     child   = make_participant(users(:one), first_name: "Anna")
     sibling = make_participant(users(:one), first_name: "Ben")
     make_registration(course, sibling, status: "bestätigt")
-    make_session(course, start_time: 10.days.ago)
     make_session(course, start_time: 3.days.ago)
+    8.times { |i| make_session(course, start_time: (i + 1).days.from_now) }
 
+    # 8 verbleibende Trainings, 1 gratis -> 7 * 1'000 = 7'000 - teurer als der
+    # Geschwisterrabatt (6'000), der deshalb gewinnt.
     result = DiscountCalculator.call(make_registration(course, child))
     assert_equal 6_000, result[:price_cents]
     assert_equal "sibling", result[:discount]
