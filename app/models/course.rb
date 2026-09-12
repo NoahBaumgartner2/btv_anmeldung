@@ -150,28 +150,31 @@ class Course < ApplicationRecord
 
   # Abzug (in Rappen) für eine Anmeldung, die erst nach Kursstart erfolgt.
   #
-  # Berechnung: price_cents / training_value_cents (abgerundet) ergibt die
-  # Anzahl Trainings, die der Kurspreis abdeckt; +1, weil ein Training wie
-  # gratis mitgerechnet wird. Diese Anzahl bildet das Rabattfenster, gezählt
-  # vom Enddatum des Kurses rückwärts (bei kurzen Kursen mit weniger
-  # Trainings als Fensterbreite beginnt das Fenster einfach beim ersten
-  # Training). Ab dem ersten Training im Fenster greift sofort der erste
-  # Rabatt, ab dann ein Trainingswert weniger pro bereits vergangenem
-  # Training im Fenster - dadurch ist am Ende des Kurses das letzte
-  # Training faktisch gratis. Siehe DiscountCalculator, das dieselbe Methode
-  # für die tatsächliche Registration nutzt.
+  # Modell: 1 verbleibendes Training ist gratis, jedes weitere verbleibende
+  # Training kostet training_value_cents - aber nur, wenn das günstiger ist
+  # als der volle Kurspreis. Es wird also nicht schrittweise vom Kurspreis
+  # abgezogen, sondern der Preis für die noch ausstehenden Trainings direkt
+  # berechnet; "Abzug" ist hier nur die Differenz zum vollen Kurspreis, damit
+  # effective_price_cents (Kurspreis minus Abzug) unverändert weiterrechnen
+  # kann. Bleibt bei "verbleibende Trainings" der volle Kurspreis günstiger,
+  # ist der Abzug 0 - das deckt insbesondere den Normalfall vor Kursbeginn ab.
+  # Greift zusätzlich nur, wenn der Kurs bereits läuft (mind. 1 Training schon
+  # stattgefunden hat): sonst könnte die Rechnung theoretisch schon vor
+  # Kursstart einen Rabatt ergeben, was nicht der Sinn ist. Siehe
+  # DiscountCalculator, das dieselbe Methode für die tatsächliche
+  # Registration nutzt.
   def late_registration_deduction_cents(at: Time.current)
-    return 0 unless allows_late_registration_deduction? && training_value_cents.present? && training_value_cents.positive?
+    return 0 unless allows_late_registration_deduction? && training_value_cents.present? &&
+      training_value_cents.positive? && price_cents.present?
 
-    sessions = training_sessions.where(is_canceled: false).order(:start_time).to_a
-    return 0 if sessions.empty?
+    sessions = training_sessions.where(is_canceled: false)
+    return 0 unless sessions.where("start_time <= ?", at).exists?
 
-    deductible_units = price_cents.to_i / training_value_cents
-    window_size = deductible_units + 1
-    window = sessions.last(window_size)
+    remaining = sessions.where("start_time > ?", at).count
+    return 0 if remaining.zero?
 
-    passed_in_window = window.count { |s| s.start_time <= at }
-    passed_in_window * training_value_cents
+    remaining_price_cents = (remaining - 1) * training_value_cents
+    [ price_cents - remaining_price_cents, 0 ].max
   end
 
   # Der Preis, den ein *neuer* Teilnehmer aktuell zahlen würde (ohne

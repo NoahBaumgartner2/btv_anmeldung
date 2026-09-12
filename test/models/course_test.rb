@@ -426,53 +426,55 @@ class CourseTest < ActiveSupport::TestCase
   end
 
   # ── late_registration_deduction_cents / effective_price_display ─────────────
+  #
+  # Modell: 1 verbleibendes Training ist gratis, jedes weitere verbleibende
+  # (zukünftige, nicht abgesagte) Training kostet training_value_cents - aber
+  # nur, wenn das günstiger ist als der volle Kurspreis.
 
-  test "effective_price_display zeigt den vollen Preis ohne bereits vergangene Trainings" do
+  test "effective_price_display bleibt beim vollen Preis, wenn die Trainings-Rechnung teurer wäre" do
     course = Course.new(base_attrs.merge(has_payment: true, price_cents: 10_000, training_value_cents: 1_000,
       allows_late_registration_deduction: true))
     course.save!(validate: false)
+    12.times { |i| course.training_sessions.create!(start_time: (i + 1).days.from_now, end_time: (i + 1).days.from_now + 1.hour, is_canceled: false) }
 
+    # 12 verbleibende Trainings, 1 gratis -> 11 * 10.- = 110.-, teurer als der Kurspreis (100.-) -> voller Preis bleibt.
     assert_equal "CHF 100.00", course.effective_price_display
+    assert_equal 0, course.late_registration_deduction_cents
   end
 
-  test "effective_price_display reduziert den Preis pro vergangenem Training im Rabattfenster" do
-    # Rabattfenster = price_cents / training_value_cents + 1 = 10 + 1 = 11 Trainings,
-    # vom Enddatum rückwärts gezählt. Bei nur 2 Trainings total liegt der ganze Kurs
-    # im Fenster, beide vergangenen Trainings zählen also voll.
+  test "effective_price_display berechnet den Preis für die verbleibenden Trainings, wenn das günstiger ist" do
+    # Realer Fall: 200.- Kurs, 15.- pro Training, 12 Trainings stehen noch aus.
+    # 1 davon gratis -> 11 * 15.- = 165.-, günstiger als der Kurspreis (200.-).
+    course = Course.new(base_attrs.merge(has_payment: true, price_cents: 20_000, training_value_cents: 1_500,
+      allows_late_registration_deduction: true))
+    course.save!(validate: false)
+    5.times { |i| course.training_sessions.create!(start_time: (i + 1).days.ago, end_time: (i + 1).days.ago + 1.hour, is_canceled: false) }
+    12.times { |i| course.training_sessions.create!(start_time: (i + 1).days.from_now, end_time: (i + 1).days.from_now + 1.hour, is_canceled: false) }
+
+    assert_equal "CHF 165.00", course.effective_price_display
+    assert_equal 3_500, course.late_registration_deduction_cents
+  end
+
+  test "abgesagte und bereits vergangene Trainings zählen nicht zu den verbleibenden Trainings" do
     course = Course.new(base_attrs.merge(has_payment: true, price_cents: 10_000, training_value_cents: 1_000,
       allows_late_registration_deduction: true))
     course.save!(validate: false)
-    course.training_sessions.create!(start_time: 10.days.ago, end_time: 10.days.ago + 1.hour, is_canceled: false)
     course.training_sessions.create!(start_time: 3.days.ago, end_time: 3.days.ago + 1.hour, is_canceled: false)
+    course.training_sessions.create!(start_time: 2.days.from_now, end_time: 2.days.from_now + 1.hour, is_canceled: true)
+    course.training_sessions.create!(start_time: 5.days.from_now, end_time: 5.days.from_now + 1.hour, is_canceled: false)
 
-    assert_equal "CHF 80.00", course.effective_price_display
-    assert_equal 2_000, course.late_registration_deduction_cents
-  end
-
-  test "late_registration_deduction_cents zählt nur Trainings innerhalb des Rabattfensters vom Enddatum aus" do
-    # Rabattfenster = 10_000 / 5_000 + 1 = 3 Trainings. Bei 5 Trainings total beginnt
-    # das Fenster erst beim 3. Training - die ersten beiden zählen nie mit, egal wie
-    # weit sie in der Vergangenheit liegen.
-    course = Course.new(base_attrs.merge(has_payment: true, price_cents: 10_000, training_value_cents: 5_000,
-      allows_late_registration_deduction: true))
-    course.save!(validate: false)
-    [ 50, 40, 30, 20, 10 ].each do |days_ago|
-      course.training_sessions.create!(start_time: days_ago.days.ago, end_time: days_ago.days.ago + 1.hour, is_canceled: false)
-    end
-
-    # Nur Training 3, 4, 5 (die letzten 3) liegen im Fenster; alle sind vergangen.
-    assert_equal 15_000, course.late_registration_deduction_cents
-    assert_equal 0, course.effective_price_cents # gedeckelt, da Abzug > Preis
+    # Nur 1 zukünftiges, nicht abgesagtes Training zählt als "verbleibend" -> das ist das gratis Training.
+    assert_equal "CHF 0.00", course.effective_price_display
+    assert_equal 10_000, course.late_registration_deduction_cents
   end
 
   test "effective_price_display bleibt voller Preis wenn allows_late_registration_deduction deaktiviert ist" do
-    course = Course.new(base_attrs.merge(has_payment: true, price_cents: 10_000, training_value_cents: 1_000,
+    course = Course.new(base_attrs.merge(has_payment: true, price_cents: 20_000, training_value_cents: 1_500,
       allows_late_registration_deduction: false))
     course.save!(validate: false)
-    course.training_sessions.create!(start_time: 10.days.ago, end_time: 10.days.ago + 1.hour, is_canceled: false)
-    course.training_sessions.create!(start_time: 3.days.ago, end_time: 3.days.ago + 1.hour, is_canceled: false)
+    12.times { |i| course.training_sessions.create!(start_time: (i + 1).days.from_now, end_time: (i + 1).days.from_now + 1.hour, is_canceled: false) }
 
-    assert_equal "CHF 100.00", course.effective_price_display
+    assert_equal "CHF 200.00", course.effective_price_display
     assert_equal 0, course.late_registration_deduction_cents
   end
 
