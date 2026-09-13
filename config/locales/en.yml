@@ -628,6 +628,8 @@ en:
         export_profiles_desc: "Manage export templates"
         course_categories: "Course categories"
         course_categories_desc: "Send an email to an entire category"
+        supplementary_charges: "Supplementary charges"
+        supplementary_charges_desc: "Request an additional amount afterwards"
       table:
         course: "Course"
         category: "Category"

@@ -124,7 +124,7 @@
                               data-action="click->dropdown#openDialog"
                               data-dialog-id="dialog-talent-<%= reg.id %>"
                               class="block w-full text-left px-4 py-2.5 text-sm text-amber-600 hover:bg-amber-50 transition cursor-pointer">
-                        <%= reg.talent_flag? ? "⭐ Markierung entfernen" : "☆ Als Talent markieren" %>
+                        <%= reg.talent_flag? ? "Markierung entfernen" : "Als Talent markieren" %>
                       </button>
                     <% end %>
                     <% if reg.status != "storniert" && @course.registration_mode != "single_session" %>

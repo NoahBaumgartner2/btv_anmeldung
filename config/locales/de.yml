@@ -680,6 +680,8 @@ de:
         export_profiles_desc: "Export-Vorlagen verwalten"
         course_categories: "Kurskategorien"
         course_categories_desc: "E-Mail an eine ganze Kategorie versenden"
+        supplementary_charges: "Nachforderungen"
+        supplementary_charges_desc: "Zusätzlichen Betrag nachträglich verlangen"
       table:
         course: "Kurs"
         category: "Kategorie"
