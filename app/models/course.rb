@@ -19,6 +19,7 @@ class Course < ApplicationRecord
   has_many :training_sessions, dependent: :destroy
   has_many :course_access_grants, dependent: :destroy
   has_many :permitted_users, through: :course_access_grants, source: :user
+  has_many :age_exemptions, dependent: :destroy
 
   # Verfügbare Zahlungsmethoden (→ Anzeigenamen)
   PAYMENT_METHODS = {
@@ -95,11 +96,22 @@ class Course < ApplicationRecord
   # trotz Unterschreiten weiterhin mitmachen.
   def registration_blocked_by_age?(participant)
     return false unless age_restricted?
+    # Eine explizit erteilte Altersausnahme sticht die Prüfung immer (siehe
+    # AgeExemption / Admin::AgeExemptionsController): damit kann eine Person,
+    # die aus dem Vorgängerkurs herauswächst, im Vorrang-Fenster trotzdem
+    # weitermachen.
+    return false if age_exempt?(participant)
     return true unless participant&.date_of_birth
 
     return true if max_age.present? && participant.age_at(age_reference_date) > max_age
     return false unless min_age.present? && participant.age_at(min_age_reference_date) < min_age
     !previously_registered_in_previous_course?(participant)
+  end
+
+  # Wurde dieser Person für diesen Kurs eine Altersausnahme erteilt?
+  def age_exempt?(participant)
+    return false if participant.blank? || new_record?
+    age_exemptions.exists?(participant_id: participant.id)
   end
 
   def previously_registered_in_previous_course?(participant)
