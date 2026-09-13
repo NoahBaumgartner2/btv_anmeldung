@@ -44,6 +44,7 @@ Rails.application.routes.draw do
       post :krabbel_gym_statistik
     end
     resource :notification_preferences, only: [ :edit, :update ]
+    resources :supplementary_charges, only: [ :index, :new, :create ]
     resources :notifications, only: [ :index ] do
       member do
         get :preview
@@ -136,6 +137,14 @@ Rails.application.routes.draw do
   get  "/payments/success",                   to: "payments#success",          as: "payments_success"
   get  "/payments/cancel",                    to: "payments#cancel",           as: "payments_cancel"
   post "/webhooks/sumup",                     to: "sumup_webhooks#create"
+
+  # Nachforderungen (nachträgliche Zusatzbeträge, z.B. Rabatt-Korrekturen)
+  resources :supplementary_charges, only: [ :show ] do
+    member do
+      get :checkout
+      get :success
+    end
+  end
 
   resources :training_sessions do
     member do

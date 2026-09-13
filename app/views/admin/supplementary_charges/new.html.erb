@@ -1,0 +1,94 @@
+<div class="max-w-3xl mx-auto w-full">
+  <div class="mb-6">
+    <h1 class="font-bold text-2xl sm:text-3xl text-gray-900">Nachforderung erstellen</h1>
+    <p class="text-gray-500 text-sm mt-1">
+      Betrag, Kurs und Begründung gelten für ALLE unten ausgewählten Personen -
+      pro Person entsteht eine eigene Nachforderung samt individueller E-Mail.
+    </p>
+  </div>
+
+  <% if flash[:alert] %>
+    <div class="mb-5 bg-red-50 border border-red-200 text-red-800 text-sm rounded-xl px-4 py-3"><%= flash[:alert] %></div>
+  <% end %>
+
+  <%= form_with url: admin_supplementary_charges_path, method: :post, class: "space-y-6" do %>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+      <h2 class="font-bold text-gray-800">Angaben</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Betrag (CHF)</label>
+          <input type="text" name="amount" value="<%= params[:amount] %>" required
+                 placeholder="30.00"
+                 class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kurs</label>
+          <%= select_tag :course_id,
+                options_from_collection_for_select(@courses, :id, :title, params[:course_id]),
+                prompt: "Kurs wählen...",
+                required: true,
+                class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Beschreibung (erscheint auf der Quittung)</label>
+        <input type="text" name="description" value="<%= params[:description] %>" required
+               placeholder="z.B. Korrektur fälschlich angewendeter Rabatt Q4 2026"
+               class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Erklärtext für die E-Mail an die Eltern <span class="font-normal text-gray-400">(optional, aber empfohlen)</span></label>
+        <textarea name="explanation" rows="4"
+                  placeholder="z.B. Bei der Anmeldung wurde fälschlicherweise ein Geschwisterrabatt angewendet, der nicht zutrifft. Wir bitten dich, die Differenz von CHF 30.- nachträglich zu begleichen."
+                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"><%= params[:explanation] %></textarea>
+      </div>
+    </div>
+
+    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+      <h2 class="font-bold text-gray-800">Personen auswählen</h2>
+
+      <div class="flex gap-2">
+        <input type="text" name="q" value="<%= @q %>" placeholder="Name oder E-Mail suchen..."
+               class="flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+        <button type="submit" formaction="<%= new_admin_supplementary_charge_path %>" formmethod="get"
+                class="shrink-0 rounded-lg px-4 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-bold cursor-pointer transition">
+          Suchen
+        </button>
+      </div>
+
+      <% if @participants.any? %>
+        <ul class="divide-y divide-gray-100 border border-gray-100 rounded-lg overflow-hidden">
+          <% @participants.each do |p| %>
+            <li class="px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50">
+              <input type="checkbox" name="participant_ids[]" value="<%= p.id %>" id="participant_<%= p.id %>"
+                     <%= "checked" if @preselected_id.present? && p.id.to_s == @preselected_id.to_s %>
+                     class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+              <label for="participant_<%= p.id %>" class="flex-1 text-sm cursor-pointer">
+                <span class="font-semibold text-gray-900"><%= p.first_name %> <%= p.last_name %></span>
+                <span class="text-gray-400 ml-1"><%= p.user.email %></span>
+              </label>
+            </li>
+          <% end %>
+        </ul>
+      <% elsif @q.present? %>
+        <p class="text-sm text-gray-500 py-2">Keine Treffer für "<%= @q %>".</p>
+      <% else %>
+        <p class="text-sm text-gray-400 py-2">Mindestens 2 Zeichen eingeben und suchen.</p>
+      <% end %>
+    </div>
+
+    <div class="flex gap-3">
+      <button type="submit"
+              class="flex-1 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-3 px-4 rounded-xl text-sm transition cursor-pointer min-h-11"
+              data-turbo-confirm="Nachforderung(en) erstellen und Mails versenden?">
+        Nachforderung(en) erstellen &amp; Mails versenden
+      </button>
+      <%= link_to "Abbrechen", admin_supplementary_charges_path,
+            class: "flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl text-sm transition min-h-11" %>
+    </div>
+  <% end %>
+</div>

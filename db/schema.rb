@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_24_073509) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -354,6 +354,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_073509) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "supplementary_charges", force: :cascade do |t|
+    t.integer "amount_cents", null: false
+    t.bigint "course_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id"
+    t.text "description", null: false
+    t.text "explanation"
+    t.datetime "paid_at"
+    t.bigint "participant_id", null: false
+    t.string "status", default: "offen", null: false
+    t.string "sumup_checkout_id"
+    t.string "sumup_transaction_id"
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_supplementary_charges_on_course_id"
+    t.index ["created_by_id"], name: "index_supplementary_charges_on_created_by_id"
+    t.index ["participant_id"], name: "index_supplementary_charges_on_participant_id"
+    t.index ["status"], name: "index_supplementary_charges_on_status"
+    t.index ["sumup_checkout_id"], name: "index_supplementary_charges_on_sumup_checkout_id"
+  end
+
   create_table "terms", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.date "end_date"
@@ -469,6 +489,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_073509) do
   add_foreign_key "courses_holiday_types", "holiday_types"
   add_foreign_key "holidays", "holiday_types"
   add_foreign_key "participants", "users"
+  add_foreign_key "supplementary_charges", "courses"
+  add_foreign_key "supplementary_charges", "participants"
+  add_foreign_key "supplementary_charges", "users", column: "created_by_id"
   add_foreign_key "trainers", "participants", column: "self_participant_id"
   add_foreign_key "trainers", "users"
   add_foreign_key "training_sessions", "courses"

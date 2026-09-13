@@ -1,0 +1,12 @@
+Hallo <%= greeting_name(@recipient) %>,
+
+für <%= @participant.first_name %> <%= @participant.last_name %> (<%= @course.title %>) verlangen wir
+nachträglich noch einen zusätzlichen Betrag von <%= @charge.amount_display %>.
+
+<% if @charge.explanation.present? -%>
+<%= @charge.explanation %>
+
+<% end -%>
+Jetzt bezahlen: <%= @charge_url %>
+
+Bei Fragen wende dich an den Administrator.
