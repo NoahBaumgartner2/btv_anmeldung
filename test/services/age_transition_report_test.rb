@@ -108,4 +108,40 @@ class AgeTransitionReportTest < ActiveSupport::TestCase
     assert entry.exempt?
     assert_equal "Darf fertig machen", entry.exemption.note
   end
+
+  # ── .termless (Kurse ohne Zeitraum, z.B. Krabbelgym) ─────────────────────────
+
+  test "termless findet Personen, die HEUTE in einem termlosen Kurs zu alt sind" do
+    krabbel = make_course(title: "Krabbelgym", term: nil, max_age: 4, start_date: 1.year.ago.to_date)
+    zu_alt = make_participant(first_name: "Krabbel", dob: 5.years.ago.to_date - 1.month)
+    passt = make_participant(first_name: "Passt", dob: 3.years.ago.to_date)
+    enroll(krabbel, zu_alt)
+    enroll(krabbel, passt)
+
+    groups = AgeTransitionReport.termless
+    assert_equal 1, groups.size
+    group = groups.first
+    assert_equal krabbel, group.course
+    assert group.continuous?
+    assert_nil group.previous_course
+    assert_equal [ zu_alt.id ], group.entries.map { |e| e.participant.id }
+    assert group.entries.first.already_too_old
+  end
+
+  test "termless ignoriert Kurse, die einen Term haben" do
+    mit_term = make_course(title: "Mit Term", term: terms(:one), max_age: 4, start_date: Date.new(2026, 8, 17))
+    enroll(mit_term, make_participant(first_name: "Alt", dob: Date.new(2000, 1, 1)))
+
+    assert_empty AgeTransitionReport.termless
+  end
+
+  test "termless respektiert Altersausnahmen" do
+    krabbel = make_course(title: "Krabbelgym", term: nil, max_age: 4, start_date: 1.year.ago.to_date)
+    zu_alt = make_participant(first_name: "Krabbel", dob: 5.years.ago.to_date - 1.month)
+    enroll(krabbel, zu_alt)
+    AgeExemption.create!(participant: zu_alt, course: krabbel)
+
+    entry = AgeTransitionReport.termless.first.entries.first
+    assert entry.exempt?
+  end
 end

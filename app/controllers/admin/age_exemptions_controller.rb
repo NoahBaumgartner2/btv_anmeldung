@@ -15,6 +15,10 @@ module Admin
       @terms  = Term.order(start_date: :desc)
       @term   = params[:term_id].present? ? Term.find_by(id: params[:term_id]) : default_term
       @groups = AgeTransitionReport.for(@term)
+      # Kurse ohne Zeitraum (laufend, z.B. Krabbelgym) laufen nie ab und
+      # tauchen daher in keinem Zeitraum-Filter auf - trotzdem immer separat
+      # anzeigen, unabhängig von der Zeitraum-Auswahl oben.
+      @termless_groups = AgeTransitionReport.termless
     end
 
     def create
