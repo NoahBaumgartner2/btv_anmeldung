@@ -29,11 +29,12 @@
             termId: c.term_id, termName: c.term&.name, termStart: c.term&.start_date&.iso8601 }
         end
         registrations_data = CourseRegistration.where.not(status: "storniert")
-          .includes(participant: :user)
+          .includes(:course, participant: :user)
           .map do |r|
             p = r.participant
             { courseId: r.course_id, participantId: p.id,
-              name: "#{p.first_name} #{p.last_name}", email: p.user&.email }
+              name: "#{p.first_name} #{p.last_name}", email: p.user&.email,
+              paidAmount: (r.paid_amount_display if r.payment_cleared?) }
           end
       %>
       <div data-controller="course-picker"

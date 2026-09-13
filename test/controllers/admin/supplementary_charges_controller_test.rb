@@ -30,6 +30,14 @@ class Admin::SupplementaryChargesControllerTest < ActionDispatch::IntegrationTes
     assert_includes @response.body, @course.title
   end
 
+  test "new liefert den bereits bezahlten Betrag pro Person als Daten mit" do
+    @reg_one.update_columns(payment_cleared: true, applied_price_cents: 15_000)
+
+    get new_admin_supplementary_charge_path
+    assert_response :success
+    assert_includes @response.body, "CHF 150.00"
+  end
+
   test "new listet stornierte Anmeldungen nicht in den Teilnehmerdaten" do
     storniert = CourseRegistration.new(course: @course, participant: participants(:parent_only_child), status: "storniert")
     storniert.save!(validate: false)

@@ -108,6 +108,9 @@ export default class extends Controller {
           <span class="font-semibold text-gray-900">${this._esc(r.name)}</span>
           <span class="text-gray-400 ml-1">${this._esc(r.email || "")}</span>
         </label>
+        <span class="text-xs font-medium ${r.paidAmount ? "text-green-700" : "text-gray-400"} shrink-0">
+          ${r.paidAmount ? this._esc(r.paidAmount) + " bezahlt" : "nicht bezahlt"}
+        </span>
       </li>
     `).join("")
   }
