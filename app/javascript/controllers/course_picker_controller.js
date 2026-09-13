@@ -1,12 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Kaskadierende Kursauswahl: Zeitraum (Term) -> Kategorie -> Kurs.
-// Bekommt die vollständige Kursliste als JSON-Value (id, title, category,
-// termId, termName, termStart) und filtert client-seitig - kein Server-
-// Roundtrip nötig, da die Liste pro Verein überschaubar bleibt.
+// Kaskadierende Kursauswahl: Zeitraum (Term) -> Kategorie -> Kurs -> Teilnehmerliste.
+// Bekommt die vollständige Kursliste und alle (nicht stornierten) Anmeldungen
+// als JSON-Values und filtert client-seitig - kein Server-Roundtrip nötig, da
+// die Listen pro Verein überschaubar bleiben. Sobald ein Kurs gewählt ist,
+// zeigt participantsList genau dessen Teilnehmerliste zum Anhaken - bewusst
+// keine freie Personensuche, damit nur tatsächlich angemeldete Personen
+// ausgewählt werden können (siehe Admin::SupplementaryChargesController).
 export default class extends Controller {
-  static targets = ["termSelect", "categorySelect", "courseSelect"]
-  static values = { courses: Array, selectedCourseId: String }
+  static targets = ["termSelect", "categorySelect", "courseSelect", "participantsList"]
+  static values = { courses: Array, registrations: Array, selectedCourseId: String }
 
   connect() {
     this._buildTermOptions()
@@ -22,6 +25,10 @@ export default class extends Controller {
 
   onCategoryChange() {
     this._updateCourses()
+  }
+
+  onCourseChange() {
+    this._updateParticipants()
   }
 
   _preselectFromCourse() {
@@ -69,6 +76,40 @@ export default class extends Controller {
       '<option value="">Kurs wählen...</option>' +
       filtered.map(c => `<option value="${c.id}">${this._esc(c.title)}</option>`).join("")
     if (filtered.some(c => String(c.id) === current)) this.courseSelectTarget.value = current
+
+    this._updateParticipants()
+  }
+
+  _updateParticipants() {
+    const courseId = this.courseSelectTarget.value
+    if (!this.hasParticipantsListTarget) return
+
+    if (!courseId) {
+      this.participantsListTarget.innerHTML =
+        '<li class="px-4 py-3 text-sm text-gray-400">Zuerst einen Kurs auswählen.</li>'
+      return
+    }
+
+    const matches = this.registrationsValue
+      .filter(r => String(r.courseId) === courseId)
+      .sort((a, b) => a.name.localeCompare(b.name))
+
+    if (matches.length === 0) {
+      this.participantsListTarget.innerHTML =
+        '<li class="px-4 py-3 text-sm text-gray-400">Keine Teilnehmenden in diesem Kurs.</li>'
+      return
+    }
+
+    this.participantsListTarget.innerHTML = matches.map(r => `
+      <li class="px-4 py-2.5 flex items-center gap-3 hover:bg-gray-50">
+        <input type="checkbox" name="participant_ids[]" value="${r.participantId}" id="participant_${r.participantId}"
+               class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
+        <label for="participant_${r.participantId}" class="flex-1 text-sm cursor-pointer">
+          <span class="font-semibold text-gray-900">${this._esc(r.name)}</span>
+          <span class="text-gray-400 ml-1">${this._esc(r.email || "")}</span>
+        </label>
+      </li>
+    `).join("")
   }
 
   _esc(str) {

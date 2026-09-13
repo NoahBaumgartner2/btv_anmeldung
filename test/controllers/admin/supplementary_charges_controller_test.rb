@@ -9,6 +9,11 @@ class Admin::SupplementaryChargesControllerTest < ActionDispatch::IntegrationTes
     @course.price_cents = 15_000
     @course.save!(validate: false)
 
+    @reg_one = CourseRegistration.new(course: @course, participant: participants(:one), status: "bestätigt")
+    @reg_one.save!(validate: false)
+    @reg_two = CourseRegistration.new(course: @course, participant: participants(:two), status: "bestätigt")
+    @reg_two.save!(validate: false)
+
     sign_in users(:admin)
   end
 
@@ -18,17 +23,20 @@ class Admin::SupplementaryChargesControllerTest < ActionDispatch::IntegrationTes
     assert_redirected_to root_path
   end
 
-  test "new zeigt Suchtreffer bei gesetztem q" do
-    get new_admin_supplementary_charge_path(q: participants(:one).first_name)
+  test "new liefert die Teilnehmerliste des Kurses als Daten für die kaskadierende Auswahl" do
+    get new_admin_supplementary_charge_path
     assert_response :success
     assert_includes @response.body, participants(:one).first_name
+    assert_includes @response.body, @course.title
   end
 
-  test "new zeigt vorausgewählten Teilnehmer via participant_id-Param" do
-    get new_admin_supplementary_charge_path(participant_id: participants(:one).id)
+  test "new listet stornierte Anmeldungen nicht in den Teilnehmerdaten" do
+    storniert = CourseRegistration.new(course: @course, participant: participants(:parent_only_child), status: "storniert")
+    storniert.save!(validate: false)
+
+    get new_admin_supplementary_charge_path
     assert_response :success
-    assert_includes @response.body, participants(:one).first_name
-    assert_includes @response.body, "checked"
+    assert_no_match(/#{Regexp.escape(participants(:parent_only_child).first_name)}/, @response.body)
   end
 
   test "create erstellt für jede ausgewählte Person eine Nachforderung und verschickt Mails" do
@@ -53,6 +61,21 @@ class Admin::SupplementaryChargesControllerTest < ActionDispatch::IntegrationTes
     assert_equal users(:admin), charge.created_by
   end
 
+  test "create belastet nur Personen, die tatsächlich im gewählten Kurs angemeldet sind" do
+    fremd = participants(:parent_only_child) # nicht in @course angemeldet
+
+    assert_difference("SupplementaryCharge.count", 1) do
+      post admin_supplementary_charges_path, params: {
+        participant_ids: [ participants(:one).id, fremd.id ],
+        course_id:       @course.id,
+        amount:          "30.00",
+        description:     "Test"
+      }
+    end
+
+    assert_equal participants(:one), SupplementaryCharge.last.participant
+  end
+
   test "create ohne ausgewählte Personen zeigt Fehler und erstellt nichts" do
     assert_no_difference("SupplementaryCharge.count") do
       post admin_supplementary_charges_path, params: {
@@ -65,10 +88,10 @@ class Admin::SupplementaryChargesControllerTest < ActionDispatch::IntegrationTes
     assert_response :unprocessable_entity
   end
 
-  test "create mit ungültigen participant_ids zeigt Fehler statt zu crashen" do
+  test "create mit ausschliesslich nicht angemeldeten Personen zeigt Fehler statt zu crashen" do
     assert_no_difference("SupplementaryCharge.count") do
       post admin_supplementary_charges_path, params: {
-        participant_ids: [ 0 ],
+        participant_ids: [ participants(:parent_only_child).id ],
         course_id:       @course.id,
         amount:          "30.00",
         description:     "Test"
