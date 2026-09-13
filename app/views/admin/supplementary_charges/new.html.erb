@@ -16,21 +16,32 @@
     <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
       <h2 class="font-bold text-gray-800">Angaben</h2>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Betrag (CHF)</label>
-          <input type="text" name="amount" value="<%= params[:amount] %>" required
-                 placeholder="30.00"
-                 class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+      <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Betrag (CHF)</label>
+        <input type="text" name="amount" value="<%= params[:amount] %>" required
+               placeholder="30.00"
+               class="block w-full sm:w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+      </div>
+
+      <%
+        courses_data = @courses.map do |c|
+          { id: c.id, title: c.title, category: c.category,
+            termId: c.term_id, termName: c.term&.name, termStart: c.term&.start_date&.iso8601 }
+        end
+      %>
+      <div data-controller="course-picker"
+           data-course-picker-courses-value="<%= courses_data.to_json %>"
+           data-course-picker-selected-course-id-value="<%= params[:course_id] %>">
+        <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kurs</label>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <select data-course-picker-target="termSelect" data-action="change->course-picker#onTermChange"
+                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select>
+          <select data-course-picker-target="categorySelect" data-action="change->course-picker#onCategoryChange"
+                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select>
+          <select name="course_id" required data-course-picker-target="courseSelect"
+                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select>
         </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kurs</label>
-          <%= select_tag :course_id,
-                options_from_collection_for_select(@courses, :id, :title, params[:course_id]),
-                prompt: "Kurs wählen...",
-                required: true,
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
-        </div>
+        <p class="text-xs text-gray-400 mt-1">Zuerst Zeitraum, dann Kategorie eingrenzen - der Kurs wird entsprechend gefiltert.</p>
       </div>
 
       <div>

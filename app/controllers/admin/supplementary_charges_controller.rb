@@ -17,7 +17,7 @@ module Admin
     end
 
     def new
-      @courses = Course.order(title: :asc)
+      @courses = Course.includes(:term).order(title: :asc)
       @q = params[:q].to_s.strip
       @preselected_id = params[:participant_id].presence
       @participants = if @q.present?
@@ -30,7 +30,7 @@ module Admin
     end
 
     def create
-      @courses = Course.order(title: :asc)
+      @courses = Course.includes(:term).order(title: :asc)
       @q = params[:q].to_s.strip
       @participants = search_participants(@q)
 

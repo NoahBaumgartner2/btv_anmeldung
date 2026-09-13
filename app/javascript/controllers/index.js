@@ -29,6 +29,7 @@ import AutoSubmitController from "controllers/auto_submit_controller"
 import InputFormatController from "controllers/input_format_controller"
 import AddressSplitController from "controllers/address_split_controller"
 import TabsController from "controllers/tabs_controller"
+import CoursePickerController from "controllers/course_picker_controller"
 
 const application = Application.start()
 application.register("color-sync", ColorSyncController)
@@ -61,3 +62,4 @@ application.register("auto-submit", AutoSubmitController)
 application.register("input-format", InputFormatController)
 application.register("address-split", AddressSplitController)
 application.register("tabs", TabsController)
+application.register("course-picker", CoursePickerController)
