@@ -543,7 +543,7 @@ de:
       table_course: "Kurs"
       table_start_date: "Startdatum"
       table_status: "Status"
-      table_paid: "Bezahlt?"
+      table_paid: "Betrag"
       table_link: "Link"
       payment_cleared: "Bezahlt"
       payment_pending: "Ausstehend"
@@ -680,6 +680,8 @@ de:
         export_profiles_desc: "Export-Vorlagen verwalten"
         course_categories: "Kurskategorien"
         course_categories_desc: "E-Mail an eine ganze Kategorie versenden"
+        supplementary_charges: "Nachforderungen"
+        supplementary_charges_desc: "Zusätzlichen Betrag nachträglich verlangen"
       table:
         course: "Kurs"
         category: "Kategorie"

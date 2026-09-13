@@ -58,6 +58,13 @@ class DashboardsControllerTest < ActionDispatch::IntegrationTest
     course
   end
 
+  test "Kommandozentrale zeigt Link zu Nachforderungen in der Verwaltungs-Gruppe" do
+    sign_in users(:admin)
+    get dashboards_admin_path
+    assert_response :success
+    assert_select "a[href=?]", admin_supplementary_charges_path, /Nachforderungen/
+  end
+
   test "Kommandozentrale zeigt maximal 10 Kurse und einen Mehr-anzeigen-Link" do
     12.times { |i| make_dashboard_course(title: "Limit-Kurs #{i}", category: "Turnen", registration_mode: "semester") }
 

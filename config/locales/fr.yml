@@ -502,7 +502,7 @@ fr:
       table_course: "Cours"
       table_start_date: "Date de début"
       table_status: "Statut"
-      table_paid: "Payé ?"
+      table_paid: "Montant"
       table_link: "Lien"
       payment_cleared: "Payé"
       payment_pending: "En attente"
@@ -626,6 +626,8 @@ fr:
         export_profiles_desc: "Gérer les modèles d'export"
         course_categories: "Catégories de cours"
         course_categories_desc: "Envoyer un e-mail à toute une catégorie"
+        supplementary_charges: "Suppléments"
+        supplementary_charges_desc: "Demander un montant supplémentaire après coup"
       table:
         course: "Cours"
         category: "Catégorie"
