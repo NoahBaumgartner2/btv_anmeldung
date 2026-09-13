@@ -82,13 +82,22 @@
     # Bezahlter Gesamtbetrag pro Anmeldung: Kursbeitrag (falls bezahlt) plus
     # bereits bezahlte Nachforderungen (SupplementaryCharge) für denselben Kurs.
     # Offene Nachforderungen zählen separat, damit "bezahlt" nicht Ausstehendes
-    # vorspiegelt.
+    # vorspiegelt. Nachforderungen werden NUR der zuletzt erstellten Anmeldung
+    # pro Kurs zugerechnet, nicht jeder Zeile mit demselben course_id - sonst
+    # tauchen sie doppelt auf, sobald eine alte Anmeldung für denselben Kurs
+    # storniert wurde (z.B. nach einem Kurswechsel/erneuter Anmeldung).
+    latest_registration_id_by_course = @participant.course_registrations
+      .group_by(&:course_id)
+      .transform_values { |regs| regs.max_by(&:created_at)&.id }
+
     paid_total_for = ->(registration) {
-      charges = @supplementary_charges_by_course_id[registration.course_id] || []
       base = registration.payment_cleared? ? registration.paid_amount_cents.to_i : 0
+      next base unless latest_registration_id_by_course[registration.course_id] == registration.id
+      charges = @supplementary_charges_by_course_id[registration.course_id] || []
       base + charges.select(&:paid?).sum(&:amount_cents)
     }
     open_charge_total_for = ->(registration) {
+      next 0 unless latest_registration_id_by_course[registration.course_id] == registration.id
       charges = @supplementary_charges_by_course_id[registration.course_id] || []
       charges.select(&:payable?).sum(&:amount_cents)
     }

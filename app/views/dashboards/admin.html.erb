@@ -465,12 +465,8 @@
                 <p class="text-xs text-gray-500 shrink-0"><%= participant.date_of_birth&.strftime("%d.%m.%Y") || "&mdash;".html_safe %></p>
               </div>
               <p class="text-xs text-gray-400 mb-3 truncate"><%= participant.user.email %></p>
-              <div class="flex gap-2">
-                <%= link_to t("dashboards.admin.search.view_profile"), participant_path(participant),
-                      class: "flex-1 text-center text-primary-600 font-bold bg-primary-50 active:bg-primary-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
-                <%= link_to "Nachforderung", new_admin_supplementary_charge_path,
-                      class: "flex-1 text-center text-amber-700 font-bold bg-amber-50 active:bg-amber-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
-              </div>
+              <%= link_to t("dashboards.admin.search.view_profile"), participant_path(participant),
+                    class: "block w-full text-center text-primary-600 font-bold bg-primary-50 active:bg-primary-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
             </div>
           <% end %>
         </div>
@@ -497,11 +493,9 @@
                 <td class="py-3.5 px-4 text-sm text-gray-500">
                   <%= participant.user.email %>
                 </td>
-                <td class="py-3.5 px-4 text-right whitespace-nowrap">
+                <td class="py-3.5 px-4 text-right">
                   <%= link_to t("dashboards.admin.search.view_profile"), participant_path(participant),
                         class: "text-primary-600 font-bold hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-md text-sm" %>
-                  <%= link_to "Nachforderung", new_admin_supplementary_charge_path,
-                        class: "ml-2 text-amber-700 font-bold hover:text-amber-900 bg-amber-50 px-3 py-1.5 rounded-md text-sm" %>
                 </td>
               </tr>
             <% end %>

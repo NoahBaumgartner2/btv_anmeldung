@@ -28,7 +28,7 @@ class SupplementaryChargesController < ApplicationController
       currency:           ::SumupConfig.currency.upcase,
       checkout_reference: "supcharge-#{@charge.id}-#{Time.current.to_i}",
       merchant_code:      ::SumupConfig.merchant_code,
-      description:        "#{@charge.description} – #{@charge.participant.first_name} #{@charge.participant.last_name}",
+      description:        "#{@charge.description} – #{@charge.participant.first_name} #{@charge.participant.last_name} (#{@charge.course.title})",
       redirect_url:       success_supplementary_charge_url(@charge),
       hosted_checkout:    { enabled: true }
     }
