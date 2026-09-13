@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_13_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_13_160000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_140000) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "age_exemptions", force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "granted_by_id"
+    t.text "note"
+    t.bigint "participant_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_age_exemptions_on_course_id"
+    t.index ["granted_by_id"], name: "index_age_exemptions_on_granted_by_id"
+    t.index ["participant_id", "course_id"], name: "index_age_exemptions_unique_per_participant_course", unique: true
+    t.index ["participant_id"], name: "index_age_exemptions_on_participant_id"
   end
 
   create_table "attendances", force: :cascade do |t|
@@ -470,6 +483,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_13_140000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "age_exemptions", "courses"
+  add_foreign_key "age_exemptions", "participants"
+  add_foreign_key "age_exemptions", "users", column: "granted_by_id"
   add_foreign_key "attendances", "course_registrations"
   add_foreign_key "attendances", "course_registrations", column: "abo_makeup_registration_id"
   add_foreign_key "attendances", "training_sessions"

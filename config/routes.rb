@@ -45,6 +45,7 @@ Rails.application.routes.draw do
     end
     resource :notification_preferences, only: [ :edit, :update ]
     resources :supplementary_charges, only: [ :index, :new, :create ]
+    resources :age_exemptions, only: [ :index, :create, :destroy ]
     resources :notifications, only: [ :index ] do
       member do
         get :preview

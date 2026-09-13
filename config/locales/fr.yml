@@ -628,6 +628,8 @@ fr:
         course_categories_desc: "Envoyer un e-mail à toute une catégorie"
         supplementary_charges: "Suppléments"
         supplementary_charges_desc: "Demander un montant supplémentaire après coup"
+        age_exemptions: "Aperçu des âges"
+        age_exemptions_desc: "Qui dépasse la limite d'âge ? Accorder des dérogations"
       table:
         course: "Cours"
         category: "Catégorie"

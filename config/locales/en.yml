@@ -630,6 +630,8 @@ en:
         course_categories_desc: "Send an email to an entire category"
         supplementary_charges: "Supplementary charges"
         supplementary_charges_desc: "Request an additional amount afterwards"
+        age_exemptions: "Age overview"
+        age_exemptions_desc: "Who is ageing out of a course? Grant exemptions"
       table:
         course: "Course"
         category: "Category"

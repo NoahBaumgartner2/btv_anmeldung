@@ -682,6 +682,8 @@ de:
         course_categories_desc: "E-Mail an eine ganze Kategorie versenden"
         supplementary_charges: "Nachforderungen"
         supplementary_charges_desc: "Zusätzlichen Betrag nachträglich verlangen"
+        age_exemptions: "Altersübersicht"
+        age_exemptions_desc: "Wer wächst aus dem Kurs heraus? Ausnahmen erteilen"
       table:
         course: "Kurs"
         category: "Kategorie"

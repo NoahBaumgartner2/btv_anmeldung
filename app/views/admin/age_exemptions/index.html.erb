@@ -1,0 +1,128 @@
+<div class="max-w-5xl mx-auto w-full">
+
+  <div class="mb-6">
+    <h1 class="font-bold text-2xl sm:text-3xl text-gray-900">Altersübersicht</h1>
+    <p class="text-gray-500 text-sm mt-1">
+      Wer überschreitet im gewählten Zeitraum das Höchstalter? Mit einer Altersausnahme
+      darf sich die Person trotzdem neu anmelden - auch im Vorrang-Fenster für bisherige
+      Teilnehmende. Die Eltern werden dabei nicht automatisch benachrichtigt.
+    </p>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="mb-5 bg-green-50 border border-green-200 text-green-800 text-sm rounded-xl px-4 py-3"><%= flash[:notice] %></div>
+  <% end %>
+  <% if flash[:alert] %>
+    <div class="mb-5 bg-red-50 border border-red-200 text-red-800 text-sm rounded-xl px-4 py-3"><%= flash[:alert] %></div>
+  <% end %>
+
+  <%= form_with url: admin_age_exemptions_path, method: :get, class: "flex flex-col sm:flex-row gap-2 mb-6" do %>
+    <%= select_tag :term_id,
+          options_from_collection_for_select(@terms, :id, :name, @term&.id),
+          class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+    <button type="submit"
+            class="shrink-0 rounded-lg px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold cursor-pointer transition min-h-11">
+      Anzeigen
+    </button>
+  <% end %>
+
+  <% if @term.nil? %>
+    <div class="bg-white border border-gray-200 rounded-xl py-12 text-center">
+      <p class="text-sm text-gray-500">Noch keine Zeiträume erfasst.</p>
+    </div>
+  <% elsif @groups.empty? %>
+    <div class="bg-white border border-gray-200 rounded-xl py-12 text-center">
+      <p class="text-sm text-gray-500">
+        In <%= @term.name %> überschreitet niemand das Höchstalter.
+      </p>
+      <p class="text-xs text-gray-400 mt-1">
+        Kurse ohne gesetztes Höchstalter werden hier nicht berücksichtigt.
+      </p>
+    </div>
+  <% else %>
+    <% @groups.each do |group| %>
+      <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden mb-6">
+        <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+          <h2 class="font-bold text-gray-900"><%= group.course.title %></h2>
+          <p class="text-xs text-gray-500 mt-0.5">
+            Höchstalter <%= group.course.max_age %> Jahre
+            &middot; Stichtag <%= I18n.l(group.course.age_reference_date, format: :long) %>
+            <% if group.previous_course %>
+              &middot; Bestand aus &bdquo;<%= group.previous_course.title %>&ldquo;
+            <% end %>
+          </p>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-white">
+              <tr>
+                <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Person</th>
+                <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Geburtsdatum</th>
+                <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Alter am Stichtag</th>
+                <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Altersausnahme</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <% group.entries.each do |entry| %>
+                <% p = entry.participant %>
+                <tr class="hover:bg-gray-50 transition <%= "bg-green-50/40" if entry.exempt? %>">
+                  <td class="py-3.5 px-4 text-sm whitespace-nowrap">
+                    <%= link_to "#{p.last_name}, #{p.first_name}", participant_path(p),
+                          class: "font-semibold text-gray-900 hover:text-primary-700" %>
+                  </td>
+                  <td class="py-3.5 px-4 text-sm text-gray-600 whitespace-nowrap">
+                    <%= p.date_of_birth&.strftime("%d.%m.%Y") || "—" %>
+                  </td>
+                  <td class="py-3.5 px-4 text-sm text-gray-600 whitespace-nowrap">
+                    <%= entry.age_at_reference %> Jahre
+                  </td>
+                  <td class="py-3.5 px-4 text-sm whitespace-nowrap">
+                    <% if entry.already_too_old %>
+                      <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">War bereits zu alt</span>
+                    <% else %>
+                      <span class="px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Wird jetzt zu alt</span>
+                    <% end %>
+                  </td>
+                  <td class="py-3.5 px-4 text-right">
+                    <% if entry.exempt? %>
+                      <div class="flex flex-col items-end gap-1">
+                        <span class="inline-flex items-center gap-1 text-xs font-bold text-green-700">
+                          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                          Erteilt
+                        </span>
+                        <% if entry.exemption.note.present? %>
+                          <span class="text-xs text-gray-400 max-w-xs truncate" title="<%= entry.exemption.note %>"><%= entry.exemption.note %></span>
+                        <% end %>
+                        <%= button_to "Entfernen",
+                              admin_age_exemption_path(entry.exemption, term_id: @term.id),
+                              method: :delete,
+                              form: { data: { turbo_confirm: "Altersausnahme für #{p.first_name} #{p.last_name} entfernen?" } },
+                              class: "text-xs text-red-600 font-bold hover:text-red-800 cursor-pointer" %>
+                      </div>
+                    <% else %>
+                      <%= form_with url: admin_age_exemptions_path, method: :post,
+                            data: { turbo_confirm: "#{p.first_name} #{p.last_name} die Anmeldung trotz Höchstalter gestatten?" },
+                            class: "flex items-center justify-end gap-2" do %>
+                        <%= hidden_field_tag :participant_id, p.id %>
+                        <%= hidden_field_tag :course_id, group.course.id %>
+                        <%= hidden_field_tag :term_id, @term.id %>
+                        <input type="text" name="note" placeholder="Notiz (optional)"
+                               class="w-36 sm:w-44 rounded-lg border border-gray-300 px-2 py-1.5 text-xs shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <button type="submit"
+                                class="shrink-0 bg-amber-50 hover:bg-amber-100 text-amber-700 font-bold px-3 py-1.5 rounded-md text-sm transition cursor-pointer whitespace-nowrap">
+                          Ausnahme erteilen
+                        </button>
+                      <% end %>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>
