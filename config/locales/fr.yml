@@ -502,7 +502,7 @@ fr:
       table_course: "Cours"
       table_start_date: "Date de début"
       table_status: "Statut"
-      table_paid: "Payé ?"
+      table_paid: "Montant"
       table_link: "Lien"
       payment_cleared: "Payé"
       payment_pending: "En attente"

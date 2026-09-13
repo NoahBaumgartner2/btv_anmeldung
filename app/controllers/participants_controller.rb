@@ -79,6 +79,7 @@ class ParticipantsController < ApplicationController
   public
 
   def show
+    @supplementary_charges_by_course_id = SupplementaryCharge.where(participant_id: @participant.id).group_by(&:course_id)
   end
 
   def new
