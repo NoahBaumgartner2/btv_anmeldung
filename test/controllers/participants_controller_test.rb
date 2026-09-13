@@ -64,20 +64,23 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
     assert_includes @response.body, "CHF 5.00 offen"
   end
 
-  test "show rechnet bezahlte Nachforderung nur der zuletzt erstellten Anmeldung desselben Kurses zu" do
+  test "show rechnet bezahlte Nachforderung nur der aktiven Anmeldung desselben Kurses zu, auch wenn die stornierte neuer ist" do
     course = Course.new(title: "Kurswechsel-Kurs", registration_type: "semester",
       has_payment: true, has_ticketing: false, allows_holiday_deduction: false)
     course.price_cents = 15_000
     course.save!(validate: false)
 
-    storniert = CourseRegistration.new(course: course, participant: @participant,
-      status: "storniert", payment_cleared: true, applied_price_cents: 15_000, holiday_deduction_claimed: false)
-    storniert.save!(validate: false)
-    storniert.update_column(:created_at, 2.days.ago)
-
     aktiv = CourseRegistration.new(course: course, participant: @participant,
       status: "bestätigt", payment_cleared: true, applied_price_cents: 15_000, holiday_deduction_claimed: false)
     aktiv.save!(validate: false)
+    aktiv.update_column(:created_at, 2.days.ago)
+
+    # Stornierte Anmeldung ist NEUER als die aktive (z.B. ein gescheiterter
+    # zweiter Anmeldeversuch) - trotzdem muss die Nachforderung der aktiven
+    # zugerechnet werden, nicht der stornierten.
+    storniert = CourseRegistration.new(course: course, participant: @participant,
+      status: "storniert", payment_cleared: true, applied_price_cents: 15_000, holiday_deduction_claimed: false)
+    storniert.save!(validate: false)
 
     SupplementaryCharge.create!(participant: @participant, course: course,
       amount_cents: 3_000, description: "Korrektur", status: "bezahlt", paid_at: Time.current)
