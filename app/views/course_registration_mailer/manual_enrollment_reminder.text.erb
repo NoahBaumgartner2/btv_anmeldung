@@ -1,0 +1,28 @@
+Hallo <%= greeting_name(@recipient) %>,
+
+<%= @participant.first_name %> <%= @participant.last_name %> wurde vor einer Weile für den Kurs "<%= @course.title %>" angemeldet.
+<% if @account_missing && @payment_missing -%>
+Es fehlt noch die Einrichtung deines Kontos und die Zahlung dafür.
+<% elsif @account_missing -%>
+Es fehlt noch die Einrichtung deines Kontos.
+<% else -%>
+Es fehlt noch die Zahlung dafür.
+<% end -%>
+
+<% if @account_missing -%>
+Konto einrichten (Passwort setzen): <%= new_user_password_url %>
+<% end -%>
+<% if @payment_missing -%>
+Betrag: <%= @price_display %>
+<% if @account_missing -%>
+Bitte richte zuerst dein Konto ein, danach kannst du die Zahlung über dein Profil abschliessen.
+<% else -%>
+Jetzt bezahlen: <%= checkout_registration_url(@course_registration) %>
+<% end -%>
+<% end -%>
+
+Falls das bereits erledigt ist, kannst du diese E-Mail ignorieren.
+Bei Fragen wende dich bitte direkt an uns.
+
+---
+Diese E-Mail wurde automatisch vom BTV Anmeldungssystem versendet.

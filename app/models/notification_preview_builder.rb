@@ -154,6 +154,13 @@ class NotificationPreviewBuilder
       PaymentReminderMailer.reminder(fake_registration(status: "ausstehend", payment_cleared: false, payment_reminder_count: 1))
     end
 
+    def manual_enrollment_reminder
+      CourseRegistrationMailer.manual_enrollment_reminder(
+        fake_registration(status: "bestätigt", payment_cleared: false),
+        account_missing: true, payment_missing: true
+      )
+    end
+
     def refund_failed_notice
       CourseRegistrationMailer.refund_failed_notice(fake_registration(status: "storniert"), fake_admin, "SumUp: Verbindung fehlgeschlagen", 15_000)
     end
