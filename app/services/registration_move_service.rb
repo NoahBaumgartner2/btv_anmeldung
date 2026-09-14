@@ -9,6 +9,16 @@
 #   - Warteliste des Quellkurses nachrücken lassen
 # Eine Preisdifferenz wird NICHT automatisch erstattet/nachbelastet, sondern als
 # Hinweis an den Admin zurückgegeben (price_diff_cents).
+#
+# WICHTIG: Ist die Anmeldung bereits bezahlt (payment_cleared), bleibt
+# applied_price_cents/applied_discount unverändert — das ist der historische
+# Beleg über den tatsächlich kassierten Betrag (Quittung, "Angemeldete Kurse"-
+# Übersicht). Ihn bei jedem Verschieben stillschweigend auf den neu berechneten
+# Preis zu überschreiben hieße, eine bereits kassierte Zahlung nachträglich
+# "unsichtbar" zu machen, ohne dass Geld tatsächlich fliesst (siehe Fall
+# Husemann: Anzeige zeigte 120.- an, obwohl 150.- kassiert wurden). Der Admin
+# bekommt den price_diff_cents-Hinweis trotzdem, um manuell zu erstatten/
+# nachzufordern.
 class RegistrationMoveService
   Result = Struct.new(:moved, :from_course, :to_course, :new_status,
                       :price_diff_cents, :reason, keyword_init: true)
@@ -22,26 +32,34 @@ class RegistrationMoveService
 
     old_session_id  = registration.training_session_id
     old_price_cents = registration.paid_amount_cents.to_i
+    pricing = nil
 
     target_course.with_lock do
       registration.reload
+      already_paid = registration.payment_cleared?
       registration.course = target_course
       pricing = DiscountCalculator.call(registration)
 
-      registration.update!(
+      attrs = {
         course_id:           target_course.id,
         training_session_id: nil,
         trial_session_id:    nil,
-        status:              capacity_status(target_course, registration),
-        applied_price_cents: pricing[:price_cents],
-        applied_discount:    pricing[:discount]
-      )
+        status:              capacity_status(target_course, registration)
+      }
+      unless already_paid
+        attrs[:applied_price_cents] = pricing[:price_cents]
+        attrs[:applied_discount]    = pricing[:discount]
+      end
+
+      registration.update!(**attrs)
     end
 
     # Auf dem Quellkurs ggf. den nächsten Wartelistenplatz nachrücken.
     WaitlistPromotionService.promote_next_from_waitlist(from_course, training_session_id: old_session_id)
 
-    price_diff = registration.paid_amount_cents.to_i - old_price_cents
+    # Hinweis für den Admin basiert immer auf dem neu berechneten Preis, auch
+    # wenn er (weil bereits bezahlt) nicht gespeichert wurde.
+    price_diff = pricing[:price_cents] - old_price_cents
 
     Rails.logger.info(
       "[RegistrationMoveService] Registration #{registration.id} verschoben von " \
