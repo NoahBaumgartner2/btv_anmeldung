@@ -308,6 +308,28 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       "Schnupper-Button soll bei anderer Kategorie erscheinen"
   end
 
+  test "Schnupper-Button erscheint auch ohne requires_ahv_number (z.B. Erwachsenenkurse wie Pilates/Pickleball)" do
+    parent = users(:parent_only)
+
+    course = Course.new(
+      title: "Pilates Erwachsene", category: "Pilates",
+      registration_type: "semester", registration_mode: "semester",
+      allows_trial: true, requires_ahv_number: false,
+      has_payment: false, has_ticketing: false, allows_holiday_deduction: false
+    )
+    course.save!(validate: false)
+    course.training_sessions.create!(
+      start_time: 10.days.from_now, end_time: 10.days.from_now + 1.hour, is_canceled: false
+    )
+
+    sign_in parent
+    get course_url(course)
+
+    assert_response :success
+    assert_includes response.body, "trial=true",
+      "Schnupper-Button soll unabhaengig von requires_ahv_number erscheinen - AHV ist eine J+S-Meldepflicht, keine Schnupper-Voraussetzung"
+  end
+
   test "Schnupper-Button fehlt bei Kurs derselben Kategorie" do
     parent = users(:parent_only)
     participant = participants(:parent_only_child)
