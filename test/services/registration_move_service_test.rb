@@ -7,14 +7,14 @@ class RegistrationMoveServiceTest < ActiveSupport::TestCase
     @to   = build_course("KutuPlus Jr.", "KutuPlus Jr.", price_cents: 12000)
   end
 
-  test "verschiebt kategorienübergreifend, resettet Session und rechnet Preis neu" do
+  test "verschiebt kategorienübergreifend, resettet Session und rechnet Preis neu, wenn noch nicht bezahlt" do
     session = TrainingSession.new(course: @from,
       start_time: 1.week.from_now, end_time: 1.week.from_now + 1.hour, is_canceled: false)
     session.save!(validate: false)
 
     reg = CourseRegistration.new(course: @from, participant: @participant, status: "bestätigt",
       training_session_id: session.id, applied_price_cents: 15000,
-      payment_cleared: true, holiday_deduction_claimed: false)
+      payment_cleared: false, holiday_deduction_claimed: false)
     reg.save!(validate: false)
 
     result = RegistrationMoveService.call(reg, @to, actor: users(:admin))
@@ -26,6 +26,22 @@ class RegistrationMoveServiceTest < ActiveSupport::TestCase
     assert_equal 12000, reg.applied_price_cents
     assert_equal "bestätigt", reg.status
     assert_equal(-3000, result.price_diff_cents)
+  end
+
+  test "bereits bezahlte Anmeldung behält applied_price_cents als Beleg, Preisdifferenz nur als Hinweis" do
+    reg = CourseRegistration.new(course: @from, participant: @participant, status: "bestätigt",
+      applied_price_cents: 15000, payment_cleared: true, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+
+    result = RegistrationMoveService.call(reg, @to, actor: users(:admin))
+
+    assert result.moved
+    reg.reload
+    assert_equal @to.id, reg.course_id
+    assert_equal 15000, reg.applied_price_cents,
+      "tatsächlich kassierter Betrag darf durch ein Verschieben nicht überschrieben werden (Fall Husemann)"
+    assert_equal(-3000, result.price_diff_cents,
+      "Admin muss trotzdem den Hinweis auf die Preisdifferenz bekommen, um manuell zu erstatten")
   end
 
   test "voller Zielkurs setzt den Status auf warteliste" do
