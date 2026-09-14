@@ -170,7 +170,7 @@
       <% is_full = @course.full? %>
       <%
         show_semester_trial_button = false
-        if user_signed_in? && !current_user.admin? && @course.allows_trial? && @course.requires_ahv_number? && current_user.participants.any?
+        if user_signed_in? && !current_user.admin? && @course.allows_trial? && current_user.participants.any?
           show_semester_trial_button = current_user.participants.any? { |p| !p.ever_trialed_in_category?(@course.category) }
         end
       %>
@@ -207,7 +207,7 @@
       %>
       <%
         show_trial_button = false
-        if user_signed_in? && !current_user.admin? && @course.allows_trial? && @course.requires_ahv_number? && current_user.participants.any?
+        if user_signed_in? && !current_user.admin? && @course.allows_trial? && current_user.participants.any?
           show_trial_button = current_user.participants.any? { |p| !p.ever_trialed_in_category?(@course.category) }
         end
       %>
