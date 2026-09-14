@@ -1608,6 +1608,10 @@ de:
         name: "Zahlungserinnerung"
         description: "Erinnerung an eine noch offene Zahlung."
         recipient: "Eltern der betroffenen Anmeldung"
+      manual_enrollment_reminder:
+        name: "Erinnerung nach manueller Anmeldung"
+        description: "Wird 7 Tage nach einer manuellen Anmeldung durch Admin/Trainer verschickt, falls Konto und/oder Zahlung noch fehlen."
+        recipient: "Eltern der betroffenen Anmeldung"
       refund_failed_notice:
         name: "Rückerstattung fehlgeschlagen"
         description: "Warnt Admins, wenn eine automatische Rückerstattung technisch fehlgeschlagen ist."

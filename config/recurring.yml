@@ -40,3 +40,9 @@ production:
     queue: default
     schedule: "0 16 * * *"
     description: "Erstellt automatisch den nächsten Semester-/Quartal-Kurs, sobald der Vorlauf erreicht ist"
+
+  manual_enrollment_reminder:
+    class: ManualEnrollmentReminderJob
+    queue: default
+    schedule: "0 9 * * *"
+    description: "Erinnert Familien 7 Tage nach manueller Anmeldung durch Admin/Trainer, falls Konto und/oder Zahlung noch fehlen"

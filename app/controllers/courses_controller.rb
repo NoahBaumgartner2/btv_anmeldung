@@ -692,7 +692,8 @@ class CoursesController < ApplicationController
         status: status,
         training_session: training_session,
         payment_cleared: false,
-        holiday_deduction_claimed: false
+        holiday_deduction_claimed: false,
+        manually_enrolled: true
       )
 
       if @course.abo?
@@ -787,7 +788,8 @@ class CoursesController < ApplicationController
             trial_session: trial_session,
             training_session_id: training_session_id_for_capacity,
             payment_cleared: false,
-            holiday_deduction_claimed: false
+            holiday_deduction_claimed: false,
+            manually_enrolled: true
           )
           reg.save(validate: false)
         end

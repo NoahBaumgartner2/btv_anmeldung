@@ -369,4 +369,22 @@ class CourseRegistrationMailer < ApplicationMailer
 
     mail(to: @recipient.email, subject: subject)
   end
+
+  # Erinnerung 7 Tage nach manueller Anmeldung durch Admin/Trainer (siehe
+  # ManualEnrollmentReminderJob), falls die Familie weder ihr Konto
+  # eingerichtet noch - falls nötig - bezahlt hat.
+  def manual_enrollment_reminder(course_registration, account_missing:, payment_missing:)
+    @course_registration = course_registration
+    @course = course_registration.course
+    @participant = course_registration.participant
+    @recipient = @participant.user
+    @account_missing = account_missing
+    @payment_missing = payment_missing
+    @price_display = @payment_missing ? "CHF #{format('%.2f', DiscountCalculator.call(course_registration)[:price_cents] / 100.0)}" : nil
+    return if @recipient.nil?
+
+    return unless MailSetting.mail_enabled?(:manual_enrollment_reminder)
+
+    mail(to: @recipient.email, subject: "Erinnerung: Anmeldung für #{@course.title}")
+  end
 end

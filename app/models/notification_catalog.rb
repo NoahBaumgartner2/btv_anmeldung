@@ -56,6 +56,7 @@ class NotificationCatalog
     entry(key: "trial_expired",            category: "payment", toggleable: true, preview_method: :trial_expired),
     entry(key: "payment_receipt",          category: "payment", toggleable: true, preview_method: :payment_receipt),
     entry(key: "payment_reminder",         category: "payment", toggleable: true, preview_method: :payment_reminder),
+    entry(key: "manual_enrollment_reminder", category: "payment", toggleable: true, preview_method: :manual_enrollment_reminder),
     entry(key: "refund_failed_notice",     category: "payment", toggleable: true, preview_method: :refund_failed_notice, scope: :global_and_personal),
     entry(key: "admin_refund_done_notice", category: "payment", toggleable: true, preview_method: :admin_refund_done_notice, scope: :global_and_personal),
 
