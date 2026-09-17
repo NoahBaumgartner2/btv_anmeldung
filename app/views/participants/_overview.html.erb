@@ -8,8 +8,12 @@
         session =
           if reg.trial?
             reg.trial_session
-          elsif reg.course.registration_mode == "single_session"
+          elsif reg.abo_booking? || reg.course.registration_mode == "single_session"
             reg.training_session
+          elsif reg.course.abo?
+            # Der Abo-Pass selbst ist keine einzelne Session – seine gebuchten
+            # Termine erscheinen als eigene abo_booking?-Registrierungen (s.o.).
+            nil
           else
             (@upcoming_by_course[reg.course_id] || []).first
           end
