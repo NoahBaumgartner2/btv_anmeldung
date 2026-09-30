@@ -332,10 +332,9 @@ fr:
       move_modal_title: "Déplacer %{name}"
       move_modal_hint: "Choisissez le cours cible – le changement de catégorie est autorisé. L'affectation de séance et le prix sont réinitialisés / recalculés."
       move_target_label: "Cours cible"
-      move_target_prompt: "Choisir un cours …"
+      move_term_label: "Période"
       move_submit: "Déplacer"
       move_cancel: "Annuler"
-      move_no_category: "Sans catégorie"
     generate_trainings:
       back: "← Retour à la gestion du cours"
       title: "Générer les entraînements"

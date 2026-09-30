@@ -332,10 +332,9 @@ en:
       move_modal_title: "Move %{name}"
       move_modal_hint: "Choose the target course – cross-category moves are allowed. Session assignment and price are reset / recalculated."
       move_target_label: "Target course"
-      move_target_prompt: "Select course …"
+      move_term_label: "Period"
       move_submit: "Move"
       move_cancel: "Cancel"
-      move_no_category: "No category"
     generate_trainings:
       back: "← Back to Management"
       title: "Generate Training Sessions"

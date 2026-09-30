@@ -636,8 +636,14 @@ class CoursesController < ApplicationController
     # Von `manage` sowie jedem Fehlerpfad benötigt, der die manage-View erneut
     # rendert (siehe manual_enroll_form_error und den Teilnehmer-Save-Fehler unten).
     def set_manage_view_ivars
-      # Zielkurse für die Admin-Verschiebe-Funktion (alle Kurse, kategorienübergreifend).
-      @move_target_courses = Course.order(:category, :title).to_a if current_user&.admin?
+      # Zielkurse für die Admin-Verschiebe-Funktion (alle Kurse, kategorien- und
+      # zeitraumübergreifend) im Format des course_picker-Stimulus-Controllers.
+      if current_user&.admin?
+        @move_target_courses = Course.includes(:term).order(:category, :title).map do |c|
+          { id: c.id, title: c.title, category: c.category,
+            termId: c.term_id, termName: c.term&.name, termStart: c.term&.start_date&.iso8601 }
+        end
+      end
       @trial_sessions = if @course.allows_trial?
         @course.training_sessions.where(is_canceled: false).not_past.order(:start_time)
       else

@@ -373,10 +373,9 @@ de:
       move_modal_title: "%{name} verschieben"
       move_modal_hint: "Wähle den Zielkurs – auch kategorienübergreifend möglich. Session-Zuordnung und Preis werden zurückgesetzt bzw. neu berechnet."
       move_target_label: "Zielkurs"
-      move_target_prompt: "Kurs auswählen …"
+      move_term_label: "Zeitraum"
       move_submit: "Verschieben"
       move_cancel: "Abbrechen"
-      move_no_category: "Ohne Kategorie"
     generate_trainings:
       back: "← Zurück zur Kursverwaltung"
       title: "Trainings generieren"

@@ -364,6 +364,12 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     get manage_course_url(@course)
     assert_response :success
     assert_includes response.body, I18n.t("courses.manage.move_button")
+
+    # Zielkurse als course_picker-JSON (Zeitraum-Umschalter), ohne den eigenen Kurs
+    picker = Nokogiri::HTML(response.body).at_css("[data-course-picker-courses-value]")
+    ids = JSON.parse(picker["data-course-picker-courses-value"]).map { |c| c["id"] }
+    assert_not_includes ids, @course.id
+    assert_includes ids, courses(:two).id
   end
 
   # ── Admin: manuelle Schnuppern-Anmeldung ────────────────────────────────
