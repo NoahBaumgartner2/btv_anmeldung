@@ -103,6 +103,24 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
     end
   end
 
+  test "roll_over! übernimmt die Warteliste in Reihenfolge, ohne Bestätigte und idempotent" do
+    course = make_course
+    CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt").save!(validate: false)
+    later = CourseRegistration.new(course: course, participant: participants(:two), status: "warteliste", created_at: 1.day.ago)
+    later.save!(validate: false)
+    first = CourseRegistration.new(course: course, participant: participants(:parent_only_child), status: "warteliste", created_at: 2.days.ago)
+    first.save!(validate: false)
+
+    new_course = travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
+    waitlist = new_course.course_registrations.order(:created_at)
+
+    assert_equal [ participants(:parent_only_child).id, participants(:two).id ], waitlist.map(&:participant_id)
+    assert waitlist.all? { |r| r.status == "warteliste" }
+
+    CourseRolloverService.new(course).copy_waitlist(new_course)
+    assert_equal 2, new_course.course_registrations.count
+  end
+
   test "roll_over! schickt pro Teilnehmer nur eine Mail, auch bei mehreren aktiven Registrierungen" do
     # index_course_registrations_unique_active erlaubt Duplikate, sobald eine
     # Registrierung an ein Training gebunden ist (z.B. Schnuppertermine) —

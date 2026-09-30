@@ -33,11 +33,34 @@ class CourseRolloverService
 
       copy_trainers(new_course)
       generate_sessions(new_course)
+      copy_waitlist(new_course)
     end
 
     notify_previous_participants(new_course)
 
     new_course
+  end
+
+  # Übernimmt die Warteliste des alten Kurses in den Nachfolge-Kurs, damit
+  # die Kinder nach Ablauf des alten Kurses nicht aus der Verwaltung
+  # verschwinden. Reihenfolge bleibt erhalten (waitlist_position basiert auf
+  # created_at). Bewusst still (keine Mail) und ohne Nachrücken: der neue Kurs
+  # ist zum Rollover-Zeitpunkt leer, ein Hochstufen würde die Warteliste vor
+  # die bisherigen Teilnehmenden (Vorrang-Fenster) setzen. Session-gebundene
+  # Wartelisten (Drop-In) beziehen sich auf alte Trainings und fallen weg.
+  # Idempotent - auch als Backfill für bereits erstellte Nachfolge-Kurse nutzbar.
+  def copy_waitlist(new_course)
+    taken = new_course.course_registrations.where.not(status: "storniert").pluck(:participant_id)
+    @course.course_registrations.where(status: "warteliste", training_session_id: nil).order(:created_at).each do |reg|
+      next if taken.include?(reg.participant_id)
+
+      # validate: false - ein fehlendes Pflichtfeld soll den Wartelistenplatz nicht still verwerfen
+      new_course.course_registrations.new(
+        participant_id: reg.participant_id, status: "warteliste", created_at: reg.created_at,
+        manually_enrolled: reg.manually_enrolled, talent_flag: reg.talent_flag, talent_note: reg.talent_note
+      ).save!(validate: false)
+      taken << reg.participant_id
+    end
   end
 
   private
