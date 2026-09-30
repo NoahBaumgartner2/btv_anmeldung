@@ -287,8 +287,6 @@
                 </div>
                 <% if current_user.admin? %>
                   <%# Verschieben modal (kategorienübergreifend) %>
-                  <% move_targets = (@move_target_courses || []).reject { |c| c.id == reg.course_id } %>
-                  <% move_grouped = move_targets.group_by { |c| c.category.presence || t("courses.manage.move_no_category") } %>
                   <div data-controller="modal">
                     <div id="dialog-move-<%= reg.id %>"
                          data-modal-target="dialog"
@@ -307,11 +305,16 @@
                         <%= form_with url: move_course_registration_path(reg), method: :post, data: { turbo: false }, class: "space-y-4" do %>
                           <div>
                             <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t("courses.manage.move_target_label") %></label>
-                            <%= select_tag :target_course_id,
-                                  grouped_options_for_select(move_grouped.transform_values { |cs| cs.map { |c| [ c.title, c.id ] } }),
-                                  prompt: t("courses.manage.move_target_prompt"),
-                                  required: true,
-                                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+                            <div data-controller="course-picker"
+                                 data-course-picker-courses-value="<%= (@move_target_courses || []).reject { |c| c[:id] == reg.course_id }.to_json %>"
+                                 data-course-picker-selected-term-id-value="<%= reg.course.term_id %>"
+                                 class="grid grid-cols-1 gap-2">
+                              <select data-course-picker-target="termSelect" data-action="change->course-picker#onTermChange"
+                                      aria-label="<%= t("courses.manage.move_term_label") %>"
+                                      class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select>
+                              <select name="target_course_id" required data-course-picker-target="courseSelect"
+                                      class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select>
+                            </div>
                           </div>
                           <div class="flex gap-3 pt-2">
                             <button type="submit"

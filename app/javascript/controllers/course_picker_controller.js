@@ -9,7 +9,9 @@ import { Controller } from "@hotwired/stimulus"
 // ausgewählt werden können (siehe Admin::SupplementaryChargesController).
 export default class extends Controller {
   static targets = ["termSelect", "categorySelect", "courseSelect", "participantsList"]
-  static values = { courses: Array, registrations: Array, selectedCourseId: String }
+  // categorySelect ist optional: ohne sie wird die Kursliste nach Kategorie
+  // gruppiert (optgroup) - so im Verschieben-Dialog (courses/manage).
+  static values = { courses: Array, registrations: Array, selectedCourseId: String, selectedTermId: String }
 
   connect() {
     this._buildTermOptions()
@@ -32,10 +34,9 @@ export default class extends Controller {
   }
 
   _preselectFromCourse() {
-    if (!this.selectedCourseIdValue) return
     const course = this.coursesValue.find(c => String(c.id) === this.selectedCourseIdValue)
-    if (!course) return
-    this.termSelectTarget.value = course.termId ?? ""
+    const termId = course ? course.termId : this.selectedTermIdValue
+    if (termId) this.termSelectTarget.value = termId
   }
 
   _buildTermOptions() {
@@ -52,6 +53,7 @@ export default class extends Controller {
   }
 
   _updateCategories() {
+    if (!this.hasCategorySelectTarget) return
     const termId = this.termSelectTarget.value
     const filtered = this.coursesValue.filter(c => termId === "" || String(c.termId ?? "") === termId)
     const categories = [...new Set(filtered.map(c => c.category).filter(Boolean))].sort()
@@ -65,7 +67,7 @@ export default class extends Controller {
 
   _updateCourses() {
     const termId = this.termSelectTarget.value
-    const category = this.categorySelectTarget.value
+    const category = this.hasCategorySelectTarget ? this.categorySelectTarget.value : ""
     const filtered = this.coursesValue
       .filter(c => termId === "" || String(c.termId ?? "") === termId)
       .filter(c => category === "" || c.category === category)
@@ -74,10 +76,26 @@ export default class extends Controller {
     const current = this.courseSelectTarget.value
     this.courseSelectTarget.innerHTML =
       '<option value="">Kurs wählen...</option>' +
-      filtered.map(c => `<option value="${c.id}">${this._esc(c.title)}</option>`).join("")
+      (this.hasCategorySelectTarget ? this._courseOptions(filtered) : this._groupedCourseOptions(filtered))
     if (filtered.some(c => String(c.id) === current)) this.courseSelectTarget.value = current
 
     this._updateParticipants()
+  }
+
+  _courseOptions(courses) {
+    return courses.map(c => `<option value="${c.id}">${this._esc(c.title)}</option>`).join("")
+  }
+
+  _groupedCourseOptions(courses) {
+    const groups = new Map()
+    courses.forEach(c => {
+      const key = c.category || "Ohne Kategorie"
+      if (!groups.has(key)) groups.set(key, [])
+      groups.get(key).push(c)
+    })
+    return [...groups.keys()].sort().map(key =>
+      `<optgroup label="${this._esc(key)}">${this._courseOptions(groups.get(key))}</optgroup>`
+    ).join("")
   }
 
   _updateParticipants() {
