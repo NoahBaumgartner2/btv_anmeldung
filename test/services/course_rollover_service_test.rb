@@ -42,6 +42,15 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
     assert new_course.course_trainers.first.can_manually_enroll?
   end
 
+  test "roll_over! schickt keine Zuweisungs-Mail an Trainer" do
+    course = make_course
+    CourseTrainer.without_assignment_notifications { course.course_trainers.create!(trainer: trainers(:one)) }
+
+    assert_no_enqueued_emails do
+      travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
+    end
+  end
+
   test "roll_over! generiert Trainings am selben Wochentag/Zeit wie der alte Kurs" do
     course = make_course
     old_session = course.training_sessions.create!(
