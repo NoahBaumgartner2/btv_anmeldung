@@ -3,6 +3,24 @@
 class WaitlistPromotionService
   MAX_PROMOTIONS_PER_CALL = 10
 
+  # Stündlicher Sweep (ExpirePendingPaymentsJob): rückt Wartelisten in Kursen
+  # nach, die freie Plätze haben, ohne dass eine Stornierung das Nachrücken
+  # ausgelöst hat - v.a. Rollover-Nachfolgekurse, sobald das Vorrang-Fenster
+  # endet (beim Rollover selbst wird bewusst nicht nachgerückt). Kurse mit
+  # offenen Checkouts ("ausstehend") werden ausgelassen, damit ein bisheriger
+  # Teilnehmer, der gerade bezahlt, nicht überbucht wird; deren Verfall löst
+  # das Nachrücken ohnehin aus.
+  def self.promote_open_waitlists
+    course_ids = CourseRegistration.where(status: "warteliste", training_session_id: nil).select(:course_id)
+    Course.where(id: course_ids).where.not(registration_type: "pro_training").find_each do |course|
+      next if course.end_date.present? && course.end_date < Date.current
+      next unless course.registration_window_open_for?(nil)
+      next if course.course_registrations.where(status: "ausstehend", training_session_id: nil).exists?
+
+      promote_next_from_waitlist(course)
+    end
+  end
+
   # Stuft Wartelisten-Anmeldungen hoch, bis der Kurs wieder voll ist oder
   # keine Wartelisten-Einträge mehr vorhanden sind (max. MAX_PROMOTIONS_PER_CALL).
   #

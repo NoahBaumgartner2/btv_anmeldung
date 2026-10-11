@@ -29,13 +29,13 @@
   # Anmeldung bevorzugen, sonst würde z.B. ein noch offener "ausstehend"-Datensatz von
   # einer neueren Stornierung verdeckt – er bliebe unsichtbar, obwohl er den Platz
   # belegt (und damit die Warteliste-Hochstufung blockiert). Innerhalb gleicher
-  # Aktivität gewinnt die neueste Anmeldung.
+  # Aktivität gewinnt die neueste Anmeldung. Warteliste in Nachrück-Reihenfolge.
   sorted_registrations = @course.course_registrations
     .includes(:participant)
     .to_a
     .sort_by { |r| [r.status == "storniert" ? 1 : 0, -(r.created_at&.to_i || 0)] }
     .uniq(&:participant_id)
-    .sort_by { |r| [status_order.fetch(r.status, 99), r.participant&.last_name.to_s] }
+    .sort_by { |r| [status_order.fetch(r.status, 99), r.status == "warteliste" ? r.created_at.to_i : 0, r.participant&.last_name.to_s] }
   active_registrations    = sorted_registrations.reject { |r| r.status == "storniert" }
   cancelled_registrations = sorted_registrations.select { |r| r.status == "storniert" }
 

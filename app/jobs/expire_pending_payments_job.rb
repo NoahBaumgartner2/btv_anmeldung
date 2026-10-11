@@ -70,5 +70,7 @@ class ExpirePendingPaymentsJob < ApplicationJob
 
     Rails.logger.info "[ExpirePendingPaymentsJob] Abgeschlossen: #{total} geprüft, " \
                       "#{cancelled} storniert, #{errors} Fehler."
+
+    WaitlistPromotionService.promote_open_waitlists
   end
 end

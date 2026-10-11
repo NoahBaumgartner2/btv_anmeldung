@@ -22,18 +22,22 @@ class CourseRolloverService
     next_term = @course.next_term
     new_course = nil
 
-    Course.transaction do
-      new_course = @course.dup
-      new_course.term = next_term
-      new_course.start_date = next_term.start_date
-      new_course.end_date = next_term.end_date
-      new_course.previous_course = @course
-      new_course.save!(validate: false)
-      new_course.holiday_type_ids = @course.holiday_type_ids
+    # Unterdrückung um die ganze Transaktion: CourseTrainer feuert die Mail
+    # after_create_commit, also erst beim Commit (siehe copy_trainers).
+    CourseTrainer.without_assignment_notifications do
+      Course.transaction do
+        new_course = @course.dup
+        new_course.term = next_term
+        new_course.start_date = next_term.start_date
+        new_course.end_date = next_term.end_date
+        new_course.previous_course = @course
+        new_course.save!(validate: false)
+        new_course.holiday_type_ids = @course.holiday_type_ids
 
-      copy_trainers(new_course)
-      generate_sessions(new_course)
-      copy_waitlist(new_course)
+        copy_trainers(new_course)
+        generate_sessions(new_course)
+        copy_waitlist(new_course)
+      end
     end
 
     notify_previous_participants(new_course)
@@ -87,12 +91,10 @@ class CourseRolloverService
 
   # Keine Zuweisungs-Mail beim Rollover: der Trainer war schon im Vorgänger-
   # Kurs zugeteilt, eine "du wurdest zugewiesen"-Mail für eine reine
-  # Perioden-Verlängerung wäre irreführend/unerwünscht.
+  # Perioden-Verlängerung wäre irreführend/unerwünscht. Unterdrückt in roll_over!.
   def copy_trainers(new_course)
-    CourseTrainer.without_assignment_notifications do
-      @course.course_trainers.each do |ct|
-        new_course.course_trainers.create!(trainer_id: ct.trainer_id, can_manually_enroll: ct.can_manually_enroll)
-      end
+    @course.course_trainers.each do |ct|
+      new_course.course_trainers.create!(trainer_id: ct.trainer_id, can_manually_enroll: ct.can_manually_enroll)
     end
   end
 
