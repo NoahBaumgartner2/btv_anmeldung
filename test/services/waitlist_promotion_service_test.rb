@@ -226,4 +226,24 @@ class WaitlistPromotionServiceTest < ActiveSupport::TestCase
 
     assert_equal "warteliste", waitlisted.reload.status
   end
+
+  test "promote_open_waitlists rückt nach, aber nicht im Vorrang-Fenster" do
+    waitlist = ->(course) {
+      CourseRegistration.new(course: course, participant: participants(:two), status: "warteliste",
+                             payment_cleared: false, holiday_deduction_claimed: false).tap { |r| r.save!(validate: false) }
+    }
+    open_reg = waitlist.call(make_course)
+
+    terms(:two).update!(priority_registration_date: Date.current)
+    priority = make_course(term: terms(:two), previous_course: make_course, public_registration_days: 7)
+    priority_reg = waitlist.call(priority)
+
+    WaitlistPromotionService.promote_open_waitlists
+
+    assert_equal "bestätigt", open_reg.reload.status
+    assert_equal "warteliste", priority_reg.reload.status
+
+    travel_to(7.days.from_now) { WaitlistPromotionService.promote_open_waitlists }
+    assert_equal "bestätigt", priority_reg.reload.status
+  end
 end
