@@ -1607,6 +1607,19 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
     assert_match "noch nicht geöffnet", flash[:alert]
   end
 
+  test "create blockiert beendeten Kurs" do
+    ended = Course.new(title: "Altes Quartal", registration_type: "semester", has_payment: false, has_ticketing: false,
+                       allows_holiday_deduction: false, start_date: 3.months.ago, end_date: 2.days.ago).tap { |c| c.save!(validate: false) }
+
+    sign_in @trial_parent
+    assert_no_difference "CourseRegistration.count" do
+      post course_registrations_path, params: { course_registration: { course_id: ended.id, participant_id: @trial_participant.id } }
+    end
+
+    assert_redirected_to courses_path
+    assert_match "beendet", flash[:alert]
+  end
+
   # ── show: Preisfeld zeigt rabattierten Preis ─────────────────────────────────
 
   def stub_sumup_configured(&block)

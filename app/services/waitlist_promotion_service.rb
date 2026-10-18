@@ -35,6 +35,10 @@ class WaitlistPromotionService
 
     course.with_lock do
       return unless course.enable_waitlist?
+      # Kein Nachrücken in beendeten oder bereits verlängerten Kursen: die
+      # Warteliste lebt im Nachfolge-Kurs weiter (copy_waitlist), sonst zahlt
+      # man für ein Quartal, das vorbei ist.
+      return if course.ended? || course.next_course.present?
 
       # Bei Drop-In-Kursen hat jedes Training sein eigenes Limit (siehe
       # TrainingSession#effective_max_participants); sonst gilt das Kurs-Limit.

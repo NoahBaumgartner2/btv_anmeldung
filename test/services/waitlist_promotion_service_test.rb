@@ -246,4 +246,19 @@ class WaitlistPromotionServiceTest < ActiveSupport::TestCase
     travel_to(7.days.from_now) { WaitlistPromotionService.promote_open_waitlists }
     assert_equal "bestätigt", priority_reg.reload.status
   end
+
+  test "kein Nachrücken in beendeten oder bereits verlängerten Kursen" do
+    ended = make_course(end_date: 2.days.ago)
+    rolled = make_course
+    make_course(previous_course: rolled)
+    regs = [ ended, rolled ].map do |c|
+      CourseRegistration.new(course: c, participant: participants(:two), status: "warteliste",
+                             payment_cleared: false, holiday_deduction_claimed: false).tap { |r| r.save!(validate: false) }
+    end
+
+    assert_no_enqueued_emails do
+      [ ended, rolled ].each { |c| WaitlistPromotionService.promote_next_from_waitlist(c.reload) }
+    end
+    assert_equal %w[warteliste warteliste], regs.map { |r| r.reload.status }
+  end
 end

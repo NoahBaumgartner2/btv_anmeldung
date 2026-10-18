@@ -21,6 +21,13 @@ class Course < ApplicationRecord
   has_many :permitted_users, through: :course_access_grants, source: :user
   has_many :age_exemptions, dependent: :destroy
 
+  # Abo-Kurse haben kein end_date und sind nie beendet.
+  scope :not_ended, -> { where(end_date: nil).or(where(end_date: Date.current.beginning_of_day..)) }
+
+  def ended?
+    end_date.present? && end_date.to_date < Date.current
+  end
+
   # Verfügbare Zahlungsmethoden (→ Anzeigenamen)
   PAYMENT_METHODS = {
     "card" => "Kreditkarte / Debitkarte"

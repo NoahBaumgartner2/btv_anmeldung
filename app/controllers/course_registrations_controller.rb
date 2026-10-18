@@ -56,15 +56,17 @@ class CourseRegistrationsController < ApplicationController
       end
       @course_registration.course_id = @course&.id
       # Nur Kurse der gleichen Kategorie anzeigen
+      # Beendete Kurse ausblenden: Vorgänger-Kurse (Rollover) tragen denselben
+      # Titel, sonst meldet man sich versehentlich für das alte Quartal an.
       @selectable_courses = if @course&.category.present?
-        Course.where(category: @course.category).order(:title)
+        Course.not_ended.where(category: @course.category).order(:title)
       elsif @course
-        Course.where(registration_type: @course.registration_type).order(:title)
+        Course.not_ended.where(registration_type: @course.registration_type).order(:title)
       else
-        Course.order(:title)
+        Course.not_ended.order(:title)
       end
     else
-      @selectable_courses = Course.order(:title)
+      @selectable_courses = Course.not_ended.order(:title)
     end
 
     if params[:training_session_id]
@@ -93,6 +95,11 @@ class CourseRegistrationsController < ApplicationController
 
     if course && !course.registration_window_open_for?(current_user)
       redirect_to courses_path, alert: "Die Anmeldung für diesen Kurs ist noch nicht geöffnet."
+      return
+    end
+
+    if course&.ended?
+      redirect_to courses_path, alert: "Dieser Kurs ist bereits beendet."
       return
     end
 
