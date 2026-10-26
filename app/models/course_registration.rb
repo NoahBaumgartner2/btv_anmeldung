@@ -8,6 +8,7 @@ class CourseRegistration < ApplicationRecord
   # (siehe PaymentSyncService.mark_paid!). "platz_frei" zählt mit, weil ein angebotener
   # Wartelistenplatz reserviert bleiben muss (kein Doppelvergeben).
   OCCUPYING_STATUSES = %w[bestätigt schnuppern platz_frei].freeze
+  ENROLLED_STATUSES  = %w[bestätigt ausstehend].freeze
 
   # Anmeldungen ohne training_session_id gelten für JEDE Session des Kurses NUR
   # bei Semester-Anmeldungen (Teilnehmer:in kommt wöchentlich). Abo-Pässe
@@ -45,6 +46,12 @@ class CourseRegistration < ApplicationRecord
   before_save :set_payment_expiry, if: -> { will_save_change_to_status?(to: "ausstehend") }
   before_save :set_trial_expiry,
     if: -> { will_save_change_to_status?(to: TRIAL_STATUS) && trial_expires_at.nil? }
+  # Zeitpunkt, ab dem das Kind einen festen Platz hat (Warteliste/Schnuppern →
+  # ausstehend/bestätigt, auch durch den Admin). Basis für den anteiligen Preis
+  # bei spätem Einstieg (DiscountCalculator) – created_at wäre bei einer alten
+  # Wartelisten-Anmeldung der Zeitpunkt vor Kursbeginn.
+  before_save -> { self.enrolled_at = Time.current },
+    if: -> { will_save_change_to_status? && ENROLLED_STATUSES.include?(status) && !ENROLLED_STATUSES.include?(status_was) }
   # Wird ein Abo-Pass storniert (z.B. via trainer_cancel), müssen auch seine noch
   # aktiven Einzelsession-Buchungen (abo_bookings) storniert werden – sonst bleiben
   # sie als "bestätigt" verwaist stehen und blockieren später (Unique-Index auf

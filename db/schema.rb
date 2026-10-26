@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_14_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_26_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -143,6 +143,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_14_110000) do
     t.datetime "trial_expires_at"
     t.bigint "trial_session_id"
     t.datetime "updated_at", null: false
+    t.datetime "enrolled_at"
     t.index ["abo_source_registration_id"], name: "index_course_registrations_on_abo_source_registration_id"
     t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
     t.index ["course_id", "status"], name: "index_course_registrations_on_course_id_and_status"
