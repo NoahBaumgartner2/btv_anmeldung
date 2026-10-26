@@ -34,7 +34,7 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
     reg = CourseRegistration.new(course: course, participant: participant,
       status: status, payment_cleared: payment_cleared, holiday_deduction_claimed: false)
     reg.save!(validate: false)
-    reg.update_column(:created_at, created_at)
+    reg.update_columns(created_at: created_at, enrolled_at: created_at)
     reg
   end
 
@@ -316,6 +316,23 @@ class DiscountCalculatorTest < ActiveSupport::TestCase
   # (zukünftige, nicht abgesagte) Training kostet training_value - aber nur,
   # wenn das günstiger ist als der volle Kurspreis. Greift ausserdem nur,
   # wenn der Kurs bereits läuft (mind. 1 Training schon stattgefunden hat).
+
+  test "Wartelisten-Anmeldung von vor Kursbeginn, mitten im Kurs bestätigt -> anteiliger Preis" do
+    course = make_course(discounts: false, training_value: 1_000)
+    child  = make_participant(users(:one), first_name: "Anna")
+    make_session(course, start_time: 10.days.ago)
+    make_session(course, start_time: 2.days.from_now)
+    make_session(course, start_time: 9.days.from_now)
+
+    reg = CourseRegistration.new(course: course, participant: child, status: "warteliste",
+      holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+    reg.update_column(:created_at, 30.days.ago)
+    reg.update!(status: "bestätigt") # z.B. durch den Admin
+
+    # 2 verbleibende Trainings, 1 gratis -> 1 * 1'000 = 1'000.
+    assert_equal 1_000, DiscountCalculator.call(reg)[:price_cents]
+  end
 
   test "nur noch das letzte (gratis) Training übrig -> Preis 0" do
     course = make_course(discounts: false, training_value: 1_000)

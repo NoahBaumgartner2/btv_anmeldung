@@ -31,12 +31,12 @@ class DiscountCalculator
     # eine "gratis" Training deckt bei einer Schnupper-Umwandlung genau das
     # bereits stattgefundene Schnuppertraining ab - kein separater Rabatt nötig.
     #
-    # "at": Für frische Anmeldungen ist created_at ~ jetzt. Eine Schnupper-Anmeldung
-    # kann dagegen tagelang mit demselben created_at bestehen bleiben, bis sie nach
-    # dem Schnuppertraining in eine reguläre Anmeldung umgewandelt wird - dort muss
-    # ab dem Umwandlungszeitpunkt (jetzt) gerechnet werden, nicht ab der alten
-    # Schnupper-Erstellung.
-    at = registration.trial? ? Time.current : registration.created_at
+    # "at": Gerechnet wird ab dem Zeitpunkt, an dem das Kind einen festen Platz
+    # erhalten hat (enrolled_at) - nicht ab created_at, sonst zahlt ein Kind, das
+    # erst mitten im Kurs von der Warteliste/aus dem Schnuppern übernommen wird,
+    # den vollen Preis. Eine noch laufende Schnupper-Anmeldung wird ab jetzt
+    # gerechnet (Umwandlung erfolgt erst mit der Zahlung).
+    at = registration.trial? ? Time.current : (registration.enrolled_at || registration.created_at)
     deduction = course.late_registration_deduction_cents(at: at)
     if deduction.positive?
       candidates << { price_cents: [ full_price[:price_cents] - deduction, 0 ].max, discount: "late_registration" }
