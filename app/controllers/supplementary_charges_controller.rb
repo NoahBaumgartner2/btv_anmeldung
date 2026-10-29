@@ -76,9 +76,7 @@ class SupplementaryChargesController < ApplicationController
         if response.is_a?(Net::HTTPSuccess)
           checkout = JSON.parse(response.body)
           if checkout["status"] == "PAID"
-            transaction_id = checkout.dig("transactions", 0, "id")
-            @charge.update!(status: "bezahlt", sumup_transaction_id: transaction_id, paid_at: Time.current)
-            SupplementaryChargeMailer.receipt(@charge).deliver_later
+            @charge.mark_paid!(transaction_id: checkout.dig("transactions", 0, "id"))
           end
         else
           Rails.logger.error "[SumUp] SupplementaryCharge status check error #{response.code}: #{response.body}"
