@@ -65,6 +65,18 @@ class DashboardsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", admin_supplementary_charges_path, /Nachforderungen/
   end
 
+  test "Kommandozentrale zeigt den Zeitraum (Semester/Quartal) des Kurses" do
+    term = Term.create!(name: "4Q.2099", kind: "quartal", start_date: Date.new(2099, 10, 1), end_date: Date.new(2099, 12, 31))
+    make_dashboard_course(title: "Quartalskurs", category: "Turnen", registration_mode: "quartal").update_column(:term_id, term.id)
+
+    sign_in users(:admin)
+    get dashboards_admin_path, params: { course_q: "Quartalskurs" }
+
+    assert_response :success
+    assert_select "th", text: I18n.t("dashboards.admin.table.term")
+    assert_select "table tbody tr td", text: "4Q.2099"
+  end
+
   test "Kommandozentrale zeigt maximal 10 Kurse und einen Mehr-anzeigen-Link" do
     12.times { |i| make_dashboard_course(title: "Limit-Kurs #{i}", category: "Turnen", registration_mode: "semester") }
 

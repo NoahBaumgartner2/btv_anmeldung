@@ -28,4 +28,29 @@ class SupplementaryCharge < ApplicationRecord
   def payable?
     status == "offen"
   end
+
+  def mark_paid!(transaction_id:, paid_at: Time.current)
+    update!(status: "bezahlt", sumup_transaction_id: transaction_id, paid_at: paid_at)
+    SupplementaryChargeMailer.receipt(self).deliver_later
+  end
+
+  # Hintergrund-Abgleich (via PaymentSyncJob): #success greift nur, wenn die
+  # Eltern nach der Zahlung auf die Erfolgsseite zurückkehren UND SumUp dann
+  # schon PAID meldet. Sonst blieb eine bezahlte Nachforderung für immer
+  # "offen" (Fall Nilay Sümbül, 7 von 12 Q4-Rabattkorrekturen betroffen).
+  def self.sync_open
+    where(status: "offen").where.not(sumup_checkout_id: [ nil, "" ]).find_each do |charge|
+      response = PaymentSyncService.fetch_checkout(charge.sumup_checkout_id)
+      next unless response.is_a?(Net::HTTPSuccess)
+
+      checkout = JSON.parse(response.body)
+      next unless checkout["status"] == "PAID"
+
+      txn = checkout.dig("transactions", 0) || {}
+      charge.mark_paid!(transaction_id: txn["id"], paid_at: Time.zone.parse(txn["timestamp"].to_s) || Time.current)
+      Rails.logger.info "[SupplementaryCharge.sync_open] Nachforderung #{charge.id} als bezahlt markiert"
+    rescue => e
+      Rails.logger.error "[SupplementaryCharge.sync_open] Fehler für Nachforderung #{charge.id}: #{e.class}: #{e.message}"
+    end
+  end
 end

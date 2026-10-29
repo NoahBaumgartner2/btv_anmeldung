@@ -12,6 +12,7 @@ class PaymentSyncJob < ApplicationJob
     Rails.logger.info "[PaymentSyncJob] Sync abgeschlossen: " \
                       "#{result.total} geprüft, #{result.paid} bezahlt, " \
                       "#{result.still_pending} ausstehend, #{result.errors} Fehler."
+    SupplementaryCharge.sync_open
   rescue => e
     Rails.logger.error "[PaymentSyncJob] #{e.class}: #{e.message}"
     raise
