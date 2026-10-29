@@ -296,7 +296,7 @@
             <div class="flex items-start justify-between gap-3 mb-2">
               <div class="min-w-0">
                 <h3 class="font-bold text-gray-900 text-sm truncate"><%= course.title %></h3>
-                <p class="text-xs text-gray-500 mt-0.5"><%= course.registration_type_label %></p>
+                <p class="text-xs text-gray-500 mt-0.5"><%= [ course.registration_type_label, course.term&.name ].compact_blank.join(" · ") %></p>
               </div>
               <span class="shrink-0 text-xs font-bold text-primary-600 bg-primary-50 px-2 py-1 rounded-md">
                 <%= course.occupied_spots %> TN
@@ -318,6 +318,7 @@
           <tr>
             <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.course") %></th>
             <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.category") %></th>
+            <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.term") %></th>
             <th class="py-3 px-4 text-left text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.registrations") %></th>
             <th class="py-3 px-4 text-right text-xs font-bold text-gray-500 uppercase"><%= t("dashboards.admin.table.action") %></th>
           </tr>
@@ -327,6 +328,7 @@
             <tr class="hover:bg-gray-50">
               <td class="py-4 px-4 font-bold text-gray-900 text-sm"><%= course.title %></td>
               <td class="py-4 px-4 text-sm text-gray-500"><%= course.registration_type_label %></td>
+              <td class="py-4 px-4 text-sm text-gray-500"><%= course.term&.name || "–" %></td>
               <td class="py-4 px-4 text-sm font-medium text-primary-600"><%= course.occupied_spots %> <%= t("dashboards.admin.table.participants") %></td>
               <td class="py-4 px-4 text-right">
                 <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course), data: { turbo_frame: "_top" }, class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
@@ -334,7 +336,7 @@
             </tr>
           <% end %>
           <% if @courses.empty? %>
-            <tr><td colspan="4" class="py-6 text-center text-sm text-gray-400"><%= t("dashboards.admin.table.no_results") %></td></tr>
+            <tr><td colspan="5" class="py-6 text-center text-sm text-gray-400"><%= t("dashboards.admin.table.no_results") %></td></tr>
           <% end %>
         </tbody>
       </table>

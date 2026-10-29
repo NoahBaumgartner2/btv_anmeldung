@@ -634,6 +634,7 @@ en:
       table:
         course: "Course"
         category: "Category"
+        term: "Term"
         registrations: "Registrations"
         action: "Action"
         participants: "Participants"

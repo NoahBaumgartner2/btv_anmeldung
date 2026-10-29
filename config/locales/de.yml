@@ -686,6 +686,7 @@ de:
       table:
         course: "Kurs"
         category: "Kategorie"
+        term: "Zeitraum"
         registrations: "Anmeldungen"
         action: "Aktion"
         participants: "Teilnehmende"
