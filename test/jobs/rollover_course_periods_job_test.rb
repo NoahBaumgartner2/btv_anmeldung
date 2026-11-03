@@ -26,6 +26,22 @@ class RolloverCoursePeriodsJobTest < ActiveJob::TestCase
     assert_equal terms(:two), course.reload.next_course.term
   end
 
+  test "legt einen gelöschten Nachfolge-Kurs nicht wieder an und mailt nicht" do
+    terms(:two).update!(priority_registration_date: ROLLOVER_DUE_DATE)
+    course = make_course(term: terms(:one), auto_rollover: true)
+
+    travel_to(ROLLOVER_DUE_DATE) do
+      RolloverCoursePeriodsJob.perform_now
+      course.reload.next_course.destroy!
+
+      assert_no_difference("Course.count") do
+        assert_no_enqueued_emails { RolloverCoursePeriodsJob.perform_now }
+      end
+    end
+
+    assert_not course.reload.auto_rollover?
+  end
+
   test "lässt Kurse ohne Term unangetastet" do
     make_course(term: nil)
 

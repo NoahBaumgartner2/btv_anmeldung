@@ -37,14 +37,17 @@ class RegistrationMoveService
     target_course.with_lock do
       registration.reload
       already_paid = registration.payment_cleared?
+      sessions_before_move = RefundService.attended_sessions_count(registration)
       registration.course = target_course
       pricing = DiscountCalculator.call(registration)
 
       attrs = {
-        course_id:           target_course.id,
-        training_session_id: nil,
-        trial_session_id:    nil,
-        status:              capacity_status(target_course, registration)
+        course_id:            target_course.id,
+        training_session_id:  nil,
+        trial_session_id:     nil,
+        status:               capacity_status(target_course, registration),
+        moved_at:             Time.current,
+        sessions_before_move: sessions_before_move
       }
       unless already_paid
         attrs[:applied_price_cents] = pricing[:price_cents]

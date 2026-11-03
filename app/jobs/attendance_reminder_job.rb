@@ -10,6 +10,9 @@ class AttendanceReminderJob < ApplicationJob
 
     sessions.each do |session|
       next if session.attendance_recorded?
+      # Ohne Teilnehmende gibt es keine Anwesenheit zu erfassen (z.B. leerer Kurs,
+      # dessen Trainings beim Anlegen schon in der Vergangenheit lagen).
+      next unless session.course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).exists?
 
       if session.needs_trainer_reminder?
         session.course.course_trainers.each do |ct|

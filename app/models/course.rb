@@ -36,6 +36,7 @@ class Course < ApplicationRecord
   before_save :clean_payment_methods
   before_save :clear_dates_for_abo
   before_save :clear_rollover_fields_without_term
+  before_destroy :stop_auto_rollover_of_previous_course
 
   # Gibt die tatsächlich nutzbaren Zahlungsmethoden zurück (bereinigt, mit Fallback)
   def effective_payment_methods
@@ -434,6 +435,16 @@ class Course < ApplicationRecord
   end
 
   private
+
+  # Wird ein Nachfolge-Kurs gelöscht, ist der Vorgänger wieder "fällig" und der
+  # tägliche RolloverCoursePeriodsJob würde den Kurs sofort neu anlegen (inkl.
+  # Renewal-Mails und Anwesenheits-Erinnerungen für vergangene Trainings).
+  # Das Löschen gilt deshalb als Entscheid gegen die Verlängerung: Vorgänger auf
+  # manuell stellen; rollover_notified_at unterdrückt die "bereit"-Mail. Der
+  # Button "Nächste Periode jetzt erstellen" bleibt für den Vorgänger verfügbar.
+  def stop_auto_rollover_of_previous_course
+    previous_course&.update_columns(auto_rollover: false, rollover_notified_at: Time.current)
+  end
 
   def clean_payment_methods
     self.payment_methods = (payment_methods || []).reject(&:blank?).select { |v| PAYMENT_METHODS.key?(v) }

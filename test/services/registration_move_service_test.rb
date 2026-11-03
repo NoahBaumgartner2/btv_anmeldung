@@ -28,6 +28,36 @@ class RegistrationMoveServiceTest < ActiveSupport::TestCase
     assert_equal(-3000, result.price_diff_cents)
   end
 
+  test "Rückerstattung zählt Trainings im alten Kurs, auch wenn dieser gelöscht wird und im neuen alle abgesagt sind" do
+    [ @from, @to ].each { |c| c.update_columns(training_value_cents: 2500) }
+    3.times { |i| @from.training_sessions.create!(start_time: (i + 1).weeks.ago, end_time: (i + 1).weeks.ago + 1.hour) }
+    @to.training_sessions.create!(start_time: 2.weeks.ago, end_time: 2.weeks.ago + 1.hour, is_canceled: true)
+    @to.training_sessions.create!(start_time: 2.weeks.from_now, end_time: 2.weeks.from_now + 1.hour)
+
+    reg = CourseRegistration.new(course: @from, participant: @participant, status: "bestätigt", created_at: 2.months.ago,
+      applied_price_cents: 15000, payment_cleared: true, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+
+    RegistrationMoveService.call(reg, @to, actor: users(:admin))
+    @from.reload.destroy!
+
+    assert_equal 10000, RefundService.calculate_amount_cents(reg.reload) # 150 - (3 - 1) * 25
+  end
+
+  test "Trainings im Zielkurs vor dem Wechsel zählen nicht" do
+    @to.update_columns(training_value_cents: 2500)
+    @to.training_sessions.create!(start_time: 2.weeks.ago, end_time: 2.weeks.ago + 1.hour)
+
+    reg = CourseRegistration.new(course: @from, participant: @participant, status: "bestätigt", created_at: 2.months.ago,
+      applied_price_cents: 15000, payment_cleared: true, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+
+    RegistrationMoveService.call(reg, @to, actor: users(:admin))
+
+    assert_equal 15000, RefundService.calculate_amount_cents(reg.reload)
+    assert_equal 0, reg.sessions_before_move
+  end
+
   test "bereits bezahlte Anmeldung behält applied_price_cents als Beleg, Preisdifferenz nur als Hinweis" do
     reg = CourseRegistration.new(course: @from, participant: @participant, status: "bestätigt",
       applied_price_cents: 15000, payment_cleared: true, holiday_deduction_claimed: false)
