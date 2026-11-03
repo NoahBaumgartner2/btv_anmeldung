@@ -40,11 +40,11 @@
                 r.course.registration_mode == "single_session" || r.status == "ausstehend" || r.abo_booking?
               }
               active_semester = semester_regs.select { |r|
-                r.status != "storniert" &&
+                r.status != "storniert" && !r.course.deactivated? &&
                 (r.course.end_date.nil? || r.course.end_date >= today)
               }
               past_semester = semester_regs.select { |r|
-                r.status == "storniert" ||
+                r.status == "storniert" || r.course.deactivated? ||
                 (r.course.end_date.present? && r.course.end_date < today)
               }
 
@@ -63,11 +63,12 @@
               # eines noch laufenden Drop-In-Kurses gehören zu "Vergangene",
               # auch wenn der Kurs selbst noch nicht beendet ist.
               active_single = single_session_all.filter_map { |course_id, regs|
+                next if regs.first.course.deactivated?
                 upcoming = regs.reject { |r| r.training_session.nil? || r.training_session.past? }
                 [course_id, upcoming] if upcoming.any?
               }.to_h
               past_single = single_session_all.filter_map { |course_id, regs|
-                past = regs.select { |r| r.training_session.nil? || r.training_session.past? }
+                past = regs.select { |r| r.course.deactivated? || r.training_session.nil? || r.training_session.past? }
                 [course_id, past] if past.any?
               }.to_h
 
@@ -472,12 +473,16 @@
                       <div class="min-w-0">
                         <p class="font-bold text-gray-600 text-sm truncate"><%= course.title %></p>
                         <p class="text-xs text-gray-400 mt-0.5">
-                          <% if course.end_date.present? %>
+                          <% if course.deactivated? %>
+                            <%= t("participants.index.course_deactivated") %>
+                          <% elsif course.end_date.present? %>
                             <%= t("participants.index.course_ended", date: course.end_date.strftime("%-d. %B %Y")) %>
                           <% end %>
                         </p>
                       </div>
-                      <% if storniert %>
+                      <% if course.deactivated? && !storniert %>
+                        <span class="shrink-0 bg-amber-100 text-amber-800 text-xs font-bold px-2 py-1 rounded-md"><%= t("participants.index.course_deactivated") %></span>
+                      <% elsif storniert %>
                         <span class="shrink-0 bg-red-100 text-red-500 text-xs font-bold px-2 py-1 rounded-md"><%= t("participants.index.cancelled") %></span>
                       <% else %>
                         <span class="shrink-0 bg-gray-200 text-gray-500 text-xs font-bold px-2 py-1 rounded-md"><%= t("participants.index.completed") %></span>
@@ -493,7 +498,9 @@
                         <p class="font-bold text-gray-600 text-sm truncate"><%= course.title %></p>
                         <p class="text-xs text-gray-400 mt-0.5">
                           <%= t("participants.index.drop_in_label") %> &middot; <%= t("participants.index.dates_count", count: regs.size) %>
-                          <% if course.end_date.present? %>
+                          <% if course.deactivated? %>
+                            &middot; <%= t("participants.index.course_deactivated") %>
+                          <% elsif course.end_date.present? %>
                             &middot; <%= t("participants.index.course_ended", date: course.end_date.strftime("%-d. %B %Y")) %>
                           <% end %>
                         </p>

@@ -5,6 +5,8 @@
     participant.course_registrations
       .select { |r| %w[bestätigt schnuppern].include?(r.status) }
       .filter_map do |reg|
+        next if reg.course.deactivated?
+
         session =
           if reg.trial?
             reg.trial_session

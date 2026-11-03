@@ -456,6 +456,7 @@ fr:
       to_courses: "Voir les cours"
       past_section: "Cours passés & annulés"
       course_ended: "Terminé le %{date}"
+      course_deactivated: "Cours désactivé"
       cancelled: "Annulé"
       completed: "Terminé"
       no_participants_title: "Aucune personne enregistrée"
@@ -975,6 +976,7 @@ fr:
       subtitle_course: "Votre place dans le cours est assurée."
       booked_date: "Votre séance réservée"
       details_title: "Détails de l'inscription"
+      course_deactivated_notice: "Ce cours a été désactivé. L'inscription reste enregistrée, mais le cours n'a plus lieu."
       fields:
         course: "Cours"
         category: "Catégorie"

@@ -456,6 +456,7 @@ en:
       to_courses: "View courses"
       past_section: "Past & cancelled courses"
       course_ended: "Ended %{date}"
+      course_deactivated: "Course deactivated"
       cancelled: "Cancelled"
       completed: "Completed"
       no_participants_title: "No participants added yet"
@@ -982,6 +983,7 @@ en:
       subtitle_course: "Your spot in the course is secured."
       booked_date: "Your booked session"
       details_title: "Registration details"
+      course_deactivated_notice: "This course has been deactivated. The registration remains on record, but the course no longer takes place."
       fields:
         course: "Course"
         category: "Category"

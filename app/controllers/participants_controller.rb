@@ -70,6 +70,7 @@ class ParticipantsController < ApplicationController
       .uniq
 
     @more_courses_by_category = Course
+      .where(deactivated_at: nil)
       .where("end_date >= ? OR end_date IS NULL", today)
       .where.not(id: active_course_ids)
       .where.not(category: [ nil, "" ])
