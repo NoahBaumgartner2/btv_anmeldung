@@ -405,6 +405,12 @@ class CoursesController < ApplicationController
           course: @course, participant: participant, status: status,
           training_session: training_session, payment_cleared: true, holiday_deduction_claimed: false
         )
+        # Abo-Kurs: Gratis-Abo mit den normalen Eintritten, damit Buchen und Ticket-Scan
+        # wie bei einem gekauften Abo funktionieren.
+        if @course.abo? && @course.abo_size.present?
+          reg.abo_entries_total = @course.abo_size
+          reg.abo_entries_used  = 0
+        end
         reg.save(validate: false)
       end
     end
