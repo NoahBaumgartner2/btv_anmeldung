@@ -2,7 +2,9 @@ class CourseRegistrationsController < ApplicationController
   before_action :authenticate_user!
   # Sucht die Anmeldung anhand der ID in der URL, bevor edit oder update ausgeführt wird
   before_action :set_course_registration, only: [ :show, :edit, :update, :cancel, :trainer_cancel, :use_abo_entry, :update_abo_entries, :convert_trial, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
-  before_action :authorize_own_registration!, only: [ :show, :edit, :update, :cancel, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
+  # Bearbeiten nur für Admins: das Formular kann Zahlung, Status und Abo-Eintritte setzen.
+  before_action :authorize_admin!, only: [ :edit, :update ]
+  before_action :authorize_own_registration!, only: [ :show, :cancel, :abo_sessions, :book_abo_session, :accept_spot, :choose_trial_session ]
 
   def show
     if @course_registration.status == "ausstehend" && @course_registration.course.price_cents.to_i == 0
@@ -1198,6 +1200,8 @@ class CourseRegistrationsController < ApplicationController
 
   # Der Türsteher: Erlaubt jetzt auch Status und Bezahlung!
   def course_registration_params
-    params.require(:course_registration).permit(:course_id, :participant_id, :training_session_id, :trial_session_id, :status, :payment_cleared, :holiday_deduction_claimed, :abo_entries_total, :abo_entries_used)
+    permitted = [ :course_id, :participant_id, :training_session_id, :trial_session_id, :holiday_deduction_claimed ]
+    permitted += [ :status, :payment_cleared, :abo_entries_total, :abo_entries_used ] if current_user.admin?
+    params.require(:course_registration).permit(*permitted)
   end
 end
