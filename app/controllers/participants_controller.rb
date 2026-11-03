@@ -50,7 +50,7 @@ class ParticipantsController < ApplicationController
     semester_reg_ids    = semester_active.map(&:id)
 
     upcoming = TrainingSession
-      .where(course_id: semester_course_ids, is_canceled: false)
+      .where(course_id: Course.where(id: semester_course_ids, deactivated_at: nil).select(:id), is_canceled: false)
       .where("start_time > ?", Time.current)
       .order(:start_time)
 

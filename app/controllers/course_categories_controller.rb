@@ -7,7 +7,7 @@ class CourseCategoriesController < ApplicationController
   before_action :authorize_admin!
 
   def index
-    courses = Course.all.includes(:course_registrations)
+    courses = Course.where(deactivated_at: nil).includes(:course_registrations)
     grouped = courses.group_by { |c| c.category.presence || c.title.split("(").first.strip }
 
     @categories = grouped.map do |name, courses_in_category|
@@ -49,7 +49,7 @@ class CourseCategoriesController < ApplicationController
       return redirect_to course_categories_path, alert: "Betreff und Nachricht dürfen nicht leer sein."
     end
 
-    courses = Course.all.select { |c| (c.category.presence || c.title.split("(").first.strip) == category }
+    courses = Course.where(deactivated_at: nil).select { |c| (c.category.presence || c.title.split("(").first.strip) == category }
     regs = courses
       .flat_map(&:course_registrations)
       .select { |r| CourseRegistration::OCCUPYING_STATUSES.include?(r.status) }

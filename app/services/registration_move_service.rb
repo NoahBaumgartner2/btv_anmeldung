@@ -38,6 +38,7 @@ class RegistrationMoveService
       registration.reload
       already_paid = registration.payment_cleared?
       sessions_before_move = RefundService.attended_sessions_count(registration)
+      keep_past_attendance(registration)
       registration.course = target_course
       pricing = DiscountCalculator.call(registration)
 
@@ -80,6 +81,21 @@ class RegistrationMoveService
       reason:           nil
     )
   end
+
+  # In normalen Kursen bedeutet "kein Eintrag" = anwesend, das gilt aber nur für die
+  # aktuelle Kursliste. Nach dem Verschieben wäre die Teilnahme an bestätigten
+  # Trainings des alten Kurses nicht mehr erkennbar, darum wird sie hier festgehalten.
+  def self.keep_past_attendance(registration)
+    return if registration.course.has_ticketing? || registration.training_session_id || registration.status != "bestätigt"
+
+    registration.course.training_sessions
+                .where(is_canceled: false)
+                .where.not(attendance_confirmed_at: nil)
+                .where("start_time >= ?", registration.moved_at || registration.created_at)
+                .where.not(id: registration.attendances.select(:training_session_id))
+                .each { |session| session.attendances.create!(course_registration: registration, status: "anwesend") }
+  end
+  private_class_method :keep_past_attendance
 
   # Nur aktive Vollanmeldungen werden im Zielkurs nach Kapazität neu eingestuft.
   # schnuppern/ausstehend/storniert behalten ihren Status.

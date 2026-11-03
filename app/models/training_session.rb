@@ -5,6 +5,10 @@ class TrainingSession < ApplicationRecord
 
   has_many :attendances, dependent: :destroy
 
+  def readonly?
+    super || course&.deactivated?
+  end
+
   # SQL-Gegenstück zu #past? — für Anmeldung/Buchung: eine Session bleibt
   # buchbar bis zu ihrem Ende (end_time), nicht nur bis zum Start. Fehlt
   # end_time, gilt start_time als Referenz.

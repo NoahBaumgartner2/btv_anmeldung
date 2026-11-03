@@ -9,7 +9,7 @@ class ManualEnrollmentReminderJob < ApplicationJob
 
   def perform
     scope = CourseRegistration
-      .where(manually_enrolled: true, manual_enrollment_reminder_sent_at: nil)
+      .where(manually_enrolled: true, manual_enrollment_reminder_sent_at: nil, course: Course.where(deactivated_at: nil))
       .where.not(status: "storniert")
       .where("created_at <= ?", 7.days.ago)
 

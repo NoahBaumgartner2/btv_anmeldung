@@ -3,7 +3,7 @@ class AttendanceReminderJob < ApplicationJob
 
   def perform
     sessions = TrainingSession
-      .where(is_canceled: false)
+      .where(is_canceled: false, course: Course.where(deactivated_at: nil))
       .where.not(end_time: nil)
       .where("end_time < ?", Time.current)
       .includes(course: { course_trainers: { trainer: :user } })

@@ -9,6 +9,10 @@ class Attendance < ApplicationRecord
 
   STATUSES = %w[anwesend abwesend abgemeldet].freeze
 
+  def readonly?
+    super || training_session&.course&.deactivated?
+  end
+
   validates :status, inclusion: { in: STATUSES }, allow_nil: true
 
   def abgemeldet?

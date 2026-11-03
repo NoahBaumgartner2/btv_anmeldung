@@ -140,7 +140,10 @@
               <%= render "participants_overview_modal", registrations: active_registrations %>
             </div>
 
-            <% if current_user.admin? %>
+            <% if current_user.admin? && !@course.deactivated? %>
+              <%= button_to "Kurs deaktivieren", deactivate_course_path(@course),
+                    form: { data: { turbo_confirm: "Kurs deaktivieren? Er wird eingefroren und aus allen Listen entfernt. Die Daten bleiben für J+S erhalten." } },
+                    class: "w-full text-left px-4 py-2 text-sm font-semibold text-amber-700 hover:bg-amber-50 rounded-lg transition cursor-pointer" %>
               <%= render "delete_modal_item", course: @course %>
             <% end %>
           </div>
@@ -148,6 +151,19 @@
       </div>
     </div>
   </div>
+
+  <%# ── Deaktiviert-Banner ──────────────────────────────────────────────── %>
+  <% if @course.deactivated? %>
+    <div class="mb-6 bg-amber-50 border border-amber-300 rounded-xl px-4 sm:px-5 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <p class="text-sm font-semibold text-amber-800">
+        Dieser Kurs ist seit dem <%= I18n.l(@course.deactivated_at.to_date) %> deaktiviert: keine Änderungen möglich, die Daten bleiben für J+S erhalten.
+      </p>
+      <% if current_user.admin? %>
+        <%= button_to "Wieder aktivieren", reactivate_course_path(@course),
+              class: "shrink-0 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer" %>
+      <% end %>
+    </div>
+  <% end %>
 
   <%# ── Rollover-Banner (manueller Modus) ───────────────────────────────── %>
   <% if current_user.admin? && @course.rollover_due? && !@course.auto_rollover? %>
