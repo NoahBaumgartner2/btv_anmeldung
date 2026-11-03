@@ -54,6 +54,19 @@ class TrainerTest < ActiveSupport::TestCase
     assert_equal participant.id, trainer.reload.self_participant_id
   end
 
+  test "sync_self_participant! übernimmt einen bestehenden Teilnehmer mit denselben Personalien" do
+    trainer = build_fresh_trainer
+    existing = Participant.new(user: trainer.user, first_name: trainer.first_name, last_name: trainer.last_name,
+      date_of_birth: trainer.date_of_birth)
+    existing.save!(validate: false)
+
+    assert_no_difference "Participant.count" do
+      assert_equal existing, trainer.sync_self_participant!
+    end
+    assert existing.reload.is_trainer_self?
+    assert_equal existing.id, trainer.reload.self_participant_id
+  end
+
   test "sync_self_participant! aktualisiert denselben Datensatz statt einen neuen anzulegen" do
     trainer = build_fresh_trainer
     first = trainer.sync_self_participant!

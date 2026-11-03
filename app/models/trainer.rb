@@ -60,11 +60,12 @@ class Trainer < ApplicationRecord
 
   # Hält den Selbst-Teilnehmer-Datensatz (für die kostenlose Selbst-Anmeldung
   # zu Trainings, siehe Course#self_enroll) mit dem Trainer-Profil synchron.
-  # Ein Trainer-Account kann laut #user_must_not_have_participants ohnehin
-  # nie eigene "Kinder" haben – dieser eine Datensatz ist also garantiert
-  # der einzige Participant unter diesem User.
+  # Ältere Konten können schon einen Teilnehmer mit denselben Personalien haben
+  # (gleiche Person, DB-Unique-Index): dieser wird übernommen statt neu angelegt.
   def sync_self_participant!
-    participant = self_participant || Participant.new(user: user, is_trainer_self: true)
+    participant = self_participant ||
+      Participant.find_by(user: user, first_name: first_name, last_name: last_name, date_of_birth: date_of_birth) ||
+      Participant.new(user: user, is_trainer_self: true)
     participant.assign_attributes(
       user: user, is_trainer_self: true,
       first_name: first_name, last_name: last_name, date_of_birth: date_of_birth,

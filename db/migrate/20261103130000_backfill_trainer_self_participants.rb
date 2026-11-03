@@ -3,7 +3,14 @@
 # zeigt die Kursseite "Profil unvollständig", obwohl das Profil vollständig ist.
 class BackfillTrainerSelfParticipants < ActiveRecord::Migration[8.1]
   def up
-    Trainer.where(self_participant_id: nil).find_each(&:sync_self_participant!)
+    Trainer.where(self_participant_id: nil).find_each do |trainer|
+      # Konten mit Kindern auslassen: der neue Datensatz erschiene in ihrer Familienansicht.
+      others = Participant.where(user_id: trainer.user_id)
+                          .where.not(first_name: trainer.first_name, last_name: trainer.last_name, date_of_birth: trainer.date_of_birth)
+      next if others.exists?
+
+      trainer.sync_self_participant!
+    end
   end
 
   def down
