@@ -93,6 +93,29 @@ class CourseDeactivationTest < ActionDispatch::IntegrationTest
     assert_redirected_to courses_path
   end
 
+  test "Eltern sehen den deaktivierten Kurs unter Vergangene mit Hinweis, nicht als aktive Karte" do
+    registration = CourseRegistration.new(course: @course, participant: participants(:parent_only_child), status: "bestätigt",
+      holiday_deduction_claimed: false)
+    registration.save!(validate: false)
+    @course.training_sessions.create!(start_time: 1.week.from_now, end_time: 1.week.from_now + 1.hour)
+    @course.update_columns(end_date: 1.month.from_now)
+    deactivate!
+    sign_in users(:parent_only)
+
+    get participants_path
+
+    assert_response :success
+    assert_select "details p", text: "Sonntag Tramp"
+    assert_select "details span", text: "Kurs deaktiviert"
+    assert_select "div.border-green-200 h4", text: "Sonntag Tramp", count: 0
+
+    get course_registration_path(registration)
+
+    assert_response :success
+    assert_match "Dieser Kurs wurde deaktiviert", response.body
+    assert_select "a[href=?]", course_path(@course), count: 0
+  end
+
   test "verschobenes Kind bleibt im J+S-Export des deaktivierten Kurses" do
     participants(:one).update_columns(js_person_number: "1234567")
     target = Course.new(title: "Samstag Tramp", category: "Trampolin", registration_type: "quartal", registration_mode: "quartal",
