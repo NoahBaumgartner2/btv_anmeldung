@@ -3,13 +3,16 @@ class AttendanceReminderJob < ApplicationJob
 
   def perform
     sessions = TrainingSession
-      .where(is_canceled: false)
+      .where(is_canceled: false, course: Course.where(deactivated_at: nil))
       .where.not(end_time: nil)
       .where("end_time < ?", Time.current)
       .includes(course: { course_trainers: { trainer: :user } })
 
     sessions.each do |session|
       next if session.attendance_recorded?
+      # Ohne Teilnehmende gibt es keine Anwesenheit zu erfassen (z.B. leerer Kurs,
+      # dessen Trainings beim Anlegen schon in der Vergangenheit lagen).
+      next unless session.course.course_registrations.where(status: CourseRegistration::OCCUPYING_STATUSES).exists?
 
       if session.needs_trainer_reminder?
         session.course.course_trainers.each do |ct|

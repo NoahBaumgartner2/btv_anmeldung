@@ -400,6 +400,14 @@ class ExportProfile < ApplicationRecord
 
   # Nur anwesende Teilnehmer/innen mit Personennummer – Zeilen ohne
   # PERSONENNUMMER lehnt der NDS-Import ab. Leiter/innen werden in der NDS erfasst.
+  # Bestätigte Anmeldungen plus Kinder, die in einen anderen Kurs verschoben wurden,
+  # aber hier Anwesenheiten haben: ihre Trainings gehören weiterhin zu diesem Kurs.
+  def self.registrations_for_attendance_export(course)
+    attended = Attendance.where(training_session_id: course.training_sessions.select(:id)).select(:course_registration_id)
+    CourseRegistration.where(course_id: course.id, status: "bestätigt")
+                      .or(CourseRegistration.where(id: attended).where.not(moved_at: nil))
+  end
+
   def self.generate_baspo_awk_csv(course, date_range)
     bom      = "\xEF\xBB\xBF"
     sessions = course.training_sessions
@@ -409,10 +417,7 @@ class ExportProfile < ApplicationRecord
                      .includes(:attendances)
                      .to_a
 
-    registrations = course.course_registrations
-                          .where(status: "bestätigt")
-                          .includes(:participant)
-                          .to_a
+    registrations = registrations_for_attendance_export(course).includes(:participant).to_a
 
     csv = CSV.generate(col_sep: ";", row_sep: "\r\n", headers: BASPO_AWK_HEADERS, write_headers: true) do |csv|
       sessions.each do |session|
@@ -477,10 +482,9 @@ class ExportProfile < ApplicationRecord
 
   def sorted_registrations(course)
     return [] unless course
-    regs = course.course_registrations
-                 .where(status: "bestätigt")
-                 .includes(participant: :user, attendances: [])
-                 .to_a
+    regs = self.class.registrations_for_attendance_export(course)
+               .includes(participant: :user, attendances: [])
+               .to_a
     case sort_by
     when "first_name"
       regs.sort_by { |r| r.participant.first_name.to_s.downcase }

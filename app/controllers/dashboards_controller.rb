@@ -7,9 +7,8 @@ class DashboardsController < ApplicationController
     authorize_admin!
     all_courses = Course.includes(:course_registrations, :term).order(start_date: :asc)
 
-    today = Date.current
-    @courses          = all_courses.reject { |c| c.end_date.present? && c.end_date < today }
-    archived_courses  = all_courses.select { |c| c.end_date.present? && c.end_date < today }
+    @courses          = all_courses.reject(&:ended?)
+    archived_courses  = all_courses.select(&:ended?)
 
     # Archiv gruppiert nach Zeitraum (Term, z.B. "HS2026") – der beim Erstellen
     # angegebene Semester-/Quartals-Zeitraum, nicht zu verwechseln mit
@@ -118,7 +117,7 @@ class DashboardsController < ApplicationController
     authorize_admin!
 
     @open_sessions = TrainingSession
-      .where(is_canceled: false, attendance_confirmed_at: nil)
+      .where(is_canceled: false, attendance_confirmed_at: nil, course: Course.where(deactivated_at: nil))
       .where.not(end_time: nil)
       .where("end_time < ?", Time.current)
       .includes(course: { course_trainers: { trainer: :user } })
@@ -128,7 +127,7 @@ class DashboardsController < ApplicationController
   def trainer
     authorize_trainer!
     @trainer = Trainer.find_by(user: current_user)
-    @assigned_courses = @trainer ? @trainer.courses.order(start_date: :asc) : []
+    @assigned_courses = @trainer ? @trainer.courses.where(deactivated_at: nil).order(start_date: :asc) : []
 
     now = Time.current
     all_sessions = TrainingSession.where(course: @assigned_courses)

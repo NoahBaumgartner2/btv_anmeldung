@@ -3,10 +3,11 @@ class CoursesController < ApplicationController
   before_action :authorize_admin!, except: [ :index, :show, :manage, :participant_search, :manual_enroll, :send_custom_email, :toggle_talent, :self_enroll ]
   # GET /courses or /courses.json
   before_action :authorize_trainer!, only: [ :manage, :send_custom_email, :toggle_talent, :self_enroll ]
-  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email toggle_talent roll_over self_enroll ]
+  before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email toggle_talent roll_over self_enroll deactivate reactivate ]
+  before_action :reject_if_deactivated, only: %i[ edit update generate_trainings create_generated_trainings grant_access revoke_access manual_enroll send_custom_email toggle_talent roll_over self_enroll ]
   def index
     today = Date.current
-    not_ended = ->(c) { c.end_date.blank? || c.end_date >= today }
+    not_ended = ->(c) { !c.deactivated? && (c.end_date.blank? || c.end_date >= today) }
 
     all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users, :training_sessions)
     @restricted_courses = if current_user&.admin?
@@ -29,6 +30,29 @@ class CoursesController < ApplicationController
 
   # GET /courses/1 or /courses/1.json
   def show
+    return unless @course.deactivated?
+    return if current_user&.admin? || Trainer.exists?(user: current_user)
+
+    redirect_to courses_path, alert: "Dieser Kurs ist nicht mehr verfügbar."
+  end
+
+  # POST /courses/1/deactivate
+  def deactivate
+    open_count = @course.registrations_blocking_deactivation.count
+    if open_count.positive?
+      return redirect_to manage_course_path(@course), status: :see_other,
+        alert: "Kurs nicht deaktiviert: #{open_count} offene Anmeldung(en) (Warteliste, Schnuppern oder Zahlung ausstehend) zuerst erledigen."
+    end
+
+    Course.where(id: @course.id).update_all(deactivated_at: Time.current)
+    redirect_to manage_course_path(@course), status: :see_other,
+      notice: "Kurs deaktiviert. Die Daten bleiben erhalten und können weiter exportiert werden."
+  end
+
+  # POST /courses/1/reactivate
+  def reactivate
+    Course.where(id: @course.id).update_all(deactivated_at: nil)
+    redirect_to manage_course_path(@course), status: :see_other, notice: "Kurs wieder aktiviert."
   end
 
   # GET /courses/new
@@ -485,6 +509,13 @@ class CoursesController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
+    def reject_if_deactivated
+      return unless @course.deactivated?
+
+      redirect_to manage_course_path(@course), status: :see_other,
+        alert: "Dieser Kurs ist deaktiviert und kann nicht geändert werden."
+    end
+
     def set_course
       @course = Course.find(params.expect(:id))
     end
@@ -639,7 +670,7 @@ class CoursesController < ApplicationController
       # Zielkurse für die Admin-Verschiebe-Funktion (alle Kurse, kategorien- und
       # zeitraumübergreifend) im Format des course_picker-Stimulus-Controllers.
       if current_user&.admin?
-        @move_target_courses = Course.includes(:term).order(:category, :title).map do |c|
+        @move_target_courses = Course.where(deactivated_at: nil).includes(:term).order(:category, :title).map do |c|
           { id: c.id, title: c.title, category: c.category,
             termId: c.term_id, termName: c.term&.name, termStart: c.term&.start_date&.iso8601 }
         end

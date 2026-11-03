@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_26_090000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_03_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -144,6 +144,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_090000) do
     t.bigint "trial_session_id"
     t.datetime "updated_at", null: false
     t.datetime "enrolled_at"
+    t.datetime "moved_at"
+    t.integer "sessions_before_move", default: 0, null: false
     t.index ["abo_source_registration_id"], name: "index_course_registrations_on_abo_source_registration_id"
     t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
     t.index ["course_id", "status"], name: "index_course_registrations_on_course_id_and_status"
@@ -223,6 +225,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_26_090000) do
     t.datetime "updated_at", null: false
     t.integer "youth_max_age", default: 20
     t.integer "youth_price_cents"
+    t.datetime "deactivated_at"
     t.index ["previous_course_id"], name: "index_courses_on_previous_course_id", unique: true
     t.index ["term_id"], name: "index_courses_on_term_id"
   end

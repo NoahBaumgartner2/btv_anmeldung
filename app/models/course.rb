@@ -22,10 +22,30 @@ class Course < ApplicationRecord
   has_many :age_exemptions, dependent: :destroy
 
   # Abo-Kurse haben kein end_date und sind nie beendet.
-  scope :not_ended, -> { where(end_date: nil).or(where(end_date: Date.current.beginning_of_day..)) }
+  scope :not_ended, -> { where(deactivated_at: nil).and(where(end_date: nil).or(where(end_date: Date.current.beginning_of_day..))) }
 
   def ended?
-    end_date.present? && end_date.to_date < Date.current
+    deactivated? || (end_date.present? && end_date.to_date < Date.current)
+  end
+
+  # ── Deaktivieren (Einfrieren) ──────────────────────────────────────────────
+  # Alternative zum Löschen: der Kurs verschwindet aus allen Listen und Abläufen,
+  # Anmeldungen, Trainings und Anwesenheiten bleiben für J+S erhalten und lassen
+  # sich exportieren. Durchgesetzt über readonly? hier sowie in CourseRegistration,
+  # TrainingSession und Attendance, damit jeder Schreibpfad abgedeckt ist.
+  def deactivated?
+    deactivated_at.present?
+  end
+
+  # Reaktivieren muss möglich bleiben, darum gilt die Änderung an deactivated_at nicht.
+  def readonly?
+    super || (deactivated_at_in_database.present? && !deactivated_at_changed?)
+  end
+
+  # Offene Anmeldungen würden sonst von Hintergrundjobs (Zahlungsabgleich, Ablauf
+  # von Schnupper-Anmeldungen) noch verändert. Sie müssen vorher erledigt sein.
+  def registrations_blocking_deactivation
+    course_registrations.where.not(status: %w[bestätigt storniert])
   end
 
   # Verfügbare Zahlungsmethoden (→ Anzeigenamen)
@@ -36,6 +56,7 @@ class Course < ApplicationRecord
   before_save :clean_payment_methods
   before_save :clear_dates_for_abo
   before_save :clear_rollover_fields_without_term
+  before_destroy :stop_auto_rollover_of_previous_course
 
   # Gibt die tatsächlich nutzbaren Zahlungsmethoden zurück (bereinigt, mit Fallback)
   def effective_payment_methods
@@ -277,7 +298,7 @@ class Course < ApplicationRecord
   # passenden Abo-Kursen wird der zuletzt angelegte gewählt.
   def matching_abo_course
     return nil unless category.present?
-    Course.where(category: category, registration_mode: "abo").where.not(id: id).order(created_at: :desc).first
+    Course.where(category: category, registration_mode: "abo", deactivated_at: nil).where.not(id: id).order(created_at: :desc).first
   end
 
   # Schreibt participant einen kostenlosen Einzel-Abo-Eintritt gut (siehe
@@ -400,7 +421,7 @@ class Course < ApplicationRecord
   # existiert, noch nicht verlängert, Vorlauf-Datum des nächsten Terms
   # erreicht oder leer.)
   def rollover_due?
-    return false if term.blank? || next_term.blank? || next_course.present?
+    return false if deactivated? || term.blank? || next_term.blank? || next_course.present?
     Date.current >= (next_term.priority_registration_date || next_term.start_date.to_date)
   end
 
@@ -434,6 +455,17 @@ class Course < ApplicationRecord
   end
 
   private
+
+  # Wird ein Nachfolge-Kurs gelöscht, ist der Vorgänger wieder "fällig" und der
+  # tägliche RolloverCoursePeriodsJob würde den Kurs sofort neu anlegen (inkl.
+  # Renewal-Mails und Anwesenheits-Erinnerungen für vergangene Trainings).
+  # Das Löschen gilt deshalb als Entscheid gegen die Verlängerung: Vorgänger auf
+  # manuell stellen; rollover_notified_at unterdrückt die "bereit"-Mail. Der
+  # Button "Nächste Periode jetzt erstellen" bleibt für den Vorgänger verfügbar.
+  def stop_auto_rollover_of_previous_course
+    return if previous_course.nil? || previous_course.deactivated?
+    previous_course.update_columns(auto_rollover: false, rollover_notified_at: Time.current)
+  end
 
   def clean_payment_methods
     self.payment_methods = (payment_methods || []).reject(&:blank?).select { |v| PAYMENT_METHODS.key?(v) }

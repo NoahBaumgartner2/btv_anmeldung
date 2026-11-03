@@ -113,11 +113,14 @@ class RefundService
   end
 
   # Anzahl bereits stattgefundener (nicht abgesagter) Trainings seit der Anmeldung.
+  # Nach einem Kurswechsel zählen die Trainings im alten Kurs (beim Verschieben
+  # festgehalten, siehe RegistrationMoveService) plus die im aktuellen Kurs seit
+  # dem Wechsel - der alte Kurs kann inzwischen gelöscht sein.
   def self.attended_sessions_count(registration)
-    registration.course.training_sessions
+    registration.sessions_before_move + registration.course.training_sessions
       .where(is_canceled: false)
       .where("start_time <= ?", Time.current)
-      .where("start_time >= ?", registration.created_at)
+      .where("start_time >= ?", registration.moved_at || registration.created_at)
       .count
   end
 
@@ -129,5 +132,5 @@ class RefundService
     billable_sessions * registration.course.training_value_cents
   end
 
-  private_class_method :attended_sessions_count, :deduction_cents
+  private_class_method :deduction_cents
 end

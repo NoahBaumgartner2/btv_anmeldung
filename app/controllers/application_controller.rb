@@ -2,6 +2,12 @@ class ApplicationController < ActionController::Base
   # Erlaubt moderne Browser-Features wie Web-Push (Standard von Rails 8)
   allow_browser versions: :modern
 
+  # Daten deaktivierter Kurse sind schreibgeschützt (siehe Course#readonly?).
+  rescue_from ActiveRecord::ReadOnlyRecord do
+    redirect_back fallback_location: root_path, status: :see_other,
+                  alert: "Dieser Kurs ist deaktiviert und kann nicht geändert werden."
+  end
+
   before_action :set_locale
   before_action :redirect_to_onboarding_if_needed
   before_action :redirect_to_incomplete_participant_if_needed

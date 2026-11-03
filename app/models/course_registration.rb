@@ -1,6 +1,11 @@
 class CourseRegistration < ApplicationRecord
   TRIAL_STATUS = "schnuppern"
 
+  # Prüft auch den bisherigen Kurs: beim Verschieben zeigt course_id schon aufs Ziel.
+  def readonly?
+    super || Course.where.not(deactivated_at: nil).exists?(id: [ course_id, course_id_in_database ].compact)
+  end
+
   # Stati, die einen Platz belegen (maßgeblich für Kapazitäts- und Warteliste-Prüfungen).
   # Bewusst OHNE "ausstehend": ein offener/abgebrochener Checkout darf keinen Platz
   # blockieren – sonst landen echte Teilnehmer fälschlich auf der Warteliste, obwohl der
