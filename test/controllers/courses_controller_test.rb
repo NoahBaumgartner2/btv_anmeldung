@@ -777,6 +777,29 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to course_path(course)
   end
 
+  test "Trainer meldet sich in einem Abo-Kurs an und bekommt die normalen Eintritte gratis" do
+    trainer = build_fresh_trainer
+    course = Course.new(title: "Acro Test", registration_type: "abo", registration_mode: "abo", abo_size: 10,
+      has_payment: true, has_ticketing: false, allows_holiday_deduction: false, price_cents: 20000)
+    course.save!(validate: false)
+    sign_in trainer.user
+
+    get course_path(course)
+    assert_select "form[action=?]", self_enroll_course_path(course)
+
+    assert_difference "CourseRegistration.count", 1 do
+      post self_enroll_course_path(course)
+    end
+
+    reg = CourseRegistration.last
+    assert_equal "bestätigt", reg.status
+    assert reg.payment_cleared?
+    assert_equal [ 10, 0 ], [ reg.abo_entries_total, reg.abo_entries_used ]
+
+    get abo_sessions_course_registration_path(reg)
+    assert_response :success
+  end
+
   test "self_enroll blockiert bei Altersbeschränkung" do
     trainer = build_fresh_trainer(date_of_birth: Date.new(1990, 1, 1)) # 36 Jahre alt
     course = Course.new(title: "Nur für Kinder", registration_type: "semester", registration_mode: "semester",

@@ -140,7 +140,7 @@
 
     <% if @course.restricted? && !@course.accessible_by?(current_user) %>
       <%# No registration buttons for users without access to restricted courses %>
-    <% elsif user_signed_in? && Trainer.exists?(user: current_user) && !@course.abo? && @course.registration_mode != 'single_session' &&
+    <% elsif user_signed_in? && Trainer.exists?(user: current_user) && @course.registration_mode != 'single_session' &&
               FeatureSetting.current.trainer_self_enroll_enabled? && @course.allows_trainer_self_enroll? %>
       <% trainer = Trainer.find_by(user: current_user) %>
       <% already_self_registered = @course.course_registrations.where(participant: trainer.self_participant).where.not(status: "storniert").exists? %>
