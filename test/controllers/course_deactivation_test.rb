@@ -116,6 +116,21 @@ class CourseDeactivationTest < ActionDispatch::IntegrationTest
     assert_select "a[href=?]", course_path(@course), count: 0
   end
 
+  test "Eltern können die eigene Anmeldung nicht auf bezahlt setzen" do
+    @course.update_columns(has_payment: true, price_cents: 15000)
+    registration = CourseRegistration.new(course: @course, participant: participants(:parent_only_child), status: "ausstehend",
+      payment_cleared: false, holiday_deduction_claimed: false)
+    registration.save!(validate: false)
+    sign_in users(:parent_only)
+
+    patch course_registration_path(registration), params: { course_registration: { payment_cleared: "1", status: "bestätigt", abo_entries_total: 99 } }
+
+    registration.reload
+    assert_not registration.payment_cleared?
+    assert_equal "ausstehend", registration.status
+    assert_nil registration.abo_entries_total
+  end
+
   test "verschobenes Kind bleibt im J+S-Export des deaktivierten Kurses" do
     participants(:one).update_columns(js_person_number: "1234567")
     target = Course.new(title: "Samstag Tramp", category: "Trampolin", registration_type: "quartal", registration_mode: "quartal",
