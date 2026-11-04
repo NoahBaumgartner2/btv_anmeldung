@@ -652,6 +652,11 @@ class CourseRegistrationsController < ApplicationController
       status: "abgemeldet"
     )
 
+    if attendance&.training_cancelled?
+      redirect_to participants_path, alert: t("participants.index.session_cancelled")
+      return
+    end
+
     # Wurde bei der Abmeldung automatisch ein Abo-Ausgleichseintritt gutgeschrieben,
     # muss er beim Wieder-Anmelden zurückgenommen werden – sonst liesse sich per
     # Ab-/Wieder-Anmelden beliebig oft ein zusätzlicher Eintritt "farmen". Ist der

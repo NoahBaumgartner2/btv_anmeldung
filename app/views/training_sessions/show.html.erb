@@ -90,13 +90,40 @@
             <%# ── Absagen-Panel ── %>
             <div data-training-actions-target="cancelPanel">
               <h4 class="font-bold text-red-800 text-sm mb-3"><%= t("training_sessions.show.cancel_panel_title") %></h4>
-              <ul class="text-sm text-red-700 space-y-1.5 mb-4 list-disc list-inside">
+              <ul <% if course.trainers.many? %>data-training-actions-target="cancelBullets"<% end %> class="text-sm text-red-700 space-y-1.5 mb-4 list-disc list-inside">
                 <li><%= t("training_sessions.show.cancel_bullet_1_html") %></li>
                 <li><%= t("training_sessions.show.cancel_bullet_2_html", count: @registrations.size.to_i) %></li>
                 <li><%= t("training_sessions.show.cancel_bullet_3") %></li>
                 <li><%= t("training_sessions.show.cancel_bullet_4") %></li>
               </ul>
               <%= form_with url: cancel_training_session_path(@training_session), method: :post, class: "space-y-3" do %>
+                <% if course.trainers.many? %>
+                  <fieldset class="space-y-2">
+                    <legend class="text-xs font-bold text-red-700 mb-1"><%= t("training_sessions.show.cancel_scope_legend") %></legend>
+                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                      <input type="radio" name="cancel_scope" value="all" checked data-action="change->training-actions#toggleCancelScope"
+                             class="h-4 w-4 border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer">
+                      <%= t("training_sessions.show.cancel_scope_all") %>
+                    </label>
+                    <label class="flex items-center gap-2 text-sm font-medium text-gray-700 cursor-pointer">
+                      <input type="radio" name="cancel_scope" value="selected" data-action="change->training-actions#toggleCancelScope"
+                             class="h-4 w-4 border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer">
+                      <%= t("training_sessions.show.cancel_scope_selected") %>
+                    </label>
+                  </fieldset>
+                  <div data-training-actions-target="cancelSelection" class="hidden">
+                    <p class="text-xs text-gray-500 mb-2"><%= t("training_sessions.show.cancel_scope_hint") %></p>
+                    <div class="max-h-56 overflow-y-auto border border-gray-200 rounded-lg divide-y divide-gray-100">
+                      <% @registrations.reject { |reg| @attendances_by_reg_id[reg.id]&.abgemeldet? }.each do |reg| %>
+                        <label class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-gray-800 hover:bg-gray-50 cursor-pointer">
+                          <%= check_box_tag "course_registration_ids[]", reg.id, false, id: nil,
+                                class: "h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer" %>
+                          <%= reg.participant.first_name %> <%= reg.participant.last_name %>
+                        </label>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
                 <div>
                   <label for="cancellation_reason" class="block text-xs font-bold text-red-700 mb-1">
                     <%= t("training_sessions.show.cancel_reason_input_label") %>
@@ -303,7 +330,9 @@
                 <p class="text-base font-bold text-gray-900 break-words leading-tight">
                   <%= participant.first_name %> <%= participant.last_name %>
                 </p>
-                <% if is_unsubscribed %>
+                <% if attendance&.training_cancelled? %>
+                  <p class="text-xs text-red-600 font-semibold mt-0.5 break-words"><%= t("training_sessions.show.session_cancelled_for_participant") %>: <%= attendance.cancellation_reason %></p>
+                <% elsif is_unsubscribed %>
                   <p class="text-xs text-red-600 font-semibold mt-0.5"><%= t("training_sessions.show.unsubscribed_by_parents") %></p>
                 <% end %>
               </div>
@@ -322,7 +351,11 @@
               <% end %>
             <% end %>
 
-            <% if is_unsubscribed %>
+            <% if attendance&.training_cancelled? && current_user.admin? %>
+              <%= button_to t("training_sessions.show.restore_participant"),
+                    uncancel_training_session_path(@training_session, course_registration_id: reg.id), method: :post,
+                    class: "shrink-0 text-xs font-bold px-3 py-2 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 transition cursor-pointer min-h-[36px]" %>
+            <% elsif is_unsubscribed %>
               <span class="shrink-0 inline-flex items-center text-xs font-bold px-3 py-2 rounded-full bg-red-100 text-red-600 min-h-[36px]">
                 <%= t("training_sessions.show.status_unsubscribed") %>
               </span>

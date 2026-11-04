@@ -89,6 +89,7 @@ class RefundServiceTest < ActiveSupport::TestCase
   def stub_sessions_count(reg, count)
     scope = Object.new
     scope.define_singleton_method(:where) { |*_| scope }
+    scope.define_singleton_method(:not) { |*_| scope }
     scope.define_singleton_method(:count) { count }
     reg.course.define_singleton_method(:training_sessions) { scope }
   end

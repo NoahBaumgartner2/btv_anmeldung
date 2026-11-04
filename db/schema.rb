@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_03_130000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -56,6 +56,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_03_130000) do
   end
 
   create_table "attendances", force: :cascade do |t|
+    t.text "cancellation_reason"
     t.bigint "abo_makeup_registration_id"
     t.bigint "course_registration_id", null: false
     t.datetime "created_at", null: false

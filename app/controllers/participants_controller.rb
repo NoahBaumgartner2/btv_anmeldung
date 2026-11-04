@@ -63,6 +63,12 @@ class ParticipantsController < ApplicationController
       .pluck(:course_registration_id, :training_session_id)
       .to_set
 
+    @session_cancelled_pairs = Attendance
+      .where(course_registration_id: semester_reg_ids)
+      .where.not(cancellation_reason: nil)
+      .pluck(:course_registration_id, :training_session_id)
+      .to_set
+
     # Kurse pro Kategorie für "weitere Kurse"-Links
     active_course_ids = all_regs
       .reject { |r| r.status == "storniert" }

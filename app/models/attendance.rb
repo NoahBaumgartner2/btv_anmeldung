@@ -18,4 +18,9 @@ class Attendance < ApplicationRecord
   def abgemeldet?
     status == "abgemeldet"
   end
+
+  # Training nur für diese Person abgesagt (vom Verein, nicht von der Familie abgemeldet).
+  def training_cancelled?
+    cancellation_reason.present?
+  end
 end
