@@ -42,6 +42,35 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "Kurse und Trainings mit Anwesenheit sehen nur Admins" do
+    course = courses(:one)
+    registration = CourseRegistration.new(course: course, participant: @participant, status: "bestätigt",
+      payment_cleared: false, holiday_deduction_claimed: false, created_at: 1.month.ago)
+    registration.save!(validate: false)
+    registration.update_columns(enrolled_at: 1.month.ago)
+    session = TrainingSession.new(course: course, start_time: 1.week.ago, end_time: 1.week.ago + 1.hour,
+      attendance_confirmed_at: 1.week.ago)
+    session.save!(validate: false)
+    title = I18n.t("participants.show.attendance.title")
+
+    get participant_url(@participant)
+    assert_response :success
+    assert_no_match title, response.body
+
+    sign_out @user
+    sign_in users(:admin)
+    get participant_url(@participant)
+    assert_response :success
+    assert_select "section[aria-labelledby=attendance-history-title]" do
+      assert_select "a[href=?]", training_session_path(session)
+    end
+    assert_match I18n.t("participants.show.attendance.statuses.present"), response.body
+
+    course.update_columns(end_date: 1.day.ago)
+    get participant_url(@participant)
+    assert_select "details.group\\/archive a[href=?]", training_session_path(session)
+  end
+
   test "show summiert bezahlten Kursbeitrag und bezahlte Nachforderungen zum Gesamtbetrag" do
     course = Course.new(title: "Nachforderungs-Anzeige-Kurs", registration_type: "semester",
       has_payment: true, has_ticketing: false, allows_holiday_deduction: false)

@@ -1,0 +1,67 @@
+<%# Kurse und Trainings mit Anwesenheit (nur Admins). Erwartet `history` (ParticipantAttendanceHistory). %>
+<%
+  status_styles = {
+    present:    { badge: "bg-green-50 text-green-800 ring-green-600/20",  dot: "bg-green-600" },
+    absent:     { badge: "bg-red-50 text-red-800 ring-red-600/20",        dot: "bg-red-600" },
+    excused:    { badge: "bg-amber-50 text-amber-800 ring-amber-600/20",  dot: "bg-amber-500" },
+    cancelled:  { badge: "bg-gray-100 text-gray-700 ring-gray-500/20",    dot: "bg-gray-500" },
+    unrecorded: { badge: "bg-white text-gray-600 ring-gray-300",          dot: "bg-gray-300" },
+    planned:    { badge: "bg-blue-50 text-blue-800 ring-blue-600/20",     dot: "bg-blue-500" }
+  }
+  summary_keys = %i[present absent excused unrecorded]
+  totals = summary_keys.index_with { |key| history.sum { |entry| entry.count(key) } }
+  active, archived = history.partition(&:active?)
+%>
+
+<section class="mt-10" aria-labelledby="attendance-history-title">
+  <div class="mb-4">
+    <h2 id="attendance-history-title" class="text-2xl font-bold text-gray-900"><%= t("participants.show.attendance.title") %></h2>
+    <p class="text-sm text-gray-500 mt-1"><%= t("participants.show.attendance.subtitle") %></p>
+  </div>
+
+  <% if history.empty? %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm py-8 text-center">
+      <p class="text-sm text-gray-500"><%= t("participants.show.no_registrations") %></p>
+    </div>
+  <% else %>
+    <dl class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <% summary_keys.each do |key| %>
+        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+          <dt class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide">
+            <span class="w-2 h-2 rounded-full shrink-0 <%= status_styles[key][:dot] %>" aria-hidden="true"></span>
+            <%= t("participants.show.attendance.statuses.#{key}") %>
+          </dt>
+          <dd class="mt-1 text-2xl font-bold text-gray-900 tabular-nums"><%= totals[key] %></dd>
+        </div>
+      <% end %>
+    </dl>
+
+    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3"><%= t("participants.show.attendance.active_title", count: active.size) %></h3>
+    <% if active.any? %>
+      <div class="space-y-3">
+        <%= render partial: "attendance_course_card", collection: active, as: :entry, locals: { status_styles: status_styles } %>
+      </div>
+    <% else %>
+      <p class="bg-white rounded-xl border border-gray-200 shadow-sm py-6 text-center text-sm text-gray-500"><%= t("participants.show.attendance.no_active") %></p>
+    <% end %>
+
+    <% if archived.any? %>
+      <details class="group/archive mt-6 rounded-xl border border-gray-200 bg-gray-50">
+        <summary class="flex items-center gap-3 p-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-gray-100 rounded-xl transition">
+          <svg class="w-5 h-5 text-gray-400 shrink-0 transition-transform group-open/archive:rotate-90" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+          <span class="min-w-0">
+            <span class="block font-bold text-gray-700"><%= t("participants.show.attendance.archive_title", count: archived.size) %></span>
+            <span class="block text-xs text-gray-500 mt-0.5"><%= t("participants.show.attendance.archive_hint") %></span>
+          </span>
+        </summary>
+        <div class="space-y-3 p-3 sm:p-4 pt-0 sm:pt-0">
+          <%= render partial: "attendance_course_card", collection: archived, as: :entry, locals: { status_styles: status_styles } %>
+        </div>
+      </details>
+    <% end %>
+
+    <p class="text-xs text-gray-500 mt-4"><%= t("participants.show.attendance.legend") %></p>
+  <% end %>
+</section>
