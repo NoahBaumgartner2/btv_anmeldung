@@ -111,7 +111,7 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     other.save!(validate: false)
 
     @registration.update_columns(sumup_checkout_id: "co-confirmed")
-    paid_body = { status: "PAID", transactions: [ { id: "tx-confirmed" } ] }.to_json
+    paid_body = { status: "PAID", transactions: [ { id: "tx-confirmed", status: "SUCCESSFUL" } ] }.to_json
 
     stub_singleton_method(PaymentSyncService, :fetch_checkout, ok_response(paid_body)) do
       get payments_success_path(checkout_id: "co-confirmed", registration_id: @registration.id)
@@ -131,7 +131,7 @@ class PaymentsControllerTest < ActionDispatch::IntegrationTest
     other.save!(validate: false)
 
     @registration.update_columns(status: "ausstehend", sumup_checkout_id: "co-pending")
-    paid_body = { status: "PAID", transactions: [ { id: "tx-pending" } ] }.to_json
+    paid_body = { status: "PAID", transactions: [ { id: "tx-pending", status: "SUCCESSFUL" } ] }.to_json
 
     stub_singleton_method(PaymentSyncService, :fetch_checkout, ok_response(paid_body)) do
       get payments_success_path(checkout_id: "co-pending", registration_id: @registration.id)

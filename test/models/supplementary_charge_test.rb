@@ -56,7 +56,7 @@ class SupplementaryChargeTest < ActiveSupport::TestCase
       amount_cents: 3_000, description: "Test", sumup_checkout_id: "co-pending")
 
     bodies = {
-      "co-paid"    => { status: "PAID", transactions: [ { id: "TX-9", timestamp: "2026-09-13T17:48:12Z" } ] },
+      "co-paid"    => { status: "PAID", transactions: [ { id: "TX-9", status: "SUCCESSFUL", timestamp: "2026-09-13T17:48:12Z" } ] },
       "co-pending" => { status: "PENDING" }
     }
     original = PaymentSyncService.method(:fetch_checkout)
