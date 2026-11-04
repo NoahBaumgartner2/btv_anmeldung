@@ -121,6 +121,7 @@ class RefundService
       .where(is_canceled: false)
       .where("start_time <= ?", Time.current)
       .where("start_time >= ?", registration.moved_at || registration.created_at)
+      .where.not(id: registration.attendances.where.not(cancellation_reason: nil).select(:training_session_id))
       .count
   end
 

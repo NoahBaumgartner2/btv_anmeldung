@@ -30,14 +30,7 @@ class TrainingSessionsController < ApplicationController
   end
 
   def show
-    @registrations = @training_session.course.course_registrations
-      .includes(:participant)
-      .where(status: %w[bestätigt schnuppern])
-      .applicable_to_session(@training_session.id)
-      .order(id: :desc)
-      .to_a
-      .select { |reg| reg.status != "schnuppern" || trial_for_this_session?(reg) }
-      .uniq(&:participant_id)
+    @registrations = session_registrations
     @attendances_by_reg_id = @training_session.attendances.index_by(&:course_registration_id)
 
     # Wurde eine Anmeldung nach der Anwesenheitserfassung in einen anderen Kurs
@@ -130,6 +123,16 @@ class TrainingSessionsController < ApplicationController
       return redirect_to @training_session, alert: t("training_sessions.show.cancel_reason_required")
     end
 
+    # Mehrere Trainer: Das Training kann für einen Teil der Gruppe normal stattfinden.
+    if params[:cancel_scope] == "selected" && @training_session.course.trainers.many?
+      selectable = selectable_for_cancellation
+      selected = selectable.select { |reg| Array(params[:course_registration_ids]).include?(reg.id.to_s) }
+      if selected.empty?
+        return redirect_to @training_session, alert: t("training_sessions.show.cancel_selected_none")
+      end
+      return cancel_for_selected(selected, reason) if selected.size < selectable.size
+    end
+
     @training_session.update!(is_canceled: true, cancellation_reason: reason)
 
     if send_mail?
@@ -157,6 +160,12 @@ class TrainingSessionsController < ApplicationController
   def uncancel
     authorize_admin!
     return if performed?
+
+    if params[:course_registration_id].present?
+      @training_session.attendances.where(course_registration_id: params[:course_registration_id])
+                       .where.not(cancellation_reason: nil).destroy_all
+      return redirect_to @training_session, notice: t("training_sessions.show.restore_participant_notice")
+    end
 
     @training_session.update!(is_canceled: false)
     redirect_to @training_session, notice: "Die Absage wurde rückgängig gemacht. Das Training ist wieder aktiv."
@@ -320,6 +329,43 @@ class TrainingSessionsController < ApplicationController
   end
 
   private
+
+  def session_registrations
+    @training_session.course.course_registrations
+      .includes(:participant)
+      .where(status: %w[bestätigt schnuppern])
+      .applicable_to_session(@training_session.id)
+      .order(id: :desc)
+      .to_a
+      .select { |reg| reg.status != "schnuppern" || trial_for_this_session?(reg) }
+      .uniq(&:participant_id)
+  end
+
+  # Wer schon abgemeldet ist, kommt ohnehin nicht und braucht keine Absage.
+  def selectable_for_cancellation
+    excused_ids = @training_session.attendances.where(status: "abgemeldet").pluck(:course_registration_id)
+    session_registrations.reject { |reg| excused_ids.include?(reg.id) }
+  end
+
+  # Das Training bleibt aktiv; nur die Ausgewählten gelten als abgesagt und bekommen eine Mail.
+  def cancel_for_selected(registrations, reason)
+    Attendance.transaction do
+      registrations.each do |reg|
+        @training_session.attendances.find_or_initialize_by(course_registration_id: reg.id)
+                         .update!(status: "abgemeldet", cancellation_reason: reason)
+      end
+    end
+
+    if send_mail?
+      registrations.each do |reg|
+        user = reg.participant&.user
+        next if user.blank?
+        TrainingSessionMailer.cancellation_notice(@training_session, user, reason: reason, participant: reg.participant).deliver_later
+      end
+    end
+
+    redirect_to @training_session, notice: t("training_sessions.show.cancel_selected_notice", count: registrations.size)
+  end
 
   # Eine Schnupper-Anmeldung gehört nur zu IHREM gewählten Training und darf nur dort
   # in der Präsenzkontrolle erscheinen – nicht bei jeder Session des Kurses.

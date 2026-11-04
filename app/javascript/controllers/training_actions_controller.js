@@ -8,7 +8,7 @@ export default class extends Controller {
   static targets = [
     "cancelTab", "substituteTab", "cancelPanel", "substitutePanel",
     "trainerSearch", "trainerCard", "noResults",
-    "selectedTrainerId", "reasonWrap"
+    "selectedTrainerId", "reasonWrap", "cancelSelection", "cancelBullets"
   ]
 
   showCancel() {
@@ -18,6 +18,12 @@ export default class extends Controller {
     this.cancelTabTarget.classList.replace("text-gray-600", "text-white")
     this.substituteTabTarget.classList.replace("bg-primary-600", "bg-gray-100")
     this.substituteTabTarget.classList.replace("text-white", "text-gray-600")
+  }
+
+  toggleCancelScope(event) {
+    const selected = event.target.value === "selected"
+    this.cancelSelectionTarget.classList.toggle("hidden", !selected)
+    this.cancelBulletsTarget.classList.toggle("hidden", selected)
   }
 
   showSubstitute() {

@@ -4,7 +4,9 @@
 %>
 <li class="flex items-center justify-between gap-3 text-sm">
   <span class="text-gray-700 font-medium min-w-0 flex-1"><%= session.start_time.in_time_zone.strftime("%-d. %b, %H:%M") %> <%= t("misc.time_suffix") %></span>
-  <% if is_unsubscribed %>
+  <% if @session_cancelled_pairs.include?([reg.id, session.id]) %>
+    <span class="shrink-0 inline-flex items-center justify-center text-xs font-bold px-2.5 py-1.5 min-h-11 rounded-md bg-red-100 text-red-600"><%= t("participants.index.session_cancelled") %></span>
+  <% elsif is_unsubscribed %>
   <% can_resubscribe = session.start_time > Time.current %>
   <% if can_resubscribe %>
     <%= form_with url: resubscribe_to_session_course_registration_path(reg), method: :post, class: "shrink-0 m-0 flex items-center" do %>

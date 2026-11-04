@@ -1,6 +1,9 @@
 class TrainingSessionMailer < ApplicationMailer
-  def cancellation_notice(training_session, participant_user)
+  # reason/participant: nur bei einer Absage für einzelne Teilnehmende.
+  def cancellation_notice(training_session, participant_user, reason: nil, participant: nil)
     @training_session = training_session
+    @reason = reason || training_session.cancellation_reason
+    @participant = participant
     @course = training_session.course
     @participant_user = participant_user
     @training_session_url = training_session_url(training_session)
