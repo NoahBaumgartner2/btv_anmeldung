@@ -74,11 +74,13 @@
       </div>
     </div>
 
+    <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants") %>
+
     <div class="flex gap-3">
       <button type="submit"
               class="flex-1 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-3 px-4 rounded-xl text-sm transition cursor-pointer min-h-11"
-              data-turbo-confirm="Nachforderung(en) erstellen und Mails versenden?">
-        Nachforderung(en) erstellen &amp; Mails versenden
+              data-turbo-confirm="Nachforderung(en) jetzt erstellen?">
+        Nachforderung(en) erstellen
       </button>
       <%= link_to "Abbrechen", admin_supplementary_charges_path,
             class: "flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl text-sm transition min-h-11" %>

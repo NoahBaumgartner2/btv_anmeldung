@@ -8,12 +8,13 @@
 # Terms und frische Trainings – Wochentag/Zeit werden aus den bestehenden
 # Trainings des alten Kurses übernommen (mehrere wöchentliche Slots möglich).
 class CourseRolloverService
-  def self.roll_over!(course)
-    new(course).roll_over!
+  def self.roll_over!(course, notify: true)
+    new(course, notify: notify).roll_over!
   end
 
-  def initialize(course)
+  def initialize(course, notify: true)
     @course = course
+    @notify = notify
   end
 
   def roll_over!
@@ -40,7 +41,7 @@ class CourseRolloverService
       end
     end
 
-    notify_previous_participants(new_course)
+    notify_previous_participants(new_course) if @notify
 
     new_course
   end

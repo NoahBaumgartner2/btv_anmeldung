@@ -435,7 +435,7 @@ class CourseRegistrationsController < ApplicationController
         WaitlistPromotionService.promote_next_from_waitlist(course, training_session_id: training_session_id)
       end
 
-      if @course_registration.saved_change_to_trial_session_id?
+      if @course_registration.saved_change_to_trial_session_id? && send_mail?
         CourseRegistrationMailer.trial_date_changed(@course_registration, previous_date: previous_trial_date).deliver_later
       end
 
@@ -524,8 +524,7 @@ class CourseRegistrationsController < ApplicationController
       training_session_id: @course_registration.training_session_id
     )
 
-    # Eltern immer benachrichtigen
-    CourseRegistrationMailer.cancelled_by_trainer(@course_registration).deliver_later
+    CourseRegistrationMailer.cancelled_by_trainer(@course_registration).deliver_later if send_mail?
 
     # Automatischer Refund (nur wenn Kurs bezahlt)
     refund_amount_cents = nil

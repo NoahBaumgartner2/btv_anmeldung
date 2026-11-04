@@ -171,8 +171,11 @@
       <p class="text-sm font-semibold text-blue-800">
         Bereit für die nächste Periode (<%= @course.next_term&.name %>) – "Automatisch erstellen" ist für diesen Kurs deaktiviert.
       </p>
-      <%= button_to "Nächste Periode jetzt erstellen", roll_over_course_path(@course),
-            class: "shrink-0 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer" %>
+      <%= form_with url: roll_over_course_path(@course), method: :post, class: "shrink-0 space-y-2" do |f| %>
+        <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants") %>
+        <%= f.submit "Nächste Periode jetzt erstellen",
+              class: "bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer" %>
+      <% end %>
     </div>
   <% end %>
 
@@ -325,9 +328,13 @@
                  data-action="input->manual-enroll#search"
                  class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 mb-3">
 
+          <div class="mb-3">
+            <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants"), form_id: "manual-enroll-form" %>
+          </div>
+
           <div data-manual-enroll-target="searchResults" class="space-y-2"></div>
 
-          <%= form_with url: manual_enroll_course_path(@course), method: :post, data: { "manual-enroll-target": "enrollForm" }, class: "hidden" do |f| %>
+          <%= form_with url: manual_enroll_course_path(@course), method: :post, id: "manual-enroll-form", data: { "manual-enroll-target": "enrollForm" }, class: "hidden" do |f| %>
             <%= f.hidden_field :participant_id, data: { "manual-enroll-target": "participantId" } %>
             <%= f.hidden_field :trial, value: "false", data: { "manual-enroll-target": "trialField" } %>
             <%= f.hidden_field :trial_session_id, data: { "manual-enroll-target": "trialSessionField" } %>
@@ -527,13 +534,16 @@
 
       <%# Zugriff erteilen %>
       <div class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-gray-50">
-        <%= form_with url: grant_access_course_path(@course), method: :post, class: "flex gap-2" do |f| %>
-          <%= f.email_field :email,
-                placeholder: "E-Mail-Adresse",
-                required: true,
-                class: "flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
-          <%= f.submit "Zugriff erteilen",
-                class: "shrink-0 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer" %>
+        <%= form_with url: grant_access_course_path(@course), method: :post, class: "space-y-2" do |f| %>
+          <div class="flex gap-2">
+            <%= f.email_field :email,
+                  placeholder: "E-Mail-Adresse",
+                  required: true,
+                  class: "flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+            <%= f.submit "Zugriff erteilen",
+                  class: "shrink-0 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer" %>
+          </div>
+          <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.recipient") %>
         <% end %>
       </div>
     </div>

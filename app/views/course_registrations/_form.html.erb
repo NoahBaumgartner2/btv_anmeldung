@@ -178,6 +178,7 @@
                     ->(s) { I18n.l(s.start_time, format: :long) },
                     {},
                     class: "block w-full rounded-lg border border-gray-300 shadow-sm text-base sm:text-sm bg-white focus:ring-primary-500 focus:border-primary-500 py-3 sm:py-2.5 px-3 min-h-[44px]" %>
+              <div class="mt-2"><%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants") %></div>
             </div>
           <% end %>
         </div>

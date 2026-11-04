@@ -13,11 +13,23 @@ class ApplicationController < ActionController::Base
   before_action :redirect_to_incomplete_participant_if_needed
   before_action :redirect_trainer_to_profile_if_incomplete
 
+  helper_method :send_mail?
+
   def default_url_options
     { locale: nil }
   end
 
   private
+
+  # Auswahl "E-Mail senden" (shared/_send_mail_checkbox): gesendet wird, solange
+  # sie nicht ausdrücklich abgewählt ist. Nur in Admin-/Trainer-Aktionen verwendet.
+  def send_mail?
+    params[:send_mail] != "0"
+  end
+
+  def with_assignment_mail_choice(&block)
+    send_mail? ? block.call : CourseTrainer.without_assignment_notifications(&block)
+  end
 
   def redirect_to_onboarding_if_needed
     return unless user_signed_in?

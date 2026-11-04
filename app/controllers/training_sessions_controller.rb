@@ -132,14 +132,16 @@ class TrainingSessionsController < ApplicationController
 
     @training_session.update!(is_canceled: true, cancellation_reason: reason)
 
-    @training_session.course.course_registrations
-      .where(status: "bestätigt")
-      .applicable_to_session(@training_session.id)
-      .includes(participant: :user)
-      .each do |registration|
-        next unless registration.participant&.user.present?
-        TrainingSessionMailer.cancellation_notice(@training_session, registration.participant.user).deliver_later
-      end
+    if send_mail?
+      @training_session.course.course_registrations
+        .where(status: "bestätigt")
+        .applicable_to_session(@training_session.id)
+        .includes(participant: :user)
+        .each do |registration|
+          next unless registration.participant&.user.present?
+          TrainingSessionMailer.cancellation_notice(@training_session, registration.participant.user).deliver_later
+        end
+    end
 
     # Admins über Trainingsabsage informieren (individuell abschaltbar, siehe "Meine Benachrichtigungen")
     User.where(admin: true).find_each do |admin_user|
@@ -147,7 +149,9 @@ class TrainingSessionsController < ApplicationController
       TrainingSessionMailer.training_cancelled_admin_notice(@training_session, admin_user).deliver_later
     end
 
-    redirect_to @training_session, notice: "Das Training wurde abgesagt und alle Teilnehmenden wurden per E-Mail benachrichtigt."
+    redirect_to @training_session, notice: send_mail? ?
+      "Das Training wurde abgesagt und alle Teilnehmenden wurden per E-Mail benachrichtigt." :
+      "Das Training wurde abgesagt. Die Teilnehmenden wurden nicht per E-Mail benachrichtigt."
   end
 
   def uncancel
@@ -302,7 +306,7 @@ class TrainingSessionsController < ApplicationController
     @training_session.update!(substitute_trainer: substitute, substitute_reason: substitute ? reason : nil)
 
     if substitute
-      TrainingSessionMailer.substitute_assigned(@training_session, substitute).deliver_later
+      TrainingSessionMailer.substitute_assigned(@training_session, substitute).deliver_later if send_mail?
 
       User.where(admin: true).find_each do |admin_user|
         next unless admin_user.admin_notification_enabled?("substitute_assigned_admin")

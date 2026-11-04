@@ -105,6 +105,7 @@
                             placeholder="<%= t("training_sessions.show.cancel_reason_placeholder") %>"
                             class="block w-full rounded-lg border border-red-200 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
                 </div>
+                <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants") %>
                 <button type="submit"
                         class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm py-2 px-4 rounded-lg transition cursor-pointer">
                   <%= t("training_sessions.show.confirm_cancel_btn") %>
@@ -165,6 +166,7 @@
                       <textarea name="substitute_reason" rows="2" required
                                 placeholder="<%= t("training_sessions.show.substitute_reason_placeholder") %>"
                                 class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
+                      <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.substitute") %>
                       <button type="submit"
                               class="bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer">
                         <%= t("training_sessions.show.substitute_set_btn") %>

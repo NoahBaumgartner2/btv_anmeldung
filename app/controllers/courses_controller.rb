@@ -4,6 +4,7 @@ class CoursesController < ApplicationController
   # GET /courses or /courses.json
   before_action :authorize_trainer!, only: [ :manage, :send_custom_email, :toggle_talent, :self_enroll ]
   before_action :set_course, only: %i[ show edit update destroy confirm_destroy generate_trainings create_generated_trainings manage grant_access revoke_access participant_search manual_enroll send_custom_email toggle_talent roll_over self_enroll deactivate reactivate ]
+  around_action :with_assignment_mail_choice, only: %i[ create update ]
   before_action :reject_if_deactivated, only: %i[ edit update generate_trainings create_generated_trainings grant_access revoke_access manual_enroll send_custom_email toggle_talent roll_over self_enroll ]
   def index
     today = Date.current
@@ -220,7 +221,7 @@ class CoursesController < ApplicationController
       return redirect_to manage_course_path(@course), alert: "Die nächste Periode ist noch nicht bereit."
     end
 
-    new_course = CourseRolloverService.roll_over!(@course)
+    new_course = CourseRolloverService.roll_over!(@course, notify: send_mail?)
     if new_course
       redirect_to manage_course_path(new_course), notice: "Nächste Periode (#{new_course.term.name}) wurde erstellt."
     else
@@ -309,7 +310,7 @@ class CoursesController < ApplicationController
           # Kein Passwort-Mail von Devise – der Link steckt stattdessen im
           # ParticipantMailer#complete_profile weiter unten.
           reset_password_token = user.send(:set_reset_password_token)
-        else
+        elsif send_mail?
           user.send_reset_password_instructions
         end
       end
@@ -490,7 +491,7 @@ class CoursesController < ApplicationController
     grant = CourseAccessGrant.find_or_initialize_by(course: @course, user: user)
     if grant.new_record?
       grant.save!
-      CourseAccessMailer.invited(user, @course).deliver_later
+      CourseAccessMailer.invited(user, @course).deliver_later if send_mail?
       redirect_to manage_course_path(@course),
         notice: "#{user.email} hat jetzt Zugriff auf diesen Kurs.",
         status: :see_other
@@ -750,7 +751,9 @@ class CoursesController < ApplicationController
         # Adresse/etc. – statt der Bestätigungsmail geht ein Link zum Ergänzen raus.
         # Die reguläre Bestätigungsmail wird nachgereicht, sobald die Familie das
         # Profil selbst vervollständigt hat (siehe participants_controller#update).
-        if email_only
+        if !send_mail?
+          # Bewusst keine Mail (Auswahl im Formular)
+        elsif email_only
           ParticipantMailer.complete_profile(participant, @course, reset_password_token: reset_password_token).deliver_later
         elsif abo_remaining_entries
           CourseRegistrationMailer.abo_imported(reg).deliver_later
@@ -762,7 +765,7 @@ class CoursesController < ApplicationController
         msg = status == "warteliste" ?
           "#{name} wurde auf die Warteliste gesetzt." :
           "#{name} wurde erfolgreich angemeldet."
-        msg += " Die Familie erhält eine E-Mail, um die restlichen Angaben zu ergänzen." if email_only
+        msg += " Die Familie erhält eine E-Mail, um die restlichen Angaben zu ergänzen." if email_only && send_mail?
         redirect_to manage_course_path(@course), notice: msg
       else
         redirect_to manage_course_path(@course),
@@ -841,7 +844,7 @@ class CoursesController < ApplicationController
       return redirect_to manage_course_path(@course), alert: "Der Kurs ist voll." if full
 
       if reg.persisted?
-        CourseRegistrationMailer.confirmation(reg).deliver_later
+        CourseRegistrationMailer.confirmation(reg).deliver_later if send_mail?
         msg = status == "warteliste" ?
           "#{participant.first_name} wurde auf die Warteliste gesetzt." :
           "#{participant.first_name} wurde zum Schnuppern angemeldet."
@@ -862,7 +865,7 @@ class CoursesController < ApplicationController
         user.privacy_accepted = true
         user.skip_confirmation!
         user.save!
-        user.send_reset_password_instructions
+        user.send_reset_password_instructions if send_mail?
       end
       trainer = Trainer.find_or_create_by(user: user) do |t|
         t.phone = params[:new_trainer_phone].presence
