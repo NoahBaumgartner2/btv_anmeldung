@@ -391,6 +391,8 @@
         <p class="text-sm text-gray-500">Noch keine Trainer angelegt.</p>
       <% end %>
 
+      <div class="mt-4"><%= render "shared/send_mail_checkbox", text: t("shared.send_mail.trainers") %></div>
+
       <%# Neuen Trainer direkt anlegen %>
       <div class="mt-4 border-t border-gray-100 pt-4">
         <details class="group">
@@ -401,7 +403,7 @@
             Neuen Trainer direkt erfassen
           </summary>
           <div class="mt-4 bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
-            <p class="text-xs text-gray-500">Erstellt einen neuen Trainer-Account und weist ihn sofort diesem Kurs zu. Der Trainer erhält eine E-Mail zum Passwort setzen.</p>
+            <p class="text-xs text-gray-500">Erstellt einen neuen Trainer-Account und weist ihn sofort diesem Kurs zu. Der Trainer erhält eine E-Mail zum Passwort setzen, falls die Auswahl oben aktiv ist.</p>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">E-Mail-Adresse des Trainers</label>
               <input type="email" name="new_trainer_email"

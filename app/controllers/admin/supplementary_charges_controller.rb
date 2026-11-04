@@ -65,11 +65,11 @@ module Admin
           explanation:  params[:explanation]
         )
         created << charge
-        SupplementaryChargeMailer.payment_request(charge).deliver_later
+        SupplementaryChargeMailer.payment_request(charge).deliver_later if send_mail?
       end
 
       redirect_to admin_supplementary_charges_path,
-        notice: "#{created.size} Nachforderung(en) über #{created.first.amount_display} erstellt, Mails werden verschickt."
+        notice: "#{created.size} Nachforderung(en) über #{created.first.amount_display} erstellt#{", Mails werden verschickt" if send_mail?}."
     end
 
     private

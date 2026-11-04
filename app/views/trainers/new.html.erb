@@ -117,7 +117,8 @@
                   placeholder: "trainer@example.com",
                   autocomplete: "email",
                   class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
-            <p class="mt-1 text-xs text-gray-400">Eine Einladungs-E-Mail mit dem Link zum Passwort setzen wird an diese Adresse gesendet.</p>
+            <p class="mt-1 mb-2 text-xs text-gray-400">Die Einladungs-E-Mail enthält den Link zum Passwort setzen.</p>
+            <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.recipient") %>
           </div>
 
           <div>

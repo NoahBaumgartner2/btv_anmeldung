@@ -389,7 +389,6 @@
                           </div>
                           <div>
                             <h3 class="text-lg font-extrabold text-gray-900"><%= t("courses.manage.unsubscribe_confirm", name: "#{p.first_name} #{p.last_name}") %></h3>
-                            <p class="text-xs text-gray-500"><%= t("courses.manage.unsubscribe_parents_info") %></p>
                           </div>
                         </div>
                         <%= form_with url: trainer_cancel_course_registration_path(reg), method: :post, data: { turbo: false }, class: "space-y-4" do %>
@@ -400,6 +399,7 @@
                                       placeholder="<%= t("courses.manage.reason_placeholder") %>"
                                       class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
                           </div>
+                          <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants") %>
                           <div class="flex gap-3 pt-2">
                             <button type="submit"
                                     class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11">

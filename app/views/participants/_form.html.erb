@@ -280,6 +280,10 @@
     <%= hidden_field_tag :abo_remaining_entries, nil, data: { "manual-enroll-target": "aboEntriesField" } %>
   <% end %>
 
+  <% if local_assigns[:manual_enroll_mode] %>
+    <div class="mb-4"><%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants") %></div>
+  <% end %>
+
   <%# ── Aktionen ─────────────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row items-center gap-3">
     <%= form.submit local_assigns.fetch(:submit_label) { participant.new_record? ? t("participants.form.submit_new") : t("participants.form.submit_edit") },

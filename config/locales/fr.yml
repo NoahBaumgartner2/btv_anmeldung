@@ -289,7 +289,6 @@ fr:
       edit_link: "Modifier"
       unsubscribe: "Désinscrire"
       unsubscribe_confirm: "Désinscrire %{name} ?"
-      unsubscribe_parents_info: "Les parents seront informés par e-mail."
       reason_label: "Motif"
       reason_optional: "(optionnel)"
       reason_placeholder: "p.ex. blessure, changement de cours, ..."
@@ -1045,7 +1044,7 @@ fr:
       cancel_btn: "Annuler l'entraînement"
       cancel_panel_title: "Que se passe-t-il lors de l'annulation ?"
       cancel_bullet_1_html: "L'entraînement est définitivement marqué comme <strong>annulé</strong>."
-      cancel_bullet_2_html: "Tous les <strong>%{count} participants confirmés</strong> recevront immédiatement une annulation par e-mail."
+      cancel_bullet_2_html: "Tous les <strong>%{count} participants confirmés</strong> reçoivent une annulation par e-mail si l'option ci-dessous est active."
       cancel_bullet_3: "Le contrôle de présence pour cet entraînement sera bloqué."
       cancel_bullet_4: "Seuls les admins peuvent annuler l'annulation par la suite."
       confirm_cancel_btn: "Oui, annuler l'entraînement"
@@ -1777,6 +1776,11 @@ fr:
 
   shared:
     access_denied: "Accès refusé."
+    send_mail:
+      participants: "Envoyer l'e-mail aux participants"
+      trainers: "Envoyer l'e-mail aux entraîneurs"
+      substitute: "Envoyer l'e-mail au remplaçant"
+      recipient: "Envoyer l'e-mail à cette personne"
 
   misc:
     time_suffix: ""
