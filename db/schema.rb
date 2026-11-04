@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_04_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -147,6 +147,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_100000) do
     t.datetime "enrolled_at"
     t.datetime "moved_at"
     t.integer "sessions_before_move", default: 0, null: false
+    t.integer "refund_amount_cents"
+    t.integer "refund_calculated_cents"
+    t.text "refund_note"
     t.index ["abo_source_registration_id"], name: "index_course_registrations_on_abo_source_registration_id"
     t.index ["cancelled_by_trainer_id"], name: "index_course_registrations_on_cancelled_by_trainer_id"
     t.index ["course_id", "status"], name: "index_course_registrations_on_course_id_and_status"

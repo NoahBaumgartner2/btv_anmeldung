@@ -1,0 +1,56 @@
+<% b = @refund %>
+<% chf = ->(cents) { format("%.2f", cents / 100.0) } %>
+<%= turbo_frame_tag "refund_preview_#{@course_registration.id}#{params[:suffix]}" do %>
+  <% if !b[:refundable] %>
+    <p class="text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"><%= t("course_registrations.refund.not_possible.#{b[:reason]}") %></p>
+  <% else %>
+    <div class="border border-amber-200 bg-amber-50 rounded-xl p-4 space-y-3 text-sm">
+      <p class="font-bold text-gray-900"><%= t("course_registrations.refund.title") %></p>
+
+      <p class="text-gray-700"><%= t("course_registrations.refund.course_total", total: b[:course_past_count], counted: b[:counted_count]) %></p>
+      <% if b[:sessions_before_move].positive? %>
+        <p class="text-gray-700"><%= t("course_registrations.refund.before_move", count: b[:sessions_before_move]) %></p>
+      <% end %>
+      <% if b[:sessions].any? %>
+        <ul class="max-h-36 overflow-y-auto bg-white border border-amber-100 rounded-lg divide-y divide-gray-100">
+          <% b[:sessions].each do |session| %>
+            <% status = b[:attendance_by_session][session.id] %>
+            <li class="flex justify-between gap-3 px-3 py-1.5 text-gray-700">
+              <span><%= I18n.l(session.start_time.in_time_zone, format: "%d.%m.%Y %H:%M") %></span>
+              <% if status.present? %><span class="text-xs text-gray-500"><%= status %></span><% end %>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <dl class="space-y-1 text-gray-700">
+        <div class="flex justify-between gap-3"><dt><%= t("course_registrations.refund.paid") %></dt><dd>CHF <%= chf.call(b[:paid_cents]) %></dd></div>
+        <div class="flex justify-between gap-3">
+          <dt><%= t("course_registrations.refund.deduction", billable: b[:billable_count], value: chf.call(b[:training_value_cents])) %></dt>
+          <dd>– CHF <%= chf.call(b[:deduction_cents]) %></dd>
+        </div>
+        <% if b[:counted_count].positive? %><p class="text-xs text-gray-500"><%= t("course_registrations.refund.first_free") %></p><% end %>
+        <div class="flex justify-between gap-3 font-bold text-gray-900 pt-1 border-t border-amber-200"><dt><%= t("course_registrations.refund.calculated") %></dt><dd>CHF <%= chf.call(b[:amount_cents]) %></dd></div>
+      </dl>
+
+      <% if current_user.admin? %>
+      <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1"><%= t("course_registrations.refund.amount_label", max: chf.call(b[:paid_cents])) %></label>
+        <input type="number" name="refund_amount" step="0.01" min="0" max="<%= chf.call(b[:paid_cents]) %>" required value="<%= chf.call(b[:amount_cents]) %>"
+               class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400">
+      </div>
+      <div>
+        <label class="block text-xs font-bold text-gray-700 mb-1"><%= t("course_registrations.refund.note_label") %></label>
+        <textarea name="refund_note" rows="2" class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
+      </div>
+      <% else %>
+        <input type="hidden" name="refund_amount" value="<%= chf.call(b[:amount_cents]) %>">
+        <p class="text-xs text-gray-500"><%= t("course_registrations.refund.admin_only_hint") %></p>
+      <% end %>
+      <label class="flex items-start gap-2 font-medium text-gray-800 cursor-pointer">
+        <input type="checkbox" name="refund_confirmed" value="1" required class="mt-0.5 h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500 cursor-pointer">
+        <span><%= t("course_registrations.refund.confirm") %></span>
+      </label>
+    </div>
+  <% end %>
+<% end %>

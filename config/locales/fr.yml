@@ -878,6 +878,32 @@ fr:
       privacy_link: "politique de confidentialité"
 
   course_registrations:
+    refund:
+      admin_only: "Seuls les administrateurs peuvent modifier le montant. L'inscription n'a pas été modifiée."
+      admin_only_hint: "Seuls les administrateurs peuvent modifier le montant."
+      loading: "Calcul du remboursement …"
+      title: "Vérifier le remboursement"
+      course_total: "%{total} entraînements ont eu lieu dans ce cours jusqu'à présent. %{counted} comptent pour le remboursement :"
+      before_move: "Dont %{count} dans le cours précédent avant le changement."
+      paid: "Payé"
+      deduction: "Déduction : %{billable} × CHF %{value}"
+      first_free: "Le premier entraînement n'est pas déduit."
+      calculated: "Montant calculé"
+      amount_label: "Remboursement en CHF (maximum %{max})"
+      note_label: "Note (obligatoire si vous modifiez le montant)"
+      confirm: "Je confirme le remboursement avec ce montant."
+      invalid_amount: "Montant non valide. L'inscription n'a pas été modifiée."
+      note_required: "Veuillez ajouter une note si le montant est modifié. L'inscription n'a pas été modifiée."
+      flash_done: "Remboursement de CHF %{amount} déclenché."
+      flash_failed: "Le remboursement a échoué, les administrateurs ont été informés."
+      admin_title: "Remboursement"
+      admin_amounts: "Confirmé : CHF %{amount}, calculé : CHF %{calculated}"
+      not_possible:
+        already_refunded: "Cette inscription a déjà été remboursée."
+        no_payment: "Pas de remboursement : l'inscription n'est pas payée."
+        no_transaction_id: "Remboursement automatique impossible : aucun paiement SumUp enregistré. Veuillez rembourser manuellement si nécessaire."
+        no_training_value: "Remboursement automatique impossible : le cours n'a pas de valeur d'entraînement."
+        no_price: "Remboursement automatique impossible : aucun prix enregistré."
     statuses:
       bestätigt: "Confirmé"
       warteliste: "Liste d'attente"

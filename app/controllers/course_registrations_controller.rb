@@ -505,6 +505,11 @@ class CourseRegistrationsController < ApplicationController
     reason  = params[:cancellation_reason].to_s.strip
     trainer = Trainer.find_by(user: current_user)
 
+    # Vor jeder Änderung prüfen: bei einem ungültigen Betrag bleibt die Anmeldung bestehen.
+    refund_breakdown = RefundService.breakdown(@course_registration)
+    refund_choice = confirmed_refund_cents(refund_breakdown)
+    return if performed?
+
     @course_registration.update!(
       status: "storniert",
       cancellation_reason: reason.presence,
@@ -530,9 +535,13 @@ class CourseRegistrationsController < ApplicationController
     refund_amount_cents = nil
     refund_failed = false
     if @course_registration.payment_cleared? && course.has_payment? && course.training_value_cents.present?
-      planned_cents = RefundService.calculate_amount_cents(@course_registration)
+      planned_cents = refund_choice || RefundService.calculate_amount_cents(@course_registration)
       begin
-        result = RefundService.process(@course_registration)
+        result = RefundService.process(@course_registration, amount_cents: refund_choice)
+        if refund_choice
+          @course_registration.update_columns(refund_amount_cents: refund_choice,
+            refund_calculated_cents: refund_breakdown[:amount_cents], refund_note: (params[:refund_note].to_s.strip.presence if current_user.admin?))
+        end
         if result[:refunded]
           refund_amount_cents = result[:amount_cents]
           amount_chf = format("%.2f", refund_amount_cents / 100.0)
@@ -567,7 +576,19 @@ class CourseRegistrationsController < ApplicationController
     end
 
     notice = "#{@course_registration.participant.first_name} wurde vom Kurs abgemeldet."
+    notice += " " + t("course_registrations.refund.flash_done", amount: format("%.2f", refund_amount_cents / 100.0)) if refund_amount_cents
+    notice += " " + t("course_registrations.refund.flash_failed") if refund_failed
     redirect_to manage_course_path(course), notice: notice
+  end
+
+  def refund_preview
+    @course_registration = CourseRegistration.find(params[:id])
+    unless current_user.admin? || trainer_assigned_to_course?(@course_registration.course)
+      return redirect_to root_path, alert: t("shared.access_denied")
+    end
+
+    @refund = RefundService.breakdown(@course_registration)
+    render layout: false
   end
 
   def unsubscribe_from_session
@@ -1162,6 +1183,28 @@ class CourseRegistrationsController < ApplicationController
 
   def set_course_registration
     @course_registration = CourseRegistration.find(params[:id])
+  end
+
+  # Betrag aus dem Overlay in Rappen; nil = Formular ohne Prüfung (kein bezahlter Fall).
+  # Abweichen vom berechneten Betrag: nur Admins und mit Notiz, mehr als bezahlt geht nie.
+  def confirmed_refund_cents(breakdown)
+    return unless breakdown[:refundable] && (params[:refund_review].present? || params[:refund_amount].present?)
+
+    course = @course_registration.course
+    cents = begin
+      (BigDecimal(params[:refund_amount].to_s) * 100).round.to_i
+    rescue ArgumentError
+      nil
+    end
+    error = if cents.nil? then "invalid_amount"
+    elsif cents.negative? || cents > breakdown[:paid_cents] then "invalid_amount"
+    elsif cents != breakdown[:amount_cents] && !current_user.admin? then "admin_only"
+    elsif cents != breakdown[:amount_cents] && params[:refund_note].to_s.strip.blank? then "note_required"
+    end
+    return cents unless error
+
+    redirect_to manage_course_path(course), alert: t("course_registrations.refund.#{error}"), status: :see_other
+    nil
   end
 
   def authorize_own_registration!

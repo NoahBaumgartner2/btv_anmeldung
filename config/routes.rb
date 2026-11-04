@@ -122,6 +122,7 @@ Rails.application.routes.draw do
       post :change_trial_session
       post :cancel
       post :trainer_cancel
+      get :refund_preview
       post :use_abo_entry
       post :update_abo_entries
       post :mark_as_paid

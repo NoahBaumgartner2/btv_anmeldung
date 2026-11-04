@@ -265,4 +265,11 @@
   </div>
 
 
+<% if current_user.admin? && @course_registration.refund_amount_cents %>
+    <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-gray-800">
+      <p class="font-bold"><%= t("course_registrations.refund.admin_title") %></p>
+      <p><%= t("course_registrations.refund.admin_amounts", amount: format("%.2f", @course_registration.refund_amount_cents / 100.0), calculated: format("%.2f", @course_registration.refund_calculated_cents.to_i / 100.0)) %></p>
+      <% if @course_registration.refund_note.present? %><p class="whitespace-pre-line"><%= @course_registration.refund_note %></p><% end %>
+    </div>
+  <% end %>
 </div>

@@ -7,7 +7,9 @@ Eltern-E-Mail:   <%= @parent&.email || "—" %>
 <% end %>
 <% if @refund_amount_chf.present? %>
 Eine Rückerstattung von CHF <%= @refund_amount_chf %> wurde automatisch ausgelöst.
-<% else %>
+<% if @refund_calculated_chf.present? && @refund_calculated_chf != @refund_amount_chf %>Berechnet waren CHF <%= @refund_calculated_chf %>.
+<% end %><% if @course_registration.refund_note.present? %>Notiz: <%= @course_registration.refund_note %>
+<% end %><% else %>
 Keine Rückerstattung (Gratis-/unbezahlter Kurs).
 <% end %>
 

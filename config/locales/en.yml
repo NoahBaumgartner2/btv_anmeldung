@@ -885,6 +885,32 @@ en:
       privacy_link: "Privacy Policy"
 
   course_registrations:
+    refund:
+      admin_only: "Only admins may change the amount. The registration was not changed."
+      admin_only_hint: "Only admins can change the amount."
+      loading: "Calculating refund …"
+      title: "Review refund"
+      course_total: "%{total} trainings have taken place in this course so far. %{counted} count for the refund:"
+      before_move: "Of these, %{count} in the previous course before the move."
+      paid: "Paid"
+      deduction: "Deduction: %{billable} × CHF %{value}"
+      first_free: "The first training is not deducted."
+      calculated: "Calculated amount"
+      amount_label: "Refund in CHF (maximum %{max})"
+      note_label: "Note (required if you change the amount)"
+      confirm: "I confirm the refund with this amount."
+      invalid_amount: "Invalid amount. The registration was not changed."
+      note_required: "Please add a note when changing the amount. The registration was not changed."
+      flash_done: "Refund of CHF %{amount} triggered."
+      flash_failed: "The refund failed, the admins have been informed."
+      admin_title: "Refund"
+      admin_amounts: "Confirmed: CHF %{amount}, calculated: CHF %{calculated}"
+      not_possible:
+        already_refunded: "This registration has already been refunded."
+        no_payment: "No refund: the registration is not paid."
+        no_transaction_id: "No automatic refund possible: no SumUp payment is stored. Please refund manually if needed."
+        no_training_value: "No automatic refund possible: the course has no training value."
+        no_price: "No automatic refund possible: no price is stored."
     statuses:
       bestätigt: "Confirmed"
       warteliste: "Waitlist"
