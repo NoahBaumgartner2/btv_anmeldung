@@ -1055,6 +1055,9 @@ fr:
         other: "Il y a %{count} erreurs :"
       age_over: "a %{age} ans et ne peut pas s'inscrire à ce cours."
       age_no_dob: "n'a pas de date de naissance enregistrée."
+      age_opens_on: "aura %{age} ans le %{date} et pourra s'inscrire dès ce jour."
+      age_hint_min_max: "L'âge minimum doit être atteint le jour de l'inscription, au plus tard au début du cours. L'âge maximum s'applique au début du cours (%{date})."
+      age_hint_min: "L'âge minimum doit être atteint le jour de l'inscription, au plus tard au début du cours."
       cancel: "Annuler"
       submit_new: "S'inscrire maintenant"
       submit_edit: "Enregistrer les modifications"
@@ -1105,6 +1108,7 @@ fr:
       already_booked: "Déjà réservé"
       show_more: "Afficher plus"
     errors:
+      age_opens_on: "%{name} aura %{age} ans le %{date} et pourra s'inscrire dès ce jour."
       course_full: "Ce cours est complet et ne dispose pas de liste d'attente."
       duplicate_session: "Cet enfant est déjà inscrit à cette séance."
       duplicate_registration: "Cette personne est déjà inscrite à ce cours."

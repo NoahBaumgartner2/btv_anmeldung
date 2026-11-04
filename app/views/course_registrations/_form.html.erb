@@ -87,9 +87,9 @@
             <p class="font-semibold">Altersbeschränkung: <%= course.age_range_label %></p>
             <p class="text-xs text-blue-700 mt-0.5">
               <% if course.min_age.present? && course.max_age.present? %>
-                Das Mindestalter wird zum Kursende (<%= I18n.l(course.min_age_reference_date, format: "%-d. %B %Y") %>), das Höchstalter zum Kursstart (<%= I18n.l(course.age_reference_date, format: "%-d. %B %Y") %>) berechnet.
+                <%= t("course_registrations.form.age_hint_min_max", date: I18n.l(course.age_reference_date, format: "%-d. %B %Y")) %>
               <% elsif course.min_age.present? %>
-                Das Alter wird zum Kursende (<%= I18n.l(course.min_age_reference_date, format: "%-d. %B %Y") %>) berechnet.
+                <%= t("course_registrations.form.age_hint_min") %>
               <% else %>
                 Das Alter wird zum Kursstart (<%= I18n.l(course.age_reference_date, format: "%-d. %B %Y") %>) berechnet.
               <% end %>
@@ -101,7 +101,9 @@
                     <span class="text-blue-900">⚠</span>
                     <div>
                       <span class="font-semibold"><%= p.first_name %> <%= p.last_name %></span>
-                      <% if p.date_of_birth %>
+                      <% if (opens_on = course.registration_opens_on(p)) %>
+                        <%= t("course_registrations.form.age_opens_on", age: course.min_age, date: opens_on.strftime("%d.%m.%Y")) %>
+                      <% elsif p.date_of_birth %>
                         <%= t("course_registrations.form.age_over", age: p.age_at(course.age_reference_date)) %>
                       <% else %>
                         <%= t("course_registrations.form.age_no_dob") %>

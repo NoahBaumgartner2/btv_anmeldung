@@ -100,12 +100,22 @@ class Course < ApplicationRecord
     (start_date || Date.current).to_date
   end
 
-  # Referenzdatum für die Mindestalter-Prüfung: Kursende, sonst Kursstart,
-  # sonst heute. Ein Kind, das erst während der Kursdauer das Mindestalter
-  # erreicht, soll sich trotzdem anmelden können (spätere Preisreduktion via
-  # late_registration_deduction_cents deckt die verpassten Trainings ab).
+  # Referenzdatum für die Mindestalter-Prüfung: heute, bei künftigen Kursen der
+  # Kursstart. Wer erst während des Kurses das Mindestalter erreicht, kann sich
+  # ab dem Geburtstag anmelden (die verpassten Trainings deckt die Preisreduktion
+  # via late_registration_deduction_cents ab), vorher nicht.
   def min_age_reference_date
-    (end_date || start_date || Date.current).to_date
+    [ Date.current, start_date&.to_date ].compact.max
+  end
+
+  # Tag, ab dem sich ein noch zu junges Kind anmelden kann. Nil, wenn es das
+  # Mindestalter schon hat oder erst nach Kursende erreicht.
+  def registration_opens_on(participant)
+    return unless min_age.present? && participant&.date_of_birth
+
+    birthday = participant.date_of_birth.advance(years: min_age)
+    birthday += 1 if birthday.day != participant.date_of_birth.day # 29. Februar, siehe Participant#age_at
+    birthday if birthday > min_age_reference_date && (end_date.blank? || birthday <= end_date.to_date)
   end
 
   # Prüft, ob ein Teilnehmer altersmässig für den Kurs zugelassen ist

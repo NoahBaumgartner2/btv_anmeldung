@@ -1062,6 +1062,9 @@ en:
         other: "There are %{count} errors:"
       age_over: "is %{age} years old and cannot register for this course."
       age_no_dob: "has no date of birth saved."
+      age_opens_on: "turns %{age} on %{date} and can register from that day."
+      age_hint_min_max: "The minimum age must be reached on the day of registration, at the latest by the start of the course. The maximum age applies at the start of the course (%{date})."
+      age_hint_min: "The minimum age must be reached on the day of registration, at the latest by the start of the course."
       cancel: "Cancel"
       submit_new: "Register now"
       submit_edit: "Save changes"
@@ -1112,6 +1115,7 @@ en:
       already_booked: "Already booked"
       show_more: "Show more"
     errors:
+      age_opens_on: "%{name} turns %{age} on %{date} and can register from that day."
       course_full: "This course is fully booked and has no waiting list."
       duplicate_session: "This child is already registered for this session."
       duplicate_registration: "This person is already registered for this course."
