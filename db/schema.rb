@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_04_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_04_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -295,6 +295,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_04_110000) do
     t.datetime "created_at", null: false
     t.string "mailing_list_id"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "mail_logs", force: :cascade do |t|
+    t.string "audience"
+    t.bigint "course_id"
+    t.string "course_title"
+    t.datetime "created_at", null: false
+    t.string "kind", null: false
+    t.bigint "participant_id"
+    t.string "participant_name"
+    t.string "recipients", default: [], null: false, array: true
+    t.datetime "session_start"
+    t.string "subject"
+    t.bigint "trainer_ids", default: [], null: false, array: true
+    t.bigint "training_session_id"
+    t.index ["course_id"], name: "index_mail_logs_on_course_id"
+    t.index ["created_at"], name: "index_mail_logs_on_created_at"
+    t.index ["kind"], name: "index_mail_logs_on_kind"
+    t.index ["participant_id"], name: "index_mail_logs_on_participant_id"
+    t.index ["trainer_ids"], name: "index_mail_logs_on_trainer_ids", using: :gin
   end
 
   create_table "mail_settings", force: :cascade do |t|

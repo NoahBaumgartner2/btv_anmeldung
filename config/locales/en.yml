@@ -130,6 +130,7 @@ en:
     admin_dashboard: "Admin Dashboard"
     nds: "NDS / J+S"
     my_courses: "My Courses"
+    mails: "Mails"
     login: "Sign in"
     register: "Register"
     logout: "Logout"
@@ -140,6 +141,108 @@ en:
     en: "English"
     switch: "Change language"
 
+  mail_logs:
+    title: "Mails"
+    subtitle_admin: "All emails sent."
+    subtitle_trainer: "Emails for courses you were assigned to as a trainer when they were sent. Payment and internal emails are not listed."
+    col_sent: "Sent"
+    col_kind: "Type"
+    col_course: "Course"
+    col_recipient: "Recipient"
+    no_course: "No course"
+    training_on: "Training: %{date}"
+    concerns: "Concerns: %{name}"
+    pagination: "Pages"
+    previous: "Previous"
+    next: "Next"
+    page: "Page %{page}"
+    no_results: "No emails found"
+    no_results_hint: "Adjust or reset the filters."
+    empty: "No emails yet"
+    empty_hint: "Emails appear here as soon as they are sent."
+    count:
+      one: "%{count} email"
+      other: "%{count} emails"
+    filter:
+      search: "Search"
+      search_placeholder: "Name or course"
+      search_placeholder_admin: "Name, course, subject or email"
+      course: "Course"
+      all_courses: "All courses"
+      kind: "Type"
+      all_kinds: "All types"
+      from: "From"
+      to: "To"
+      sort: "Sort"
+      newest: "Newest first"
+      oldest: "Oldest first"
+      submit: "Filter"
+      reset: "Reset"
+    audience:
+      parent: "Parents of %{name}"
+      trainer: "Trainer"
+      admin: "Administration"
+      other: "Other recipients"
+    kinds:
+      course_registration:
+        confirmation: "Registration confirmation"
+        waitlist_promoted: "Spot available (waitlist)"
+        cancelled_by_trainer: "Cancelled by trainer"
+        refund_failed_notice: "Refund failed"
+        admin_refund_done_notice: "Refund completed"
+        abo_imported: "Pass transferred"
+        renewal_available: "Re-enrolment open"
+        abo_exhausted: "Pass used up"
+        payment_expired: "Payment deadline passed"
+        trial_expired: "Trial expired"
+        trial_date_changed: "Trial date changed"
+        payment_receipt: "Payment receipt"
+        self_cancelled: "Cancelled by family"
+        admin_cancel_notice: "Cancellation notice (admin)"
+        trainer_cancel_notice: "Cancellation notice (trainer)"
+        custom_message: "Personal message"
+        status_changed: "Status changed"
+        manual_enrollment_reminder: "Manual enrolment reminder"
+      training_session:
+        cancellation_notice: "Training cancellation"
+        session_unsubscription_notice: "Training opt-out notice (admin)"
+        unsubscribe_reminder: "Training opt-out reminder"
+        substitute_assigned: "Substitute trainer assigned"
+        substitute_assigned_admin_notice: "Substitute trainer notice (admin)"
+        training_cancelled_admin_notice: "Training cancellation notice (admin)"
+      attendance_reminder:
+        trainer_reminder: "Attendance reminder"
+        admin_notification: "Attendance open (admin)"
+        admin_notification_for: "Attendance open (admin)"
+      payment_reminder:
+        reminder: "Payment reminder"
+      participant:
+        complete_profile: "Complete profile"
+        profile_updated_admin_notice: "Profile changed (admin)"
+      supplementary_charge:
+        payment_request: "Additional charge"
+        receipt: "Additional charge receipt"
+      course_trainer:
+        assigned_to_course: "Course assignment"
+        profile_updated_admin_notice: "Trainer profile changed (admin)"
+      course_rollover:
+        ready_for_manual_rollover: "Course ready for renewal"
+      course_access:
+        invited: "Course invitation"
+      trainer_invitation:
+        invite: "Trainer invitation"
+      export_profile:
+        scheduled_export: "Scheduled export"
+      newsletter:
+        campaign: "Newsletter"
+      "devise/mailer":
+        confirmation_instructions: "Email address confirmation"
+        reset_password_instructions: "Password reset"
+        unlock_instructions: "Unlock account"
+        email_changed: "Email address changed"
+        password_change: "Password changed"
+      test:
+        test_email: "Test email"
   courses:
     training_value_label: "Value per training"
     training_value_hint: "For automatic refunds (CHF per training)"

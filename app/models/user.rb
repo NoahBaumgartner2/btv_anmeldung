@@ -5,6 +5,7 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable, :confirmable, :lockable
 
   has_many :participants, dependent: :destroy
+  before_destroy { MailLog.where("recipients @> ARRAY[?]::varchar[]", email).delete_all }
   has_one :trainer, dependent: :destroy
   has_many :course_access_grants, dependent: :destroy
   has_many :accessible_courses, through: :course_access_grants, source: :course

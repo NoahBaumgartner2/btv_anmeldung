@@ -171,6 +171,7 @@ de:
     admin_dashboard: "Admin-Dashboard"
     nds: "NDS / J+S"
     my_courses: "Meine Kurse"
+    mails: "Mails"
     login: "Anmelden"
     register: "Registrieren"
     logout: "Logout"
@@ -181,6 +182,108 @@ de:
     en: "English"
     switch: "Sprache wechseln"
 
+  mail_logs:
+    title: "Mails"
+    subtitle_admin: "Alle versendeten Mails."
+    subtitle_trainer: "Mails zu Kursen, bei denen du beim Versand als Trainer:in eingeteilt warst. Zahlungs- und interne Mails sind hier nicht aufgeführt."
+    col_sent: "Gesendet"
+    col_kind: "Art"
+    col_course: "Kurs"
+    col_recipient: "Empfänger"
+    no_course: "Kein Kurs"
+    training_on: "Training: %{date}"
+    concerns: "Betrifft: %{name}"
+    pagination: "Seiten"
+    previous: "Zurück"
+    next: "Weiter"
+    page: "Seite %{page}"
+    no_results: "Keine Mails gefunden"
+    no_results_hint: "Passe die Filter an oder setze sie zurück."
+    empty: "Noch keine Mails"
+    empty_hint: "Sobald eine Mail versendet wird, erscheint sie hier."
+    count:
+      one: "%{count} Mail"
+      other: "%{count} Mails"
+    filter:
+      search: "Suche"
+      search_placeholder: "Name oder Kurs"
+      search_placeholder_admin: "Name, Kurs, Betreff oder E-Mail"
+      course: "Kurs"
+      all_courses: "Alle Kurse"
+      kind: "Art"
+      all_kinds: "Alle Arten"
+      from: "Von"
+      to: "Bis"
+      sort: "Sortierung"
+      newest: "Neuste zuerst"
+      oldest: "Älteste zuerst"
+      submit: "Filtern"
+      reset: "Zurücksetzen"
+    audience:
+      parent: "Eltern von %{name}"
+      trainer: "Trainer:in"
+      admin: "Administration"
+      other: "Weitere Empfänger"
+    kinds:
+      course_registration:
+        confirmation: "Anmeldebestätigung"
+        waitlist_promoted: "Platz frei (Warteliste)"
+        cancelled_by_trainer: "Abmeldung durch Trainer:in"
+        refund_failed_notice: "Rückerstattung fehlgeschlagen"
+        admin_refund_done_notice: "Rückerstattung ausgeführt"
+        abo_imported: "Abo übertragen"
+        renewal_available: "Neuanmeldung möglich"
+        abo_exhausted: "Abo aufgebraucht"
+        payment_expired: "Zahlungsfrist abgelaufen"
+        trial_expired: "Schnuppern abgelaufen"
+        trial_date_changed: "Schnuppertermin geändert"
+        payment_receipt: "Zahlungsbeleg"
+        self_cancelled: "Abmeldung durch Familie"
+        admin_cancel_notice: "Hinweis Abmeldung (Admin)"
+        trainer_cancel_notice: "Hinweis Abmeldung (Trainer:in)"
+        custom_message: "Persönliche Nachricht"
+        status_changed: "Status geändert"
+        manual_enrollment_reminder: "Erinnerung manuelle Anmeldung"
+      training_session:
+        cancellation_notice: "Trainingsabsage"
+        session_unsubscription_notice: "Hinweis Abmeldung vom Training (Admin)"
+        unsubscribe_reminder: "Erinnerung Abmeldung vom Training"
+        substitute_assigned: "Ersatztrainer:in eingeteilt"
+        substitute_assigned_admin_notice: "Hinweis Ersatztrainer:in (Admin)"
+        training_cancelled_admin_notice: "Hinweis Trainingsabsage (Admin)"
+      attendance_reminder:
+        trainer_reminder: "Erinnerung Anwesenheit"
+        admin_notification: "Anwesenheit offen (Admin)"
+        admin_notification_for: "Anwesenheit offen (Admin)"
+      payment_reminder:
+        reminder: "Zahlungserinnerung"
+      participant:
+        complete_profile: "Profil vervollständigen"
+        profile_updated_admin_notice: "Profil geändert (Admin)"
+      supplementary_charge:
+        payment_request: "Nachforderung"
+        receipt: "Beleg Nachforderung"
+      course_trainer:
+        assigned_to_course: "Kurszuteilung"
+        profile_updated_admin_notice: "Trainerprofil geändert (Admin)"
+      course_rollover:
+        ready_for_manual_rollover: "Kurs bereit zur Verlängerung"
+      course_access:
+        invited: "Kurseinladung"
+      trainer_invitation:
+        invite: "Trainer-Einladung"
+      export_profile:
+        scheduled_export: "Geplanter Export"
+      newsletter:
+        campaign: "Newsletter"
+      "devise/mailer":
+        confirmation_instructions: "Bestätigung E-Mail-Adresse"
+        reset_password_instructions: "Passwort zurücksetzen"
+        unlock_instructions: "Konto entsperren"
+        email_changed: "E-Mail-Adresse geändert"
+        password_change: "Passwort geändert"
+      test:
+        test_email: "Testmail"
   courses:
     training_value_label: "Wert pro Training"
     training_value_hint: "Für automatische Rückerstattungen (CHF pro Training)"
