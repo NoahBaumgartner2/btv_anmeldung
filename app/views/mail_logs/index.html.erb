@@ -1,6 +1,10 @@
 <%
   admin = current_user.admin?
   input = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm bg-white min-h-11 focus:outline-none focus:ring-2 focus:ring-primary-500"
+  select_input = "#{input} select-chevron"
+  segment = "flex flex-col justify-center text-left px-3 py-2 min-h-[3.875rem] cursor-pointer hover:bg-gray-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 data-[active]:ring-2 data-[active]:ring-gray-900 data-[active]:relative data-[active]:z-10"
+  segment_label = "text-xs font-bold text-gray-500 uppercase tracking-wide"
+  date_label = ->(value) { (Date.iso8601(value.to_s).strftime("%d.%m.%Y") rescue nil) }
   label = "block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5"
   page_link = "inline-flex items-center justify-center min-h-11 px-4 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
   filter_params = params.permit(:q, :course_id, :kind, :from, :to, :sort).to_h.symbolize_keys
@@ -20,23 +24,41 @@
         </div>
         <div>
           <label for="course_id" class="<%= label %>"><%= t("mail_logs.filter.course") %></label>
-          <%= select_tag :course_id, options_for_select(@courses.map { |id, title| [ title, id ] }, params[:course_id]), include_blank: t("mail_logs.filter.all_courses"), class: input %>
+          <%= select_tag :course_id, options_for_select(@courses.map { |id, title| [ title, id ] }, params[:course_id]), include_blank: t("mail_logs.filter.all_courses"), class: select_input %>
         </div>
         <div>
           <label for="kind" class="<%= label %>"><%= t("mail_logs.filter.kind") %></label>
-          <%= select_tag :kind, options_for_select(@kinds, params[:kind]), include_blank: t("mail_logs.filter.all_kinds"), class: input %>
+          <%= select_tag :kind, options_for_select(@kinds, params[:kind]), include_blank: t("mail_logs.filter.all_kinds"), class: select_input %>
         </div>
-        <div>
-          <label for="from" class="<%= label %>"><%= t("mail_logs.filter.from") %></label>
-          <%= date_field_tag :from, params[:from], class: input %>
-        </div>
-        <div>
-          <label for="to" class="<%= label %>"><%= t("mail_logs.filter.to") %></label>
-          <%= date_field_tag :to, params[:to], class: input %>
+        <div class="sm:col-span-2 self-end"
+             data-controller="date-range"
+             data-action="keydown.esc->date-range#close"
+             data-date-range-months-value="<%= t("date.month_names").compact.to_json %>"
+             data-date-range-months-short-value="<%= t("date.abbr_month_names").compact.to_json %>"
+             data-date-range-weekdays-value="<%= t("date.day_names").to_json %>"
+             data-date-range-weekdays-short-value="<%= t("date.abbr_day_names").to_json %>"
+             data-date-range-placeholder-value="<%= t("mail_logs.filter.pick_date") %>"
+             data-date-range-clear-value="<%= t("mail_logs.filter.clear_dates") %>"
+             data-date-range-close-value="<%= t("mail_logs.filter.close") %>">
+          <div class="grid grid-cols-2 divide-x divide-gray-300 rounded-lg border border-gray-300 bg-white shadow-sm" role="group" aria-label="<%= t("mail_logs.filter.period") %>">
+            <button type="button" class="<%= segment %> rounded-l-lg data-[active]:rounded-lg" data-date-range-target="fromSegment" data-action="date-range#open">
+              <span class="<%= segment_label %>"><%= t("mail_logs.filter.from") %></span>
+              <% from_text = date_label.call(params[:from]) %>
+              <span class="text-sm mt-0.5 tabular-nums <%= from_text ? "text-gray-900" : "text-gray-500" %>" data-date-range-target="fromLabel"><%= from_text || t("mail_logs.filter.pick_date") %></span>
+            </button>
+            <button type="button" class="<%= segment %> rounded-r-lg data-[active]:rounded-lg" data-date-range-target="toSegment" data-action="date-range#open">
+              <span class="<%= segment_label %>"><%= t("mail_logs.filter.to") %></span>
+              <% to_text = date_label.call(params[:to]) %>
+              <span class="text-sm mt-0.5 tabular-nums <%= to_text ? "text-gray-900" : "text-gray-500" %>" data-date-range-target="toLabel"><%= to_text || t("mail_logs.filter.pick_date") %></span>
+            </button>
+          </div>
+          <%= hidden_field_tag :from, params[:from], data: { date_range_target: "from" }, autocomplete: "off" %>
+          <%= hidden_field_tag :to, params[:to], data: { date_range_target: "to" }, autocomplete: "off" %>
+          <input type="text" class="sr-only" tabindex="-1" aria-hidden="true" data-date-range-target="input">
         </div>
         <div>
           <label for="sort" class="<%= label %>"><%= t("mail_logs.filter.sort") %></label>
-          <%= select_tag :sort, options_for_select([ [ t("mail_logs.filter.newest"), "newest" ], [ t("mail_logs.filter.oldest"), "oldest" ] ], params[:sort]), class: input %>
+          <%= select_tag :sort, options_for_select([ [ t("mail_logs.filter.newest"), "newest" ], [ t("mail_logs.filter.oldest"), "oldest" ] ], params[:sort]), class: select_input %>
         </div>
       </div>
       <div class="flex flex-wrap items-center justify-end gap-3 mt-4">

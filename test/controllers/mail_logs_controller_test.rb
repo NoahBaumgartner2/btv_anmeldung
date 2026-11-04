@@ -74,6 +74,17 @@ class MailLogsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "Zeitraum-Feld zeigt gewählte Daten, die Werte gehen über from und to" do
+    sign_in @trainer.user
+
+    get mail_logs_path(from: "2026-11-02", to: "kein-datum")
+    assert_response :success
+    assert_select "input[type=hidden][name=from][value=?]", "2026-11-02"
+    assert_select "[data-date-range-target=fromLabel]", text: "02.11.2026"
+    assert_select "[data-date-range-target=toLabel]", text: "Datum wählen"
+    assert_select "input[type=date]", 0
+  end
+
   test "fremder Kurs bleibt auch per Filter und Suche verborgen" do
     sign_in @trainer.user
 

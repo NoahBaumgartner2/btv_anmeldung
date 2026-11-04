@@ -45,3 +45,74 @@
   --color-secondary-900: color-mix(in oklch, var(--color-secondary) 60%, black);
   --color-secondary-950: color-mix(in oklch, var(--color-secondary) 45%, black);
 }
+
+/* Zeitraum-Auswahl (date_range_controller): runde Tage, zwei Monate, viel Luft. */
+.flatpickr-calendar.fp-airbnb {
+  width: auto !important;
+  box-sizing: content-box;
+  padding: 1.5rem;
+  margin-top: 0.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.16);
+}
+.fp-airbnb.arrowTop::before, .fp-airbnb.arrowTop::after,
+.fp-airbnb.arrowBottom::before, .fp-airbnb.arrowBottom::after { display: none; }
+.fp-airbnb .flatpickr-months { position: relative; margin-bottom: 0.75rem; }
+.fp-airbnb .flatpickr-month { height: 2.25rem; }
+.fp-airbnb .flatpickr-current-month { padding-top: 0.45rem; font-size: 1rem; font-weight: 600; color: #111827; }
+.fp-airbnb .flatpickr-current-month .cur-month { font-weight: 600; margin-left: 0; }
+.fp-airbnb .flatpickr-current-month .numInputWrapper { pointer-events: none; width: 3.5rem; }
+.fp-airbnb .flatpickr-current-month input.cur-year { font-weight: 600; }
+.fp-airbnb .numInputWrapper span { display: none; }
+.fp-airbnb .flatpickr-prev-month, .fp-airbnb .flatpickr-next-month {
+  display: flex; align-items: center; justify-content: center;
+  width: 2.25rem; height: 2.25rem; padding: 0; border-radius: 9999px; transition: background-color 0.15s;
+}
+.fp-airbnb .flatpickr-prev-month:hover, .fp-airbnb .flatpickr-next-month:hover { background: #f3f4f6; }
+.fp-airbnb .flatpickr-prev-month:hover svg, .fp-airbnb .flatpickr-next-month:hover svg { fill: #111827; }
+.fp-airbnb span.flatpickr-weekday { font-size: 0.75rem; font-weight: 600; color: #6b7280; }
+.fp-airbnb .dayContainer + .dayContainer { box-shadow: none; }
+.fp-airbnb .flatpickr-day {
+  height: 39px; line-height: 37px; margin: 1px 0; font-weight: 500; color: #111827; border-radius: 9999px; border: 1px solid transparent;
+}
+.fp-airbnb .flatpickr-day:hover, .fp-airbnb .flatpickr-day:focus { background: transparent; border-color: #111827; }
+.fp-airbnb .flatpickr-day.prevMonthDay, .fp-airbnb .flatpickr-day.nextMonthDay { visibility: hidden; }
+.fp-airbnb .flatpickr-day.today { border-color: transparent; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.fp-airbnb .flatpickr-day.today:hover { border-color: #111827; background: transparent; color: #111827; }
+.fp-airbnb .flatpickr-day.inRange {
+  background: #f3f4f6; border-color: #f3f4f6; border-radius: 0; box-shadow: -5px 0 0 #f3f4f6, 5px 0 0 #f3f4f6;
+}
+.fp-airbnb .flatpickr-day.selected, .fp-airbnb .flatpickr-day.startRange, .fp-airbnb .flatpickr-day.endRange,
+.fp-airbnb .flatpickr-day.selected:hover, .fp-airbnb .flatpickr-day.startRange:hover, .fp-airbnb .flatpickr-day.endRange:hover {
+  background: #111827; border-color: #111827; color: #fff; border-radius: 9999px; box-shadow: none;
+}
+.fp-airbnb-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; }
+.fp-airbnb-clear {
+  min-height: 2.75rem; padding: 0 0.5rem; font-size: 0.875rem; font-weight: 600; color: #111827;
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+.fp-airbnb-close {
+  min-height: 2.75rem; padding: 0 1.25rem; border-radius: 0.5rem; background: #111827;
+  font-size: 0.875rem; font-weight: 600; color: #fff; cursor: pointer;
+}
+.fp-airbnb-close:hover { background: #374151; }
+@media (max-width: 639px) {
+  /* Handy: Fenster von unten, damit die Von/Bis-Felder sichtbar bleiben. Ein Monat ist fix 308px breit. */
+  .flatpickr-calendar.fp-airbnb {
+    position: fixed !important; top: auto !important; left: 0 !important; right: 0 !important; bottom: 0;
+    box-sizing: border-box; width: 100% !important; margin-top: 0; padding: 1rem 0.5rem;
+    border-radius: 1.5rem 1.5rem 0 0; border-width: 1px 0 0;
+  }
+  .fp-airbnb .flatpickr-months, .fp-airbnb .flatpickr-innerContainer, .fp-airbnb-footer { max-width: 308px; margin-inline: auto; }
+}
+
+/* Safari ignoriert die Höhe nativer Selects: eigener Pfeil, damit sie zu den Feldern passen. */
+.select-chevron {
+  appearance: none;
+  padding-right: 2.25rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}
