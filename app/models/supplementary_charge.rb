@@ -46,7 +46,7 @@ class SupplementaryCharge < ApplicationRecord
       checkout = JSON.parse(response.body)
       next unless checkout["status"] == "PAID"
 
-      txn = checkout.dig("transactions", 0) || {}
+      txn = PaymentSyncService.successful_transaction(checkout)
       charge.mark_paid!(transaction_id: txn["id"], paid_at: Time.zone.parse(txn["timestamp"].to_s) || Time.current)
       Rails.logger.info "[SupplementaryCharge.sync_open] Nachforderung #{charge.id} als bezahlt markiert"
     rescue => e

@@ -115,7 +115,7 @@ class PaymentSyncService
       checkout = JSON.parse(response.body)
 
       if checkout["status"] == "PAID"
-        transaction_id = checkout.dig("transactions", 0, "id")
+        transaction_id = successful_transaction(checkout)["id"]
         mark_paid!(registration,
                    transaction_id: transaction_id,
                    checkout_id:    checkout["id"])
@@ -135,6 +135,12 @@ class PaymentSyncService
       still_pending: total - paid_count - error_count,
       errors:        error_count
     )
+  end
+
+  # Ein Checkout kann vor der erfolgreichen Zahlung fehlgeschlagene Versuche enthalten
+  # (Fall Anna Trojak). Nur die erfolgreiche Transaktion ist bezahlt und rückerstattbar.
+  def self.successful_transaction(checkout)
+    Array(checkout["transactions"]).find { |txn| txn["status"] == "SUCCESSFUL" } || {}
   end
 
   def self.fetch_checkout(checkout_id)

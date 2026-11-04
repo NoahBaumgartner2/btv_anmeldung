@@ -87,7 +87,7 @@ class SupplementaryChargesControllerTest < ActionDispatch::IntegrationTest
 
   test "success markiert bezahlt und verschickt Quittung, wenn SumUp PAID meldet" do
     @charge.update!(sumup_checkout_id: "co-supcharge-2")
-    paid_body = { status: "PAID", transactions: [ { id: "TX-1" } ] }.to_json
+    paid_body = { status: "PAID", transactions: [ { id: "TX-1", status: "SUCCESSFUL" } ] }.to_json
 
     assert_enqueued_emails 1 do
       stub_singleton_method(PaymentSyncService, :fetch_checkout, ok_response(paid_body)) do

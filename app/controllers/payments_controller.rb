@@ -139,7 +139,7 @@ class PaymentsController < ApplicationController
           checkout = JSON.parse(response.body)
           Rails.logger.info "[SumUp] Checkout status: #{checkout['status']} für registration #{@registration.id}"
           if checkout["status"] == "PAID"
-            transaction_id = checkout.dig("transactions", 0, "id")
+            transaction_id = PaymentSyncService.successful_transaction(checkout)["id"]
             PaymentSyncService.mark_paid!(@registration,
               transaction_id: transaction_id,
               checkout_id: effective_checkout_id)

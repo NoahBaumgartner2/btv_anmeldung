@@ -76,7 +76,7 @@ class SupplementaryChargesController < ApplicationController
         if response.is_a?(Net::HTTPSuccess)
           checkout = JSON.parse(response.body)
           if checkout["status"] == "PAID"
-            @charge.mark_paid!(transaction_id: checkout.dig("transactions", 0, "id"))
+            @charge.mark_paid!(transaction_id: PaymentSyncService.successful_transaction(checkout)["id"])
           end
         else
           Rails.logger.error "[SumUp] SupplementaryCharge status check error #{response.code}: #{response.body}"
