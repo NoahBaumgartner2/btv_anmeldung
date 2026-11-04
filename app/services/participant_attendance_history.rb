@@ -11,6 +11,8 @@ class ParticipantAttendanceHistory
     def count(status) = rows.count { |row| row.status == status }
     def recorded_count = count(:present) + count(:absent) + count(:excused)
     def upcoming? = count(:planned).positive?
+    # Beendete, stornierte und verschobene Kurse gehören ins Archiv.
+    def active? = registration.present? && registration.status != "storniert" && !course.ended?
   end
 
   # Ein Eintrag schlägt die aus dem Kursplan abgeleiteten Zeilen, falls zwei Anmeldungen

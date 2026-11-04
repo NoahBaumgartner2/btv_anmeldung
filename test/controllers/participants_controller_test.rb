@@ -65,6 +65,10 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
       assert_select "a[href=?]", training_session_path(session)
     end
     assert_match I18n.t("participants.show.attendance.statuses.present"), response.body
+
+    course.update_columns(end_date: 1.day.ago)
+    get participant_url(@participant)
+    assert_select "details.group\\/archive a[href=?]", training_session_path(session)
   end
 
   test "show summiert bezahlten Kursbeitrag und bezahlte Nachforderungen zum Gesamtbetrag" do

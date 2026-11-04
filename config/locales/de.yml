@@ -551,6 +551,11 @@ de:
       no_registrations: "Dieser Teilnehmer ist noch für keinen Kurs angemeldet."
       attendance:
         title: "Kurse und Trainings"
+        active_title: "Aktive Kurse (%{count})"
+        no_active: "Zurzeit keine aktiven Kurse."
+        archive_title: "Archiv (%{count})"
+        archive_hint: "Beendete, stornierte und verschobene Kurse"
+        ended_badge: "Beendet"
         subtitle: "Alle Kurse dieser Person mit der Anwesenheit pro Training."
         quote: "%{present} von %{total} erfassten Trainings anwesend"
         moved_badge: "Verschoben"

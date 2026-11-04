@@ -510,6 +510,11 @@ fr:
       no_registrations: "Ce participant n'est inscrit à aucun cours pour l'instant."
       attendance:
         title: "Cours et entraînements"
+        active_title: "Cours actifs (%{count})"
+        no_active: "Aucun cours actif pour le moment."
+        archive_title: "Archives (%{count})"
+        archive_hint: "Cours terminés, annulés et déplacés"
+        ended_badge: "Terminé"
         subtitle: "Tous les cours de cette personne avec la présence par entraînement."
         quote: "Présent·e à %{present} entraînements sur %{total} saisis"
         moved_badge: "Déplacé"

@@ -80,6 +80,31 @@ class ParticipantAttendanceHistoryTest < ActiveSupport::TestCase
     assert_equal 1, entries[target].sessions_before_move
   end
 
+  test "laufende Kurse sind aktiv, beendete, stornierte und verschobene gehören ins Archiv" do
+    assert entry_for(@course).active?, "laufender Kurs"
+    waiting = build_course("Warteliste")
+    register(waiting, "warteliste")
+    assert entry_for(waiting).active?, "Warteliste läuft noch"
+
+    ended = build_course("Beendet")
+    ended.update_columns(end_date: 1.day.ago)
+    register(ended, "bestätigt")
+    assert_not entry_for(ended).active?
+
+    deactivated = build_course("Deaktiviert")
+    register(deactivated, "bestätigt")
+    deactivated.update_columns(deactivated_at: 1.day.ago)
+    assert_not entry_for(deactivated).active?
+
+    cancelled = build_course("Storniert")
+    register(cancelled, "storniert")
+    assert_not entry_for(cancelled).active?
+
+    session_at(@course, 1.week.ago, confirmed: true)
+    RegistrationMoveService.call(@registration, build_course("Ziel"))
+    assert_not entry_for(@course).active?, "verschoben"
+  end
+
   private
 
   def history = ParticipantAttendanceHistory.call(@participant.reload)

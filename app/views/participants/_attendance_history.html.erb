@@ -10,6 +10,7 @@
   }
   summary_keys = %i[present absent excused unrecorded]
   totals = summary_keys.index_with { |key| history.sum { |entry| entry.count(key) } }
+  active, archived = history.partition(&:active?)
 %>
 
 <section class="mt-10" aria-labelledby="attendance-history-title">
@@ -35,88 +36,31 @@
       <% end %>
     </dl>
 
-    <div class="space-y-3">
-      <% history.each_with_index do |entry, index| %>
-        <% course = entry.course %>
-        <details class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden" <%= "open" if index.zero? || entry.upcoming? %>>
-          <summary class="flex items-start gap-3 p-4 sm:p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-gray-50 transition">
-            <svg class="w-5 h-5 mt-0.5 text-gray-400 shrink-0 transition-transform group-open:rotate-90" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-            </svg>
-            <div class="min-w-0 flex-1">
-              <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-                <h3 class="font-bold text-gray-900"><%= course.title %></h3>
-                <% if entry.registration %>
-                  <span class="px-2 py-0.5 rounded-full text-xs font-medium <%= entry.registration.status == "bestätigt" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800" %>"><%= entry.registration.status_label %></span>
-                <% else %>
-                  <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-700"><%= t("participants.show.attendance.moved_badge") %></span>
-                <% end %>
-              </div>
-              <p class="text-xs text-gray-500 mt-1">
-                <%= [ course.term&.name, [ course.start_date, course.end_date ].compact.map { |date| date.strftime("%d.%m.%Y") }.join(" – ").presence ].compact.join(" · ") %>
-              </p>
-              <% if entry.recorded_count.positive? %>
-                <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 mt-3 max-w-md">
-                  <progress value="<%= entry.count(:present) %>" max="<%= entry.recorded_count %>"
-                            aria-label="<%= t("participants.show.attendance.quote", present: entry.count(:present), total: entry.recorded_count) %>"
-                            class="h-1.5 w-full sm:w-auto sm:flex-1 min-w-0 rounded-full overflow-hidden appearance-none bg-gray-200 [&::-webkit-progress-bar]:bg-gray-200 [&::-webkit-progress-value]:bg-green-600 [&::-moz-progress-bar]:bg-green-600"></progress>
-                  <span class="text-xs font-medium text-gray-600 tabular-nums"><%= t("participants.show.attendance.quote", present: entry.count(:present), total: entry.recorded_count) %></span>
-                </div>
-              <% end %>
-            </div>
-          </summary>
+    <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3"><%= t("participants.show.attendance.active_title", count: active.size) %></h3>
+    <% if active.any? %>
+      <div class="space-y-3">
+        <%= render partial: "attendance_course_card", collection: active, as: :entry, locals: { status_styles: status_styles } %>
+      </div>
+    <% else %>
+      <p class="bg-white rounded-xl border border-gray-200 shadow-sm py-6 text-center text-sm text-gray-500"><%= t("participants.show.attendance.no_active") %></p>
+    <% end %>
 
-          <div class="border-t border-gray-100">
-            <% if entry.moved_to %>
-              <p class="px-4 sm:px-5 py-3 text-sm text-gray-600 bg-gray-50 border-b border-gray-100"><%= t("participants.show.attendance.moved_to", course: entry.moved_to.title) %></p>
-            <% end %>
-            <% if entry.sessions_before_move.positive? %>
-              <p class="px-4 sm:px-5 py-3 text-sm text-gray-600 bg-gray-50 border-b border-gray-100"><%= t("participants.show.attendance.before_move", count: entry.sessions_before_move) %></p>
-            <% end %>
-
-            <% if entry.rows.empty? %>
-              <p class="px-4 sm:px-5 py-6 text-sm text-gray-500 text-center"><%= t("participants.show.attendance.no_sessions") %></p>
-            <% else %>
-              <table class="w-full table-fixed">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th scope="col" class="py-2.5 px-4 sm:px-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider"><%= t("participants.show.attendance.col_date") %></th>
-                    <th scope="col" class="hidden sm:table-cell py-2.5 px-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-36"><%= t("participants.show.attendance.col_time") %></th>
-                    <th scope="col" class="py-2.5 px-4 sm:px-5 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/2"><%= t("participants.show.attendance.col_status") %></th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                  <% entry.rows.each do |row| %>
-                    <% session = row.session %>
-                    <% time_range = [ session.start_time, session.end_time ].compact.map { |time| time.strftime("%H:%M") }.join(" – ") %>
-                    <tr>
-                      <td class="py-3 px-4 sm:px-5 text-sm align-top">
-                        <%= link_to l(session.start_time, format: "%a, %d.%m.%Y"), training_session_path(session), class: "font-medium text-gray-900 hover:text-primary-700 underline-offset-2 hover:underline" %>
-                        <span class="block sm:hidden text-xs text-gray-500 mt-0.5 tabular-nums"><%= time_range %></span>
-                      </td>
-                      <td class="hidden sm:table-cell py-3 px-4 text-sm text-gray-600 align-top tabular-nums"><%= time_range %></td>
-                      <td class="py-3 px-4 sm:px-5 text-sm align-top">
-                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium ring-1 ring-inset <%= status_styles[row.status][:badge] %>">
-                          <span class="w-1.5 h-1.5 rounded-full <%= status_styles[row.status][:dot] %>" aria-hidden="true"></span>
-                          <%= t("participants.show.attendance.statuses.#{row.status}") %>
-                        </span>
-                        <% if row.reason.present? %>
-                          <span class="block text-xs text-gray-500 mt-1 break-words"><%= row.reason %></span>
-                        <% end %>
-                      </td>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            <% end %>
-
-            <div class="px-4 sm:px-5 py-3 border-t border-gray-100 text-right">
-              <%= link_to t("participants.show.to_course"), course_path(course), class: "text-sm font-medium text-primary-600 hover:text-primary-900" %>
-            </div>
-          </div>
-        </details>
-      <% end %>
-    </div>
+    <% if archived.any? %>
+      <details class="group/archive mt-6 rounded-xl border border-gray-200 bg-gray-50">
+        <summary class="flex items-center gap-3 p-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-gray-100 rounded-xl transition">
+          <svg class="w-5 h-5 text-gray-400 shrink-0 transition-transform group-open/archive:rotate-90" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+          </svg>
+          <span class="min-w-0">
+            <span class="block font-bold text-gray-700"><%= t("participants.show.attendance.archive_title", count: archived.size) %></span>
+            <span class="block text-xs text-gray-500 mt-0.5"><%= t("participants.show.attendance.archive_hint") %></span>
+          </span>
+        </summary>
+        <div class="space-y-3 p-3 sm:p-4 pt-0 sm:pt-0">
+          <%= render partial: "attendance_course_card", collection: archived, as: :entry, locals: { status_styles: status_styles } %>
+        </div>
+      </details>
+    <% end %>
 
     <p class="text-xs text-gray-500 mt-4"><%= t("participants.show.attendance.legend") %></p>
   <% end %>

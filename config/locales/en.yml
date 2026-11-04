@@ -510,6 +510,11 @@ en:
       no_registrations: "This participant has not registered for any course yet."
       attendance:
         title: "Courses and trainings"
+        active_title: "Active courses (%{count})"
+        no_active: "No active courses at the moment."
+        archive_title: "Archive (%{count})"
+        archive_hint: "Ended, cancelled and moved courses"
+        ended_badge: "Ended"
         subtitle: "All courses of this person with attendance per training."
         quote: "Present at %{present} of %{total} recorded trainings"
         moved_badge: "Moved"
