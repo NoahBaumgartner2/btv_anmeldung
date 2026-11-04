@@ -242,7 +242,7 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     )
     trial.save!(validate: false)
 
-    with_http_stub(fake_http(ok_response('{"id":"co-trial-sync","status":"PAID","transactions":[{"id":"tx-sync"}]}'))) do
+    with_http_stub(fake_http(ok_response('{"id":"co-trial-sync","status":"PAID","transactions":[{"id":"tx-sync","status":"SUCCESSFUL"}]}'))) do
       result = PaymentSyncService.sync_pending
       assert_equal 1, result.paid
     end
@@ -309,7 +309,7 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     )
     reg.save!(validate: false)
 
-    with_http_stub(fake_http(ok_response('{"id":"co-confirmed-sync","status":"PAID","transactions":[{"id":"tx-confirmed-sync"}]}'))) do
+    with_http_stub(fake_http(ok_response('{"id":"co-confirmed-sync","status":"PAID","transactions":[{"id":"tx-confirmed-sync","status":"SUCCESSFUL"}]}'))) do
       result = PaymentSyncService.sync_pending
       assert_equal 1, result.paid
     end
@@ -339,7 +339,7 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     )
     reg.save!(validate: false)
 
-    with_http_stub(fake_http(ok_response('{"id":"co-storniert-sync","status":"PAID","transactions":[{"id":"tx-storniert-sync"}]}'))) do
+    with_http_stub(fake_http(ok_response('{"id":"co-storniert-sync","status":"PAID","transactions":[{"id":"tx-storniert-sync","status":"SUCCESSFUL"}]}'))) do
       result = PaymentSyncService.sync_pending
       assert_equal 1, result.paid
     end
@@ -348,5 +348,13 @@ class PaymentSyncServiceTest < ActiveSupport::TestCase
     assert reg.payment_cleared?
     assert_equal "bestätigt", reg.status
     assert_equal "tx-storniert-sync", reg.sumup_transaction_id
+  end
+
+  test "successful_transaction nimmt die erfolgreiche statt der ersten Transaktion" do
+    checkout = { "transactions" => [ { "id" => "fehlversuch", "status" => "FAILED" }, { "id" => "bezahlt", "status" => "SUCCESSFUL" } ] }
+
+    assert_equal "bezahlt", PaymentSyncService.successful_transaction(checkout)["id"]
+    assert_nil PaymentSyncService.successful_transaction({ "transactions" => [ { "id" => "fehlversuch", "status" => "FAILED" } ] })["id"]
+    assert_nil PaymentSyncService.successful_transaction({})["id"]
   end
 end

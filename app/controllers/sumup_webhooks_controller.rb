@@ -53,7 +53,7 @@ class SumupWebhooksController < ActionController::Base
       return
     end
 
-    transaction_id = checkout.dig("transactions", 0, "id")
+    transaction_id = PaymentSyncService.successful_transaction(checkout)["id"]
 
     PaymentSyncService.mark_paid!(registration,
                                   transaction_id: transaction_id,
