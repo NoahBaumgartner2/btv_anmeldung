@@ -383,6 +383,27 @@ class CourseRegistrationsControllerTest < ActionDispatch::IntegrationTest
 
   # ── Schnuppern ────────────────────────────────────────────────────────────
 
+  test "zu junges Kind wird vor dem Geburtstag abgewiesen und sieht ab wann es sich anmelden kann" do
+    birthday = @trial_participant.date_of_birth.advance(years: 12)
+    @trial_course.update_columns(min_age: 12, start_date: birthday - 2.months, end_date: birthday + 3.months)
+    message = "wird am #{birthday.strftime('%d.%m.%Y')} 12 Jahre alt und kann sich ab diesem Tag anmelden"
+    sign_in @trial_parent
+
+    travel_to birthday - 1.day do
+      get new_course_registration_path(course_id: @trial_course.id)
+      assert_includes response.body, message
+
+      assert_no_difference "CourseRegistration.count" do
+        post course_registrations_path, params: {
+          course_registration: { course_id: @trial_course.id, participant_id: @trial_participant.id, trial_session_id: @trial_session.id },
+          trial: "true"
+        }
+      end
+      assert_response :unprocessable_entity
+      assert_includes response.body, message
+    end
+  end
+
   test "creates schnupper registration when trial param is true and course allows trial" do
     sign_in @trial_parent
 

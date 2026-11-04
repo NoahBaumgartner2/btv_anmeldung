@@ -533,18 +533,56 @@ class CourseTest < ActiveSupport::TestCase
     assert new_course.registration_blocked_by_age?(too_old)
   end
 
-  test "Teilnehmer, der erst während der Kursdauer das Mindestalter erreicht, wird NICHT blockiert" do
-    # Kurs 15.8.2026 - 31.1.2027, min_age 3. Kind ist am Kursstart 2 Jahre alt,
-    # wird aber am 1.9.2026 (während des Kurses) 3 Jahre alt - siehe Bug-Report Indrit.
+  test "Kind, das während des Kurses das Mindestalter erreicht, kann sich erst ab dem Geburtstag anmelden" do
     course = Course.new(base_attrs.merge(min_age: 3, max_age: 5,
-      start_date: Date.new(2026, 8, 15), end_date: Date.new(2027, 1, 31)))
+      start_date: Date.new(2030, 8, 15), end_date: Date.new(2031, 1, 31)))
     course.save!(validate: false)
-    turns_three_mid_course = make_participant(dob: Date.new(2023, 9, 1))
+    turns_three = make_participant(dob: Date.new(2027, 9, 1))
 
-    assert_equal 2, turns_three_mid_course.age_at(course.age_reference_date)
-    assert_equal 3, turns_three_mid_course.age_at(course.min_age_reference_date)
-    assert course.accepts_participant_age?(turns_three_mid_course)
-    assert_not course.registration_blocked_by_age?(turns_three_mid_course)
+    travel_to Date.new(2030, 8, 31) do
+      assert course.registration_blocked_by_age?(turns_three)
+      assert_not course.accepts_participant_age?(turns_three)
+      assert_equal Date.new(2030, 9, 1), course.registration_opens_on(turns_three)
+    end
+
+    travel_to Date.new(2030, 9, 1) do
+      assert_not course.registration_blocked_by_age?(turns_three)
+      assert course.accepts_participant_age?(turns_three)
+      assert_nil course.registration_opens_on(turns_three)
+    end
+  end
+
+  test "künftiger Kurs: Wer das Mindestalter zum Kursstart hat, kann sich schon vorher anmelden" do
+    course = Course.new(base_attrs.merge(min_age: 3, start_date: Date.new(2030, 8, 15), end_date: Date.new(2031, 1, 31)))
+    course.save!(validate: false)
+    turns_three_before_start = make_participant(dob: Date.new(2027, 8, 15))
+
+    travel_to Date.new(2030, 3, 1) do
+      assert_not course.registration_blocked_by_age?(turns_three_before_start)
+      assert_nil course.registration_opens_on(turns_three_before_start)
+    end
+  end
+
+  test "Geburtstag nach Kursende: bleibt blockiert, ohne Anmeldedatum" do
+    course = Course.new(base_attrs.merge(min_age: 3, start_date: Date.new(2030, 8, 15), end_date: Date.new(2031, 1, 31)))
+    course.save!(validate: false)
+    too_late = make_participant(dob: Date.new(2028, 3, 1))
+
+    travel_to Date.new(2030, 9, 1) do
+      assert course.registration_blocked_by_age?(too_late)
+      assert_nil course.registration_opens_on(too_late)
+    end
+  end
+
+  test "Altersausnahme und Vorgängerkurs gelten auch vor dem Geburtstag" do
+    course = Course.new(base_attrs.merge(min_age: 3, start_date: Date.new(2030, 8, 15), end_date: Date.new(2031, 1, 31)))
+    course.save!(validate: false)
+    child = make_participant(dob: Date.new(2027, 12, 1))
+    AgeExemption.new(course: course, participant: child).save!(validate: false)
+
+    travel_to Date.new(2030, 9, 1) do
+      assert_not course.registration_blocked_by_age?(child)
+    end
   end
 
   test "Teilnehmer, der das Mindestalter auch bis Kursende nicht erreicht, bleibt blockiert" do

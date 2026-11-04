@@ -124,10 +124,15 @@ class CourseRegistrationsController < ApplicationController
 
     # 2b. Alters-Check
     if course && participant && course.registration_blocked_by_age?(participant)
+      opens_on = course.registration_opens_on(participant)
       age = participant.age_at(course.age_reference_date)
       @course_registration.errors.add(
         :base,
-        "#{participant.first_name} ist #{age} Jahre alt und erfüllt die Altersbeschränkung dieses Kurses (#{course.age_range_label}) nicht."
+        if opens_on
+          t("course_registrations.errors.age_opens_on", name: participant.first_name, age: course.min_age, date: opens_on.strftime("%d.%m.%Y"))
+        else
+          "#{participant.first_name} ist #{age} Jahre alt und erfüllt die Altersbeschränkung dieses Kurses (#{course.age_range_label}) nicht."
+        end
       )
       setup_new_form(course)
       return render :new, status: :unprocessable_entity

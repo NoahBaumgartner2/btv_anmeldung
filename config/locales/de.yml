@@ -1124,6 +1124,9 @@ de:
         other: "Es gibt %{count} Fehler:"
       age_over: "ist %{age} Jahre alt und kann sich für diesen Kurs nicht anmelden."
       age_no_dob: "hat kein Geburtsdatum hinterlegt."
+      age_opens_on: "wird am %{date} %{age} Jahre alt und kann sich ab diesem Tag anmelden."
+      age_hint_min_max: "Das Mindestalter muss am Tag der Anmeldung erreicht sein, spätestens zum Kursstart. Das Höchstalter gilt zum Kursstart (%{date})."
+      age_hint_min: "Das Mindestalter muss am Tag der Anmeldung erreicht sein, spätestens zum Kursstart."
       cancel: "Abbrechen"
       submit_new: "Jetzt anmelden"
       submit_edit: "Änderungen speichern"
@@ -1157,6 +1160,7 @@ de:
       move_same_course: "Der Teilnehmer ist bereits in diesem Kurs."
       move_duplicate: "Verschieben nicht möglich: Der Teilnehmer hat im Zielkurs bereits eine aktive Anmeldung."
     errors:
+      age_opens_on: "%{name} wird am %{date} %{age} Jahre alt und kann sich ab diesem Tag anmelden."
       course_full: "Dieser Kurs ist leider bereits ausgebucht und hat keine Warteliste."
       trial_full: "Schnuppern ist bei ausgebuchtem Kurs leider nicht möglich. Bitte melde dich regulär an, um auf die Warteliste zu kommen."
       duplicate_session: "Dieses Kind ist für diesen Termin bereits angemeldet."
