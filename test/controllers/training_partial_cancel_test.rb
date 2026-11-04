@@ -26,6 +26,22 @@ class TrainingPartialCancelTest < ActionDispatch::IntegrationTest
 
   def cancel(params) = post(cancel_training_session_path(@session), params: { cancellation_reason: "Halle halb belegt", **params })
 
+  test "Absage des ganzen Trainings: pro Kind ein Eintrag, Geschwister mit stornierter Anmeldung fehlen" do
+    parent = @one.participant.user
+    sibling = Participant.new(user: parent, first_name: "Aktiv", last_name: "Geschwister").tap { |p| p.save!(validate: false) }
+    enroll(sibling)
+    cancelled = Participant.new(user: parent, first_name: "Storniert", last_name: "Geschwister").tap { |p| p.save!(validate: false) }
+    enroll(cancelled).update_columns(status: "storniert")
+
+    cancel(cancel_scope: "all")
+    perform_enqueued_jobs
+
+    names = MailLog.where(training_session_id: @session.id, recipients: [ parent.email ]).pluck(:participant_name)
+    assert_equal [ "Aktiv Geschwister", "#{@one.participant.first_name} #{@one.participant.last_name}" ].sort, names.sort
+    parent_mail = ActionMailer::Base.deliveries.find { |mail| mail.to == [ parent.email ] && mail.subject.start_with?("Training abgesagt") }
+    assert_includes parent_mail.text_part.body.decoded, "Für:"
+  end
+
   test "nur die Ausgewählten sind abgesagt und bekommen eine Mail, das Training bleibt aktiv" do
     cancel(cancel_scope: "selected", course_registration_ids: [ @one.id ])
 

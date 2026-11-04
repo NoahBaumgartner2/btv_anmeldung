@@ -142,7 +142,7 @@ class TrainingSessionsController < ApplicationController
         .includes(participant: :user)
         .each do |registration|
           next unless registration.participant&.user.present?
-          TrainingSessionMailer.cancellation_notice(@training_session, registration.participant.user).deliver_later
+          TrainingSessionMailer.cancellation_notice(@training_session, registration.participant.user, participant: registration.participant).deliver_later
         end
     end
 

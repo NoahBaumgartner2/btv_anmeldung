@@ -130,6 +130,7 @@ fr:
     admin_dashboard: "Tableau de bord admin"
     nds: "NDS / J+S"
     my_courses: "Mes cours"
+    mails: "E-mails"
     login: "Se connecter"
     register: "S'inscrire"
     logout: "Déconnexion"
@@ -140,6 +141,106 @@ fr:
     en: "English"
     switch: "Changer de langue"
 
+  mail_logs:
+    title: "E-mails"
+    subtitle_admin: "Tous les e-mails envoyés."
+    subtitle_trainer: "E-mails des cours auxquels vous étiez affecté·e comme entraîneur·e lors de l'envoi. Les e-mails de paiement et internes ne sont pas listés."
+    col_sent: "Envoyé"
+    col_kind: "Type"
+    col_course: "Cours"
+    col_recipient: "Destinataire"
+    no_course: "Aucun cours"
+    training_on: "Entraînement : %{date}"
+    concerns: "Concerne : %{name}"
+    load_more: "Afficher plus"
+    shown: "%{shown} sur %{total} e-mails"
+    no_results: "Aucun e-mail trouvé"
+    no_results_hint: "Modifiez ou réinitialisez les filtres."
+    empty: "Pas encore d'e-mails"
+    empty_hint: "Les e-mails apparaissent ici dès leur envoi."
+    count:
+      one: "%{count} e-mail"
+      other: "%{count} e-mails"
+    filter:
+      search: "Recherche"
+      search_placeholder: "Nom ou cours"
+      search_placeholder_admin: "Nom, cours, objet ou e-mail"
+      course: "Cours"
+      all_courses: "Tous les cours"
+      kind: "Type"
+      all_kinds: "Tous les types"
+      from: "Du"
+      to: "Au"
+      sort: "Tri"
+      newest: "Plus récents d'abord"
+      oldest: "Plus anciens d'abord"
+      submit: "Filtrer"
+      reset: "Réinitialiser"
+    audience:
+      parent: "Parents de %{name}"
+      trainer: "Entraîneur·e"
+      admin: "Administration"
+      other: "Autres destinataires"
+    kinds:
+      course_registration:
+        confirmation: "Confirmation d'inscription"
+        waitlist_promoted: "Place libre (liste d'attente)"
+        cancelled_by_trainer: "Désinscription par l'entraîneur·e"
+        refund_failed_notice: "Remboursement échoué"
+        admin_refund_done_notice: "Remboursement effectué"
+        abo_imported: "Abonnement transféré"
+        renewal_available: "Réinscription possible"
+        abo_exhausted: "Abonnement épuisé"
+        payment_expired: "Délai de paiement dépassé"
+        trial_expired: "Essai expiré"
+        trial_date_changed: "Date d'essai modifiée"
+        payment_receipt: "Reçu de paiement"
+        self_cancelled: "Désinscription par la famille"
+        admin_cancel_notice: "Avis de désinscription (admin)"
+        trainer_cancel_notice: "Avis de désinscription (entraîneur·e)"
+        custom_message: "Message personnel"
+        status_changed: "Statut modifié"
+        manual_enrollment_reminder: "Rappel d'inscription manuelle"
+      training_session:
+        cancellation_notice: "Annulation d'entraînement"
+        session_unsubscription_notice: "Avis d'absence à l'entraînement (admin)"
+        unsubscribe_reminder: "Rappel d'absence à l'entraînement"
+        substitute_assigned: "Remplaçant·e désigné·e"
+        substitute_assigned_admin_notice: "Avis de remplacement (admin)"
+        training_cancelled_admin_notice: "Avis d'annulation (admin)"
+      attendance_reminder:
+        trainer_reminder: "Rappel de présence"
+        admin_notification: "Présence ouverte (admin)"
+        admin_notification_for: "Présence ouverte (admin)"
+      payment_reminder:
+        reminder: "Rappel de paiement"
+      participant:
+        complete_profile: "Compléter le profil"
+        profile_updated_admin_notice: "Profil modifié (admin)"
+      supplementary_charge:
+        payment_request: "Paiement complémentaire"
+        receipt: "Reçu du paiement complémentaire"
+      course_trainer:
+        assigned_to_course: "Affectation au cours"
+        profile_updated_admin_notice: "Profil d'entraîneur modifié (admin)"
+      course_rollover:
+        ready_for_manual_rollover: "Cours prêt à être renouvelé"
+      course_access:
+        invited: "Invitation au cours"
+      trainer_invitation:
+        invite: "Invitation entraîneur·e"
+      export_profile:
+        scheduled_export: "Export planifié"
+      newsletter:
+        campaign: "Newsletter"
+      "devise/mailer":
+        confirmation_instructions: "Confirmation de l'adresse e-mail"
+        reset_password_instructions: "Réinitialisation du mot de passe"
+        unlock_instructions: "Déverrouillage du compte"
+        email_changed: "Adresse e-mail modifiée"
+        password_change: "Mot de passe modifié"
+      test:
+        test_email: "E-mail de test"
   courses:
     training_value_label: "Valeur par entraînement"
     training_value_hint: "Pour les remboursements automatiques (CHF par entraînement)"

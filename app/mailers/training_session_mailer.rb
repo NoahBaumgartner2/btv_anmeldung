@@ -1,5 +1,5 @@
 class TrainingSessionMailer < ApplicationMailer
-  # reason/participant: nur bei einer Absage für einzelne Teilnehmende.
+  # participant: das betroffene Kind. reason: nur bei einer Absage für einzelne Teilnehmende.
   def cancellation_notice(training_session, participant_user, reason: nil, participant: nil)
     @training_session = training_session
     @reason = reason || training_session.cancellation_reason

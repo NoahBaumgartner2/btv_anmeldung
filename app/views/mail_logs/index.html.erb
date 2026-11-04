@@ -1,0 +1,105 @@
+<%
+  admin = current_user.admin?
+  input = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm bg-white min-h-11 focus:outline-none focus:ring-2 focus:ring-primary-500"
+  label = "block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5"
+  page_link = "inline-flex items-center justify-center min-h-11 px-4 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
+  filter_params = params.permit(:q, :course_id, :kind, :from, :to, :sort).to_h.symbolize_keys
+%>
+<div class="max-w-6xl mx-auto w-full">
+  <div class="mb-6">
+    <h1 class="font-bold text-2xl sm:text-3xl text-gray-900"><%= t("mail_logs.title") %></h1>
+    <p class="text-sm text-gray-500 mt-1"><%= t(admin ? "mail_logs.subtitle_admin" : "mail_logs.subtitle_trainer") %></p>
+  </div>
+
+  <% if @any_logs %>
+    <%= form_with url: mail_logs_path, method: :get, class: "bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-5 mb-6" do %>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div>
+          <label for="q" class="<%= label %>"><%= t("mail_logs.filter.search") %></label>
+          <%= search_field_tag :q, params[:q], placeholder: t(admin ? "mail_logs.filter.search_placeholder_admin" : "mail_logs.filter.search_placeholder"), class: input %>
+        </div>
+        <div>
+          <label for="course_id" class="<%= label %>"><%= t("mail_logs.filter.course") %></label>
+          <%= select_tag :course_id, options_for_select(@courses.map { |id, title| [ title, id ] }, params[:course_id]), include_blank: t("mail_logs.filter.all_courses"), class: input %>
+        </div>
+        <div>
+          <label for="kind" class="<%= label %>"><%= t("mail_logs.filter.kind") %></label>
+          <%= select_tag :kind, options_for_select(@kinds, params[:kind]), include_blank: t("mail_logs.filter.all_kinds"), class: input %>
+        </div>
+        <div>
+          <label for="from" class="<%= label %>"><%= t("mail_logs.filter.from") %></label>
+          <%= date_field_tag :from, params[:from], class: input %>
+        </div>
+        <div>
+          <label for="to" class="<%= label %>"><%= t("mail_logs.filter.to") %></label>
+          <%= date_field_tag :to, params[:to], class: input %>
+        </div>
+        <div>
+          <label for="sort" class="<%= label %>"><%= t("mail_logs.filter.sort") %></label>
+          <%= select_tag :sort, options_for_select([ [ t("mail_logs.filter.newest"), "newest" ], [ t("mail_logs.filter.oldest"), "oldest" ] ], params[:sort]), class: input %>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-end gap-3 mt-4">
+        <% if @filtered %>
+          <%= link_to t("mail_logs.filter.reset"), mail_logs_path, class: "text-sm font-medium text-gray-600 hover:text-gray-900 underline-offset-2 hover:underline min-h-11 inline-flex items-center px-2" %>
+        <% end %>
+        <button type="submit" class="bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold px-5 rounded-lg text-sm transition cursor-pointer min-h-11"><%= t("mail_logs.filter.submit") %></button>
+      </div>
+    <% end %>
+
+    <p class="text-sm font-medium text-gray-600 mb-3" aria-live="polite"><%= @shown < @total ? t("mail_logs.shown", shown: @shown, total: @total) : t("mail_logs.count", count: @total) %></p>
+  <% end %>
+
+  <% if @logs.any? %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="hidden lg:grid grid-cols-[11rem_1.2fr_1.2fr_1fr] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider" aria-hidden="true">
+        <span><%= t("mail_logs.col_sent") %></span>
+        <span><%= t("mail_logs.col_kind") %></span>
+        <span><%= t("mail_logs.col_course") %></span>
+        <span><%= t("mail_logs.col_recipient") %></span>
+      </div>
+      <ul class="divide-y divide-gray-100">
+        <% @logs.each_with_index do |log, index| %>
+          <li id="mail-<%= index %>" class="scroll-mt-4 grid grid-cols-1 lg:grid-cols-[11rem_1.2fr_1.2fr_1fr] gap-x-4 gap-y-1.5 px-4 sm:px-5 py-4 text-sm">
+            <div class="text-gray-600 tabular-nums order-2 lg:order-none">
+              <time datetime="<%= log.created_at.iso8601 %>"><%= l(log.created_at, format: "%a, %d.%m.%Y, %H:%M") %></time>
+            </div>
+            <div class="min-w-0 order-1 lg:order-none">
+              <p class="font-semibold text-gray-900 break-words"><%= log.label %></p>
+              <% if admin && log.subject.present? %>
+                <p class="text-xs text-gray-500 mt-0.5 break-words"><%= log.subject %></p>
+              <% end %>
+            </div>
+            <div class="min-w-0 order-3 lg:order-none">
+              <p class="text-gray-800 break-words"><%= log.course_title.presence || t("mail_logs.no_course") %></p>
+              <% if log.session_start %>
+                <p class="text-xs text-gray-500 mt-0.5"><%= t("mail_logs.training_on", date: l(log.session_start, format: "%a, %d.%m.%Y, %H:%M")) %></p>
+              <% end %>
+            </div>
+            <div class="min-w-0 order-4 lg:order-none">
+              <p class="text-gray-800 break-words"><%= t("mail_logs.audience.#{log.audience.presence || 'other'}", name: log.participant_name, default: t("mail_logs.audience.other")) %></p>
+              <% if log.audience != "parent" && log.participant_name.present? %>
+                <p class="text-xs text-gray-500 mt-0.5 break-words"><%= t("mail_logs.concerns", name: log.participant_name) %></p>
+              <% end %>
+              <% if admin %>
+                <p class="text-xs text-gray-500 mt-0.5 break-all"><%= log.recipients.join(", ") %></p>
+              <% end %>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+
+    <% if @shown < @total %>
+      <%# Der Anker führt zur ersten neu geladenen Mail, statt wieder oben zu starten. %>
+      <div class="flex justify-center mt-4">
+        <%= link_to t("mail_logs.load_more"), mail_logs_path(filter_params.merge(page: @page + 1, anchor: "mail-#{@shown}")), class: page_link %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm py-12 px-6 text-center">
+      <p class="font-semibold text-gray-800"><%= t(@any_logs ? "mail_logs.no_results" : "mail_logs.empty") %></p>
+      <p class="text-sm text-gray-500 mt-1"><%= t(@any_logs ? "mail_logs.no_results_hint" : "mail_logs.empty_hint") %></p>
+    </div>
+  <% end %>
+</div>

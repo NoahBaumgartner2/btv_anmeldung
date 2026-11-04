@@ -14,6 +14,10 @@ production:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
 
+  purge_mail_logs:
+    command: "MailLog.where(created_at: ...MailLog::RETENTION.ago).delete_all"
+    schedule: every day at 3:30am
+
   attendance_reminder:
     class: AttendanceReminderJob
     queue: default
