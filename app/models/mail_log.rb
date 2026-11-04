@@ -38,26 +38,15 @@ class MailLog < ApplicationRecord
 
   def self.record(kind:, message:, course:, session:, participant:, parent:)
     recipients = Array(message.to)
-    names = participant_names(participant, parent, course)
     create!(
       kind: kind, subject: message.subject, recipients: recipients,
       audience: audience_for(recipients, parent || participant&.user),
       course_id: course&.id, course_title: course&.title,
       training_session_id: session&.id, session_start: session&.start_time,
-      participant_id: participant&.id, participant_name: names.presence,
+      participant_id: participant&.id, participant_name: participant && "#{participant.first_name} #{participant.last_name}".strip,
       trainer_ids: ((course&.trainer_ids || []) + [ session&.substitute_trainer_id ]).compact.uniq
     )
   end
-
-  def self.participant_names(participant, parent, course)
-    children = if participant then [ participant ]
-    elsif parent.respond_to?(:participants) && course
-      parent.participants.joins(:course_registrations).where(course_registrations: { course_id: course.id }).distinct
-    else []
-    end
-    children.map { |child| "#{child.first_name} #{child.last_name}".strip }.join(", ")
-  end
-  private_class_method :participant_names
 
   def self.audience_for(recipients, parent)
     if parent.respond_to?(:email) && recipients.include?(parent.email) then "parent"
