@@ -7,6 +7,7 @@ import DeleteAccountController from "controllers/delete_account_controller"
 import ModalController from "controllers/modal_controller"
 import MobileMenuController from "controllers/mobile_menu_controller"
 import DatepickerController from "controllers/datepicker_controller"
+import DateRangeController from "controllers/date_range_controller"
 import CookieConsentController from "controllers/cookie_consent_controller"
 import RegistrationModeController from "controllers/registration_mode_controller"
 import PasswordToggleController from "controllers/password_toggle_controller"
@@ -40,6 +41,7 @@ application.register("delete-account", DeleteAccountController)
 application.register("modal", ModalController)
 application.register("mobile-menu", MobileMenuController)
 application.register("datepicker", DatepickerController)
+application.register("date-range", DateRangeController)
 application.register("cookie-consent", CookieConsentController)
 application.register("registration-mode", RegistrationModeController)
 application.register("password-toggle", PasswordToggleController)
