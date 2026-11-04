@@ -947,6 +947,30 @@ de:
       privacy_link: "Datenschutzerklärung"
 
   course_registrations:
+    refund:
+      loading: "Rückerstattung wird berechnet …"
+      title: "Rückerstattung prüfen"
+      course_total: "In diesem Kurs haben bisher %{total} Trainings stattgefunden. Für die Rückerstattung zählen %{counted}:"
+      before_move: "Davon %{count} im früheren Kurs vor dem Wechsel."
+      paid: "Bezahlt"
+      deduction: "Abzug: %{billable} × CHF %{value}"
+      first_free: "Das erste Training wird nicht abgezogen."
+      calculated: "Berechneter Betrag"
+      amount_label: "Rückerstattung in CHF (höchstens %{max})"
+      note_label: "Notiz (Pflicht, wenn du den Betrag änderst)"
+      confirm: "Ich bestätige die Rückerstattung mit diesem Betrag."
+      invalid_amount: "Ungültiger Betrag. Die Anmeldung wurde nicht geändert."
+      note_required: "Bitte eine Notiz angeben, wenn der Betrag geändert wird. Die Anmeldung wurde nicht geändert."
+      flash_done: "Rückerstattung über CHF %{amount} ausgelöst."
+      flash_failed: "Die Rückerstattung ist fehlgeschlagen, die Admins wurden informiert."
+      admin_title: "Rückerstattung"
+      admin_amounts: "Bestätigt: CHF %{amount}, berechnet: CHF %{calculated}"
+      not_possible:
+        already_refunded: "Diese Anmeldung wurde bereits rückerstattet."
+        no_payment: "Keine Rückerstattung: Die Anmeldung ist nicht bezahlt."
+        no_transaction_id: "Keine automatische Rückerstattung möglich: Es ist keine SumUp-Zahlung gespeichert. Bitte allenfalls von Hand zurückzahlen."
+        no_training_value: "Keine automatische Rückerstattung möglich: Beim Kurs ist kein Trainingswert hinterlegt."
+        no_price: "Keine automatische Rückerstattung möglich: Es ist kein Preis hinterlegt."
     statuses:
       bestätigt: "Bestätigt"
       warteliste: "Warteliste"

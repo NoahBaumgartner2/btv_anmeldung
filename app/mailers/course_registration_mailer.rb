@@ -126,6 +126,8 @@ class CourseRegistrationMailer < ApplicationMailer
     @cancelled_by = course_registration.cancelled_by_trainer&.full_name
     @refund_amount_cents = refund_amount_cents
     @refund_amount_chf   = refund_amount_cents ? format("%.2f", refund_amount_cents / 100.0) : nil
+    calculated = course_registration.refund_calculated_cents
+    @refund_calculated_chf = calculated ? format("%.2f", calculated / 100.0) : nil
     @recipient    = admin_user
 
     return unless MailSetting.mail_enabled?(:admin_refund_done_notice)

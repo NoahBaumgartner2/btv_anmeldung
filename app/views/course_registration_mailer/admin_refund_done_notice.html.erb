@@ -33,6 +33,12 @@
         <p style="margin:0;font-size:14px;color:#166534;font-family:Arial,Helvetica,sans-serif;">
           Eine Rückerstattung von CHF <%= @refund_amount_chf %> wurde automatisch ausgelöst.
         </p>
+        <% if @refund_calculated_chf.present? && @refund_calculated_chf != @refund_amount_chf %>
+          <p style="margin:8px 0 0 0;font-size:14px;color:#166534;font-family:Arial,Helvetica,sans-serif;">Berechnet waren CHF <%= @refund_calculated_chf %>.</p>
+        <% end %>
+        <% if @course_registration.refund_note.present? %>
+          <p style="margin:8px 0 0 0;font-size:14px;color:#166534;font-family:Arial,Helvetica,sans-serif;white-space:pre-line;">Notiz: <%= @course_registration.refund_note %></p>
+        <% end %>
       </td>
     </tr>
   </table>

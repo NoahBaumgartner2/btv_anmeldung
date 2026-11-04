@@ -13,7 +13,8 @@ class RefundService
     refund_cents.positive? ? refund_cents : nil
   end
 
-  def self.process(registration)
+  # amount_cents: vom Trainer/Admin bestätigter Betrag; ohne Angabe gilt der berechnete.
+  def self.process(registration, amount_cents: nil)
     return { refunded: false, reason: "already_refunded" } if registration.refund_already_processed?
 
     course = registration.course
@@ -29,7 +30,8 @@ class RefundService
 
     sessions_count = attended_sessions_count(registration)
     abzug_cents = deduction_cents(registration)
-    refund_cents = paid_cents - abzug_cents
+    refund_cents = amount_cents || (paid_cents - abzug_cents)
+    raise RuntimeError, "Betrag höher als die bezahlten CHF #{format('%.2f', paid_cents / 100.0)}" if refund_cents > paid_cents
 
     Rails.logger.info "[RefundService] Registration #{registration.id}: paid=#{paid_cents}¢, sessions=#{sessions_count}, abzug=#{abzug_cents}¢, refund=#{refund_cents}¢"
 
@@ -117,12 +119,42 @@ class RefundService
   # festgehalten, siehe RegistrationMoveService) plus die im aktuellen Kurs seit
   # dem Wechsel - der alte Kurs kann inzwischen gelöscht sein.
   def self.attended_sessions_count(registration)
-    registration.sessions_before_move + registration.course.training_sessions
+    registration.sessions_before_move + attended_sessions(registration).count
+  end
+
+  def self.attended_sessions(registration)
+    registration.course.training_sessions
       .where(is_canceled: false)
       .where("start_time <= ?", Time.current)
       .where("start_time >= ?", registration.moved_at || registration.created_at)
       .where.not(id: registration.attendances.where.not(cancellation_reason: nil).select(:training_session_id))
-      .count
+  end
+
+  # Alle Angaben für das Bestätigungs-Overlay. refundable: false + reason, wenn keine
+  # automatische Rückerstattung möglich ist (gleiche Bedingungen wie process).
+  def self.breakdown(registration)
+    course = registration.course
+    paid_cents = registration.applied_price_cents || course.price_cents
+    reason =
+      if registration.refund_already_processed? then "already_refunded"
+      elsif !(course.has_payment? && registration.payment_cleared?) then "no_payment"
+      elsif registration.sumup_transaction_id.blank? then "no_transaction_id"
+      elsif course.training_value_cents.to_i <= 0 then "no_training_value"
+      elsif paid_cents.to_i <= 0 then "no_price"
+      end
+    return { refundable: false, reason: reason } if reason
+
+    sessions = attended_sessions(registration).order(:start_time).to_a
+    counted = registration.sessions_before_move + sessions.size
+    deduction = deduction_cents(registration)
+    {
+      refundable: true, paid_cents: paid_cents, training_value_cents: course.training_value_cents,
+      course_past_count: course.training_sessions.where(is_canceled: false).where("start_time <= ?", Time.current).count,
+      sessions: sessions, sessions_before_move: registration.sessions_before_move, counted_count: counted,
+      billable_count: [ counted - 1, 0 ].max, deduction_cents: deduction,
+      amount_cents: [ paid_cents - deduction, 0 ].max,
+      attendance_by_session: registration.attendances.where(training_session_id: sessions.map(&:id)).pluck(:training_session_id, :status).to_h
+    }
   end
 
   # Das erste besuchte Training ist kostenlos (Schnupper-Charakter) und mindert
@@ -133,5 +165,5 @@ class RefundService
     billable_sessions * registration.course.training_value_cents
   end
 
-  private_class_method :deduction_cents
+  private_class_method :deduction_cents, :attended_sessions
 end

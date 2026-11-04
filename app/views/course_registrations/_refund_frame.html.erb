@@ -1,0 +1,8 @@
+<%# Rückerstattung im Abmelde-Overlay: wird erst beim Öffnen geladen, damit die Kursseite
+    nicht für jede Person alle Trainings abfragt. refund_review: Abmelden ohne Prüfung verhindern. %>
+<% if reg.payment_cleared? && !reg.refund_already_processed? %>
+  <%= hidden_field_tag :refund_review, "1", id: nil %>
+  <%= turbo_frame_tag "refund_preview_#{reg.id}#{local_assigns[:suffix]}", src: refund_preview_course_registration_path(reg, suffix: local_assigns[:suffix]), loading: :lazy do %>
+    <p class="text-sm text-gray-500"><%= t("course_registrations.refund.loading") %></p>
+  <% end %>
+<% end %>
