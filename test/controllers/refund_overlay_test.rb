@@ -128,6 +128,34 @@ class RefundOverlayTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  test "Trainer sieht und bestätigt den berechneten Betrag, ändern darf ihn nur ein Admin" do
+    trainer = Trainer.first
+    CourseTrainer.without_assignment_notifications { @course.trainers << trainer }
+    sign_out users(:admin)
+    sign_in trainer.user
+
+    get refund_preview_course_registration_path(@reg)
+    assert_response :success
+    assert_select "input[type=hidden][name=refund_amount][value='100.00']"
+    assert_select "input[type=number][name=refund_amount]", count: 0
+    assert_select "textarea[name=refund_note]", count: 0
+
+    with_sumup do |sent|
+      cancel(refund_amount: "150", refund_note: "mehr bitte")
+      assert_nil sent[:amount]
+    end
+    assert_equal "bestätigt", @reg.reload.status
+    assert_match "Nur Admins", flash[:alert]
+
+    with_sumup do |sent|
+      cancel(refund_amount: "100.00", refund_note: "wird ignoriert")
+      assert_equal 10_000, sent[:amount]
+    end
+    @reg.reload
+    assert_equal "storniert", @reg.status
+    assert_nil @reg.refund_note
+  end
+
   test "Kursseite lädt das Overlay nur für bezahlte Anmeldungen" do
     get manage_course_path(@course)
     assert_select "turbo-frame[src*='refund_preview'][loading=lazy]", minimum: 1

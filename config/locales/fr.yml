@@ -879,6 +879,8 @@ fr:
 
   course_registrations:
     refund:
+      admin_only: "Seuls les administrateurs peuvent modifier le montant. L'inscription n'a pas été modifiée."
+      admin_only_hint: "Seuls les administrateurs peuvent modifier le montant."
       loading: "Calcul du remboursement …"
       title: "Vérifier le remboursement"
       course_total: "%{total} entraînements ont eu lieu dans ce cours jusqu'à présent. %{counted} comptent pour le remboursement :"

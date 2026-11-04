@@ -886,6 +886,8 @@ en:
 
   course_registrations:
     refund:
+      admin_only: "Only admins may change the amount. The registration was not changed."
+      admin_only_hint: "Only admins can change the amount."
       loading: "Calculating refund …"
       title: "Review refund"
       course_total: "%{total} trainings have taken place in this course so far. %{counted} count for the refund:"

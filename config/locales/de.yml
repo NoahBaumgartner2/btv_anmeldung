@@ -948,6 +948,8 @@ de:
 
   course_registrations:
     refund:
+      admin_only: "Nur Admins dürfen den Betrag ändern. Die Anmeldung wurde nicht geändert."
+      admin_only_hint: "Den Betrag können nur Admins ändern."
       loading: "Rückerstattung wird berechnet …"
       title: "Rückerstattung prüfen"
       course_total: "In diesem Kurs haben bisher %{total} Trainings stattgefunden. Für die Rückerstattung zählen %{counted}:"

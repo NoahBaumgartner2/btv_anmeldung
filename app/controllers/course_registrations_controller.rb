@@ -540,7 +540,7 @@ class CourseRegistrationsController < ApplicationController
         result = RefundService.process(@course_registration, amount_cents: refund_choice)
         if refund_choice
           @course_registration.update_columns(refund_amount_cents: refund_choice,
-            refund_calculated_cents: refund_breakdown[:amount_cents], refund_note: params[:refund_note].to_s.strip.presence)
+            refund_calculated_cents: refund_breakdown[:amount_cents], refund_note: (params[:refund_note].to_s.strip.presence if current_user.admin?))
         end
         if result[:refunded]
           refund_amount_cents = result[:amount_cents]
@@ -1186,7 +1186,7 @@ class CourseRegistrationsController < ApplicationController
   end
 
   # Betrag aus dem Overlay in Rappen; nil = Formular ohne Prüfung (kein bezahlter Fall).
-  # Ein Abweichen vom berechneten Betrag braucht eine Notiz, mehr als bezahlt geht nie.
+  # Abweichen vom berechneten Betrag: nur Admins und mit Notiz, mehr als bezahlt geht nie.
   def confirmed_refund_cents(breakdown)
     return unless breakdown[:refundable] && (params[:refund_review].present? || params[:refund_amount].present?)
 
@@ -1198,6 +1198,7 @@ class CourseRegistrationsController < ApplicationController
     end
     error = if cents.nil? then "invalid_amount"
     elsif cents.negative? || cents > breakdown[:paid_cents] then "invalid_amount"
+    elsif cents != breakdown[:amount_cents] && !current_user.admin? then "admin_only"
     elsif cents != breakdown[:amount_cents] && params[:refund_note].to_s.strip.blank? then "note_required"
     end
     return cents unless error
