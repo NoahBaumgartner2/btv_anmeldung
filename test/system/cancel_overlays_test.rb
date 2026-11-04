@@ -26,7 +26,14 @@ class CancelOverlaysTest < ApplicationSystemTestCase
       find("button[type=submit]", match: :first).click
     end
 
-    assert_text "Bitte eine Notiz angeben"
+    # Das Absenden lädt die Seite neu: Chrome kann beim Lesen währenddessen einen Fehler melden.
+    attempts = 0
+    begin
+      assert_text "Bitte eine Notiz angeben"
+    rescue Selenium::WebDriver::Error::UnknownError
+      retry if (attempts += 1) < 3
+      raise
+    end
     assert_equal "bestätigt", @reg.reload.status
   end
 

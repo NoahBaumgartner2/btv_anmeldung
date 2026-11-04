@@ -74,17 +74,60 @@ class RegistrationMoveServiceTest < ActiveSupport::TestCase
       "Admin muss trotzdem den Hinweis auf die Preisdifferenz bekommen, um manuell zu erstatten")
   end
 
-  test "voller Zielkurs setzt den Status auf warteliste" do
+  test "unbezahlte Anmeldung ist im vollen Zielkurs bestätigt, bleibt aber unbezahlt und zahlbar" do
     @to.update_columns(max_participants: 0)
 
-    reg = CourseRegistration.new(course: @from, participant: @participant, status: "bestätigt",
+    %w[bestätigt warteliste ausstehend platz_frei].each do |status|
+      reg = CourseRegistration.new(course: @from, participant: @participant, status: status,
+        payment_cleared: false, holiday_deduction_claimed: false)
+      reg.save!(validate: false)
+
+      RegistrationMoveService.call(reg, @to)
+
+      reg.reload
+      assert_equal "bestätigt", reg.status
+      assert_not reg.payment_cleared?
+      assert reg.payable?
+      reg.destroy!
+    end
+  end
+
+  test "bezahlte Anmeldung ist im vollen Zielkurs bestätigt und bleibt bezahlt" do
+    @to.update_columns(max_participants: 0)
+
+    %w[bestätigt warteliste].each do |status|
+      reg = CourseRegistration.new(course: @from, participant: @participant, status: status,
+        applied_price_cents: 15000, payment_cleared: true, holiday_deduction_claimed: false)
+      reg.save!(validate: false)
+
+      RegistrationMoveService.call(reg, @to)
+
+      reg.reload
+      assert_equal "bestätigt", reg.status
+      assert reg.payment_cleared?
+      assert_equal 15000, reg.applied_price_cents
+      reg.destroy!
+    end
+  end
+
+  test "stornierte bezahlte Anmeldung wird durch Verschieben nicht wieder aktiv" do
+    reg = CourseRegistration.new(course: @from, participant: @participant, status: "storniert",
       payment_cleared: true, holiday_deduction_claimed: false)
     reg.save!(validate: false)
 
-    result = RegistrationMoveService.call(reg, @to)
+    RegistrationMoveService.call(reg, @to)
 
-    assert result.moved
-    assert_equal "warteliste", reg.reload.status
+    assert_equal "storniert", reg.reload.status
+  end
+
+  test "Schnupperkind bleibt beim Verschieben im Schnuppern" do
+    reg = CourseRegistration.new(course: @from, participant: @participant, status: "schnuppern",
+      payment_cleared: false, holiday_deduction_claimed: false)
+    reg.save!(validate: false)
+
+    RegistrationMoveService.call(reg, @to)
+
+    assert_equal "schnuppern", reg.reload.status
   end
 
   test "gleicher Kurs wird nicht verschoben" do

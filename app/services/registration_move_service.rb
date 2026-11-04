@@ -3,7 +3,8 @@
 # (siehe CourseRegistrationsController#move, mit authorize_admin! abgesichert).
 #
 # Kapselt die heiklen Nebenwirkungen eines Kurswechsels:
-#   - Kapazität des Zielkurses (volle Kurse → Warteliste)
+#   - Status im Zielkurs: bestätigt, auch wenn der Kurs damit überbucht wird. Der
+#     Bezahlt-Status bleibt unverändert, Unbezahlte können weiterhin bezahlen.
 #   - training_session_id / trial_session_id zurücksetzen (gehören zum alten Kurs)
 #   - Preis im Zielkurs neu ermitteln (Rabatte greifen kategorieabhängig)
 #   - Warteliste des Quellkurses nachrücken lassen
@@ -46,7 +47,7 @@ class RegistrationMoveService
         course_id:            target_course.id,
         training_session_id:  nil,
         trial_session_id:     nil,
-        status:               capacity_status(target_course, registration),
+        status:               status_after_move(registration),
         moved_at:             Time.current,
         sessions_before_move: sessions_before_move
       }
@@ -97,17 +98,11 @@ class RegistrationMoveService
   end
   private_class_method :keep_past_attendance
 
-  # Nur aktive Vollanmeldungen werden im Zielkurs nach Kapazität neu eingestuft.
-  # schnuppern/ausstehend/storniert behalten ihren Status.
-  def self.capacity_status(course, registration)
-    return registration.status unless registration.status.in?(%w[bestätigt warteliste])
-    return "bestätigt" if course.max_participants.blank?
-
-    confirmed = course.course_registrations
-                      .where(status: %w[bestätigt schnuppern])
-                      .where.not(id: registration.id)
-                      .count
-    confirmed >= course.max_participants ? "warteliste" : "bestätigt"
+  # Verschoben wird von Hand durch einen Admin: Das Kind ist im Zielkurs bestätigt, egal
+  # wie voll er ist. Auch ausstehend/platz_frei, sonst würde es beim Ablauf der Frist
+  # storniert. Stornierte werden nicht wieder aktiv, Schnupperkinder bleiben im Schnuppern.
+  def self.status_after_move(registration)
+    registration.status.in?(%w[storniert schnuppern]) ? registration.status : "bestätigt"
   end
-  private_class_method :capacity_status
+  private_class_method :status_after_move
 end
