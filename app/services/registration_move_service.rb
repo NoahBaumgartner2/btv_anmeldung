@@ -3,7 +3,8 @@
 # (siehe CourseRegistrationsController#move, mit authorize_admin! abgesichert).
 #
 # Kapselt die heiklen Nebenwirkungen eines Kurswechsels:
-#   - Kapazität des Zielkurses (volle Kurse → Warteliste)
+#   - Kapazität des Zielkurses (volle Kurse → Warteliste; bezahlte Anmeldungen sind
+#     immer bestätigt, auch wenn der Kurs damit überbucht wird)
 #   - training_session_id / trial_session_id zurücksetzen (gehören zum alten Kurs)
 #   - Preis im Zielkurs neu ermitteln (Rabatte greifen kategorieabhängig)
 #   - Warteliste des Quellkurses nachrücken lassen
@@ -98,8 +99,10 @@ class RegistrationMoveService
   private_class_method :keep_past_attendance
 
   # Nur aktive Vollanmeldungen werden im Zielkurs nach Kapazität neu eingestuft.
-  # schnuppern/ausstehend/storniert behalten ihren Status.
+  # schnuppern/ausstehend/storniert behalten ihren Status. Wer bezahlt hat, ist immer
+  # bestätigt, egal wie voll der Zielkurs ist (ausser die Anmeldung ist storniert).
   def self.capacity_status(course, registration)
+    return "bestätigt" if registration.payment_cleared? && registration.status != "storniert"
     return registration.status unless registration.status.in?(%w[bestätigt warteliste])
     return "bestätigt" if course.max_participants.blank?
 
