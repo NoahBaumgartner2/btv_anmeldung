@@ -100,17 +100,26 @@ class MailLogsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Max Muster", response.body
   end
 
-  test "Blättern" do
+  test "zeigt 20 Mails und lädt mit Mehr anzeigen weitere" do
     51.times { |i| log("course_registration.confirmation", "Viele", 9, [ @trainer.id ], (i + 20).days.ago, participant_name: "Kind #{i}", audience: "parent") }
     sign_in @trainer.user
 
-    get mail_logs_path
-    assert_select "a[href*='page=2']"
-    get mail_logs_path(page: 2)
-    assert_response :success
-    assert_select "ul li", 3
-    get mail_logs_path(page: 999)
-    assert_response :success
+    get mail_logs_path(course_id: 9)
+    assert_select "ul li", 20
+    assert_match "20 von 51 Mails", response.body
+    assert_select "a[href*='course_id=9'][href*='page=2'][href$='#mail-20']", text: "Mehr anzeigen"
+
+    get mail_logs_path(course_id: 9, page: 2)
+    assert_select "ul li", 40
+    assert_select "li#mail-20"
+
+    get mail_logs_path(course_id: 9, page: 3)
+    assert_select "ul li", 51
+    assert_match "51 Mails", response.body
+    assert_select "a", text: "Mehr anzeigen", count: 0
+
+    get mail_logs_path(course_id: 9, page: 999)
+    assert_select "ul li", 51
   end
 
   private

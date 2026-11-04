@@ -1,5 +1,5 @@
 class MailLogsController < ApplicationController
-  PER_PAGE = 50
+  PER_PAGE = 20
 
   before_action :authenticate_user!
   before_action :authorize_trainer!
@@ -16,8 +16,8 @@ class MailLogsController < ApplicationController
     @total = logs.count
     @page = params[:page].to_i.clamp(1, [ (@total.to_f / PER_PAGE).ceil, 1 ].max)
     @logs = logs.order(created_at: params[:sort] == "oldest" ? :asc : :desc, id: :desc)
-                .limit(PER_PAGE).offset((@page - 1) * PER_PAGE)
-    @last_page = @page * PER_PAGE >= @total
+                .limit(@page * PER_PAGE)
+    @shown = [ @page * PER_PAGE, @total ].min
   end
 
   private

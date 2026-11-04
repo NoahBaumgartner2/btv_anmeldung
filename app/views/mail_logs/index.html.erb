@@ -3,7 +3,7 @@
   input = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm bg-white min-h-11 focus:outline-none focus:ring-2 focus:ring-primary-500"
   label = "block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5"
   page_link = "inline-flex items-center justify-center min-h-11 px-4 rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition"
-  filter_params = params.permit(:q, :course_id, :kind, :from, :to, :sort).to_h
+  filter_params = params.permit(:q, :course_id, :kind, :from, :to, :sort).to_h.symbolize_keys
 %>
 <div class="max-w-6xl mx-auto w-full">
   <div class="mb-6">
@@ -47,7 +47,7 @@
       </div>
     <% end %>
 
-    <p class="text-sm font-medium text-gray-600 mb-3" aria-live="polite"><%= t("mail_logs.count", count: @total) %></p>
+    <p class="text-sm font-medium text-gray-600 mb-3" aria-live="polite"><%= @shown < @total ? t("mail_logs.shown", shown: @shown, total: @total) : t("mail_logs.count", count: @total) %></p>
   <% end %>
 
   <% if @logs.any? %>
@@ -59,8 +59,8 @@
         <span><%= t("mail_logs.col_recipient") %></span>
       </div>
       <ul class="divide-y divide-gray-100">
-        <% @logs.each do |log| %>
-          <li class="grid grid-cols-1 lg:grid-cols-[11rem_1.2fr_1.2fr_1fr] gap-x-4 gap-y-1.5 px-4 sm:px-5 py-4 text-sm">
+        <% @logs.each_with_index do |log, index| %>
+          <li id="mail-<%= index %>" class="scroll-mt-4 grid grid-cols-1 lg:grid-cols-[11rem_1.2fr_1.2fr_1fr] gap-x-4 gap-y-1.5 px-4 sm:px-5 py-4 text-sm">
             <div class="text-gray-600 tabular-nums order-2 lg:order-none">
               <time datetime="<%= log.created_at.iso8601 %>"><%= l(log.created_at, format: "%a, %d.%m.%Y, %H:%M") %></time>
             </div>
@@ -90,20 +90,11 @@
       </ul>
     </div>
 
-    <% if @page > 1 || !@last_page %>
-      <nav class="flex items-center justify-between gap-3 mt-4" aria-label="<%= t("mail_logs.pagination") %>">
-        <% if @page > 1 %>
-          <%= link_to t("mail_logs.previous"), mail_logs_path(filter_params.merge(page: @page - 1)), class: page_link %>
-        <% else %>
-          <span></span>
-        <% end %>
-        <span class="text-sm text-gray-500 tabular-nums"><%= t("mail_logs.page", page: @page) %></span>
-        <% unless @last_page %>
-          <%= link_to t("mail_logs.next"), mail_logs_path(filter_params.merge(page: @page + 1)), class: page_link %>
-        <% else %>
-          <span></span>
-        <% end %>
-      </nav>
+    <% if @shown < @total %>
+      <%# Der Anker führt zur ersten neu geladenen Mail, statt wieder oben zu starten. %>
+      <div class="flex justify-center mt-4">
+        <%= link_to t("mail_logs.load_more"), mail_logs_path(filter_params.merge(page: @page + 1, anchor: "mail-#{@shown}")), class: page_link %>
+      </div>
     <% end %>
   <% else %>
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm py-12 px-6 text-center">
