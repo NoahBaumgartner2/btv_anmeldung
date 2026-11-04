@@ -508,6 +508,25 @@ fr:
       payment_pending: "En attente"
       to_course: "Voir le cours"
       no_registrations: "Ce participant n'est inscrit à aucun cours pour l'instant."
+      attendance:
+        title: "Cours et entraînements"
+        subtitle: "Tous les cours de cette personne avec la présence par entraînement."
+        quote: "Présent·e à %{present} entraînements sur %{total} saisis"
+        moved_badge: "Déplacé"
+        moved_to: "Déplacé vers un autre cours : %{course}"
+        before_move: "Avant le changement de cours : %{count} entraînements dans le cours précédent."
+        no_sessions: "Aucun entraînement pour cette inscription."
+        col_date: "Date"
+        col_time: "Heure"
+        col_status: "Statut"
+        legend: "« Non saisi » : l'entraîneur n'a pas encore confirmé la présence. Les inscriptions annulées n'affichent que les entrées saisies explicitement."
+        statuses:
+          present: "Présent"
+          absent: "Absent"
+          excused: "Excusé"
+          cancelled: "Annulé"
+          unrecorded: "Non saisi"
+          planned: "Prévu"
     form:
       error_count:
         one: "Il y a 1 erreur :"

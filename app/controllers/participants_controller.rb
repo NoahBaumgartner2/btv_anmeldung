@@ -87,6 +87,7 @@ class ParticipantsController < ApplicationController
 
   def show
     @supplementary_charges_by_course_id = SupplementaryCharge.where(participant_id: @participant.id).group_by(&:course_id)
+    @attendance_history = ParticipantAttendanceHistory.call(@participant) if current_user.admin?
   end
 
   def new
