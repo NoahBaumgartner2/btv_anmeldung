@@ -15,6 +15,22 @@ class ApplicationController < ActionController::Base
 
   helper_method :send_mail?
 
+  # Listen, die über die Jahre wachsen, zeigen höchstens `per` Einträge pro Stufe;
+  # „Mehr anzeigen“ (shared/_load_more) lädt die nächste Stufe dazu.
+  # ponytail: limit(page * per) statt offset, wie im Mail-Protokoll – die Liste
+  # wächst nach unten weiter; reicht bis einige hundert Einträge pro Liste.
+  LoadMore = Data.define(:total, :shown, :page, :param) do
+    def more? = shown < total
+  end
+
+  def load_more(scope, per:, param: :page)
+    total = scope.is_a?(Array) ? scope.size : scope.count
+    page  = params[param].to_i.clamp(1, [ (total.to_f / per).ceil, 1 ].max)
+    shown = [ page * per, total ].min
+    records = scope.is_a?(Array) ? scope.first(page * per) : scope.limit(page * per)
+    [ records, LoadMore.new(total: total, shown: shown, page: page, param: param) ]
+  end
+
   def default_url_options
     { locale: nil }
   end

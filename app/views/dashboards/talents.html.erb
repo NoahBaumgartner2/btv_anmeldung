@@ -66,6 +66,7 @@
         </tbody>
       </table>
     </div>
+    <%= render "shared/load_more", info: @talents_more %>
   <% else %>
     <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 py-16 text-center">
       <p class="mb-4 flex justify-center text-gray-300"><%= ui_icon(:star, "w-10 h-10") %></p>

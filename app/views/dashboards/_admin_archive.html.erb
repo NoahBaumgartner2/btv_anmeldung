@@ -1,6 +1,6 @@
 <%# ── Archiv: Kurse mit vergangenem Enddatum, gruppiert nach Zeitraum ──── %>
 <% if @archived_courses_by_term.any? %>
-  <details class="mb-10 sm:mb-16 group">
+  <details id="archiv" class="scroll-mt-24 mb-10 sm:mb-16 group" <%= "open" if params[:archive_page].present? %>>
     <summary class="flex items-center gap-2 cursor-pointer list-none select-none text-sm font-bold text-gray-400 hover:text-gray-600 transition min-h-11">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
@@ -37,6 +37,7 @@
           </ul>
         </div>
       <% end %>
+      <%= render "shared/load_more", info: @archive_more, anchor: "archiv" %>
     </div>
   </details>
 <% end %>

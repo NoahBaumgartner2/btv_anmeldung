@@ -2015,6 +2015,10 @@ fr:
     success_notice: "Super ! Données familiales enregistrées. Ajoutez maintenant la première personne."
 
   shared:
+    load_more:
+      show_all: "Afficher les %{count}"
+      button: "Afficher plus"
+      shown: "%{shown} sur %{total} affichés"
     access_denied: "Accès refusé."
     send_mail:
       participants: "Envoyer l'e-mail aux participants"

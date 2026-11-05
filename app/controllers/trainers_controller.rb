@@ -6,7 +6,7 @@ class TrainersController < ApplicationController
 # GET /trainers or /trainers.json
 def index
     # .includes lädt die verknüpften Tabellen direkt mit, das macht die Seite extrem schnell!
-    @trainers = Trainer.includes(:user, :courses).all
+    @trainers, @trainers_more = load_more(Trainer.includes(:user, :courses).order(:id), per: 50)
   end
 
   def show

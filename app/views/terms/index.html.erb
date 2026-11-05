@@ -52,6 +52,7 @@
           <% end %>
         </tbody>
       </table>
+      <%= render "shared/load_more", info: @terms_more %>
     <% else %>
       <div class="py-14 text-center">
         <p class="font-medium text-gray-700 mb-1">Noch keine Semester/Quartale erfasst.</p>

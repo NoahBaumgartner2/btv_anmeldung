@@ -60,7 +60,7 @@
   <% end %>
 
   <%# ── Versendete Newsletter ───────────────────────────────────────────── %>
-  <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm overflow-hidden">
+  <div id="sent" class="scroll-mt-24 bg-white border border-slate-200/80 rounded-3xl shadow-sm overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-100">
       <h2 class="font-bold text-gray-900"><%= t('newsletters.index.section_sent') %></h2>
     </div>
@@ -84,6 +84,7 @@
           </li>
         <% end %>
       </ul>
+      <%= render "shared/load_more", info: @sent_more, anchor: "sent" %>
     <% else %>
       <div class="py-12 text-center">
         <p class="text-gray-400 text-sm font-medium"><%= t('newsletters.index.empty_sent') %></p>

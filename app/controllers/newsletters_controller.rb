@@ -5,7 +5,7 @@ class NewslettersController < ApplicationController
 
   def index
     @drafts = Newsletter.drafts.order(updated_at: :desc)
-    @sent   = Newsletter.sent.order(sent_at: :desc)
+    @sent, @sent_more = load_more(Newsletter.sent.order(sent_at: :desc), per: 20, param: :sent_page)
   end
 
   def new

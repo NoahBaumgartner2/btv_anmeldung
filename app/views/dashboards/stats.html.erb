@@ -84,7 +84,7 @@
         </div>
 
         <div class="max-h-72 overflow-y-auto divide-y divide-gray-50 py-1">
-          <% @courses.each do |course| %>
+          <% @filter_courses.each do |course| %>
             <label class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition min-h-11">
               <%= f.check_box :course_ids,
                     { multiple: true,
@@ -105,7 +105,7 @@
   <% end %>
 
   <%# ── Kurs-Sektionen ─────────────────────────────────────────────────────── %>
-  <% filtered_courses = @selected_course_ids.any? ? @courses.select { |c| @selected_course_ids.include?(c.id) } : @courses %>
+  <% filtered_courses = @courses %>
 
   <% if filtered_courses.empty? %>
     <div class="bg-white rounded-3xl border border-slate-200/80 p-12 text-center text-gray-400 text-sm">
@@ -267,5 +267,7 @@
       </details>
     </div>
   <% end %>
+
+  <%= render "shared/load_more", info: @courses_more %>
 
 </div>

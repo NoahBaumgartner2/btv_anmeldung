@@ -4,7 +4,7 @@ class TermsController < ApplicationController
 
   # GET /terms
   def index
-    @terms = Term.order(start_date: :desc)
+    @terms, @terms_more = load_more(Term.order(start_date: :desc), per: 20)
   end
 
   # GET /terms/new

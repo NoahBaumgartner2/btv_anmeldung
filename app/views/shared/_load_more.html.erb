@@ -1,0 +1,10 @@
+<%# „Mehr anzeigen“ für begrenzte Listen (ApplicationController#load_more).
+    Locals: info (LoadMore), anchor (optional: id, zu der nach dem Nachladen gesprungen wird) %>
+<% if info.more? %>
+  <div class="flex flex-col items-center gap-2 mt-4">
+    <p class="text-xs text-gray-500" aria-live="polite"><%= t("shared.load_more.shown", shown: info.shown, total: info.total) %></p>
+    <%= link_to t("shared.load_more.button"),
+          url_for(request.query_parameters.merge(info.param => info.page + 1, anchor: local_assigns[:anchor])),
+          class: "btn btn-secondary" %>
+  </div>
+<% end %>

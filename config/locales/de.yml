@@ -2243,6 +2243,10 @@ de:
     success_notice: "Super! Familiendaten gespeichert. Jetzt die erste Person erfassen."
 
   shared:
+    load_more:
+      show_all: "Alle %{count} anzeigen"
+      button: "Mehr anzeigen"
+      shown: "%{shown} von %{total} angezeigt"
     access_denied: "Zugriff verweigert."
     send_mail:
       participants: "E-Mail an die Teilnehmenden senden"

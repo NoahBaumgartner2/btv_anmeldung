@@ -16,7 +16,7 @@
   <% if @holiday_types.any? %>
     <div class="space-y-5">
       <% @holiday_types.each do |type| %>
-        <div class="bg-white shadow-sm ring-1 ring-slate-200/80 rounded-3xl overflow-hidden">
+        <div id="<%= dom_id(type) %>" class="scroll-mt-24 bg-white shadow-sm ring-1 ring-slate-200/80 rounded-3xl overflow-hidden">
           <div class="px-5 py-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 bg-gray-50 border-b border-gray-100">
             <h2 class="font-bold text-gray-900"><%= type.name %></h2>
             <div class="flex items-center gap-3 shrink-0">
@@ -29,9 +29,12 @@
             </div>
           </div>
 
-          <% if type.holidays.any? %>
+          <%# Neueste 10 pro Ferienart; ältere über „Alle anzeigen“ (Liste wächst jedes Jahr). %>
+          <% holidays = type.holidays.sort_by(&:start_date).reverse %>
+          <% shown = params[:alle] == type.id.to_s ? holidays : holidays.first(10) %>
+          <% if holidays.any? %>
             <ul class="divide-y divide-gray-100">
-              <% type.holidays.order(start_date: :desc).each do |holiday| %>
+              <% shown.each do |holiday| %>
                 <li class="px-5 py-3 flex items-center justify-between gap-3 text-sm">
                   <span class="font-medium text-gray-700">
                     <%= holiday.start_date.strftime("%-d. %b %Y") %> – <%= holiday.end_date.strftime("%-d. %b %Y") %>
@@ -47,6 +50,12 @@
                 </li>
               <% end %>
             </ul>
+            <% if shown.size < holidays.size %>
+              <div class="px-5 py-3 border-t border-gray-100 text-center">
+                <%= link_to t("shared.load_more.show_all", count: holidays.size), holiday_types_path(alle: type.id, anchor: dom_id(type)),
+                      class: "text-sm font-semibold text-primary-600 hover:text-primary-800" %>
+              </div>
+            <% end %>
           <% else %>
             <p class="px-5 py-4 text-sm text-gray-400"><%= t('holiday_types.index.no_dates') %></p>
           <% end %>

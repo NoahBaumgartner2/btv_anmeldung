@@ -22,6 +22,7 @@
           </div>
         </div>
       <% end %>
+      <%= render "shared/load_more", info: @training_sessions_more %>
     <% else %>
       <p class="text-center my-10">No training sessions found.</p>
     <% end %>

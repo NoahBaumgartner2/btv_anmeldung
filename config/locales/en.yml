@@ -2020,6 +2020,10 @@ en:
     success_notice: "Great! Family details saved. Now add the first person."
 
   shared:
+    load_more:
+      show_all: "Show all %{count}"
+      button: "Show more"
+      shown: "Showing %{shown} of %{total}"
     access_denied: "Access denied."
     send_mail:
       participants: "Send email to participants"

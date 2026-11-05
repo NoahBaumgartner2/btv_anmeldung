@@ -127,4 +127,28 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "nav[aria-label='#{I18n.t("dashboards.admin.sections.communication")}']", 0
   end
+
+  test "lange Listen zeigen eine Höchstzahl und „Mehr anzeigen“" do
+    sign_in users(:admin)
+    25.times { |i| Term.create!(name: "T#{i}", kind: "semester", start_date: Date.new(2000 + i, 1, 1), end_date: Date.new(2000 + i, 6, 30)) }
+    total = Term.count
+
+    get terms_path
+    assert_select "a", text: I18n.t("shared.load_more.button"), count: 1
+    assert_match I18n.t("shared.load_more.shown", shown: 20, total: total), response.body
+
+    get terms_path(page: 2)
+    assert_select "a", text: I18n.t("shared.load_more.button"), count: 0
+  end
+
+  test "Ferientage: pro Art die neuesten 10, Rest über „Alle anzeigen“" do
+    sign_in users(:admin)
+    type = HolidayType.create!(name: "Viele Ferien")
+    12.times { |i| type.holidays.create!(start_date: Date.new(2010 + i, 7, 1), end_date: Date.new(2010 + i, 7, 10)) }
+
+    get holiday_types_path
+    assert_select "##{ActionView::RecordIdentifier.dom_id(type)} li", 10
+    get holiday_types_path(alle: type.id)
+    assert_select "##{ActionView::RecordIdentifier.dom_id(type)} li", 12
+  end
 end

@@ -10,9 +10,8 @@
 module Admin
   class SupplementaryChargesController < BaseController
     def index
-      @charges = SupplementaryCharge.includes(:participant, :course)
-        .order(created_at: :desc)
-        .limit(100)
+      @charges, @charges_more = load_more(SupplementaryCharge.includes(:participant, :course)
+        .order(created_at: :desc), per: 50)
     end
 
     def new

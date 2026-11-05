@@ -26,7 +26,7 @@ class TrainingSessionsController < ApplicationController
   end
 
   def index
-    @training_sessions = TrainingSession.all
+    @training_sessions, @training_sessions_more = load_more(TrainingSession.order(start_time: :desc), per: 50)
   end
 
   def show

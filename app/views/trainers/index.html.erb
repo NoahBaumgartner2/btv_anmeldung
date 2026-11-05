@@ -65,6 +65,7 @@
         </tbody>
       </table>
     </div>
+    <%= render "shared/load_more", info: @trainers_more %>
   <% else %>
     <p class="text-gray-500 text-center py-8"><%= t('trainers.index.empty') %></p>
   <% end %>
