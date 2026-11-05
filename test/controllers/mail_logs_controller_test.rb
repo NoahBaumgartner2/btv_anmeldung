@@ -180,6 +180,7 @@ class MailLogsControllerTest < ActionDispatch::IntegrationTest
     get mail_logs_path
     assert_select "[data-preview-url='#{mail_log_preview_path(@mine)}']", 1
     assert_select "[data-preview-url='#{mail_log_preview_path(@older)}']", 0
+    assert_match I18n.t("mail_logs.no_content_hint"), response.body
   end
 
   private

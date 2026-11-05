@@ -197,6 +197,7 @@ de:
     show_mail: "Mail ansehen"
     close_preview: "Vorschau schliessen"
     no_content: "F\u00FCr diese Mail wurde kein Inhalt gespeichert."
+    no_content_hint: "Inhalt nicht gespeichert (Versand vor dem 5.11.2026)"
     title: "Mails"
     subtitle_admin: "Alle versendeten Mails."
     subtitle_trainer: "Mails zu Kursen, bei denen du beim Versand als Trainer:in eingeteilt warst. Zahlungs- und interne Mails sind hier nicht aufgeführt."

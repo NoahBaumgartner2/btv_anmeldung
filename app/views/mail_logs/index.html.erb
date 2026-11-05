@@ -101,6 +101,8 @@
                         class="mt-1.5 inline-flex items-center gap-1.5 text-xs font-bold text-primary-600 hover:text-primary-800 transition min-h-8 cursor-pointer">
                   <%= ui_icon(:envelope, "w-4 h-4") %><%= t("mail_logs.show_mail") %>
                 </button>
+              <% else %>
+                <p class="mt-1.5 text-xs text-gray-400"><%= t("mail_logs.no_content_hint") %></p>
               <% end %>
             </div>
             <div class="min-w-0 order-3 lg:order-none">

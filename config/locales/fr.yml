@@ -156,6 +156,7 @@ fr:
     show_mail: "Voir l'e-mail"
     close_preview: "Fermer l'aper\u00E7u"
     no_content: "Aucun contenu n'a \u00E9t\u00E9 enregistr\u00E9 pour cet e-mail."
+    no_content_hint: "Contenu non enregistré (envoi avant le 5.11.2026)"
     title: "E-mails"
     subtitle_admin: "Tous les e-mails envoyés."
     subtitle_trainer: "E-mails des cours auxquels vous étiez affecté·e comme entraîneur·e lors de l'envoi. Les e-mails de paiement et internes ne sont pas listés."

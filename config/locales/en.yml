@@ -156,6 +156,7 @@ en:
     show_mail: "View email"
     close_preview: "Close preview"
     no_content: "No content was stored for this email."
+    no_content_hint: "Content not stored (sent before 5 Nov 2026)"
     title: "Mails"
     subtitle_admin: "All emails sent."
     subtitle_trainer: "Emails for courses you were assigned to as a trainer when they were sent. Payment and internal emails are not listed."
