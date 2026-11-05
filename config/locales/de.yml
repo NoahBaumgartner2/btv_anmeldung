@@ -13,6 +13,15 @@ de:
       body_label: "Nachricht"
       submit: "E-Mail senden"
       cancel: "Abbrechen"
+      intro: "Das Bild einer Kategorie erscheint bei allen Kursen dieser Kategorie, die kein eigenes Kursfoto haben. Ein eigenes Foto pro Kurs lädst du im Kursformular unter „Benennung & Kategorie“ hoch."
+      own_photos:
+        zero: "kein Kurs mit eigenem Foto"
+        one: "%{count} von %{total} Kursen mit eigenem Foto"
+        other: "%{count} von %{total} Kursen mit eigenem Foto"
+      add_image: "Bild hinzufügen"
+      change_image: "Bild ändern"
+      remove_image: "Bild entfernen"
+      remove_confirm: "Bild für „%{category}“ wirklich entfernen?"
 
   date:
     abbr_day_names:

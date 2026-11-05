@@ -35,6 +35,7 @@
         "controllers/export_type_controller":         "<%= asset_path 'controllers/export_type_controller.js' %>",
         "controllers/delete_account_controller":      "<%= asset_path 'controllers/delete_account_controller.js' %>",
         "controllers/modal_controller":               "<%= asset_path 'controllers/modal_controller.js' %>",
+        "controllers/photo_preview_controller":       "<%= asset_path 'controllers/photo_preview_controller.js' %>",
         "controllers/datepicker_controller":          "<%= asset_path 'controllers/datepicker_controller.js' %>",
         "controllers/date_range_controller":          "<%= asset_path 'controllers/date_range_controller.js' %>",
         "controllers/cookie_consent_controller":      "<%= asset_path 'controllers/cookie_consent_controller.js' %>",
@@ -166,7 +167,7 @@
         </main>
       <% else %>
         <main class="container mx-auto px-3 sm:px-5 pt-4 lg:pt-6">
-          <div class="glass-strong rounded-3xl p-5 sm:p-8">
+          <div class="panel rounded-3xl p-5 sm:p-8">
             <%= yield %>
           </div>
         </main>

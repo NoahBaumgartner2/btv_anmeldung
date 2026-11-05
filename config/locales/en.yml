@@ -13,6 +13,15 @@ en:
       body_label: "Message"
       submit: "Send email"
       cancel: "Cancel"
+      intro: "A category image is shown for every course in that category that has no course photo of its own. Upload a photo for a single course in the course form under “Name & category”."
+      own_photos:
+        zero: "no course with its own photo"
+        one: "%{count} of %{total} courses with own photo"
+        other: "%{count} of %{total} courses with own photo"
+      add_image: "Add image"
+      change_image: "Change image"
+      remove_image: "Remove image"
+      remove_confirm: "Really remove the image for “%{category}”?"
 
   date:
     abbr_day_names:

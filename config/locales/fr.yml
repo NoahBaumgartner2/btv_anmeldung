@@ -13,6 +13,15 @@ fr:
       body_label: "Message"
       submit: "Envoyer l'e-mail"
       cancel: "Annuler"
+      intro: "L’image d’une catégorie s’affiche pour tous les cours de cette catégorie qui n’ont pas leur propre photo. La photo d’un cours se télécharge dans le formulaire du cours, sous « Nom & catégorie »."
+      own_photos:
+        zero: "aucun cours avec sa propre photo"
+        one: "%{count} cours sur %{total} avec sa propre photo"
+        other: "%{count} cours sur %{total} avec leur propre photo"
+      add_image: "Ajouter une image"
+      change_image: "Changer l’image"
+      remove_image: "Supprimer l’image"
+      remove_confirm: "Vraiment supprimer l’image de « %{category} » ?"
 
   date:
     abbr_day_names:

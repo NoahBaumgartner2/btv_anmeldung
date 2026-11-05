@@ -34,6 +34,7 @@ class CourseRolloverService
         new_course.previous_course = @course
         new_course.save!(validate: false)
         new_course.holiday_type_ids = @course.holiday_type_ids
+        new_course.photo.attach(@course.photo.blob) if @course.photo.attached?
 
         copy_trainers(new_course)
         generate_sessions(new_course)

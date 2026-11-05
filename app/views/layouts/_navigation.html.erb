@@ -13,7 +13,7 @@
 <% end %>
 
 <%# ── Desktop-Sidebar ───────────────────────────────────────────────────── %>
-<aside class="hidden lg:flex fixed inset-y-3 left-3 z-30 w-64 flex-col glass rounded-3xl p-3">
+<aside class="[view-transition-name:app-sidebar] hidden lg:flex fixed inset-y-3 left-3 z-30 w-64 flex-col glass rounded-3xl p-3">
   <%= link_to root_path, class: "flex items-center gap-3 px-2 py-2 rounded-2xl hover:bg-white/50 transition-colors" do %>
     <%= brand %>
   <% end %>
@@ -51,7 +51,7 @@
 </aside>
 
 <%# ── Handy: Kopfzeile ──────────────────────────────────────────────────── %>
-<header class="lg:hidden sticky top-0 z-30 px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+<header class="[view-transition-name:app-header] lg:hidden sticky top-0 z-30 px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
   <%= link_to root_path, class: "glass rounded-2xl h-14 px-4 flex items-center gap-3" do %>
     <%= brand %>
   <% end %>
@@ -59,7 +59,7 @@
 
 <%# ── Handy: Tab-Leiste ─────────────────────────────────────────────────── %>
 <% tab_class = "flex flex-col items-center justify-center gap-0.5 min-h-14 py-1.5 text-[11px] font-medium cursor-pointer transition-colors" %>
-<nav class="lg:hidden fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 glass-strong rounded-2xl"
+<nav class="[view-transition-name:app-tabbar] lg:hidden fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 glass-strong rounded-2xl"
      aria-label="<%= t("nav.menu") %>">
   <ul class="grid <%= { 1 => "grid-cols-2", 2 => "grid-cols-3", 3 => "grid-cols-4" }[tabs.size] %>">
     <% tabs.each do |l| %>

@@ -912,4 +912,13 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       post send_custom_email_course_path(course), params: { subject: "Info", body: "Text" }
     end
   end
+  test "Kursfoto lässt sich im Formular hochladen und erscheint im Bearbeiten-Formular" do
+    patch course_url(@course), params: { course: { photo: fixture_file_upload("test_image.png", "image/png") } }
+    assert @course.reload.photo.attached?
+
+    get edit_course_url(@course)
+    assert_response :success
+    assert_select "input[type=file][name=?]", "course[photo]"
+    assert_select "input[type=checkbox][name=?]", "course[remove_photo]"
+  end
 end

@@ -89,6 +89,9 @@
     box-shadow: var(--glass-shadow);
   }
   .glass-strong { background: var(--glass-bg-strong); }
+  /* Inhaltsfläche: wie glass-strong, aber ohne backdrop-filter. Ein Blur würde
+     zum Containing Block für position:fixed und Seiten-Modals einsperren. */
+  .panel { background: var(--glass-bg-strong); border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow); }
 
   .nav-item {
     display: flex; align-items: center; gap: 0.75rem;
@@ -127,19 +130,25 @@
   :root { --glass-bg: #fff; --glass-bg-strong: #fff; }
 }
 
-/* Seitenwechsel wie im Video: alter Inhalt verschwimmt, neuer schärft sich. */
-main { view-transition-name: main-content; }
-::view-transition-old(root), ::view-transition-new(root) { animation: none; }
-::view-transition-old(main-content) { animation: vt-out 160ms var(--ease-exit) both; }
-::view-transition-new(main-content) { animation: vt-in 420ms var(--ease-entrance) both; }
+/* Seitenwechsel wie im Video: alte Seite verschwimmt, neue schärft sich.
+   Animiert wird root; Sidebar/Kopfzeile/Tab-Leiste haben eigene Namen und
+   bleiben stehen. Bewusst kein view-transition-name auf <main>: das würde
+   einen Stacking-Context bilden, und Seiten-Modals (z-50) lägen dann unter
+   Sidebar und Tab-Leiste. */
+::view-transition-old(root) { animation: vt-out 160ms var(--ease-exit) both; }
+::view-transition-new(root) { animation: vt-in 420ms var(--ease-entrance) both; }
+::view-transition-group(app-sidebar), ::view-transition-group(app-header), ::view-transition-group(app-tabbar),
+::view-transition-old(app-sidebar), ::view-transition-old(app-header), ::view-transition-old(app-tabbar),
+::view-transition-new(app-sidebar), ::view-transition-new(app-header), ::view-transition-new(app-tabbar) { animation: none; }
 @keyframes vt-out { to { opacity: 0; filter: blur(8px); } }
-@keyframes vt-in { from { opacity: 0; filter: blur(10px); transform: translateY(8px); } }
+@keyframes vt-in { from { opacity: 0; filter: blur(10px); } }
 
 .flash-toast { animation: toast-in 420ms var(--ease-entrance) both; }
 @keyframes toast-in { from { opacity: 0; transform: translateY(-0.75rem) scale(0.98); } }
 
 /* „Mehr“-Sheet (natives Popover, kein JS): von unten rein, nach unten raus. */
 .sheet {
+  position: fixed;
   inset: auto 0.75rem calc(0.75rem + env(safe-area-inset-bottom, 0px)); margin: 0; width: auto;
   transform: translateY(110%); opacity: 0;
   transition: transform 200ms var(--ease-exit), opacity 200ms var(--ease-exit),
@@ -150,7 +159,7 @@ main { view-transition-name: main-content; }
 .sheet::backdrop { background: rgb(2 6 23 / 0.35); }
 
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(main-content), ::view-transition-new(main-content), .flash-toast { animation: none; }
+  ::view-transition-old(root), ::view-transition-new(root), .flash-toast { animation: none; }
   .sheet, .btn { transition: none; }
 }
 
