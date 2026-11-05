@@ -15,9 +15,9 @@
   </div>
 
   <%# ── Schnellzugriff (Bereiche aus AdminNavigation) ──────────────────── %>
-  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8 sm:mb-10">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 sm:mb-10">
     <% AdminNavigation::SECTIONS.each_key do |section| %>
-      <%= render "admin/shared/section_card", section: section, badges: { settings_data: @export_profiles.size } %>
+      <%= render "admin/shared/section_card", section: section, badges: @nav_badges %>
     <% end %>
   </div>
 

@@ -1,5 +1,6 @@
 # Zentrales Verzeichnis aller Admin-Seiten, gruppiert nach Bereichen der
-# Kommandozentrale. Einzige Quelle für den Schnellzugriff (dashboards/admin)
+# Kommandozentrale (Kurse, Personen & Finanzen, Kommunikation, Auswertung,
+# Einstellungen). Einstellungen enthalten nur Konfiguration. Einzige Quelle für den Schnellzugriff (dashboards/admin)
 # und die Tabs des Einstellungs-Hubs (admin/settings/_tabs).
 #
 # Neue Admin-Seite = 1 Item hier + Texte unter dashboards.admin.links.<key>(_desc).
@@ -28,26 +29,42 @@ class AdminNavigation
   }.freeze
 
   SECTIONS = {
-    management: [
-      Item.new(key: :trainers, path: :trainers_path, tone: :primary,
-               icon: "M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4.13a4 4 0 10-8 0 4 4 0 008 0z"),
-      Item.new(key: :holidays, path: :holiday_types_path, tone: :yellow,
-               icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"),
-      Item.new(key: :terms, path: :terms_path, tone: :indigo,
-               icon: "M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"),
-      Item.new(key: :open_attendances, path: :open_attendances_dashboard_path, tone: :red,
-               icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"),
+    courses: [
       Item.new(key: :course_categories, path: :course_categories_path, tone: :cyan,
                icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"),
-      Item.new(key: :supplementary_charges, path: :admin_supplementary_charges_path, tone: :amber,
-               icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"),
+      Item.new(key: :terms, path: :terms_path, tone: :indigo,
+               icon: "M8 7V3m8 4V3M3 11h18M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"),
+      Item.new(key: :holidays, path: :holiday_types_path, tone: :yellow,
+               icon: "M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"),
+      Item.new(key: :open_attendances, path: :open_attendances_dashboard_path, tone: :red,
+               icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z")
+    ],
+    people: [
+      Item.new(key: :trainers, path: :trainers_path, tone: :primary,
+               icon: "M17 20h5v-2a4 4 0 00-5-3.87M9 20H4v-2a4 4 0 015-3.87m6-4.13a4 4 0 10-8 0 4 4 0 008 0z"),
       Item.new(key: :age_exemptions, path: :admin_age_exemptions_path, tone: :purple,
-               icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z")
+               icon: "M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"),
+      Item.new(key: :supplementary_charges, path: :admin_supplementary_charges_path, tone: :amber,
+               icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z")
+    ],
+    communication: [
+      Item.new(key: :newsletters, path: :newsletters_path, tone: :primary,
+               icon: "M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"),
+      Item.new(key: :newsletter_subscribers, path: :newsletter_subscribers_path, tone: :cyan,
+               icon: "M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"),
+      Item.new(key: :mail_logs, path: :mail_logs_path, tone: :gray,
+               icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z")
     ],
     analysis: [
       Item.new(key: :stats, path: :dashboards_stats_path, tone: :green,
                icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"),
-      Item.new(key: :talents, path: :talents_dashboard_path, tone: :amber, emoji: "⭐")
+      Item.new(key: :talents, path: :talents_dashboard_path, tone: :amber, emoji: "⭐"),
+      Item.new(key: :reports, path: :admin_reports_path, tone: :indigo,
+               icon: "M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"),
+      Item.new(key: :nds, path: :admin_nds_path, tone: :red,
+               icon: "M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"),
+      Item.new(key: :export_profiles, path: :admin_export_profiles_path, tone: :teal,
+               icon: "M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z")
     ],
     settings: [
       Item.new(key: :settings_communication, path: :admin_settings_communication_path, tone: :gray, tab: :communication,
@@ -56,8 +73,6 @@ class AdminNavigation
                icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"),
       Item.new(key: :settings_payments, path: :admin_settings_payments_path, tone: :indigo, tab: :payments,
                icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"),
-      Item.new(key: :settings_data, path: :admin_settings_data_path, tone: :teal, tab: :data,
-               icon: "M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"),
       Item.new(key: :settings_features, path: :admin_settings_features_path, tone: :purple, tab: :features,
                icon: "M13 10V3L4 14h7v7l9-11h-7z")
     ]

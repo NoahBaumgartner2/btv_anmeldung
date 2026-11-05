@@ -11,9 +11,6 @@ module SettingsLoadable
   def load_communication_settings
     @mail_setting       ||= MailSetting.current
     @infomaniak_setting ||= InfomaniakSetting.current
-    @newsletter_drafts_count = Newsletter.drafts.count
-    @newsletter_sent_count   = Newsletter.sent.count
-    @subscriber_count        = NewsletterSubscriber.subscribed.count
   end
 
   def load_club_settings
@@ -22,10 +19,6 @@ module SettingsLoadable
 
   def load_payment_settings
     @payment_setting ||= PaymentSetting.current
-  end
-
-  def load_data_settings
-    @export_profiles ||= ExportProfile.order(:name)
   end
 
   def load_features_settings

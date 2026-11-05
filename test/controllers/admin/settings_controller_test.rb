@@ -22,8 +22,9 @@ module Admin
       get admin_settings_payments_path
       assert_response :success
 
+      # Daten & Exporte ist in den Bereich „Auswertung“ der Kommandozentrale umgezogen.
       get admin_settings_data_path
-      assert_response :success
+      assert_redirected_to "/dashboards/admin#bereich-analysis"
 
       get admin_settings_features_path
       assert_response :success
@@ -46,9 +47,6 @@ module Admin
       assert_redirected_to root_path
 
       get admin_settings_payments_path
-      assert_redirected_to root_path
-
-      get admin_settings_data_path
       assert_redirected_to root_path
 
       get admin_settings_features_path

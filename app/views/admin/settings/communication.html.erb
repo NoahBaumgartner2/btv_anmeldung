@@ -40,16 +40,6 @@
     <h2 class="text-lg font-bold text-gray-900 mb-4"><%= t("admin.settings.communication.links_title") %></h2>
     <div class="space-y-3">
       <%= render "admin/settings/link_card",
-            url: newsletters_path,
-            title: t("admin.settings.communication.newsletter_label"),
-            desc: t("admin.settings.communication.newsletter_desc"),
-            badge: (@newsletter_drafts_count.to_i.positive? ? @newsletter_drafts_count : nil) %>
-      <%= render "admin/settings/link_card",
-            url: newsletter_subscribers_path,
-            title: t("admin.settings.communication.subscribers_label"),
-            desc: t("admin.settings.communication.subscribers_desc"),
-            badge: (@subscriber_count.to_i.positive? ? @subscriber_count : nil) %>
-      <%= render "admin/settings/link_card",
             url: edit_admin_notification_preferences_path,
             title: t("admin.settings.communication.notifications_label"),
             desc: t("admin.settings.communication.notifications_desc") %>

@@ -33,6 +33,11 @@ class DashboardsController < ApplicationController
     @courses = @courses.first(@course_limit)
 
     @export_profiles = ExportProfile.order(:name)
+    @nav_badges = {
+      export_profiles: @export_profiles.size,
+      newsletters: Newsletter.drafts.count,
+      newsletter_subscribers: NewsletterSubscriber.subscribed.count
+    }
 
     q = params[:q].to_s.strip
     if q.length >= 2

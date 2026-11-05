@@ -9,7 +9,7 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
   ADMIN_ONLY_PAGES = %i[
     dashboards_admin_path dashboards_stats_path talents_dashboard_path open_attendances_dashboard_path
     admin_settings_path admin_settings_communication_path admin_settings_club_path
-    admin_settings_payments_path admin_settings_data_path admin_settings_features_path
+    admin_settings_payments_path admin_settings_features_path
     admin_export_profiles_path new_admin_export_profile_path admin_nds_path admin_reports_path
     admin_supplementary_charges_path new_admin_supplementary_charge_path
     admin_age_exemptions_path admin_notifications_path
@@ -26,7 +26,8 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
     admin_payment_setting_path: :admin_settings_payments_path,
     admin_infomaniak_setting_path: :admin_settings_communication_path,
     admin_club_setting_path: :admin_settings_club_path,
-    mail_setting_path: :admin_settings_communication_path
+    mail_setting_path: :admin_settings_communication_path,
+    admin_settings_data_path: "/dashboards/admin#bereich-analysis"
   }.freeze
 
   # Alles, was die Kommandozentrale heute verlinkt, muss erreichbar bleiben.
@@ -35,8 +36,18 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
     course_categories_path admin_supplementary_charges_path admin_age_exemptions_path
     dashboards_stats_path talents_dashboard_path
     admin_settings_communication_path admin_settings_club_path admin_settings_payments_path
-    admin_settings_data_path admin_settings_features_path new_course_path
+    admin_settings_features_path new_course_path
+    newsletters_path newsletter_subscribers_path mail_logs_path
+    admin_reports_path admin_nds_path admin_export_profiles_path
   ].freeze
+
+  # Reine Arbeitsseiten gehören nicht in die Einstellungen.
+  test "Einstellungs-Tab Kommunikation verlinkt keine Newsletter-Arbeitsseiten mehr" do
+    sign_in users(:admin)
+    get admin_settings_communication_path
+    assert_select "a[href='#{newsletters_path}']", 0
+    assert_select "a[href='#{newsletter_subscribers_path}']", 0
+  end
 
   test "Admin erreicht jede Admin-Seite" do
     sign_in users(:admin)
@@ -50,7 +61,7 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
     sign_in users(:admin)
     LEGACY_REDIRECTS.each do |from, to|
       get public_send(from)
-      assert_redirected_to public_send(to)
+      assert_redirected_to(to.is_a?(Symbol) ? public_send(to) : to)
     end
   end
 

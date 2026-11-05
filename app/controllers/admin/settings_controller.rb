@@ -17,10 +17,6 @@ module Admin
       load_payment_settings
     end
 
-    def data
-      load_data_settings
-    end
-
     def features
       load_features_settings
     end
