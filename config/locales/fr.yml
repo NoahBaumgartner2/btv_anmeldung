@@ -1513,6 +1513,9 @@ fr:
           hours: "heures"
           months: "mois"
         entries:
+          waitlist_offer_days:
+            label: "D\u00E9lai apr\u00E8s sortie de la liste d'attente"
+            desc: "D\u00E9lai pour choisir entre essai et inscription avant que la place ne passe \u00E0 la personne suivante. Indiqu\u00E9 aussi dans l'e-mail. Par d\u00E9faut : 5 jours."
           attendance_admin_alert_days:
             label: "Notifier l'admin apr\u00E8s"
             desc: "Si le contr\u00F4le de pr\u00E9sence est encore ouvert ce temps apr\u00E8s la fin, l'admin est inform\u00E9. Par d\u00E9faut : 7 jours."

@@ -58,4 +58,14 @@ class SettingsCatalogTest < ActiveSupport::TestCase
     assert session.needs_trainer_reminder?
     assert session.needs_admin_notification?, "3 Tage überschritten"
   end
+
+  test "Wartelisten-Frist steht in der Mail und bestimmt den Ablauf" do
+    FeatureSetting.current.update!(rules: { "waitlist_offer_days" => 9 })
+    registration = course_registrations(:one)
+    registration.update_columns(status: "platz_frei")
+
+    mail = CourseRegistrationMailer.waitlist_promoted(registration)
+    assert_match "innerhalb von 9 Tagen", mail.text_part.body.to_s
+    assert_match "9 Tagen", mail.html_part.body.to_s
+  end
 end

@@ -1608,6 +1608,9 @@ de:
           hours: "Stunden"
           months: "Monate"
         entries:
+          waitlist_offer_days:
+            label: "Frist nach Nachr\u00FCcken von der Warteliste"
+            desc: "So lange haben Familien Zeit, sich f\u00FCr Schnuppern oder Anmelden zu entscheiden, bevor der Platz weitergeht. Steht auch in der Mail. Standard: 5 Tage."
           attendance_admin_alert_days:
             label: "Meldung an Admin nach"
             desc: "Ist die Pr\u00E4senzkontrolle nach Trainingsende so lange offen, wird der Admin informiert. Standard: 7 Tage."

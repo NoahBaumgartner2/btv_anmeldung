@@ -1518,6 +1518,9 @@ en:
           hours: "hours"
           months: "months"
         entries:
+          waitlist_offer_days:
+            label: "Deadline after moving up from the waiting list"
+            desc: "How long families have to choose trial or registration before the place moves on. Also stated in the email. Default: 5 days."
           attendance_admin_alert_days:
             label: "Notify admin after"
             desc: "If the attendance check is still open this long after the training ends, the admin is notified. Default: 7 days."
