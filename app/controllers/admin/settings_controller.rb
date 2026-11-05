@@ -2,11 +2,8 @@ module Admin
   # Zentraler Einstellungs-Hub mit vier Tabs. Rendert die jeweils eingebetteten
   # Formulare der bestehenden Singleton-Settings; die Formulare posten weiterhin
   # an ihre eigenen Controller (MailSettings, Admin::PaymentSettings, …).
-  class SettingsController < ApplicationController
+  class SettingsController < BaseController
     include SettingsLoadable
-
-    before_action :authenticate_user!
-    before_action :authorize_admin!
 
     def communication
       load_communication_settings

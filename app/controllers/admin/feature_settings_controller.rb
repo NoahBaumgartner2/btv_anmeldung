@@ -1,9 +1,6 @@
 module Admin
-  class FeatureSettingsController < ApplicationController
+  class FeatureSettingsController < BaseController
     include SettingsLoadable
-
-    before_action :authenticate_user!
-    before_action :authorize_admin!
 
     def update
       @feature_setting = FeatureSetting.current

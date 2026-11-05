@@ -1,9 +1,6 @@
 module Admin
-  class PaymentSettingsController < ApplicationController
+  class PaymentSettingsController < BaseController
     include SettingsLoadable
-
-    before_action :authenticate_user!
-    before_action :authorize_admin!
 
     # Zahlungseinstellungen leben jetzt im Zahlungen-Tab des Einstellungs-Hubs.
     def show

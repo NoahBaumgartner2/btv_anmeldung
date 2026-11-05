@@ -1,6 +1,6 @@
 class TermsController < ApplicationController
-  before_action :set_term, only: %i[ edit update destroy ]
   before_action :authorize_admin!
+  before_action :set_term, only: %i[ edit update destroy ]
 
   # GET /terms
   def index

@@ -7,10 +7,7 @@
 # Bewusst ohne automatische Benachrichtigung: die Ausnahme wird nur intern
 # gesetzt, die Eltern werden vom Verein selbst informiert.
 module Admin
-  class AgeExemptionsController < ApplicationController
-    before_action :authenticate_user!
-    before_action :authorize_admin!
-
+  class AgeExemptionsController < BaseController
     def index
       @terms  = Term.order(start_date: :desc)
       @term   = params[:term_id].present? ? Term.find_by(id: params[:term_id]) : default_term

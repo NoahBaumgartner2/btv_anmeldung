@@ -80,6 +80,14 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "Nicht-Admin bekommt bei unbekannter ID eine Umleitung statt 404" do
+    sign_in users(:parent_only)
+    get edit_term_path(id: 0)
+    assert_response :redirect
+    get edit_trainer_path(id: 0)
+    assert_response :redirect
+  end
+
   test "Kommandozentrale verlinkt jede Seite aus dem Schnellzugriff" do
     sign_in users(:admin)
     get dashboards_admin_path

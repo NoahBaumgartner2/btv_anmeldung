@@ -1,10 +1,7 @@
 require "csv"
 
 module Admin
-  class NdsController < ApplicationController
-    before_action :authenticate_user!
-    before_action :authorize_admin!
-
+  class NdsController < BaseController
     # ── Konstanten (vor private – in Ruby immer öffentlich, aber hier der
     #    Übersichtlichkeit halber an einem Ort) ──────────────────────────────
     CSV_OPTS         = { headers: true, col_sep: ";", encoding: "bom|utf-8" }.freeze

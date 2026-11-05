@@ -1,7 +1,5 @@
 module Admin
-  class ExportProfilesController < ApplicationController
-    before_action :authenticate_user!
-    before_action :authorize_admin!
+  class ExportProfilesController < BaseController
     before_action :set_profile, only: %i[edit update destroy download]
 
     def index

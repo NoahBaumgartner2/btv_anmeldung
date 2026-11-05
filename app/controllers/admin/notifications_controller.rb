@@ -2,9 +2,7 @@
 # E-Mail-Benachrichtigungen des Systems (NotificationCatalog) – ein-/ausschaltbar
 # mit Erklärung, wer die Mail erhält, und einer Live-Vorschau mit Beispieldaten.
 module Admin
-  class NotificationsController < ApplicationController
-    before_action :authenticate_user!
-    before_action :authorize_admin!
+  class NotificationsController < BaseController
     before_action :set_entry, only: [ :preview, :toggle ]
 
     def index
