@@ -194,6 +194,9 @@ de:
     switch: "Sprache wechseln"
 
   mail_logs:
+    show_mail: "Mail ansehen"
+    close_preview: "Vorschau schliessen"
+    no_content: "F\u00FCr diese Mail wurde kein Inhalt gespeichert."
     title: "Mails"
     subtitle_admin: "Alle versendeten Mails."
     subtitle_trainer: "Mails zu Kursen, bei denen du beim Versand als Trainer:in eingeteilt warst. Zahlungs- und interne Mails sind hier nicht aufgeführt."
@@ -1623,9 +1626,6 @@ de:
       mandatory_badge: "Immer aktiv"
       attendance_reminder_mandatory_hint: "Diese Erinnerung ist für alle Trainer verpflichtend aktiv."
     notifications:
-      preview:
-        to: "an %{recipients}"
-        sample_hint: "Vorschau mit Beispieldaten \u2013 so sieht die Mail im Postfach aus."
       title: "Benachrichtigungszentrale"
       subtitle: "Alle automatischen E-Mails des Systems an einem Ort: ein-/ausschalten, sehen wer sie bekommt, und eine Vorschau des Inhalts ansehen."
       enabled: "Aktiv"
@@ -2245,6 +2245,12 @@ de:
     success_notice: "Super! Familiendaten gespeichert. Jetzt die erste Person erfassen."
 
   shared:
+    mail_preview:
+      to: "an %{recipients}"
+      more_recipients:
+        one: "und 1 weitere Person"
+        other: "und %{count} weitere Personen"
+      sample_hint: "Vorschau mit Beispieldaten \u2013 so sieht die Mail im Postfach aus."
     load_more:
       show_all: "Alle %{count} anzeigen"
       button: "Mehr anzeigen"

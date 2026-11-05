@@ -22,6 +22,10 @@ class MailLogTest < ActiveSupport::TestCase
     assert_equal [ @participant.user.email ], log.recipients
     assert_equal "parent", log.audience
     assert_equal @course.trainer_ids.sort, log.trainer_ids.sort
+    # Inhalt für die Vorschau „was genau gesendet wurde“
+    assert_includes log.html_body, @course.title
+    assert_match(/style=/, log.html_body, "Inline-Styles des Mail-Layouts fehlen")
+    assert_match(/@/, log.from_address)
   end
 
   test "sichtbar ist, wer beim Versand eingeteilt war, spätere Wechsel ändern das nicht" do

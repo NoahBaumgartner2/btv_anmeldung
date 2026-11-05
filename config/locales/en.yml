@@ -153,6 +153,9 @@ en:
     switch: "Change language"
 
   mail_logs:
+    show_mail: "View email"
+    close_preview: "Close preview"
+    no_content: "No content was stored for this email."
     title: "Mails"
     subtitle_admin: "All emails sent."
     subtitle_trainer: "Emails for courses you were assigned to as a trainer when they were sent. Payment and internal emails are not listed."
@@ -2020,6 +2023,12 @@ en:
     success_notice: "Great! Family details saved. Now add the first person."
 
   shared:
+    mail_preview:
+      to: "to %{recipients}"
+      more_recipients:
+        one: "and 1 other"
+        other: "and %{count} others"
+      sample_hint: "Preview with sample data \u2013 this is how the email looks in the inbox."
     load_more:
       show_all: "Show all %{count}"
       button: "Show more"

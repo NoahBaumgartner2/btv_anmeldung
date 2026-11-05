@@ -1,7 +1,6 @@
-<%# Mail-Vorschau wie in einem Mailprogramm: Kopf (Betreff, Von, An, Datum) und
-    darunter die echte Mail mit ihren Inline-Styles. Eigene CSP im Controller. %>
-<% from = @message[:from].to_s.presence || @message.from.to_a.join(", ") %>
-<% sender = @message[:from]&.display_names&.first.presence || @message.from.to_a.first.to_s %>
+<%# Mail wie im Mailprogramm (MailPreviewRendering). Locals: subject, from, recipients,
+    sent_at, sample (Beispieldaten-Hinweis), body_style, body_html. Eigene CSP im Concern. %>
+<% sender = from.sub(/\s*<.*>\z/, "").delete('"').presence || from %>
 <% primary = ClubSetting.current.effective_primary_color %>
 <!DOCTYPE html>
 <html lang="<%= I18n.locale %>">
@@ -24,17 +23,24 @@
 </head>
 <body>
   <header class="mail-head">
-    <h1 class="mail-subject"><%= @message.subject %></h1>
+    <h1 class="mail-subject"><%= subject %></h1>
     <div class="mail-meta">
       <div class="mail-avatar" style="background: <%= primary %>;" aria-hidden="true"><%= sender.to_s.strip.first.to_s.upcase %></div>
       <div>
         <div class="mail-from"><%= from %></div>
-        <div class="mail-to"><%= t("admin.notifications.preview.to", recipients: @message.to.to_a.join(", ")) %></div>
+        <div class="mail-to">
+          <%= t("shared.mail_preview.to", recipients: recipients.first.to_s) %><% if recipients.size > 1 %> <%= t("shared.mail_preview.more_recipients", count: recipients.size - 1) %><% end %>
+        </div>
       </div>
-      <div class="mail-date"><%= l(Time.current, format: :short) %></div>
+      <div class="mail-date"><%= l(sent_at, format: :short) if sent_at %></div>
     </div>
-    <p class="mail-sample"><%= t("admin.notifications.preview.sample_hint") %></p>
+    <% if sample %>
+      <p class="mail-sample"><%= t("shared.mail_preview.sample_hint") %></p>
+    <% end %>
   </header>
-  <main style="<%= @mail_body_style %>"><%= @mail_body_html.html_safe %></main>
+  <%# html_safe: Mail-HTML aus den eigenen Vorlagen (Werte beim Rendern escaped); nötig,
+      damit die Inline-Styles bleiben (sanitize entfernt style). Absicherung: CSP
+      default-src 'none' (keine Skripte), iframe-sandbox, nur Admin/Trainer. %>
+  <main style="<%= body_style %>"><%= body_html.html_safe %></main>
 </body>
 </html>

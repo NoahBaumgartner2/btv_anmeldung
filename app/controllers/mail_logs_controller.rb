@@ -1,4 +1,6 @@
 class MailLogsController < ApplicationController
+  include MailPreviewRendering
+
   PER_PAGE = 20
 
   before_action :authenticate_user!
@@ -18,6 +20,20 @@ class MailLogsController < ApplicationController
     @logs = logs.order(created_at: params[:sort] == "oldest" ? :asc : :desc, id: :desc)
                 .limit(@page * PER_PAGE)
     @shown = [ @page * PER_PAGE, @total ].min
+  end
+
+  # Die tatsächlich versendete Mail, wie im Postfach. Nur Mails, die die Person
+  # auch in der Liste sieht (visible_to); ältere Einträge ohne Inhalt → 404.
+  def preview
+    log = MailLog.visible_to(current_user).find(params[:id])
+    return render plain: t("mail_logs.no_content"), status: :not_found if log.html_body.blank?
+
+    # Adressen sehen wie in der Liste nur Admins; Trainer:innen die Empfänger-Rolle.
+    recipients = if current_user.admin? then log.recipients
+    else [ t("mail_logs.audience.#{log.audience.presence || 'other'}", name: log.participant_name, default: t("mail_logs.audience.other")) ]
+    end
+    render_mail_preview(html: log.html_body, subject: log.subject, from: log.from_address,
+                        recipients: recipients, sent_at: log.created_at)
   end
 
   private

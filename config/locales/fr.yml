@@ -153,6 +153,9 @@ fr:
     switch: "Changer de langue"
 
   mail_logs:
+    show_mail: "Voir l'e-mail"
+    close_preview: "Fermer l'aper\u00E7u"
+    no_content: "Aucun contenu n'a \u00E9t\u00E9 enregistr\u00E9 pour cet e-mail."
     title: "E-mails"
     subtitle_admin: "Tous les e-mails envoyés."
     subtitle_trainer: "E-mails des cours auxquels vous étiez affecté·e comme entraîneur·e lors de l'envoi. Les e-mails de paiement et internes ne sont pas listés."
@@ -2015,6 +2018,12 @@ fr:
     success_notice: "Super ! Données familiales enregistrées. Ajoutez maintenant la première personne."
 
   shared:
+    mail_preview:
+      to: "\u00E0 %{recipients}"
+      more_recipients:
+        one: "et 1 autre personne"
+        other: "et %{count} autres personnes"
+      sample_hint: "Aper\u00E7u avec des donn\u00E9es d'exemple \u2013 voici l'e-mail tel qu'il appara\u00EEt dans la bo\u00EEte de r\u00E9ception."
     load_more:
       show_all: "Afficher les %{count}"
       button: "Afficher plus"

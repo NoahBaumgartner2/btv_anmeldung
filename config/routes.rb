@@ -82,6 +82,7 @@ Rails.application.routes.draw do
   get "my_profile", to: "participants#my_profile", as: :my_profile
   get "my_trainings", to: "participants#my_trainings", as: :my_trainings
   get "mails", to: "mail_logs#index", as: :mail_logs
+  get "mails/:id/vorschau", to: "mail_logs#preview", as: :mail_log_preview
 
   resources :participants
 
