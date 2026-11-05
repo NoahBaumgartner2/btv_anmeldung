@@ -52,7 +52,7 @@
           <% @todays_sessions.each do |s| %>
             <%= link_to t("dashboards.trainer.attendance_link", course: s.course.title.truncate(20)),
                   training_session_path(s),
-                  class: "btn bg-white text-slate-900 hover:bg-slate-100 shrink-0 min-h-11" %>
+                  class: "btn bg-white text-slate-900 hover:bg-slate-100 min-h-11 max-w-full whitespace-normal text-center" %>
           <% end %>
         </div>
       </div>

@@ -148,7 +148,7 @@
     </div>
   </div>
 
-  <div class="flex gap-3">
+  <div class="flex flex-col sm:flex-row gap-3">
     <%= f.submit t("family_data.submit_btn"),
           class: "flex-1 py-3 px-4 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold rounded-full shadow-sm transition cursor-pointer min-h-11" %>
     <%= link_to t("family_data.cancel_btn"), account_path,
