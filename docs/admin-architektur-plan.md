@@ -200,8 +200,12 @@ Trainer-Dashboard.
 
 ---
 
-## 4. Offene Entscheidungen
+## 4. Entscheide (05.11.2026)
 
-A. **Kursliste:** auf der Übersicht lassen oder in den Bereich „Kurse“ verschieben?
-B. **Welche Fristen aus 1.4 werden einstellbar?**
-C. **Welche Kacheln gehören in „Handlungsbedarf“?**
+A. **Kursliste bleibt auf der Übersicht**, unter Handlungsbedarf und Suche. Der Bereich
+   „Kurse“ enthält Kategorien, Zeiträume und Ferientage und verweist auf die Liste.
+B. **Alle Fristen aus 1.4 werden einstellbar:** Schnupper-Ablauf, Nachrück-Zahlungsfrist,
+   Präsenz-Erinnerungen (1 h / 24 h / 7 Tage), Mail-Protokoll-Aufbewahrung. Jede mit
+   Min/Max-Grenze, Default = heutiger Wert, je Regel ein Commit (Schritt 6).
+C. **Kacheln „Handlungsbedarf“:** offene Präsenzkontrollen, offene Nachforderungen,
+   Zahlung ausstehend, Newsletter-Entwürfe. Jede Kachel nur sichtbar, wenn > 0.
