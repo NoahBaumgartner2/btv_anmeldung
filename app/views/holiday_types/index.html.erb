@@ -15,7 +15,7 @@
     <div class="space-y-5">
       <% @holiday_types.each do |type| %>
         <div class="bg-white shadow-sm ring-1 ring-slate-200/80 rounded-3xl overflow-hidden">
-          <div class="px-5 py-4 flex items-center justify-between gap-3 bg-gray-50 border-b border-gray-100">
+          <div class="px-5 py-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 bg-gray-50 border-b border-gray-100">
             <h2 class="font-bold text-gray-900"><%= type.name %></h2>
             <div class="flex items-center gap-3 shrink-0">
               <%= link_to t('holiday_types.index.edit_type'), edit_holiday_type_path(type),
