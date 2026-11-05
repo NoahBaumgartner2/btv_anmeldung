@@ -80,6 +80,10 @@ class CourseRegistration < ApplicationRecord
     status == TRIAL_STATUS
   end
 
+  # Schnupperfrist nach dem Schnuppertraining (Standard 5 Tage, einstellbar unter
+  # Einstellungen › Funktionen & Regeln).
+  def self.trial_period = FeatureSetting.value(:trial_expiry_days).days
+
   def payment_required?
     course.has_payment? && course.price_cents.to_i > 0
   end
@@ -121,7 +125,7 @@ class CourseRegistration < ApplicationRecord
   end
 
   def trial_expired?
-    trial? && (trial_expires_at || created_at + 5.days) < Time.current
+    trial? && (trial_expires_at || created_at + self.class.trial_period) < Time.current
   end
 
   # Datum des Schnuppertrainings: bei Semesterkursen über trial_session_id
@@ -266,7 +270,7 @@ class CourseRegistration < ApplicationRecord
 
   # Zahlungsfrist beim Statuswechsel zu "ausstehend":
   # - Stammt die Anmeldung aus einem Schnupperplatz (trial_expires_at gesetzt),
-  #   gilt die zugesicherte Frist "Schnuppertraining + 5 Tage". Eine 48h-Untergrenze
+  #   gilt die zugesicherte Frist "Schnuppertraining + Schnupperfrist". Eine 48h-Untergrenze
   #   verhindert eine sofortige Stornierung, falls die Konversion erst spät erfolgt.
   # - Reguläre Anmeldungen ohne Schnupperhintergrund erhalten die übliche 48h-Frist.
   def set_payment_expiry
@@ -278,11 +282,11 @@ class CourseRegistration < ApplicationRecord
       end
   end
 
-  # Die 5-Tage-Frist beginnt erst NACH dem Schnuppertraining.
+  # Die Schnupperfrist beginnt erst NACH dem Schnuppertraining.
   # Bei Drop-In-Trials wird die bereits gesetzte training_session als Basis genutzt.
   def set_trial_expiry
     base = (trial_session || training_session)&.start_time
-    self.trial_expires_at = (base || Time.current) + 5.days
+    self.trial_expires_at = (base || Time.current) + self.class.trial_period
   end
 
   def trial_session_bookable

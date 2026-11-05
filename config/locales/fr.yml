@@ -1513,6 +1513,9 @@ fr:
           hours: "heures"
           months: "mois"
         entries:
+          trial_expiry_days:
+            label: "Place d'essai r\u00E9serv\u00E9e pendant"
+            desc: "Jours apr\u00E8s l'entra\u00EEnement d'essai jusqu'\u00E0 ce qu'une inscription r\u00E9guli\u00E8re soit n\u00E9cessaire ; ensuite la place expire automatiquement. Indiqu\u00E9 aussi dans l'e-mail et le formulaire. Par d\u00E9faut : 5 jours."
           waitlist_offer_days:
             label: "D\u00E9lai apr\u00E8s sortie de la liste d'attente"
             desc: "D\u00E9lai pour choisir entre essai et inscription avant que la place ne passe \u00E0 la personne suivante. Indiqu\u00E9 aussi dans l'e-mail. Par d\u00E9faut : 5 jours."

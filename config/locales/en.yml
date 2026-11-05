@@ -1518,6 +1518,9 @@ en:
           hours: "hours"
           months: "months"
         entries:
+          trial_expiry_days:
+            label: "Trial place reserved for"
+            desc: "Days after the trial training until a regular registration is required; afterwards the place expires automatically. Also stated in the email and form. Default: 5 days."
           waitlist_offer_days:
             label: "Deadline after moving up from the waiting list"
             desc: "How long families have to choose trial or registration before the place moves on. Also stated in the email. Default: 5 days."

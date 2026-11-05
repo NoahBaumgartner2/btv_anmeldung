@@ -293,9 +293,9 @@ class CourseRegistrationsController < ApplicationController
           @course_registration.status = "schnuppern"
           trial_date_session = @course_registration.trial_session || @course_registration.training_session
           erfolgs_nachricht = if trial_date_session
-            "Super! #{participant.first_name} schnuppert am #{I18n.l(trial_date_session.start_time.to_date)}. Der Platz ist bis 5 Tage nach dem Schnuppertraining gesichert."
+            "Super! #{participant.first_name} schnuppert am #{I18n.l(trial_date_session.start_time.to_date)}. Der Platz ist bis #{FeatureSetting.value(:trial_expiry_days)} Tage nach dem Schnuppertraining gesichert."
           else
-            "Super! #{participant.first_name} hat einen Schnupperplatz für 5 Tage. Danach muss eine reguläre Anmeldung erfolgen."
+            "Super! #{participant.first_name} hat einen Schnupperplatz für #{FeatureSetting.value(:trial_expiry_days)} Tage. Danach muss eine reguläre Anmeldung erfolgen."
           end
         end
         save_result = @course_registration.save unless trial_full

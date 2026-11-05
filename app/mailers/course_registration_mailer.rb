@@ -197,7 +197,7 @@ class CourseRegistrationMailer < ApplicationMailer
     return if @recipient.nil?
 
     # Schutz-Guard: Schnupperplätze laufen nie über die 48h-Zahlungsfrist ab –
-    # für sie ist trial_expired (Schnuppertraining + 5 Tage) zuständig.
+    # für sie ist trial_expired (Schnuppertraining + Schnupperfrist) zuständig.
     return if course_registration.trial?
 
     return unless MailSetting.mail_enabled?(:payment_expired)
@@ -209,7 +209,7 @@ class CourseRegistrationMailer < ApplicationMailer
   end
 
   # Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Frist
-  # (Schnuppertraining + 5 Tage) automatisch storniert wurde.
+  # (Schnuppertraining + Schnupperfrist) automatisch storniert wurde.
   def trial_expired(course_registration)
     @course_registration = course_registration
     @course = course_registration.course

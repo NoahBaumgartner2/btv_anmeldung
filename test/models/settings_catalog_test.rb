@@ -68,4 +68,18 @@ class SettingsCatalogTest < ActiveSupport::TestCase
     assert_match "innerhalb von 9 Tagen", mail.text_part.body.to_s
     assert_match "9 Tagen", mail.html_part.body.to_s
   end
+
+  test "Schnupperfrist bestimmt Ablaufdatum und steht in der Bestätigungsmail" do
+    FeatureSetting.current.update!(rules: { "trial_expiry_days" => 10 })
+    assert_equal 10.days, CourseRegistration.trial_period
+
+    registration = course_registrations(:one)
+    registration.update_columns(status: "schnuppern", trial_expires_at: nil, created_at: 7.days.ago)
+    assert_not registration.reload.trial_expired?, "7 Tage < 10 Tage Frist"
+    registration.update_columns(created_at: 11.days.ago)
+    assert registration.reload.trial_expired?
+
+    mail = CourseRegistrationMailer.confirmation(registration)
+    assert_match "für 10 Tage gesichert", mail.text_part.body.to_s
+  end
 end

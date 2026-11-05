@@ -1608,6 +1608,9 @@ de:
           hours: "Stunden"
           months: "Monate"
         entries:
+          trial_expiry_days:
+            label: "Schnupperplatz gesichert bis"
+            desc: "Tage nach dem Schnuppertraining, bis eine regul\u00E4re Anmeldung n\u00F6tig ist; danach verf\u00E4llt der Platz automatisch. Steht auch in Mail und Anmeldeformular. Standard: 5 Tage."
           waitlist_offer_days:
             label: "Frist nach Nachr\u00FCcken von der Warteliste"
             desc: "So lange haben Familien Zeit, sich f\u00FCr Schnuppern oder Anmelden zu entscheiden, bevor der Platz weitergeht. Steht auch in der Mail. Standard: 5 Tage."
@@ -1838,7 +1841,7 @@ de:
         recipient: "Eltern der betroffenen Anmeldung"
       trial_expired:
         name: "Schnupperfrist abgelaufen"
-        description: "Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Frist (Training + 5 Tage) automatisch storniert wurde."
+        description: "Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Schnupperfrist (Training + eingestellte Tage) automatisch storniert wurde."
         recipient: "Eltern des Schnupper-Teilnehmers"
       payment_receipt:
         name: "Zahlungsbeleg"
