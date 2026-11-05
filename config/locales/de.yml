@@ -309,6 +309,7 @@ de:
         open: "Kurse ansehen"
         close: "Schliessen"
       filter:
+        all_locations: "Alle Orte"
         count: "%{visible} von %{total} Kursen"
         weekday: "Nach Wochentag filtern"
         weekday_short: "Tag"

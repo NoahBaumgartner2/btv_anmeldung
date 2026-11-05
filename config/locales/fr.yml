@@ -268,6 +268,7 @@ fr:
         open: "Voir les cours"
         close: "Fermer"
       filter:
+        all_locations: "Tous les lieux"
         count: "%{visible} cours sur %{total}"
         weekday: "Filtrer par jour"
         weekday_short: "Jour"

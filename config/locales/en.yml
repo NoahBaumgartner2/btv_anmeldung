@@ -268,6 +268,7 @@ en:
         open: "View courses"
         close: "Close"
       filter:
+        all_locations: "All locations"
         count: "%{visible} of %{total} courses"
         weekday: "Filter by weekday"
         weekday_short: "Day"

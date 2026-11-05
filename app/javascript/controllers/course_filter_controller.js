@@ -4,7 +4,7 @@ import { Controller } from "@hotwired/stimulus"
 // Der Filter blendet Kurse nach Wochentag/Ort aus (innerhalb einer Gruppe ODER,
 // zwischen den Gruppen UND) und Kacheln ohne Treffer ganz.
 export default class extends Controller {
-  static targets = ["card", "group", "chip", "empty", "status", "count"]
+  static targets = ["card", "group", "chip", "location", "empty", "status", "count"]
 
   // Link von der Startseite (/courses#kategorie) öffnet das Overlay direkt.
   connect() {
@@ -29,6 +29,7 @@ export default class extends Controller {
 
   reset() {
     this.chipTargets.forEach((chip) => chip.setAttribute("aria-pressed", "false"))
+    if (this.hasLocationTarget) this.locationTarget.value = ""
     this.apply()
   }
 
@@ -37,7 +38,7 @@ export default class extends Controller {
       .filter((c) => c.dataset.key === key && c.getAttribute("aria-pressed") === "true")
       .map((c) => c.dataset.value)
     const days = selected("weekday")
-    const locations = selected("location")
+    const locations = this.hasLocationTarget && this.locationTarget.value ? [ this.locationTarget.value ] : []
 
     // Tag-Leiste im Overlay wirkt nur auf die Kurse dieses Overlays.
     const dialogDays = (card) => Array.from(card.closest("dialog")?.querySelectorAll(
