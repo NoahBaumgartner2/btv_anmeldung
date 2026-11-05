@@ -15,7 +15,7 @@
   <% end %>
 
   <%# ── Status-Toggle ──────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 mb-6">
     <div class="flex items-center justify-between">
       <div>
         <p class="text-sm font-bold text-gray-800"><%= t('admin.payment_settings.edit.toggle_title') %></p>
@@ -28,16 +28,16 @@
               id: "toggle_active_payment",
               class: "sr-only peer" %>
         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300
-                    rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white
-                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
-                    after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5
-                    after:transition-all peer-checked:bg-primary-600"></div>
+ rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white
+ after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+ after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5
+ after:transition-all peer-checked:bg-primary-600"></div>
       </label>
     </div>
   </div>
 
   <%# ── SumUp API-Zugangsdaten ─────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6 space-y-5">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 mb-6 space-y-5">
     <p class="text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-3">
       <%= t('admin.payment_settings.edit.section_credentials') %>
     </p>
@@ -56,7 +56,7 @@
               placeholder: "sup_sk_...",
               autocomplete: "new-password",
               data: { "password-toggle-target": "field" },
-              class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+              class: "block w-full rounded-xl border border-slate-900/15 px-3 py-2.5 pr-10 text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20" %>
         <button type="button"
                 data-action="click->password-toggle#toggle"
                 class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
@@ -79,12 +79,12 @@
       <%= f.text_field :sumup_merchant_code,
             placeholder: "MXXXXXXXX",
             autocomplete: "off",
-            class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+            class: "block w-full rounded-xl border border-slate-900/15 px-3 py-2.5 text-base sm:text-sm font-mono shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20" %>
     </div>
   </div>
 
   <%# ── Konfiguration ──────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6 space-y-5">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 mb-6 space-y-5">
     <p class="text-xs font-bold text-gray-500 uppercase tracking-wide border-b border-gray-100 pb-3">
       <%= t('admin.payment_settings.edit.section_config') %>
     </p>
@@ -94,7 +94,7 @@
       <%= f.select :currency,
             [["CHF – Schweizer Franken", "chf"], ["EUR – Euro", "eur"], ["USD – US-Dollar", "usd"]],
             {},
-            class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+            class: "block w-full rounded-xl border border-slate-900/15 px-3 py-2.5 text-base sm:text-sm shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/20" %>
     </div>
   </div>
 
@@ -109,6 +109,6 @@
 
   <div class="flex flex-col sm:flex-row gap-3">
     <%= f.submit t('admin.payment_settings.edit.save'),
-          class: "w-full sm:w-auto bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" %>
+          class: "w-full sm:w-auto bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-6 rounded-full shadow-sm text-sm transition cursor-pointer min-h-11" %>
   </div>
 <% end %>

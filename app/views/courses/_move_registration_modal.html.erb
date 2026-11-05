@@ -34,19 +34,19 @@
                class="grid grid-cols-1 gap-2">
             <select data-course-picker-target="termSelect" data-action="change->course-picker#onTermChange"
                     aria-label="<%= t("courses.manage.move_term_label") %>"
-                    class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select>
+                    class="block w-full rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 bg-white"></select>
             <select name="target_course_id" required data-course-picker-target="courseSelect"
-                    class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select>
+                    class="block w-full rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 bg-white"></select>
           </div>
         </div>
         <div class="flex gap-3 pt-2">
           <button type="submit"
-                  class="flex-1 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer min-h-11">
+                  class="flex-1 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-4 rounded-full text-sm transition cursor-pointer min-h-11">
             <%= t("courses.manage.move_submit") %>
           </button>
           <button type="button"
                   data-action="click->modal#close"
-                  class="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
+                  class="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-full text-sm transition min-h-11">
             <%= t("courses.manage.move_cancel") %>
           </button>
         </div>

@@ -8,6 +8,7 @@
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <meta name="view-transition" content="same-origin">
 
     <%= yield :head %>
 
@@ -34,7 +35,7 @@
         "controllers/export_type_controller":         "<%= asset_path 'controllers/export_type_controller.js' %>",
         "controllers/delete_account_controller":      "<%= asset_path 'controllers/delete_account_controller.js' %>",
         "controllers/modal_controller":               "<%= asset_path 'controllers/modal_controller.js' %>",
-        "controllers/mobile_menu_controller":         "<%= asset_path 'controllers/mobile_menu_controller.js' %>",
+        "controllers/course_filter_controller":       "<%= asset_path 'controllers/course_filter_controller.js' %>",
         "controllers/datepicker_controller":          "<%= asset_path 'controllers/datepicker_controller.js' %>",
         "controllers/date_range_controller":          "<%= asset_path 'controllers/date_range_controller.js' %>",
         "controllers/cookie_consent_controller":      "<%= asset_path 'controllers/cookie_consent_controller.js' %>",
@@ -80,141 +81,16 @@
   <% end %>
 </head>
 
-  <body class="bg-gray-50 text-gray-900 font-sans antialiased">
+  <body class="app-bg min-h-dvh font-sans antialiased">
 
-    <nav class="bg-white shadow-md border-b border-gray-200 relative"
-         data-controller="mobile-menu"
-         data-action="click@window->mobile-menu#closeOnOutside keydown@window->mobile-menu#closeOnEscape">
-      <div class="container mx-auto px-4 sm:px-5">
-        <div class="flex justify-between items-center h-16 gap-3">
-
-          <%# ── Logo + Desktop-Links ─────────────────────────────────────── %>
-          <div class="flex items-center min-w-0">
-            <%= link_to root_path, class: "flex items-center gap-2.5 min-w-0" do %>
-              <% if _cs.logo.attached? %>
-                <%= image_tag _cs.logo, class: "h-8 w-auto object-contain shrink-0", alt: _cs.club_name.presence || "Logo" %>
-              <% end %>
-              <span class="text-xl sm:text-2xl font-black text-primary-700 tracking-tight truncate">
-                <%= _cs.club_name.presence || "Anmeldeportal" %>
-              </span>
-            <% end %>
-
-            <div class="hidden md:flex items-center space-x-6 ml-10">
-              <%= link_to t("nav.courses"), courses_path, class: "text-gray-600 hover:text-primary-700 hover:bg-primary-50 px-3 py-2 rounded-md font-medium transition" %>
-
-              <% if user_signed_in? %>
-                <div class="h-6 w-px bg-gray-300 mx-2"></div>
-                <%= link_to t("nav.my_profile"), (current_user.admin? || Trainer.exists?(user: current_user) ? my_profile_path : participants_path), class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
-
-                <% if Trainer.exists?(user: current_user) %>
-                  <%= link_to t("nav.my_courses"), dashboards_trainer_path, class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
-                <% end %>
-
-                <% if current_user.admin? || Trainer.exists?(user: current_user) %>
-                  <%= link_to t("nav.mails"), mail_logs_path, class: "text-primary-600 hover:text-primary-800 px-3 py-2 rounded-md font-bold" %>
-                <% end %>
-
-                <% if current_user.admin? %>
-                  <%= link_to t("nav.admin_dashboard"), dashboards_admin_path, class: "text-red-600 hover:text-red-800 px-3 py-2 rounded-md font-bold" %>
-                <% end %>
-              <% end %>
-            </div>
-          </div>
-
-          <%# ── Rechte Seite ──────────────────────────────────────────────── %>
-          <div class="flex items-center gap-3 shrink-0">
-            <%# Desktop Auth-Cluster (≥ md) %>
-            <div class="hidden md:flex items-center gap-3">
-              <%= render "shared/language_switcher" %>
-              <% if user_signed_in? %>
-                <%= button_to t("nav.logout"), destroy_user_session_path, method: :delete,
-                      class: "text-sm font-medium text-gray-500 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-md transition cursor-pointer" %>
-              <% else %>
-                <%= link_to t("nav.login"), new_user_session_path,
-                      class: "text-sm font-medium text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md transition" %>
-                <%= link_to t("nav.register"), new_user_registration_path,
-                      class: "bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold px-4 py-2 rounded-lg transition" %>
-              <% end %>
-            </div>
-
-            <%# Hamburger nur < md %>
-            <button type="button"
-                    data-mobile-menu-target="button"
-                    data-action="click->mobile-menu#toggle"
-                    aria-label="Menü öffnen"
-                    aria-expanded="false"
-                    class="md:hidden inline-flex items-center justify-center p-2 -mr-2 rounded-lg text-gray-600 hover:text-primary-700 hover:bg-primary-50 transition cursor-pointer">
-              <svg data-mobile-menu-target="iconOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
-              </svg>
-              <svg data-mobile-menu-target="iconClose" xmlns="http://www.w3.org/2000/svg" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-              </svg>
-            </button>
-          </div>
-
-        </div>
-      </div>
-
-      <%# ── Mobile-Menü-Panel (slide-down via max-h + opacity) ──────────────
-          Animation läuft rein über Tailwind-Klassen-Toggles, damit kein
-          Inline-Style nötig ist und die strenge CSP nicht aufgeweicht wird. %>
-      <div data-mobile-menu-target="panel"
-           class="md:hidden absolute inset-x-0 top-full z-40 bg-white border-b border-gray-200 shadow-lg overflow-hidden max-h-0 opacity-0 pointer-events-none transition-[max-height,opacity] duration-200 ease-out">
-        <div class="px-4 py-3 space-y-1">
-          <%= link_to t("nav.courses"), courses_path,
-                data: { action: "click->mobile-menu#close" },
-                class: "block px-3 py-2.5 rounded-lg text-base font-medium text-gray-700 hover:text-primary-700 hover:bg-primary-50 transition" %>
-
-          <% if user_signed_in? %>
-            <%= link_to t("nav.my_profile"), (current_user.admin? || Trainer.exists?(user: current_user) ? my_profile_path : participants_path),
-                  data: { action: "click->mobile-menu#close" },
-                  class: "block px-3 py-2.5 rounded-lg text-base font-bold text-primary-600 hover:text-primary-800 hover:bg-primary-50 transition" %>
-
-            <% if Trainer.exists?(user: current_user) %>
-              <%= link_to t("nav.my_courses"), dashboards_trainer_path,
-                    data: { action: "click->mobile-menu#close" },
-                    class: "block px-3 py-2.5 rounded-lg text-base font-bold text-primary-600 hover:text-primary-800 hover:bg-primary-50 transition" %>
-            <% end %>
-
-            <% if current_user.admin? || Trainer.exists?(user: current_user) %>
-              <%= link_to t("nav.mails"), mail_logs_path,
-                    data: { action: "click->mobile-menu#close" },
-                    class: "block px-3 py-2.5 rounded-lg text-base font-bold text-primary-600 hover:text-primary-800 hover:bg-primary-50 transition" %>
-            <% end %>
-
-            <% if current_user.admin? %>
-              <%= link_to t("nav.admin_dashboard"), dashboards_admin_path,
-                    data: { action: "click->mobile-menu#close" },
-                    class: "block px-3 py-2.5 rounded-lg text-base font-bold text-red-600 hover:text-red-800 hover:bg-red-50 transition" %>
-            <% end %>
-
-            <div class="pt-2 mt-2 border-t border-gray-100">
-              <%= button_to t("nav.logout"), destroy_user_session_path, method: :delete,
-                    class: "w-full text-base font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-2.5 rounded-lg transition cursor-pointer" %>
-            </div>
-          <% else %>
-            <%= link_to t("nav.login"), new_user_session_path,
-                  data: { action: "click->mobile-menu#close" },
-                  class: "block px-3 py-2.5 rounded-lg text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition" %>
-            <%= link_to t("nav.register"), new_user_registration_path,
-                  data: { action: "click->mobile-menu#close" },
-                  class: "block px-3 py-2.5 rounded-lg text-base font-bold text-white bg-primary-600 hover:bg-primary-700 text-center transition" %>
-          <% end %>
-
-          <div class="pt-2 mt-2 border-t border-gray-100 flex justify-center">
-            <%= render "shared/language_switcher" %>
-          </div>
-        </div>
-      </div>
-    </nav>
+    <%= render "layouts/navigation" %>
 
     <%# ── Flash-Benachrichtigungen ─────────────────────────────────────────
         Mobile: links + rechts je 1rem Abstand → Toast überläuft nicht.
         ≥ sm:   rechtsbündig in max-w-sm wie bisher. %>
     <div class="fixed top-4 left-4 right-4 sm:left-auto z-50 flex flex-col gap-2 sm:w-full sm:max-w-sm pointer-events-none" id="flash-container">
       <% if notice %>
-        <div class="flash-toast pointer-events-auto flex items-start gap-3 bg-white border border-green-200 shadow-lg rounded-xl px-4 py-3.5 text-sm"
+        <div class="flash-toast pointer-events-auto flex items-start gap-3 glass-strong rounded-2xl px-4 py-3.5 text-sm"
              role="alert">
           <div class="shrink-0 w-7 h-7 rounded-full bg-green-100 flex items-center justify-center mt-0.5">
             <svg class="w-4 h-4 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -230,7 +106,7 @@
         </div>
       <% end %>
       <% if alert %>
-        <div class="flash-toast pointer-events-auto flex items-start gap-3 bg-white border border-red-200 shadow-lg rounded-xl px-4 py-3.5 text-sm"
+        <div class="flash-toast pointer-events-auto flex items-start gap-3 glass-strong rounded-2xl px-4 py-3.5 text-sm"
              role="alert">
           <div class="shrink-0 w-7 h-7 rounded-full bg-red-100 flex items-center justify-center mt-0.5">
             <svg class="w-4 h-4 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -253,10 +129,10 @@
         var timers = new WeakMap();
 
         function dismissToast(toast) {
-          toast.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+          toast.style.transition = 'opacity 0.2s cubic-bezier(0.7, 0, 0.84, 0), transform 0.2s cubic-bezier(0.7, 0, 0.84, 0)';
           toast.style.opacity = '0';
           toast.style.transform = 'translateX(1rem)';
-          setTimeout(function() { toast.remove(); }, 300);
+          setTimeout(function() { toast.remove(); }, 200);
         }
 
         function initToasts() {
@@ -284,27 +160,27 @@
       })();
     </script>
 
-    <% if content_for?(:full_width) %>
-      <main>
-        <%= yield %>
-      </main>
-    <% else %>
-      <main class="container mx-auto mt-6 px-4 sm:px-5 pb-20">
-        <div class="bg-white p-5 sm:p-8 rounded-xl shadow-sm border border-gray-100">
+    <div class="lg:pl-[17.75rem]">
+      <% if content_for?(:full_width) %>
+        <main>
           <%= yield %>
-        </div>
-      </main>
-    <% end %>
+        </main>
+      <% else %>
+        <main class="container mx-auto px-3 sm:px-5 pt-4 lg:pt-6">
+          <div class="panel rounded-3xl p-5 sm:p-8">
+            <%= yield %>
+          </div>
+        </main>
+      <% end %>
 
-    <footer class="border-t border-gray-200 mt-8 py-6 bg-white">
-      <div class="container mx-auto px-4 sm:px-5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
+      <footer class="container mx-auto px-3 sm:px-5 pt-6 pb-28 lg:pb-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/75">
         <span>&copy; <%= Date.current.year %> <%= club_setting.club_name.presence || "BTV Anmeldung" %>. <%= t("layouts.footer.copyright") %></span>
         <div class="flex gap-4">
-          <%= link_to t("layouts.footer.privacy"), privacy_path, class: "hover:text-gray-600 transition" %>
-          <%= link_to t("layouts.footer.impressum"), impressum_path, class: "hover:text-gray-600 transition" %>
+          <%= link_to t("layouts.footer.privacy"), privacy_path, class: "hover:text-white transition-colors" %>
+          <%= link_to t("layouts.footer.impressum"), impressum_path, class: "hover:text-white transition-colors" %>
         </div>
-      </div>
-    </footer>
+      </footer>
+    </div>
 
     <%= render "shared/cookie_consent" %>
 

@@ -42,10 +42,10 @@ export default class extends Controller {
   _updateButtons() {
     this.buttonTargets.forEach(btn => {
       if (btn.dataset.weekday === this.activeWeekday) {
-        btn.classList.add("bg-primary-600", "text-white")
+        btn.classList.add("bg-slate-900", "text-white")
         btn.classList.remove("bg-white", "text-gray-700", "hover:bg-gray-50")
       } else {
-        btn.classList.remove("bg-primary-600", "text-white")
+        btn.classList.remove("bg-slate-900", "text-white")
         btn.classList.add("bg-white", "text-gray-700", "hover:bg-gray-50")
       }
     })

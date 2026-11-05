@@ -22,6 +22,16 @@ class ClubSetting < ApplicationRecord
     safe_hex_color(secondary_color) || "#1d4ed8"
   end
 
+  # Lesbare Schriftfarbe auf einer Vereinsfarbe: dunkel auf hellen Farben
+  # (z.B. Gelb), weiss auf dunklen (z.B. Rot). WCAG-Luminanz, Schwelle so
+  # gewählt, dass der Kontrast der gewählten Farbe der grössere ist.
+  def text_color_on(hex)
+    r, g, b = hex.delete("#").scan(/../).map { |c| c.to_i(16) / 255.0 }
+      .map { |c| c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055)**2.4 }
+    luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    luminance > 0.179 ? "#0b1220" : "#ffffff"
+  end
+
   before_save :normalize_contact_website
 
   private

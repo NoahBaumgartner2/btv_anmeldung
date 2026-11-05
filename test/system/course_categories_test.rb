@@ -11,7 +11,7 @@ class CourseCategoriesTest < ApplicationSystemTestCase
 
     visit course_categories_path
     within(find("div[data-controller='modal']", text: "SystemTestKategorie")) do
-      attach_file "course_category[image]", Rails.root.join("test/fixtures/files/test_image.png")
+      attach_file "course_category[image]", Rails.root.join("test/fixtures/files/test_image.png"), make_visible: true
     end
 
     # redirect_to lädt eine komplett neue Seite (kein Turbo-Stream-Update) – daher

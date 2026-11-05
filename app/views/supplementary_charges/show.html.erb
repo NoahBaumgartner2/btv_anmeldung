@@ -17,7 +17,7 @@
     <div class="mb-5 bg-red-50 border border-red-200 text-red-800 text-sm rounded-xl px-4 py-3"><%= flash[:alert] %></div>
   <% end %>
 
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-5">
     <dl class="divide-y divide-gray-100">
       <div class="px-5 py-3 flex flex-col sm:flex-row sm:justify-between gap-1 sm:gap-3 text-sm">
         <dt class="font-medium text-gray-500 shrink-0">Beschreibung</dt>
@@ -43,7 +43,7 @@
     </div>
   <% elsif @charge.payable? %>
     <%= link_to checkout_supplementary_charge_path(@charge),
-          class: "w-full inline-flex items-center justify-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 px-6 rounded-xl shadow-sm transition text-base min-h-[52px]",
+          class: "w-full inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 px-6 rounded-full shadow-sm transition text-base min-h-[52px]",
           data: { turbo: false } do %>
       Jetzt bezahlen &rarr;
     <% end %>

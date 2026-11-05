@@ -11,7 +11,7 @@
   </div>
 
   <%# ── 1: BTV Teilnehmerzahl ──────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">1</span>
       <div>
@@ -22,13 +22,13 @@
     <div class="px-6 py-5">
       <%= form_with url: btv_teilnehmerzahl_admin_reports_path, method: :post, data: { turbo: false } do |f| %>
         <%= f.submit "CSV herunterladen",
-              class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+              class: "bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full text-sm transition shadow-sm cursor-pointer" %>
       <% end %>
     </div>
   </div>
 
   <%# ── 2: Sportfonds Breitensport ─────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">2</span>
       <div>
@@ -44,17 +44,17 @@
             <%= f.select :course_id,
                   options_for_select([["Alle Kurse", ""]].concat(@courses.map { |c| [c.title, c.id] })),
                   {},
-                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+                  class: "w-full rounded-xl border border-slate-900/15 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <%= f.submit "CSV herunterladen",
-                class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+                class: "shrink-0 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full text-sm transition shadow-sm cursor-pointer" %>
         </div>
       <% end %>
     </div>
   </div>
 
   <%# ── 3: Sportfonds Spitzensport ─────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">3</span>
       <div>
@@ -70,17 +70,17 @@
             <%= f.select :course_id,
                   options_for_select([["Alle Kurse", ""]].concat(@courses.map { |c| [c.title, c.id] })),
                   {},
-                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+                  class: "w-full rounded-xl border border-slate-900/15 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <%= f.submit "CSV herunterladen",
-                class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+                class: "shrink-0 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full text-sm transition shadow-sm cursor-pointer" %>
         </div>
       <% end %>
     </div>
   </div>
 
   <%# ── 4: Krabbel Gym Statistik Sportamt ──────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">4</span>
       <div>
@@ -97,10 +97,10 @@
               <%= f.select :course_id,
                     options_for_select([["Alle Krabbel-Gym-Kurse", ""]].concat(@krabbel_courses.map { |c| [c.title, c.id] })),
                     {},
-                    class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+                    class: "w-full rounded-xl border border-slate-900/15 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
             </div>
             <%= f.submit "CSV herunterladen",
-                  class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+                  class: "shrink-0 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full text-sm transition shadow-sm cursor-pointer" %>
           </div>
         <% end %>
       <% else %>

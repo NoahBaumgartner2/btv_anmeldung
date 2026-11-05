@@ -27,6 +27,7 @@ class CoursesController < ApplicationController
       public_scope.select { |c| not_ended.call(c) && c.registration_window_open_for?(current_user) }
     end
     @public_courses = @public_courses.sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
+    @category_records = CourseCategory.with_attached_image.index_by(&:name)
   end
 
   # GET /courses/1 or /courses/1.json

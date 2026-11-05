@@ -13,14 +13,14 @@
 
   <%= form_with url: admin_supplementary_charges_path, method: :post, class: "space-y-6" do %>
 
-    <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 space-y-4">
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
       <h2 class="font-bold text-gray-800">Angaben</h2>
 
       <div>
         <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Betrag (CHF)</label>
         <input type="text" name="amount" value="<%= params[:amount] %>" required
                placeholder="30.00"
-               class="block w-full sm:w-48 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+               class="block w-full sm:w-48 rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20">
       </div>
 
       <%
@@ -44,11 +44,11 @@
         <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Kurs</label>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <select data-course-picker-target="termSelect" data-action="change->course-picker#onTermChange"
-                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select>
+                  class="block w-full rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 bg-white"></select>
           <select data-course-picker-target="categorySelect" data-action="change->course-picker#onCategoryChange"
-                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select>
+                  class="block w-full rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 bg-white"></select>
           <select name="course_id" required data-course-picker-target="courseSelect" data-action="change->course-picker#onCourseChange"
-                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"></select>
+                  class="block w-full rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 bg-white"></select>
         </div>
         <p class="text-xs text-gray-400 mt-1">Zuerst Zeitraum, dann Kategorie eingrenzen - der Kurs wird entsprechend gefiltert.</p>
 
@@ -63,27 +63,27 @@
         <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Beschreibung (erscheint auf der Quittung)</label>
         <input type="text" name="description" value="<%= params[:description] %>" required
                placeholder="z.B. Korrektur fälschlich angewendeter Rabatt Q4 2026"
-               class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+               class="block w-full rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20">
       </div>
 
       <div>
         <label class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide">Erklärtext für die E-Mail an die Eltern <span class="font-normal text-gray-400">(optional, aber empfohlen)</span></label>
         <textarea name="explanation" rows="4"
                   placeholder="z.B. Bei der Anmeldung wurde fälschlicherweise ein Geschwisterrabatt angewendet, der nicht zutrifft. Wir bitten dich, die Differenz von CHF 30.- nachträglich zu begleichen."
-                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"><%= params[:explanation] %></textarea>
+                  class="block w-full rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 resize-none"><%= params[:explanation] %></textarea>
       </div>
     </div>
 
     <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants") %>
 
-    <div class="flex gap-3">
+    <div class="flex flex-col sm:flex-row gap-3">
       <button type="submit"
-              class="flex-1 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-3 px-4 rounded-xl text-sm transition cursor-pointer min-h-11"
+              class="flex-1 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-3 px-4 rounded-full text-sm transition cursor-pointer min-h-11"
               data-turbo-confirm="Nachforderung(en) jetzt erstellen?">
         Nachforderung(en) erstellen
       </button>
       <%= link_to "Abbrechen", admin_supplementary_charges_path,
-            class: "flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-xl text-sm transition min-h-11" %>
+            class: "flex-1 text-center bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-full text-sm transition min-h-11" %>
     </div>
   <% end %>
 </div>

@@ -20,13 +20,13 @@
   </div>
 
   <% if history.empty? %>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm py-8 text-center">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm py-8 text-center">
       <p class="text-sm text-gray-500"><%= t("participants.show.no_registrations") %></p>
     </div>
   <% else %>
     <dl class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
       <% summary_keys.each do |key| %>
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+        <div class="stat-card">
           <dt class="flex items-center gap-2 text-xs font-bold text-gray-500 uppercase tracking-wide">
             <span class="w-2 h-2 rounded-full shrink-0 <%= status_styles[key][:dot] %>" aria-hidden="true"></span>
             <%= t("participants.show.attendance.statuses.#{key}") %>
@@ -42,7 +42,7 @@
         <%= render partial: "attendance_course_card", collection: active, as: :entry, locals: { status_styles: status_styles } %>
       </div>
     <% else %>
-      <p class="bg-white rounded-xl border border-gray-200 shadow-sm py-6 text-center text-sm text-gray-500"><%= t("participants.show.attendance.no_active") %></p>
+      <p class="bg-white rounded-3xl border border-slate-200/80 shadow-sm py-6 text-center text-sm text-gray-500"><%= t("participants.show.attendance.no_active") %></p>
     <% end %>
 
     <% if archived.any? %>

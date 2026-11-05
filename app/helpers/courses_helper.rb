@@ -53,4 +53,18 @@ module CoursesHelper
            .sort_by { |wday| (wday - 1) % 7 }
            .map { |wday| I18n.t("date.day_names")[wday] }
   end
+  # Für die Kurskarte: ["Mo", "17:00–18:00"] oder nil. Gleiche Regeln wie
+  # course_weekly_time (Drop-In mit gemischten Zeiten → nil).
+  def course_day_and_time(course)
+    text = course_weekly_time(course) or return nil
+    wday = course_weekday_index(course) or return nil
+    [ I18n.t("date.abbr_day_names")[wday], text.split(", ", 2).last ] # ponytail: Format "Tag, Zeit" aus course_weekly_time
+  end
+
+  # Alle Wochentage (0=So..6=Sa), an denen der Kurs Trainings hat – für den
+  # Tag-Filter, damit Drop-Ins mit mehreren Tagen bei jedem Tag erscheinen.
+  def course_weekdays(course)
+    days = course.training_sessions.reject(&:is_canceled).filter_map { |s| s.start_time&.in_time_zone&.wday }.uniq
+    days.presence || [ course_weekday_index(course) ].compact
+  end
 end

@@ -13,6 +13,11 @@ en:
       body_label: "Message"
       submit: "Send email"
       cancel: "Cancel"
+      intro: "A category image is shown on the category tile in the course overview and at the top of every course page in that category."
+      add_image: "Add image"
+      change_image: "Change image"
+      remove_image: "Remove image"
+      remove_confirm: "Really remove the image for “%{category}”?"
 
   date:
     abbr_day_names:
@@ -125,6 +130,7 @@ en:
         other: "%{count} errors prohibited this %{resource} from being saved:"
 
   nav:
+    account_settings: "Account settings"
     courses: "Courses"
     my_profile: "My Profile"
     admin_dashboard: "Admin Dashboard"
@@ -134,6 +140,13 @@ en:
     login: "Sign in"
     register: "Register"
     logout: "Logout"
+    more: "More"
+    menu: "Menu"
+    groups:
+      general: "General"
+      training: "Training"
+      admin: "Administration"
+      account: "Account"
 
   language:
     de: "Deutsch"
@@ -249,6 +262,25 @@ en:
     training_value_label: "Value per training"
     training_value_hint: "For automatic refunds (CHF per training)"
     index:
+      tile:
+        count:
+          one: "%{count} course"
+          other: "%{count} courses"
+        open: "View courses"
+        close: "Close"
+      filter:
+        all_locations: "All locations"
+        count: "%{visible} of %{total} courses"
+        weekday: "Filter by weekday"
+        weekday_short: "Day"
+        location: "Filter by location"
+        location_short: "Place"
+        reset: "Reset filters"
+        empty: "No course matches this day and location."
+      card:
+        location: "Location"
+        period: "Period"
+        open_map: "Open address in Google Maps"
       title: "Courses"
       subtitle: "Choose a category and register directly."
       new_course: "+ Create new course"
@@ -1289,7 +1321,7 @@ en:
       back: "← Back to Management"
     edit:
       title: "Edit training"
-      back: "← Back to overview"
+      back: "← Back to training"
 
   holidays:
     index:

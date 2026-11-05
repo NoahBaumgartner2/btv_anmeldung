@@ -13,13 +13,13 @@
       </p>
     </div>
     <%= link_to t('newsletter_subscribers.index.export_csv'), export_newsletter_subscribers_path,
-          class: "shrink-0 bg-white border border-gray-300 text-gray-700 font-bold text-sm py-2.5 px-4 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition min-h-11" %>
+          class: "shrink-0 bg-white border border-slate-200 text-gray-700 font-bold text-sm py-2.5 px-4 rounded-full hover:bg-gray-50 active:bg-gray-100 transition min-h-11" %>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
     <%# ── Manuell hinzufügen ────────────────────────────────────────────── %>
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+    <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm p-5">
       <h2 class="font-bold text-gray-900 mb-4"><%= t('newsletter_subscribers.index.section_add') %></h2>
       <%= form_with model: NewsletterSubscriber.new, url: newsletter_subscribers_path do |f| %>
         <% if @subscriber&.errors&.any? %>
@@ -31,22 +31,22 @@
           <div>
             <%= f.label :email, t('newsletter_subscribers.index.label_email'), class: "block text-xs font-bold text-gray-600 mb-1" %>
             <%= f.email_field :email, placeholder: "max@beispiel.ch",
-                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none" %>
+                  class: "block w-full rounded-xl border border-slate-900/15 px-3 py-2.5 text-base sm:text-sm focus:ring-2 focus:ring-slate-900/20 focus:outline-none" %>
           </div>
           <div>
             <%= f.label :name, t('newsletter_subscribers.index.label_name'), class: "block text-xs font-bold text-gray-600 mb-1" %>
             <%= f.text_field :name, placeholder: "Max Muster",
-                  class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none" %>
+                  class: "block w-full rounded-xl border border-slate-900/15 px-3 py-2.5 text-base sm:text-sm focus:ring-2 focus:ring-slate-900/20 focus:outline-none" %>
           </div>
           <%= f.hidden_field :status, value: "subscribed" %>
           <%= f.submit t('newsletter_subscribers.index.add_btn'),
-                class: "cursor-pointer w-full bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm py-2.5 rounded-lg transition" %>
+                class: "cursor-pointer w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-2.5 rounded-full transition" %>
         </div>
       <% end %>
     </div>
 
     <%# ── CSV Import ──────────────────────────────────────────────────────── %>
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+    <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm p-5">
       <h2 class="font-bold text-gray-900 mb-1"><%= t('newsletter_subscribers.index.section_import') %></h2>
       <p class="text-xs text-gray-500 mb-4">
         <%= t('newsletter_subscribers.index.import_hint') %>
@@ -55,10 +55,10 @@
         <div class="mb-3">
           <label class="block text-xs font-bold text-gray-600 mb-1"><%= t('newsletter_subscribers.index.import_label') %></label>
           <input type="file" name="csv_file" accept=".csv,text/csv"
-                 class="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer">
+                 class="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer">
         </div>
         <button type="submit"
-                class="cursor-pointer w-full bg-secondary-600 hover:bg-secondary-700 text-white font-bold text-sm py-2.5 rounded-lg transition">
+                class="cursor-pointer w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-2.5 rounded-full transition">
           <%= t('newsletter_subscribers.index.import_btn') %>
         </button>
       <% end %>
@@ -90,21 +90,21 @@
   </div>
 
   <%# ── Suche + Tabelle ─────────────────────────────────────────────────── %>
-  <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+  <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-100">
       <%= form_with url: newsletter_subscribers_path, method: :get, data: { turbo_frame: "_top" } do |f| %>
         <div class="flex gap-3">
           <%= f.search_field :q, value: params[:q],
                 placeholder: t('newsletter_subscribers.index.search_placeholder'),
                 autofocus: params[:q].present?,
-                class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none" %>
+                class: "flex-1 min-w-0 rounded-xl border border-slate-900/15 px-3 py-2.5 text-base sm:text-sm focus:ring-2 focus:ring-slate-900/20 focus:outline-none" %>
           <button type="submit"
-                  class="cursor-pointer bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm px-4 py-2 rounded-lg transition">
+                  class="cursor-pointer bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm px-4 py-2 rounded-full transition">
             <%= t('newsletter_subscribers.index.search_btn') %>
           </button>
           <% if params[:q].present? %>
             <%= link_to t('newsletter_subscribers.index.search_reset'), newsletter_subscribers_path,
-                  class: "bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm px-4 py-2 rounded-lg transition" %>
+                  class: "bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm px-4 py-2 rounded-full transition" %>
           <% end %>
         </div>
       <% end %>
@@ -160,12 +160,12 @@
                       <%= button_to sub.subscribed? ? t('newsletter_subscribers.index.toggle_unsubscribe') : t('newsletter_subscribers.index.toggle_subscribe'),
                             newsletter_subscriber_path(sub),
                             method: :patch,
-                            class: "text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer #{sub.subscribed? ? 'bg-gray-100 hover:bg-gray-200 text-gray-600' : 'bg-green-100 hover:bg-green-200 text-green-700'}" %>
+                            class: "text-xs font-bold px-3 py-1.5 rounded-full transition cursor-pointer #{sub.subscribed? ? 'bg-gray-100 hover:bg-gray-200 text-gray-600' : 'bg-green-100 hover:bg-green-200 text-green-700'}" %>
                       <%= button_to t('newsletter_subscribers.index.delete_btn'),
                             newsletter_subscriber_path(sub),
                             method: :delete,
                             data: { turbo_confirm: t('newsletter_subscribers.index.delete_confirm', email: sub.email) },
-                            class: "text-xs font-bold px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition cursor-pointer" %>
+                            class: "text-xs font-bold px-3 py-1.5 rounded-full bg-red-50 hover:bg-red-100 text-red-600 transition cursor-pointer" %>
                     </div>
                   </td>
                 </tr>

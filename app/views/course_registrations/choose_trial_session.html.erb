@@ -24,7 +24,7 @@
           <%= button_to t("course_registrations.choose_trial_session.book_btn"),
                 accept_spot_course_registration_path(@course_registration, decision: "trial", training_session_id: ts.id),
                 method: :post,
-                class: "shrink-0 inline-flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-[44px]" %>
+                class: "shrink-0 inline-flex items-center justify-center bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 px-4 rounded-full text-sm transition min-h-[44px]" %>
         </div>
       <% end %>
     </div>

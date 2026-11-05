@@ -2,7 +2,7 @@
 <% chf = ->(cents) { format("%.2f", cents / 100.0) } %>
 <%= turbo_frame_tag "refund_preview_#{@course_registration.id}#{params[:suffix]}" do %>
   <% if !b[:refundable] %>
-    <p class="text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2"><%= t("course_registrations.refund.not_possible.#{b[:reason]}") %></p>
+    <p class="text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-full px-3 py-2"><%= t("course_registrations.refund.not_possible.#{b[:reason]}") %></p>
   <% else %>
     <div class="border border-amber-200 bg-amber-50 rounded-xl p-4 space-y-3 text-sm">
       <p class="font-bold text-gray-900"><%= t("course_registrations.refund.title") %></p>

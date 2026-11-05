@@ -1,0 +1,117 @@
+<%# Glas-Navigation: Sidebar ab lg, darunter Kopfzeile + Tab-Leiste + „Mehr“-Sheet.
+    Sichtbarkeit der Links kommt aus nav_sections (ApplicationHelper). %>
+<% cs = club_setting %>
+<% sections = nav_sections %>
+<% items = sections.flat_map(&:last) %>
+<% tabs = items.first(3) %>
+<% more = items.drop(3) %>
+<% brand = capture do %>
+  <% if cs.logo.attached? %>
+    <%= image_tag cs.logo, class: "h-8 w-8 object-contain shrink-0", alt: "" %>
+  <% end %>
+  <span class="font-bold tracking-tight truncate"><%= cs.club_name.presence || "Anmeldeportal" %></span>
+<% end %>
+
+<%# ── Desktop-Sidebar ───────────────────────────────────────────────────── %>
+<aside class="[view-transition-name:app-sidebar] hidden lg:flex fixed inset-y-3 left-3 z-30 w-64 flex-col glass rounded-3xl p-3">
+  <%= link_to root_path, class: "flex items-center gap-3 px-2 py-2 rounded-2xl hover:bg-white/50 transition-colors" do %>
+    <%= brand %>
+  <% end %>
+
+  <nav class="flex-1 overflow-y-auto" aria-label="<%= t("nav.menu") %>">
+    <% sections.each do |group, links| %>
+      <p class="nav-group"><%= t("nav.groups.#{group}") %></p>
+      <% links.each do |l| %>
+        <%= link_to l[:path], class: "nav-item", aria: { current: ("page" if nav_current?(l[:path])) } do %>
+          <%= nav_icon(l[:key]) %><span class="truncate"><%= t("nav.#{l[:key]}") %></span>
+        <% end %>
+      <% end %>
+    <% end %>
+  </nav>
+
+  <div class="space-y-3 pt-3 border-t border-white/60">
+    <% if user_signed_in? %>
+      <%= link_to account_path, class: "nav-item", aria: { current: ("page" if nav_current?(account_path)) } do %>
+        <%= nav_icon(:account_settings) %><span class="truncate"><%= t("nav.account_settings") %></span>
+      <% end %>
+    <% end %>
+    <%= render "shared/language_switcher" %>
+    <% if user_signed_in? %>
+      <div class="flex items-center gap-3 pl-1">
+        <span class="w-9 h-9 rounded-full bg-slate-900 text-white text-xs font-bold flex items-center justify-center shrink-0">
+          <%= current_user.full_name.split.map(&:first).first(2).join.upcase %>
+        </span>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-semibold truncate"><%= current_user.full_name %></p>
+          <p class="text-xs text-slate-600 truncate"><%= current_user.email %></p>
+        </div>
+        <%= button_to destroy_user_session_path, method: :delete, title: t("nav.logout"),
+              aria: { label: t("nav.logout") },
+              class: "p-2 rounded-full text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-colors cursor-pointer" do %>
+          <%= nav_icon(:logout) %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</aside>
+
+<%# ── Handy: Kopfzeile ──────────────────────────────────────────────────── %>
+<header class="[view-transition-name:app-header] lg:hidden sticky top-0 z-30 px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+  <%= link_to root_path, class: "glass-strong rounded-2xl h-14 px-4 flex items-center gap-3" do %>
+    <%= brand %>
+  <% end %>
+</header>
+
+<%# ── Handy: Tab-Leiste ─────────────────────────────────────────────────── %>
+<% tab_class = "flex flex-col items-center justify-center gap-0.5 min-h-14 py-1.5 text-[11px] font-medium cursor-pointer transition-colors" %>
+<nav class="[view-transition-name:app-tabbar] lg:hidden fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-40 glass-strong rounded-2xl"
+     aria-label="<%= t("nav.menu") %>">
+  <ul class="grid <%= { 1 => "grid-cols-2", 2 => "grid-cols-3", 3 => "grid-cols-4" }[tabs.size] %>">
+    <% tabs.each do |l| %>
+      <% active = nav_current?(l[:path]) %>
+      <li>
+        <%= link_to l[:path], class: "#{tab_class} #{active ? "text-slate-900" : "text-slate-600"}",
+              aria: { current: ("page" if active) } do %>
+          <span class="px-3 py-1 rounded-full <%= "bg-[var(--color-secondary)] text-[var(--color-on-secondary)] shadow-sm" if active %>"><%= nav_icon(l[:key]) %></span>
+          <span class="truncate max-w-full px-1"><%= t("nav.#{l[:key]}") %></span>
+        <% end %>
+      </li>
+    <% end %>
+    <li>
+      <button type="button" popovertarget="more-sheet" class="<%= tab_class %> w-full text-slate-600">
+        <span class="px-3 py-1"><%= nav_icon(:more) %></span>
+        <span><%= t("nav.more") %></span>
+      </button>
+    </li>
+  </ul>
+</nav>
+
+<%# ── Handy: „Mehr“-Sheet (natives Popover: Esc + Klick daneben schliessen) ── %>
+<div id="more-sheet" popover class="sheet lg:hidden glass-strong rounded-3xl p-3 max-h-[80dvh] overflow-y-auto">
+  <% if more.any? %>
+    <div class="space-y-1 pb-3 mb-3 border-b border-slate-900/10">
+      <% more.each do |l| %>
+        <%= link_to l[:path], class: "nav-item text-base", aria: { current: ("page" if nav_current?(l[:path])) } do %>
+          <%= nav_icon(l[:key]) %><span><%= t("nav.#{l[:key]}") %></span>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+  <% if user_signed_in? %>
+    <%= link_to account_path, class: "nav-item text-base mb-3", aria: { current: ("page" if nav_current?(account_path)) } do %>
+      <%= nav_icon(:account_settings) %><span><%= t("nav.account_settings") %></span>
+    <% end %>
+  <% end %>
+  <div class="flex items-center justify-between gap-3 px-1">
+    <%= render "shared/language_switcher" %>
+    <% if user_signed_in? %>
+      <%= button_to destroy_user_session_path, method: :delete, class: "btn btn-secondary" do %>
+        <%= nav_icon(:logout, "w-4 h-4") %><%= t("nav.logout") %>
+      <% end %>
+    <% end %>
+  </div>
+  <div class="flex justify-center gap-4 pt-4 pb-1 text-xs text-slate-600">
+    <%= link_to t("layouts.footer.privacy"), privacy_path, class: "hover:text-slate-900" %>
+    <%= link_to t("layouts.footer.impressum"), impressum_path, class: "hover:text-slate-900" %>
+  </div>
+</div>

@@ -36,7 +36,7 @@
     <% overview_groups.each do |date, rows| %>
       <div>
         <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2 px-1"><%= I18n.l(date, format: :long_day) %></h4>
-        <div class="bg-white rounded-2xl sm:rounded-3xl shadow-sm border border-gray-200 divide-y divide-gray-100">
+        <div class="bg-white rounded-3xl sm:rounded-3xl shadow-sm border border-slate-200/80 divide-y divide-gray-100">
           <% rows.each do |row| %>
             <% participant, reg, course = row[:participant], row[:reg], row[:course] %>
             <div class="flex items-center gap-3 sm:gap-4 px-4 sm:px-6 py-3.5 sm:py-4">
@@ -72,7 +72,7 @@
                       <div class="bg-white p-2 rounded-xl border-2 border-gray-100 mb-6 sm:mb-8 w-56 h-56 sm:w-64 sm:h-64 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full shadow-inner">
                         <%= generate_qr_code(scan_course_registration_url(reg)) %>
                       </div>
-                      <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-xl hover:bg-gray-200 active:bg-gray-300 transition w-full text-base sm:text-lg min-h-12"
+                      <button class="bg-gray-100 text-gray-700 font-bold py-3.5 px-6 rounded-full hover:bg-gray-200 active:bg-gray-300 transition w-full text-base sm:text-lg min-h-12"
                               data-action="click->modal#close"><%= t("participants.index.close") %></button>
                     </div>
                   </div>

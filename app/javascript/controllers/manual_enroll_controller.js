@@ -11,18 +11,18 @@ export default class extends Controller {
   showSearch() {
     this.searchPanelTarget.classList.remove("hidden")
     this.createPanelTarget.classList.add("hidden")
-    this.searchTabTarget.classList.replace("bg-gray-100", "bg-primary-600")
+    this.searchTabTarget.classList.replace("bg-gray-100", "bg-slate-900")
     this.searchTabTarget.classList.replace("text-gray-600", "text-white")
-    this.createTabTarget.classList.replace("bg-primary-600", "bg-gray-100")
+    this.createTabTarget.classList.replace("bg-slate-900", "bg-gray-100")
     this.createTabTarget.classList.replace("text-white", "text-gray-600")
   }
 
   showCreate() {
     this.createPanelTarget.classList.remove("hidden")
     this.searchPanelTarget.classList.add("hidden")
-    this.createTabTarget.classList.replace("bg-gray-100", "bg-primary-600")
+    this.createTabTarget.classList.replace("bg-gray-100", "bg-slate-900")
     this.createTabTarget.classList.replace("text-gray-600", "text-white")
-    this.searchTabTarget.classList.replace("bg-primary-600", "bg-gray-100")
+    this.searchTabTarget.classList.replace("bg-slate-900", "bg-gray-100")
     this.searchTabTarget.classList.replace("text-white", "text-gray-600")
   }
 
@@ -56,7 +56,7 @@ export default class extends Controller {
           : `<button type="button"
                data-participant-id="${p.id}"
                data-action="click->manual-enroll#enroll"
-               class="shrink-0 bg-primary-600 hover:bg-primary-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer">
+               class="shrink-0 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-1.5 px-3 rounded-lg transition cursor-pointer">
                Anmelden
              </button>`
         }

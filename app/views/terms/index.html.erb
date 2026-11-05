@@ -8,10 +8,10 @@
       <p class="text-gray-500 mt-1 text-sm">Datumsbereiche (z.B. HS2026), die Kursen optional zugeordnet werden können.</p>
     </div>
     <%= link_to "Neues Semester/Quartal", new_term_path,
-          class: "shrink-0 w-full sm:w-auto text-center bg-primary-600 py-2.5 px-4 shadow-sm text-sm font-bold rounded-lg text-white hover:bg-primary-700 active:bg-primary-800 transition min-h-11" %>
+          class: "shrink-0 w-full sm:w-auto text-center bg-slate-900 py-2.5 px-4 shadow-sm text-sm font-bold rounded-full text-white hover:bg-slate-800 active:bg-slate-950 transition min-h-11" %>
   </div>
 
-  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-xl overflow-hidden">
+  <div class="bg-white shadow-sm ring-1 ring-slate-200/80 rounded-3xl overflow-x-auto">
     <% if @terms.any? %>
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">

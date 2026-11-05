@@ -16,7 +16,7 @@ export default class extends Controller {
     this.substitutePanelTarget.classList.add("hidden")
     this.cancelTabTarget.classList.replace("bg-gray-100", "bg-red-600")
     this.cancelTabTarget.classList.replace("text-gray-600", "text-white")
-    this.substituteTabTarget.classList.replace("bg-primary-600", "bg-gray-100")
+    this.substituteTabTarget.classList.replace("bg-slate-900", "bg-gray-100")
     this.substituteTabTarget.classList.replace("text-white", "text-gray-600")
   }
 
@@ -29,7 +29,7 @@ export default class extends Controller {
   showSubstitute() {
     this.substitutePanelTarget.classList.remove("hidden")
     this.cancelPanelTarget.classList.add("hidden")
-    this.substituteTabTarget.classList.replace("bg-gray-100", "bg-primary-600")
+    this.substituteTabTarget.classList.replace("bg-gray-100", "bg-slate-900")
     this.substituteTabTarget.classList.replace("text-gray-600", "text-white")
     this.cancelTabTarget.classList.replace("bg-red-600", "bg-gray-100")
     this.cancelTabTarget.classList.replace("text-white", "text-gray-600")

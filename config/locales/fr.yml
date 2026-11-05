@@ -13,6 +13,11 @@ fr:
       body_label: "Message"
       submit: "Envoyer l'e-mail"
       cancel: "Annuler"
+      intro: "L’image d’une catégorie s’affiche sur la tuile de la catégorie dans l’aperçu des cours et en haut de chaque page de cours de cette catégorie."
+      add_image: "Ajouter une image"
+      change_image: "Changer l’image"
+      remove_image: "Supprimer l’image"
+      remove_confirm: "Vraiment supprimer l’image de « %{category} » ?"
 
   date:
     abbr_day_names:
@@ -125,6 +130,7 @@ fr:
         other: "%{count} erreurs ont empêché ce %{resource} d'être sauvegardé :"
 
   nav:
+    account_settings: "Paramètres du compte"
     courses: "Cours"
     my_profile: "Mon profil"
     admin_dashboard: "Tableau de bord admin"
@@ -134,6 +140,13 @@ fr:
     login: "Se connecter"
     register: "S'inscrire"
     logout: "Déconnexion"
+    more: "Plus"
+    menu: "Menu"
+    groups:
+      general: "Général"
+      training: "Entraînement"
+      admin: "Administration"
+      account: "Compte"
 
   language:
     de: "Deutsch"
@@ -249,6 +262,25 @@ fr:
     training_value_label: "Valeur par entraînement"
     training_value_hint: "Pour les remboursements automatiques (CHF par entraînement)"
     index:
+      tile:
+        count:
+          one: "%{count} cours"
+          other: "%{count} cours"
+        open: "Voir les cours"
+        close: "Fermer"
+      filter:
+        all_locations: "Tous les lieux"
+        count: "%{visible} cours sur %{total}"
+        weekday: "Filtrer par jour"
+        weekday_short: "Jour"
+        location: "Filtrer par lieu"
+        location_short: "Lieu"
+        reset: "Réinitialiser les filtres"
+        empty: "Aucun cours ne correspond à ce jour et à ce lieu."
+      card:
+        location: "Lieu"
+        period: "Période"
+        open_map: "Ouvrir l’adresse dans Google Maps"
       title: "Cours"
       subtitle: "Choisissez une catégorie et inscrivez-vous directement."
       new_course: "+ Créer un nouveau cours"
@@ -1282,7 +1314,7 @@ fr:
       back: "← Retour à la gestion du cours"
     edit:
       title: "Modifier l'entraînement"
-      back: "← Retour à la liste"
+      back: "← Retour à l’entraînement"
 
   holidays:
     index:

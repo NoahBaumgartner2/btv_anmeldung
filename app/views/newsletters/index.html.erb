@@ -6,25 +6,25 @@
       <p class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-1"><%= t('newsletters.index.admin_label') %></p>
       <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900"><%= t('newsletters.index.title') %></h1>
     </div>
-    <div class="flex gap-3 flex-wrap">
+    <div class="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex">
       <%= link_to t('newsletters.index.subscribers_link'), newsletter_subscribers_path,
-            class: "bg-white border border-gray-300 text-gray-700 font-bold text-sm py-2.5 px-4 rounded-lg hover:bg-gray-50 active:bg-gray-100 transition min-h-11" %>
+            class: "btn btn-secondary border-slate-200 min-h-11 w-full sm:w-auto px-3 whitespace-normal leading-tight text-center" %>
       <%= link_to t('newsletters.index.new_newsletter'), new_newsletter_path,
-            class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold text-sm py-2.5 px-5 rounded-lg transition min-h-11" %>
+            class: "btn btn-primary min-h-11 w-full sm:w-auto px-3 whitespace-normal leading-tight text-center" %>
     </div>
   </div>
 
   <%# ── Stats ────────────────────────────────────────────────────────────── %>
   <div class="grid grid-cols-3 gap-4 mb-8">
-    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-4 text-center shadow-sm">
       <p class="text-2xl font-extrabold text-gray-900"><%= Newsletter.count %></p>
       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-0.5"><%= t('newsletters.index.stat_total') %></p>
     </div>
-    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-4 text-center shadow-sm">
       <p class="text-2xl font-extrabold text-amber-500"><%= Newsletter.drafts.count %></p>
       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-0.5"><%= t('newsletters.index.stat_drafts') %></p>
     </div>
-    <div class="bg-white border border-gray-200 rounded-xl p-4 text-center shadow-sm">
+    <div class="bg-white border border-slate-200/80 rounded-3xl p-4 text-center shadow-sm">
       <p class="text-2xl font-extrabold text-green-600"><%= Newsletter.sent.count %></p>
       <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mt-0.5"><%= t('newsletters.index.stat_sent') %></p>
     </div>
@@ -32,7 +32,7 @@
 
   <%# ── Entwürfe ──────────────────────────────────────────────────────────── %>
   <% if @drafts.any? %>
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden mb-6">
+    <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm overflow-hidden mb-6">
       <div class="px-5 py-4 border-b border-gray-100">
         <h2 class="font-bold text-gray-900"><%= t('newsletters.index.section_drafts') %></h2>
       </div>
@@ -47,10 +47,10 @@
             <div class="flex items-center gap-2 shrink-0">
               <span class="hidden sm:inline-flex text-xs font-bold bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full"><%= t('newsletters.index.badge_draft') %></span>
               <%= link_to t('newsletters.index.edit'), edit_newsletter_path(nl),
-                    class: "text-sm font-bold text-primary-600 hover:text-primary-800 bg-primary-50 hover:bg-primary-100 active:bg-primary-200 px-3 py-1.5 rounded-lg transition min-h-11 inline-flex items-center" %>
+                    class: "text-sm font-bold text-slate-900 hover:text-slate-900 bg-white border border-slate-200 hover:bg-white border border-slate-200 active:bg-slate-100 px-3 py-1.5 rounded-full transition min-h-11 inline-flex items-center" %>
               <%= button_to t('newsletters.index.delete'), newsletter_path(nl), method: :delete,
                     data: { turbo_confirm: t('newsletters.index.delete_confirm', title: nl.title) },
-                    class: "text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 active:bg-red-200 px-3 py-1.5 rounded-lg transition cursor-pointer min-h-11" %>
+                    class: "text-sm font-bold text-red-600 bg-red-50 hover:bg-red-100 active:bg-red-200 px-3 py-1.5 rounded-full transition cursor-pointer min-h-11" %>
             </div>
           </li>
         <% end %>
@@ -59,7 +59,7 @@
   <% end %>
 
   <%# ── Versendete Newsletter ───────────────────────────────────────────── %>
-  <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+  <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm overflow-hidden">
     <div class="px-5 py-4 border-b border-gray-100">
       <h2 class="font-bold text-gray-900"><%= t('newsletters.index.section_sent') %></h2>
     </div>
@@ -78,7 +78,7 @@
             <div class="flex items-center gap-2 shrink-0">
               <span class="text-xs font-bold bg-green-100 text-green-700 px-2.5 py-1 rounded-full"><%= t('newsletters.index.badge_sent') %></span>
               <%= link_to t('newsletters.index.preview'), preview_newsletter_path(nl),
-                    class: "text-sm font-bold text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition" %>
+                    class: "text-sm font-bold text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full transition" %>
             </div>
           </li>
         <% end %>

@@ -21,6 +21,20 @@ class Course < ApplicationRecord
   has_many :permitted_users, through: :course_access_grants, source: :user
   has_many :age_exemptions, dependent: :destroy
 
+  # Bild für Kurskacheln und Kursseite: kommt von der Kategorie (CourseCategory),
+  # ein Bild pro Kategorie statt pro Kurs.
+  CARD_VARIANT = { resize_to_fill: [ 800, 500 ], format: :webp }.freeze
+
+  # Gleiche Gruppierung wie Kursübersicht und Kurskategorien.
+  def category_name
+    category.presence || title.to_s.split("(").first.to_s.strip
+  end
+
+  # category: vorgeladener CourseCategory-Datensatz (vermeidet N+1 in Listen).
+  def card_image(category = CourseCategory.find_by(name: category_name))
+    category.image.variant(CARD_VARIANT) if category&.image&.attached?
+  end
+
   # Abo-Kurse haben kein end_date und sind nie beendet.
   scope :not_ended, -> { where(deactivated_at: nil).and(where(end_date: nil).or(where(end_date: Date.current.beginning_of_day..))) }
 

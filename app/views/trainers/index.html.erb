@@ -1,7 +1,7 @@
 <div class="w-full">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
     <h1 class="font-bold text-xl sm:text-3xl text-gray-800"><%= t('trainers.index.title') %></h1>
-    <%= link_to t('trainers.index.new_trainer'), new_trainer_path, class: "w-full sm:w-auto text-center rounded-lg py-2.5 px-4 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-medium transition shadow-sm min-h-11" %>
+    <%= link_to t('trainers.index.new_trainer'), new_trainer_path, class: "w-full sm:w-auto text-center rounded-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-medium transition shadow-sm min-h-11" %>
   </div>
 
   <%= render "tabs", active: :index %>
@@ -23,8 +23,8 @@
               <p class="text-xs text-gray-500 mb-3"><%= trainer.phone %></p>
             <% end %>
             <div class="flex gap-2 mt-2">
-              <%= link_to t('trainers.index.show'), trainer, class: "flex-1 text-center text-primary-600 font-medium bg-primary-50 active:bg-primary-100 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
-              <%= link_to t('trainers.index.edit'), edit_trainer_path(trainer), class: "flex-1 text-center text-orange-500 font-medium bg-orange-50 active:bg-orange-100 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
+              <%= link_to t('trainers.index.show'), trainer, class: "btn btn-secondary border-slate-200 min-h-11 flex-1" %>
+              <%= link_to t('trainers.index.edit'), edit_trainer_path(trainer), class: "btn btn-secondary border-slate-200 min-h-11 flex-1" %>
             </div>
           </div>
         <% end %>

@@ -1,0 +1,62 @@
+service: btv_anmeldung_design
+
+image: noahbaumgartner2/btv_anmeldung
+
+servers:
+  web:
+    - 89.47.51.202
+
+volumes:
+  - /var/lib/btv_anmeldung_design/storage:/rails/storage
+
+ssh:
+  user: ubuntu
+
+proxy:
+  ssl: true
+  host: design.btvbern-anmeldung.ch
+
+registry:
+  server: ghcr.io
+  username: noahbaumgartner2
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  clear:
+    SOLID_QUEUE_IN_PUMA: true
+    DB_HOST: "btv_anmeldung_design-db"
+    DB_PORT: "5432"
+    DB_USERNAME: "btv_app_design"
+    DB_NAME: "btv_anmeldung_design"
+    DB_NAME_CACHE: "btv_anmeldung_design_cache"
+    DB_NAME_QUEUE: "btv_anmeldung_design_queue"
+    DB_NAME_CABLE: "btv_anmeldung_design_cable"
+    APP_HOST: "design.btvbern-anmeldung.ch"
+    APP_PROTOCOL: "https"
+    # Keine echten Mails und keine Hintergrund-Jobs, siehe config/environments/production.rb
+    SANDBOX_ENV: true
+    SOLID_QUEUE_SKIP_RECURRING: true
+  secret:
+    - RAILS_MASTER_KEY
+    - POSTGRES_PASSWORD:POSTGRES_PASSWORD_DESIGN
+
+accessories:
+  db:
+    image: postgres:16
+    host: 89.47.51.202
+    port: "127.0.0.1:5434:5432"
+    env:
+      clear:
+        POSTGRES_USER: btv_app_design
+        POSTGRES_DB: btv_anmeldung_design
+      secret:
+        - POSTGRES_PASSWORD:POSTGRES_PASSWORD_DESIGN
+    directories:
+      - data:/var/lib/postgresql/data
+
+builder:
+  arch: amd64
+
+aliases:
+  migrate: app exec --interactive --reuse 'bin/rails db:migrate'

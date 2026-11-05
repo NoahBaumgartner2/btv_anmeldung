@@ -33,4 +33,14 @@ class PagesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to participants_path
   end
+
+  test "Startseite zeigt keine Kategorien von Kursen auf Einladung" do
+    Course.new(title: "Geheimkurs Leistung", category: "Leistungsgruppe", restricted: true,
+      registration_type: "semester", registration_mode: "semester", has_payment: false, has_ticketing: false,
+      allows_holiday_deduction: false, end_date: Date.current + 30, public_registration_days: 365).save!(validate: false)
+
+    get root_url
+    assert_response :success
+    assert_not_includes response.body, "Leistungsgruppe"
+  end
 end

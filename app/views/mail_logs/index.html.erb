@@ -16,7 +16,7 @@
   </div>
 
   <% if @any_logs %>
-    <%= form_with url: mail_logs_path, method: :get, class: "bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-5 mb-6" do %>
+    <%= form_with url: mail_logs_path, method: :get, class: "stat-card sm:p-5 mb-6" do %>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div>
           <label for="q" class="<%= label %>"><%= t("mail_logs.filter.search") %></label>
@@ -65,7 +65,7 @@
         <% if @filtered %>
           <%= link_to t("mail_logs.filter.reset"), mail_logs_path, class: "text-sm font-medium text-gray-600 hover:text-gray-900 underline-offset-2 hover:underline min-h-11 inline-flex items-center px-2" %>
         <% end %>
-        <button type="submit" class="bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold px-5 rounded-lg text-sm transition cursor-pointer min-h-11"><%= t("mail_logs.filter.submit") %></button>
+        <button type="submit" class="bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold px-5 rounded-full text-sm transition cursor-pointer min-h-11"><%= t("mail_logs.filter.submit") %></button>
       </div>
     <% end %>
 
@@ -73,7 +73,7 @@
   <% end %>
 
   <% if @logs.any? %>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
       <div class="hidden lg:grid grid-cols-[11rem_1.2fr_1.2fr_1fr] gap-4 px-5 py-3 bg-gray-50 border-b border-gray-200 text-xs font-bold text-gray-500 uppercase tracking-wider" aria-hidden="true">
         <span><%= t("mail_logs.col_sent") %></span>
         <span><%= t("mail_logs.col_kind") %></span>
@@ -119,7 +119,7 @@
       </div>
     <% end %>
   <% else %>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm py-12 px-6 text-center">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm py-12 px-6 text-center">
       <p class="font-semibold text-gray-800"><%= t(@any_logs ? "mail_logs.no_results" : "mail_logs.empty") %></p>
       <p class="text-sm text-gray-500 mt-1"><%= t(@any_logs ? "mail_logs.no_results_hint" : "mail_logs.empty_hint") %></p>
     </div>
