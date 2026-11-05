@@ -29,7 +29,7 @@
         <%= form.label :course_id, t("course_registrations.form.course_label"), class: "block text-sm font-bold text-gray-700 mb-1.5" %>
         <%= form.collection_select :course_id, selectable_courses, :id, :title,
               { prompt: t("course_registrations.form.course_prompt") },
-              class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]" %>
+              class: "field" %>
       </div>
     <% end %>
 
@@ -49,7 +49,7 @@
         <%= form.collection_select :participant_id, my_participants, :id,
               ->(p) { "#{p.first_name} #{p.last_name}" },
               { prompt: t("course_registrations.form.participant_prompt") },
-              class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]",
+              class: "field",
               data: { "trial-check-target": "participantSelect", action: "change->trial-check#participantChanged" } %>
 
         <%# Vorab-Prüfung: fehlende Pflichtfelder pro Teilnehmer (inkl. AHV-Altersregel) %>
@@ -73,7 +73,7 @@
                     <p class="text-amber-800 mt-0.5">Fehlend: <%= missing_fields.map { |f| Participant.field_label(f) }.join(", ") %></p>
                   </div>
                   <%= link_to "Profil ergänzen", edit_participant_path(participant),
-                        class: "shrink-0 inline-flex items-center justify-center w-full sm:w-auto min-h-[44px] px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-lg shadow-sm transition" %>
+                        class: "shrink-0 inline-flex items-center justify-center w-full sm:w-auto min-h-[44px] px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-full shadow-sm transition" %>
                 </div>
               <% end %>
             </div>
@@ -119,7 +119,7 @@
         <div class="p-4 sm:p-5 bg-yellow-50 text-yellow-900 rounded-xl border-2 border-yellow-300 space-y-3">
           <p class="text-sm sm:text-base font-medium"><%= t("course_registrations.form.no_participants") %></p>
           <%= link_to t("course_registrations.form.add_participant"), new_participant_path,
-                class: "block w-full text-center min-h-[44px] inline-flex items-center justify-center px-4 py-3 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-bold rounded-lg shadow-sm transition" %>
+                class: "block w-full text-center min-h-[44px] inline-flex items-center justify-center px-4 py-3 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-bold rounded-full shadow-sm transition" %>
         </div>
       <% end %>
     </div>
@@ -139,7 +139,7 @@
           <%= form.collection_select :trial_session_id, @trial_sessions, :id,
                 ->(s) { I18n.l(s.start_time, format: :long) },
                 { prompt: t("course_registrations.form.trial_session_prompt") },
-                class: "block w-full rounded-lg border border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 bg-white text-base sm:text-sm py-3 sm:py-2.5 px-3 min-h-[44px]",
+                class: "field",
                 data: { "trial-check-target": "trialSelect" } %>
         <% else %>
           <div data-trial-check-target="trialEmpty" class="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600">
@@ -162,7 +162,7 @@
           <div>
             <%= form.label :status, "Anmelde-Status", class: "block text-sm font-bold text-gray-700 mb-1" %>
             <%= form.select :status, ["warteliste", "bestätigt", "storniert"], {},
-                  class: "block w-full rounded-lg border border-gray-300 shadow-sm text-base sm:text-sm bg-white focus:ring-primary-500 focus:border-primary-500 py-3 sm:py-2.5 px-3 min-h-[44px]" %>
+                  class: "field" %>
           </div>
           <div class="flex sm:items-end sm:pb-0.5">
             <label class="flex items-center gap-3 cursor-pointer min-h-[44px] py-2 select-none">
@@ -179,7 +179,7 @@
               <%= form.collection_select :trial_session_id, @trial_sessions || [], :id,
                     ->(s) { I18n.l(s.start_time, format: :long) },
                     {},
-                    class: "block w-full rounded-lg border border-gray-300 shadow-sm text-base sm:text-sm bg-white focus:ring-primary-500 focus:border-primary-500 py-3 sm:py-2.5 px-3 min-h-[44px]" %>
+                    class: "field" %>
               <div class="mt-2"><%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants") %></div>
             </div>
           <% end %>
@@ -191,17 +191,17 @@
 
   <div class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 mt-6 pt-5 border-t border-gray-100">
     <%= link_to t("course_registrations.form.cancel"), :back,
-          class: "block w-full sm:w-auto text-center bg-white py-3 sm:py-2 px-5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition min-h-[44px] inline-flex items-center justify-center" %>
+          class: "btn btn-secondary border-slate-200 w-full sm:w-auto min-h-11" %>
     <button type="button"
             data-trial-check-target="trialBtn"
             data-action="click->trial-check#submitTrial"
-            class="hidden w-full sm:w-auto flex-col justify-center items-center py-3 sm:py-2 px-5 shadow-sm text-base sm:text-sm font-bold rounded-lg text-white bg-amber-500 hover:bg-amber-600 transition min-h-[44px]">
+            class="hidden w-full sm:w-auto flex-col justify-center items-center py-3 sm:py-2 px-5 shadow-sm text-base sm:text-sm font-bold rounded-full text-white bg-amber-500 hover:bg-amber-600 transition min-h-[44px]">
       Erstes Training schnuppern
       <span class="text-xs font-normal opacity-80">Kostenlos · Platz bis 5 Tage nach dem Training gesichert</span>
     </button>
     <button type="submit"
             data-trial-check-target="submitBtn"
-            class="cursor-pointer w-full sm:w-auto inline-flex justify-center items-center py-3 sm:py-2 px-5 border border-transparent shadow-sm text-base sm:text-sm font-bold rounded-lg text-white bg-secondary-600 hover:bg-secondary-700 transition min-h-[44px]">
+            class="cursor-pointer w-full sm:w-auto inline-flex justify-center items-center py-3 sm:py-2 px-5 border border-transparent shadow-sm text-base sm:text-sm font-bold rounded-full text-white bg-slate-900 hover:bg-slate-800 transition min-h-[44px]">
       <%= course_registration.new_record? ? t("course_registrations.form.submit_new") : t("course_registrations.form.submit_edit") %>
     </button>
   </div>
