@@ -13,7 +13,10 @@
 #      Kategorie besucht haben. Erst ab MIN_SUPPORT gemeinsamen Kindern.
 #   2. Weiterführung: das Kind war früher schon in der Kategorie.
 #   3. Beliebt im gleichen Alter (±1 Jahr) – trägt Kinder ohne Kurshistorie.
-# Je Kategorie wird der Kurs mit den meisten freien Plätzen gezeigt.
+#   4. Nähe: kleiner Bonus, der bis PROXIMITY_RANGE_KM auf null abfällt. Basis ist die
+#      PLZ des Kindes, sonst die der Eltern. Ohne PLZ oder Kursort zählt sie nicht.
+# Je Kategorie wird der nächstgelegene Kurs gezeigt (auf den Kilometer gerundet),
+# danach entscheiden die freien Plätze.
 class CourseRecommender
   Recommendation = Data.define(:course, :reason, :related_category, :score)
 
@@ -24,6 +27,8 @@ class CourseRecommender
   ACTIVE_STATUSES = (CourseRegistration::OCCUPYING_STATUSES + %w[ausstehend warteliste]).freeze
   CONTINUE_WEIGHT = 0.5
   AGE_POPULARITY_WEIGHT = 0.2
+  PROXIMITY_WEIGHT = 0.1
+  PROXIMITY_RANGE_KM = 20.0
 
   def self.call(...) = new(...).call
 
@@ -51,10 +56,12 @@ class CourseRecommender
         active.include?(course.category_name) || !age_fits?(course, child)
     end
 
+    home = SwissGeo.coordinates(child.zip_code.presence || child.user&.zip_code)
+
     candidates.group_by(&:category_name).filter_map do |category, courses|
       score, reason, related = score(child, category, history)
-      course = courses.max_by { |c| c.spots_remaining || Float::INFINITY }
-      Recommendation.new(course: course, reason: reason, related_category: related, score: score)
+      course = courses.min_by { |c| [ distance_km(c, home)&.round || Float::INFINITY, -(c.spots_remaining || Float::INFINITY) ] }
+      Recommendation.new(course: course, reason: reason, related_category: related, score: score + proximity_bonus(course, home))
     end.sort_by { |rec| [ -rec.score, -(rec.course.spots_remaining || Float::INFINITY), rec.course.title.to_s ] }
       .first(PER_CHILD)
   end
@@ -80,6 +87,15 @@ class CourseRecommender
     end
     related = category if reason == :continue
     [ together + continued + popularity, reason, related ]
+  end
+
+  def distance_km(course, home)
+    SwissGeo.distance_km(home, [ course.latitude, course.longitude ]) if home && course.latitude && course.longitude
+  end
+
+  def proximity_bonus(course, home)
+    distance = distance_km(course, home)
+    distance ? PROXIMITY_WEIGHT * [ 1 - distance / PROXIMITY_RANGE_KM, 0.0 ].max : 0.0
   end
 
   def age_fits?(course, child)

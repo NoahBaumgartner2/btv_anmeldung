@@ -45,6 +45,12 @@ production:
     schedule: "0 16 * * *"
     description: "Erstellt automatisch den nächsten Semester-/Quartal-Kurs, sobald der Vorlauf erreicht ist"
 
+  geocode_courses:
+    class: GeocodeCoursesJob
+    queue: default
+    schedule: every hour at minute 45
+    description: "Füllt fehlende Koordinaten der Kursorte (Nähe in den Kursempfehlungen)"
+
   manual_enrollment_reminder:
     class: ManualEnrollmentReminderJob
     queue: default
