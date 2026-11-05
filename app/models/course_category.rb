@@ -7,10 +7,4 @@ class CourseCategory < ApplicationRecord
   has_one_attached :image
 
   validates :name, presence: true, uniqueness: true
-
-  def image_url
-    return nil unless image.attached?
-
-    Rails.application.routes.url_helpers.rails_storage_proxy_path(image, only_path: true)
-  end
 end
