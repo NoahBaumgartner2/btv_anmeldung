@@ -277,7 +277,7 @@
       </div>
       <% if @export_profiles.any? %>
         <details class="relative shrink-0 group">
-          <summary class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold py-2.5 px-4 rounded-lg shadow-sm text-sm transition cursor-pointer list-none select-none min-h-11">
+          <summary class="inline-flex items-center gap-2 bg-teal-600 hover:bg-teal-700 active:bg-teal-800 text-white font-bold py-2.5 px-4 rounded-full shadow-sm text-sm transition cursor-pointer list-none select-none min-h-11">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
             </svg>
@@ -315,7 +315,7 @@
         </details>
       <% else %>
         <%= link_to admin_export_profiles_path,
-              class: "shrink-0 inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-500 hover:text-gray-700 py-2.5 px-4 rounded-lg font-medium border border-gray-200 text-sm transition min-h-11" do %>
+              class: "shrink-0 inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-500 hover:text-gray-700 py-2.5 px-4 rounded-full font-medium border border-gray-200 text-sm transition min-h-11" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
           </svg>
@@ -358,7 +358,7 @@
                 </div>
                 <p class="text-xs text-gray-400 mb-3 truncate"><%= participant.user.email %></p>
                 <%= link_to t("dashboards.admin.search.view_profile"), participant_path(participant),
-                      class: "block w-full text-center text-primary-600 font-bold bg-primary-50 active:bg-primary-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
+                      class: "block w-full text-center text-slate-900 font-bold bg-white border border-slate-200 active:bg-slate-100 px-3 py-2.5 rounded-full text-sm min-h-11 leading-6 transition" %>
               </div>
             <% end %>
           </div>
@@ -387,7 +387,7 @@
                   </td>
                   <td class="py-3.5 px-4 text-right">
                     <%= link_to t("dashboards.admin.search.view_profile"), participant_path(participant),
-                          class: "text-primary-600 font-bold hover:text-primary-800 bg-primary-50 px-3 py-1.5 rounded-md text-sm" %>
+                          class: "text-slate-900 font-bold hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-full text-sm" %>
                   </td>
                 </tr>
               <% end %>
@@ -443,7 +443,7 @@
             </div>
             <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course),
                   data: { turbo_frame: "_top" },
-                  class: "block w-full text-center text-red-600 font-bold bg-red-50 active:bg-red-100 px-3 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
+                  class: "block w-full text-center text-red-600 font-bold bg-red-50 active:bg-red-100 px-3 py-2.5 rounded-full text-sm min-h-11 leading-6 transition" %>
           </div>
         <% end %>
         <% if @courses.empty? %>
@@ -470,7 +470,7 @@
               <td class="py-4 px-4 text-sm text-gray-500"><%= course.term&.name || "–" %></td>
               <td class="py-4 px-4 text-sm font-medium text-primary-600"><%= course.occupied_spots %> <%= t("dashboards.admin.table.participants") %></td>
               <td class="py-4 px-4 text-right">
-                <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course), data: { turbo_frame: "_top" }, class: "text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
+                <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course), data: { turbo_frame: "_top" }, class: "text-slate-900 font-bold bg-white border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-full text-sm" %>
               </td>
             </tr>
           <% end %>
@@ -524,7 +524,7 @@
                   </div>
                   <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course),
                         data: { turbo_frame: "_top" },
-                        class: "shrink-0 text-red-600 font-bold hover:text-red-800 bg-red-50 px-3 py-1.5 rounded-md text-sm" %>
+                        class: "shrink-0 text-slate-900 font-bold bg-white border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-full text-sm" %>
                 </li>
               <% end %>
             </ul>

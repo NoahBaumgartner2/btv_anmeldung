@@ -1313,7 +1313,7 @@ fr:
       back: "← Retour à la gestion du cours"
     edit:
       title: "Modifier l'entraînement"
-      back: "← Retour à la liste"
+      back: "← Retour à l’entraînement"
 
   holidays:
     index:

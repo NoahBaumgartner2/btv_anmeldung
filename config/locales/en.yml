@@ -1320,7 +1320,7 @@ en:
       back: "← Back to Management"
     edit:
       title: "Edit training"
-      back: "← Back to overview"
+      back: "← Back to training"
 
   holidays:
     index:

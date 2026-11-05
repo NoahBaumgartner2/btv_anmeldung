@@ -1390,7 +1390,7 @@ de:
       back: "← Zurück zur Kursverwaltung"
     edit:
       title: "Training bearbeiten"
-      back: "← Zurück zur Übersicht"
+      back: "← Zurück zum Training"
 
   holiday_types:
     index:

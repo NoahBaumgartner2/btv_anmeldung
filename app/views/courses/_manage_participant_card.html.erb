@@ -69,7 +69,7 @@
                   <%= button_to t("courses.manage.use_abo_entry"), use_abo_entry_course_registration_path(reg),
                         method: :post,
                         disabled: reg.abo_exhausted?,
-                        class: "text-xs bg-white active:bg-primary-50 text-primary-700 font-semibold border border-primary-200 px-2.5 py-1.5 rounded-lg transition cursor-pointer min-h-[36px] flex items-center disabled:opacity-40 disabled:cursor-not-allowed",
+                        class: "text-xs bg-white active:bg-primary-50 text-primary-700 font-semibold border border-primary-200 px-2.5 py-1.5 rounded-full transition cursor-pointer min-h-[36px] flex items-center disabled:opacity-40 disabled:cursor-not-allowed",
                         data: { turbo_confirm: t("courses.manage.use_abo_entry_confirm", name: p.first_name) } %>
                 </div>
                 <% if current_user.admin? || @course.trainers.exists?(user_id: current_user.id) %>
@@ -79,7 +79,7 @@
                           aria: { label: t("courses.manage.abo_remaining_input") },
                           class: "w-16 text-xs border border-slate-900/15 rounded-xl px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-slate-900/20" %>
                     <button type="submit"
-                            class="text-xs bg-white active:bg-gray-100 text-gray-700 font-semibold border border-gray-300 px-2.5 py-1.5 rounded-lg transition cursor-pointer min-h-[36px] flex items-center">
+                            class="text-xs bg-white active:bg-gray-100 text-gray-700 font-semibold border border-slate-200 px-2.5 py-1.5 rounded-full transition cursor-pointer min-h-[36px] flex items-center">
                       <%= t("courses.manage.abo_save") %>
                     </button>
                   <% end %>
@@ -93,7 +93,7 @@
               <div data-controller="modal" class="flex-1">
                 <button type="button"
                         data-action="click->modal#open"
-                        class="w-full text-center text-gray-600 font-bold bg-gray-100 active:bg-gray-200 py-2.5 px-3 rounded-lg text-sm transition cursor-pointer min-h-11">
+                        class="w-full text-center text-gray-600 font-bold bg-gray-100 active:bg-gray-200 py-2.5 px-3 rounded-full text-sm transition cursor-pointer min-h-11">
                   <%= t("courses.manage.details") %>
                 </button>
 
@@ -258,7 +258,7 @@
                         </button>
                         <button type="button"
                                 data-action="click->modal#close"
-                                class="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
+                                class="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-full text-sm transition min-h-11">
                           <%= t("courses.manage.send_email_cancel") %>
                         </button>
                       </div>
@@ -282,7 +282,7 @@
                               class: "w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 mb-2 focus:ring-primary-500 focus:border-primary-500 resize-none" %>
                       <% end %>
                       <%= f.submit reg.talent_flag? ? "Markierung entfernen" : "Als Talent markieren",
-                            class: "w-full text-xs font-bold py-1.5 px-3 rounded-lg cursor-pointer " + (reg.talent_flag? ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-amber-50 text-amber-700 hover:bg-amber-100") %>
+                            class: "w-full text-xs font-bold py-1.5 px-3 rounded-full cursor-pointer " + (reg.talent_flag? ? "bg-red-50 text-red-600 hover:bg-red-100" : "bg-amber-50 text-amber-700 hover:bg-amber-100") %>
                     <% end %>
                   </div>
                 </details>
@@ -334,7 +334,7 @@
                           </button>
                           <button type="button"
                                   data-action="click->modal#close"
-                                  class="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
+                                  class="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-full text-sm transition min-h-11">
                             <%= t("courses.manage.cancel") %>
                           </button>
                         </div>

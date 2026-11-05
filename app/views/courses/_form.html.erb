@@ -224,8 +224,8 @@
               <label class="cursor-pointer">
                 <input type="checkbox" name="weekdays[]" value="<%= value %>" class="sr-only peer" id="new_weekday_<%= value %>">
                 <span class="peer-checked:bg-primary-600 peer-checked:text-white peer-checked:border-primary-600
-                             block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-primary-300
-                             font-bold px-4 py-2.5 rounded-xl text-sm transition select-none w-14 text-center">
+ block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-primary-300
+ font-bold px-4 py-2.5 rounded-full text-sm transition select-none w-14 text-center">
                   <%= label %>
                 </span>
               </label>
@@ -245,8 +245,8 @@
                   <input type="checkbox" name="course[holiday_type_ids][]" value="<%= type.id %>"
                          <%= "checked" if course.new_record? || course.holiday_type_ids.include?(type.id) %> class="sr-only peer">
                   <span class="peer-checked:bg-primary-600 peer-checked:text-white peer-checked:border-primary-600
-                               block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-primary-300
-                               font-semibold px-4 py-2 rounded-xl text-sm transition select-none">
+ block border-2 border-gray-200 bg-gray-50 text-gray-700 hover:border-primary-300
+ font-semibold px-4 py-2 rounded-full text-sm transition select-none">
                     <%= type.name %>
                   </span>
                 </label>
@@ -669,6 +669,6 @@
     <%= form.submit course.new_record? ? t("courses.form.submit_create") : t("courses.form.submit_update"),
           class: "w-full sm:w-auto cursor-pointer bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-6 rounded-full shadow-sm text-sm transition min-h-11" %>
     <%= link_to t("courses.form.cancel"), course.new_record? ? courses_path : manage_course_path(course),
-          class: "w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-xl text-sm transition min-h-11 flex items-center justify-center" %>
+          class: "w-full sm:w-auto text-center bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-full text-sm transition min-h-11 flex items-center justify-center" %>
   </div>
 <% end %>

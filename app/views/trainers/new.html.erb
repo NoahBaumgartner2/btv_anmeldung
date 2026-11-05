@@ -53,7 +53,7 @@
         <%= f.submit t("trainers.new.submit"),
               class: "w-full sm:w-auto rounded-full px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
         <%= link_to t("trainers.new.cancel"), trainers_path,
-              class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
+              class: "w-full sm:w-auto text-center rounded-full px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
       </div>
     <% end %>
 
@@ -136,7 +136,7 @@
           <%= f.submit t("trainers.new.submit"),
                 class: "w-full sm:w-auto rounded-full px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
           <%= link_to t("trainers.new.cancel"), trainers_path,
-                class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
+                class: "w-full sm:w-auto text-center rounded-full px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
         </div>
       <% end %>
 
@@ -180,7 +180,7 @@
                     <% end %>
                   </div>
                   <%= link_to "Auswählen", new_trainer_path(user_id: user.id, q: params[:q]),
-                        class: "shrink-0 text-xs font-bold bg-primary-50 hover:bg-primary-100 text-primary-700 px-3 py-1.5 rounded-lg transition ml-3" %>
+                        class: "shrink-0 text-xs font-bold bg-white border border-slate-200 hover:bg-white border border-slate-200 text-slate-900 px-3 py-1.5 rounded-full transition ml-3" %>
                 </li>
               <% end %>
             </ul>

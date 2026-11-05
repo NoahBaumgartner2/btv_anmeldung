@@ -8,8 +8,9 @@
       </span>
     </div>
     <div class="flex flex-wrap gap-2">
-      <%= link_to t("participants.show.back"), participants_path, class: "bg-white py-2 px-4 border border-slate-200 rounded-full shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition min-h-11 inline-flex items-center" %>
-      <%= link_to t("participants.show.edit"), edit_participant_path(@participant), class: "bg-orange-100 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-orange-700 hover:bg-orange-200 active:bg-orange-300 transition min-h-11 inline-flex items-center" %>
+      <%= link_to t("participants.show.back"),
+            (@participant.user_id == current_user.id ? participants_path : (current_user.admin? ? dashboards_admin_path : dashboards_trainer_path)), class: "bg-white py-2 px-4 border border-slate-200 rounded-full shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 active:bg-gray-100 transition min-h-11 inline-flex items-center" %>
+      <%= link_to t("participants.show.edit"), edit_participant_path(@participant), class: "bg-white border border-slate-200 py-2 px-4 border shadow-sm text-sm font-medium rounded-full text-slate-900 hover:bg-slate-50 active:bg-slate-100 transition min-h-11 inline-flex items-center" %>
       <%= button_to t("participants.show.delete"), @participant, method: :delete, data: { turbo_confirm: t("participants.show.delete_confirm") }, class: "cursor-pointer bg-red-600 py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-full text-white hover:bg-red-700 active:bg-red-800 transition min-h-11" %>
     </div>
   </div>

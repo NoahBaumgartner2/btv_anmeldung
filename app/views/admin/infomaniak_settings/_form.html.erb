@@ -27,10 +27,10 @@
               id: "toggle_active_infomaniak",
               class: "sr-only peer" %>
         <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300
-                    rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white
-                    after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
-                    after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5
-                    after:transition-all peer-checked:bg-primary-600"></div>
+ rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white
+ after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white
+ after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5
+ after:transition-all peer-checked:bg-primary-600"></div>
       </label>
     </div>
   </div>
@@ -116,7 +116,7 @@
   </p>
   <%= form_with url: test_connection_admin_infomaniak_setting_path, method: :post, class: "flex gap-2" do |f| %>
     <%= f.submit t('admin.infomaniak_settings.show.test_btn'),
-          class: "bg-gray-800 hover:bg-gray-900 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition cursor-pointer shadow-sm #{"opacity-50 cursor-not-allowed" unless infomaniak_configured}",
+          class: "bg-gray-800 hover:bg-gray-900 text-white font-bold py-2.5 px-5 rounded-full text-sm transition cursor-pointer shadow-sm #{"opacity-50 cursor-not-allowed" unless infomaniak_configured}",
           disabled: !infomaniak_configured %>
   <% end %>
   <% unless infomaniak_configured %>

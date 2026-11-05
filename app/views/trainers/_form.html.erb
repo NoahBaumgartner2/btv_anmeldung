@@ -15,7 +15,7 @@
 
     <div class="mb-5">
       <p class="text-sm font-semibold text-gray-700 mb-1">Benutzerkonto</p>
-      <p class="text-sm font-medium text-gray-900 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2.5">
+      <p class="text-sm font-medium text-gray-900 bg-gray-50 border border-gray-200 rounded-full px-3 py-2.5">
         <%= trainer.user.email %>
       </p>
     </div>
@@ -39,6 +39,6 @@
     <%= form.submit "Änderungen speichern",
           class: "w-full sm:w-auto rounded-full px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold cursor-pointer transition shadow-sm" %>
     <%= link_to "Abbrechen", trainers_path,
-          class: "w-full sm:w-auto text-center rounded-lg px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
+          class: "w-full sm:w-auto text-center rounded-full px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium transition" %>
   </div>
 <% end %>

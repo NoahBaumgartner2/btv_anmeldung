@@ -25,14 +25,14 @@
         <button data-action="click->abo-weekday-filter#select"
                 data-weekday="all"
                 data-abo-weekday-filter-target="button"
-                class="px-4 py-2 rounded-xl text-sm font-bold border border-gray-200 transition cursor-pointer bg-slate-900 text-white">
+                class="px-4 py-2 rounded-full text-sm font-bold border border-gray-200 transition cursor-pointer bg-slate-900 text-white">
           <%= t("course_registrations.abo_sessions.filter_all") %>
         </button>
         <% @available_weekdays.each do |wday| %>
           <button data-action="click->abo-weekday-filter#select"
                   data-weekday="<%= wday %>"
                   data-abo-weekday-filter-target="button"
-                  class="px-4 py-2 rounded-xl text-sm font-bold border border-gray-200 transition cursor-pointer bg-white text-gray-700 hover:bg-gray-50">
+                  class="px-4 py-2 rounded-full text-sm font-bold border border-gray-200 transition cursor-pointer bg-white text-gray-700 hover:bg-gray-50">
             <%= t("date.day_names")[wday] %>
           </button>
         <% end %>
@@ -98,7 +98,7 @@
                   <% has_waitlist = session.course.enable_waitlist? %>
 
                   <% if is_full && !has_waitlist %>
-                    <span class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold bg-gray-100 text-gray-400 min-h-11">
+                    <span class="inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-bold bg-gray-100 text-gray-400 min-h-11">
                       <%= t("course_registrations.abo_sessions.full") %>
                     </span>
                   <% elsif is_full %>
@@ -124,7 +124,7 @@
       <%# Mehr anzeigen %>
       <div data-abo-weekday-filter-target="loadMore" class="text-center hidden">
         <button data-action="click->abo-weekday-filter#loadMore"
-                class="px-6 py-2.5 rounded-xl text-sm font-bold border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition cursor-pointer">
+                class="px-6 py-2.5 rounded-full text-sm font-bold border border-slate-200 bg-white text-gray-700 hover:bg-gray-50 transition cursor-pointer">
           <%= t("course_registrations.abo_sessions.show_more") %>
         </button>
       </div>

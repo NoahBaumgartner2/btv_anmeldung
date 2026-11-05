@@ -55,7 +55,7 @@
         <div class="mb-3">
           <label class="block text-xs font-bold text-gray-600 mb-1"><%= t('newsletter_subscribers.index.import_label') %></label>
           <input type="file" name="csv_file" accept=".csv,text/csv"
-                 class="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer">
+                 class="block w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 cursor-pointer">
         </div>
         <button type="submit"
                 class="cursor-pointer w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-2.5 rounded-full transition">
@@ -104,7 +104,7 @@
           </button>
           <% if params[:q].present? %>
             <%= link_to t('newsletter_subscribers.index.search_reset'), newsletter_subscribers_path,
-                  class: "bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm px-4 py-2 rounded-lg transition" %>
+                  class: "bg-gray-100 hover:bg-gray-200 text-gray-600 font-bold text-sm px-4 py-2 rounded-full transition" %>
           <% end %>
         </div>
       <% end %>
@@ -160,12 +160,12 @@
                       <%= button_to sub.subscribed? ? t('newsletter_subscribers.index.toggle_unsubscribe') : t('newsletter_subscribers.index.toggle_subscribe'),
                             newsletter_subscriber_path(sub),
                             method: :patch,
-                            class: "text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer #{sub.subscribed? ? 'bg-gray-100 hover:bg-gray-200 text-gray-600' : 'bg-green-100 hover:bg-green-200 text-green-700'}" %>
+                            class: "text-xs font-bold px-3 py-1.5 rounded-full transition cursor-pointer #{sub.subscribed? ? 'bg-gray-100 hover:bg-gray-200 text-gray-600' : 'bg-green-100 hover:bg-green-200 text-green-700'}" %>
                       <%= button_to t('newsletter_subscribers.index.delete_btn'),
                             newsletter_subscriber_path(sub),
                             method: :delete,
                             data: { turbo_confirm: t('newsletter_subscribers.index.delete_confirm', email: sub.email) },
-                            class: "text-xs font-bold px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 transition cursor-pointer" %>
+                            class: "text-xs font-bold px-3 py-1.5 rounded-full bg-red-50 hover:bg-red-100 text-red-600 transition cursor-pointer" %>
                     </div>
                   </td>
                 </tr>
