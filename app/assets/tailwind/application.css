@@ -11,6 +11,8 @@
 :root {
   --color-primary:   #dc2626;
   --color-secondary: #1d4ed8;
+  --color-on-primary: #ffffff;
+  --color-on-secondary: #ffffff;
 }
 
 /* ── Vereinsfarben als Tailwind-Utilities ───────────────────────────────────
@@ -73,11 +75,13 @@
 .app-bg { position: relative; isolation: isolate; color: var(--ink); }
 .app-bg::before {
   content: ""; position: fixed; inset: 0; z-index: -1;
-  background-color: color-mix(in oklch, var(--color-secondary) 45%, #0b1424);
+  /* Nur Vereinsfarben auf neutral-dunkler Basis. Gemischt in oklab (gerade Linie
+     zwischen zwei Farben): oklch würde z.B. Gelb→Blau über Grün interpolieren. */
+  background-color: color-mix(in oklab, var(--color-primary) 18%, #0c0a0a);
   background-image:
-    radial-gradient(55rem 38rem at 0% 0%, color-mix(in oklch, var(--color-secondary) 75%, #a5f3fc), transparent 70%),
-    radial-gradient(45rem 35rem at 100% 15%, color-mix(in oklch, var(--color-primary) 55%, transparent), transparent 70%),
-    radial-gradient(60rem 45rem at 40% 110%, color-mix(in oklch, var(--color-secondary) 55%, #22d3ee), transparent 70%);
+    radial-gradient(60rem 40rem at 10% -5%, color-mix(in oklab, var(--color-primary) 70%, transparent), transparent 70%),
+    radial-gradient(50rem 38rem at 100% 105%, color-mix(in oklab, color-mix(in oklab, var(--color-secondary) 75%, var(--color-primary)) 80%, transparent), transparent 70%),
+    radial-gradient(40rem 30rem at 85% 10%, color-mix(in oklab, var(--color-primary) 35%, transparent), transparent 70%);
 }
 
 @layer components {
@@ -101,8 +105,8 @@
   }
   .nav-item:hover { background: rgb(255 255 255 / 0.55); color: var(--ink); }
   .nav-item[aria-current="page"] {
-    background: color-mix(in oklch, var(--color-secondary) 80%, #0ea5e9);
-    color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 6px 16px -8px rgb(2 6 23 / 0.6);
+    background: var(--color-primary);
+    color: var(--color-on-primary); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 6px 16px -8px rgb(2 6 23 / 0.6);
   }
   .nav-group {
     padding: 1rem 0.75rem 0.375rem; font-size: 0.6875rem; font-weight: 600;
@@ -146,7 +150,7 @@
   }
   .chip:hover { background: #fff; }
   .chip:active { transform: scale(0.94); }
-  .chip[aria-pressed="true"] { background: #0f172a; color: #fff; border-color: #0f172a; }
+  .chip[aria-pressed="true"] { background: var(--color-secondary); color: var(--color-on-secondary); border-color: color-mix(in oklab, var(--color-secondary) 80%, #000); }
 }
 
 /* Ohne Blur-Unterstützung oder bei Wunsch nach weniger Transparenz: deckend. */
@@ -185,9 +189,28 @@
 @starting-style { .sheet:popover-open { transform: translateY(110%); opacity: 0; } }
 .sheet::backdrop { background: rgb(2 6 23 / 0.35); }
 
+/* Kategorie-Overlay der Kursübersicht (natives <dialog>, Top Layer):
+   Desktop zentriert, Handy als Sheet von unten. */
+.course-dialog {
+  width: min(56rem, calc(100% - 1.5rem)); max-width: none; max-height: min(88dvh, 60rem);
+  margin: auto; padding: 0; border: 0; border-radius: 1.75rem; overflow: auto; overscroll-behavior: contain;
+  background: #f1f5f9; color: var(--ink); box-shadow: 0 30px 80px -20px rgb(2 6 23 / 0.6);
+  opacity: 0; transform: translateY(12px) scale(0.98);
+  transition: opacity 200ms var(--ease-exit), transform 200ms var(--ease-exit),
+              overlay 200ms allow-discrete, display 200ms allow-discrete;
+}
+.course-dialog[open] { opacity: 1; transform: none; transition-duration: 420ms; transition-timing-function: var(--ease-entrance); }
+@starting-style { .course-dialog[open] { opacity: 0; transform: translateY(12px) scale(0.98); } }
+.course-dialog::backdrop { background: rgb(2 6 23 / 0.55); backdrop-filter: blur(4px); }
+@media (max-width: 639px) {
+  .course-dialog { width: 100%; max-height: 92dvh; margin: auto 0 0; border-radius: 1.75rem 1.75rem 0 0; transform: translateY(100%); }
+  @starting-style { .course-dialog[open] { transform: translateY(100%); } }
+}
+body:has(.course-dialog[open]) { overflow: hidden; }
+
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-old(root), ::view-transition-new(root), .flash-toast { animation: none; }
-  .sheet, .btn, .chip { transition: none; }
+  .sheet, .btn, .chip, .course-dialog { transition: none; }
 }
 
 /* Zeitraum-Auswahl (date_range_controller): runde Tage, zwei Monate, viel Luft. */

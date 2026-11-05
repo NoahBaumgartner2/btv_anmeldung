@@ -1,9 +1,25 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Kursübersicht: filtert die Karten nach Wochentag und Ort. Innerhalb einer
-// Gruppe gilt ODER (Mo oder Mi), zwischen den Gruppen UND (Mo und Halle X).
+// Kursübersicht: Kategorie-Kacheln öffnen ein <dialog> mit allen Kursen.
+// Der Filter blendet Kurse nach Wochentag/Ort aus (innerhalb einer Gruppe ODER,
+// zwischen den Gruppen UND) und Kacheln ohne Treffer ganz.
 export default class extends Controller {
   static targets = ["card", "group", "chip", "empty", "status", "count"]
+
+  // Link von der Startseite (/courses#kategorie) öffnet das Overlay direkt.
+  connect() {
+    const id = decodeURIComponent(window.location.hash.slice(1))
+    if (id) document.getElementById(id)?.querySelector("dialog")?.showModal()
+  }
+
+  open({ params: { dialog } }) {
+    document.getElementById(dialog).showModal()
+  }
+
+  // Klick auf den Hintergrund (das <dialog> selbst, nicht sein Inhalt) schliesst.
+  backdropClose(event) {
+    if (event.target === event.currentTarget) event.currentTarget.close()
+  }
 
   toggle(event) {
     const chip = event.currentTarget
@@ -31,7 +47,10 @@ export default class extends Controller {
       if (!card.hidden) visible++
     })
     this.groupTargets.forEach((group) => {
-      group.hidden = !this.cardTargets.some((card) => !card.hidden && group.contains(card))
+      const count = this.cardTargets.filter((card) => !card.hidden && group.contains(card)).length
+      group.hidden = count === 0
+      const badge = group.querySelector("[data-group-count]")
+      if (badge) badge.textContent = (count === 1 ? badge.dataset.one : badge.dataset.other).replace("%{count}", count)
     })
 
     const active = days.length + locations.length > 0

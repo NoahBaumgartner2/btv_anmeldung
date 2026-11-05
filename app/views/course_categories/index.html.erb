@@ -39,7 +39,6 @@
             <p class="font-bold text-gray-900 truncate"><%= cat[:name] %></p>
             <p class="text-xs text-gray-500">
               <%= t("course_categories.index.summary", courses: cat[:course_count], recipients: cat[:recipient_count]) %>
-              · <%= t("course_categories.index.own_photos", count: cat[:own_photos], total: cat[:course_count]) %>
             </p>
           </div>
           <div class="mt-auto flex items-center justify-between gap-3">

@@ -13,11 +13,7 @@ en:
       body_label: "Message"
       submit: "Send email"
       cancel: "Cancel"
-      intro: "A category image is shown for every course in that category that has no course photo of its own. Upload a photo for a single course in the course form under “Name & category”."
-      own_photos:
-        zero: "no course with its own photo"
-        one: "%{count} of %{total} courses with own photo"
-        other: "%{count} of %{total} courses with own photo"
+      intro: "A category image is shown on the category tile in the course overview and at the top of every course page in that category."
       add_image: "Add image"
       change_image: "Change image"
       remove_image: "Remove image"
@@ -265,6 +261,12 @@ en:
     training_value_label: "Value per training"
     training_value_hint: "For automatic refunds (CHF per training)"
     index:
+      tile:
+        count:
+          one: "%{count} course"
+          other: "%{count} courses"
+        open: "View courses"
+        close: "Close"
       filter:
         count: "%{visible} of %{total} courses"
         weekday: "Filter by weekday"

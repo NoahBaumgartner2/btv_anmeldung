@@ -8,9 +8,9 @@ Stat-Karten mit Icon, Segment-Tabs, sanfter Blur-Übergang beim Seitenwechsel.
 
 | Thema | Entscheid |
 |---|---|
-| Kursfoto | Eigenes Foto pro Kurs. Fallback: Kategorie-Bild → Farbverlauf |
-| Kursseite | Foto-Karten-Grid pro Kategorie, ganze Karte klickbar → Kursseite/Anmeldung |
-| Farben | Verlauf und Akzente aus den ClubSetting-Farben (Admin-Einstellung bleibt wirksam) |
+| Bild | Ein Bild pro Kategorie (05.11. geändert, vorher pro Kurs). Fallback: Farbverlauf |
+| Kursübersicht | Kategorie-Kacheln mit Bild; Klick öffnet Overlay mit allen Kursen der Kategorie (ohne Bild) |
+| Farben | Verlauf nur aus den zwei Vereinsfarben (oklab, kein Grünstich); Primärfarbe = aktives Menü, Sekundärfarbe = Akzent (Filter, Handy-Tab), Schriftfarbe darauf automatisch |
 | Navigation | Desktop: Glas-Sidebar für alle Rollen. Handy: Glas-Tab-Leiste unten + „Mehr“-Drawer |
 | Rollout | Phase für Phase auf `design` pushen → design.btvbern-anmeldung.ch |
 

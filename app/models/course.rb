@@ -21,18 +21,9 @@ class Course < ApplicationRecord
   has_many :permitted_users, through: :course_access_grants, source: :user
   has_many :age_exemptions, dependent: :destroy
 
-  # Kursfoto für die Karten auf der Kursübersicht. Fehlt es, greift das Bild der
-  # Kategorie (CourseCategory). Der Rollover teilt den Blob mit dem Nachfolge-
-  # Kurs; der FK auf active_storage_attachments verhindert, dass ein Purge des
-  # alten Kurses die Datei des neuen löscht.
-  PHOTO_TYPES = %w[image/jpeg image/png image/webp].freeze
-  PHOTO_MAX_SIZE = 10.megabytes
+  # Bild für Kurskacheln und Kursseite: kommt von der Kategorie (CourseCategory),
+  # ein Bild pro Kategorie statt pro Kurs.
   CARD_VARIANT = { resize_to_fill: [ 800, 500 ], format: :webp }.freeze
-
-  has_one_attached :photo
-  attr_accessor :remove_photo
-  validate :photo_must_be_image
-  after_save { photo.purge_later if remove_photo == "1" && !attachment_changes.key?("photo") && photo.attached? }
 
   # Gleiche Gruppierung wie Kursübersicht und Kurskategorien.
   def category_name
@@ -41,7 +32,6 @@ class Course < ApplicationRecord
 
   # category: vorgeladener CourseCategory-Datensatz (vermeidet N+1 in Listen).
   def card_image(category = CourseCategory.find_by(name: category_name))
-    return photo.variant(CARD_VARIANT) if photo.attached?
     category.image.variant(CARD_VARIANT) if category&.image&.attached?
   end
 
@@ -524,13 +514,6 @@ class Course < ApplicationRecord
   def clear_rollover_fields_without_term
     return if term_id.present?
     self.auto_rollover = false
-  end
-
-  def photo_must_be_image
-    return unless attachment_changes.key?("photo") && photo.attached?
-
-    errors.add(:photo, "muss ein JPG-, PNG- oder WebP-Bild sein") unless PHOTO_TYPES.include?(photo.blob.content_type)
-    errors.add(:photo, "darf höchstens 10 MB gross sein") if photo.blob.byte_size > PHOTO_MAX_SIZE
   end
 
   def max_age_must_be_greater_than_or_equal_to_min_age

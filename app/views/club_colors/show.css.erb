@@ -1,4 +1,6 @@
 :root {
   --color-primary: <%= @club_setting.effective_primary_color %>;
   --color-secondary: <%= @club_setting.effective_secondary_color %>;
+  --color-on-primary: <%= @club_setting.text_color_on(@club_setting.effective_primary_color) %>;
+  --color-on-secondary: <%= @club_setting.text_color_on(@club_setting.effective_secondary_color) %>;
 }

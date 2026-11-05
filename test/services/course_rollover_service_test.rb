@@ -183,15 +183,4 @@ class CourseRolloverServiceTest < ActiveSupport::TestCase
       end
     end
   end
-  test "roll_over! übernimmt das Kursfoto; Löschen beim alten Kurs lässt das neue intakt" do
-    course = make_course
-    course.photo.attach(io: file_fixture("test_image.png").open, filename: "kurs.png", content_type: "image/png")
-
-    new_course = travel_to(ROLLOVER_DUE_DATE) { CourseRolloverService.roll_over!(course) }
-    assert_equal course.photo.blob, new_course.photo.blob
-
-    perform_enqueued_jobs { course.photo.purge_later }
-    assert new_course.reload.photo.attached?
-    assert ActiveStorage::Blob.exists?(new_course.photo.blob.id)
-  end
 end

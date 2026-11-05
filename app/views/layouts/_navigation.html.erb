@@ -67,7 +67,7 @@
       <li>
         <%= link_to l[:path], class: "#{tab_class} #{active ? "text-slate-900" : "text-slate-600"}",
               aria: { current: ("page" if active) } do %>
-          <span class="px-3 py-1 rounded-full <%= "bg-white shadow-sm" if active %>"><%= nav_icon(l[:key]) %></span>
+          <span class="px-3 py-1 rounded-full <%= "bg-[var(--color-secondary)] text-[var(--color-on-secondary)] shadow-sm" if active %>"><%= nav_icon(l[:key]) %></span>
           <span class="truncate max-w-full px-1"><%= t("nav.#{l[:key]}") %></span>
         <% end %>
       </li>

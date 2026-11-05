@@ -7,7 +7,7 @@ class CourseCategoriesController < ApplicationController
   before_action :authorize_admin!
 
   def index
-    courses = Course.where(deactivated_at: nil).includes(:course_registrations).with_attached_photo
+    courses = Course.where(deactivated_at: nil).includes(:course_registrations)
     grouped = courses.group_by { |c| c.category.presence || c.title.split("(").first.strip }
 
     @categories = grouped.map do |name, courses_in_category|
@@ -20,8 +20,7 @@ class CourseCategoriesController < ApplicationController
       # Bild-Anhängen hat, ohne dass die Kategorien-Verwaltung dupliziert werden muss.
       record = CourseCategory.find_or_create_by!(name: name)
 
-      { name: name, course_count: courses_in_category.size, recipient_count: recipient_count, record: record,
-        own_photos: courses_in_category.count { |c| c.photo.attached? } }
+      { name: name, course_count: courses_in_category.size, recipient_count: recipient_count, record: record }
     end.sort_by { |c| c[:name] }
   end
 

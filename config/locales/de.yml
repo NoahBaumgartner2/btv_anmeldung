@@ -13,11 +13,7 @@ de:
       body_label: "Nachricht"
       submit: "E-Mail senden"
       cancel: "Abbrechen"
-      intro: "Das Bild einer Kategorie erscheint bei allen Kursen dieser Kategorie, die kein eigenes Kursfoto haben. Ein eigenes Foto pro Kurs lädst du im Kursformular unter „Benennung & Kategorie“ hoch."
-      own_photos:
-        zero: "kein Kurs mit eigenem Foto"
-        one: "%{count} von %{total} Kursen mit eigenem Foto"
-        other: "%{count} von %{total} Kursen mit eigenem Foto"
+      intro: "Das Bild einer Kategorie erscheint auf der Kurs-Kachel in der Kursübersicht und oben auf jeder Kursseite dieser Kategorie."
       add_image: "Bild hinzufügen"
       change_image: "Bild ändern"
       remove_image: "Bild entfernen"
@@ -306,6 +302,12 @@ de:
     training_value_label: "Wert pro Training"
     training_value_hint: "Für automatische Rückerstattungen (CHF pro Training)"
     index:
+      tile:
+        count:
+          one: "%{count} Kurs"
+          other: "%{count} Kurse"
+        open: "Kurse ansehen"
+        close: "Schliessen"
       filter:
         count: "%{visible} von %{total} Kursen"
         weekday: "Nach Wochentag filtern"

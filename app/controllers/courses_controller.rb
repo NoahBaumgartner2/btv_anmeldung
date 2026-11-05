@@ -10,7 +10,7 @@ class CoursesController < ApplicationController
     today = Date.current
     not_ended = ->(c) { !c.deactivated? && (c.end_date.blank? || c.end_date >= today) }
 
-    all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users, :training_sessions).with_attached_photo
+    all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users, :training_sessions)
     @restricted_courses = if current_user&.admin?
       all_restricted.select(&not_ended)
     elsif current_user
@@ -20,7 +20,7 @@ class CoursesController < ApplicationController
     end
     @restricted_courses = @restricted_courses.sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
 
-    public_scope = Course.where(restricted: false).includes(:course_registrations, :training_sessions).with_attached_photo
+    public_scope = Course.where(restricted: false).includes(:course_registrations, :training_sessions)
     @public_courses = if current_user&.admin?
       public_scope.select(&not_ended)
     else
@@ -596,7 +596,7 @@ class CoursesController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def course_params
-      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :term_id, :public_registration_days, :auto_rollover, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :grants_abo_makeup_entry, :allows_trainer_self_enroll, :restricted, :allows_talent_marking, :allows_late_registration_deduction, :notify_admin_on_participant_profile_change, :email_note, :photo, :remove_photo, trainer_ids: [], payment_methods: [], holiday_type_ids: [])
+      params.require(:course).permit(:title, :category, :description, :start_date, :end_date, :term_id, :public_registration_days, :auto_rollover, :location, :location_address, :has_payment, :price_chf, :training_value_chf, :discounts_enabled, :sibling_price_chf, :second_course_price_chf, :youth_price_chf, :youth_max_age, :has_ticketing, :is_js_training, :registration_mode, :abo_size, :max_participants, :min_age, :max_age, :requires_ahv_number, :requires_js_person_number, :requires_nationality, :requires_mother_tongue, :requires_zip_code, :requires_city, :requires_country, :requires_street, :default_start_hour, :default_start_minute, :default_end_hour, :default_end_minute, :allows_trial, :enable_waitlist, :grants_abo_makeup_entry, :allows_trainer_self_enroll, :restricted, :allows_talent_marking, :allows_late_registration_deduction, :notify_admin_on_participant_profile_change, :email_note, trainer_ids: [], payment_methods: [], holiday_type_ids: [])
     end
 
     # Stuft nach einer Kapazitätserhöhung Wartelisten-Anmeldungen hoch.
