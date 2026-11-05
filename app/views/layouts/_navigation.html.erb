@@ -22,8 +22,12 @@
     <% sections.each do |group, links| %>
       <p class="nav-group"><%= t("nav.groups.#{group}") %></p>
       <% links.each do |l| %>
-        <%= link_to l[:path], class: "nav-item", aria: { current: ("page" if nav_current?(l[:path])) } do %>
-          <%= nav_icon(l[:key]) %><span class="truncate"><%= t("nav.#{l[:key]}") %></span>
+        <% if l[:key] == :admin_dashboard %>
+          <%= render "layouts/admin_nav", link: l %>
+        <% else %>
+          <%= link_to l[:path], class: "nav-item", aria: { current: ("page" if nav_current?(l[:path])) } do %>
+            <%= nav_icon(l[:key]) %><span class="truncate"><%= t("nav.#{l[:key]}") %></span>
+          <% end %>
         <% end %>
       <% end %>
     <% end %>

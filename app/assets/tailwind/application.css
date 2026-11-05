@@ -109,6 +109,46 @@
     background: var(--color-primary);
     color: var(--color-on-primary); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 6px 16px -8px rgb(2 6 23 / 0.6);
   }
+  /* Aufklapp-Menü in der Sidebar (layouts/_admin_nav). Zu: ease-exit, kurz.
+     Auf: ease-entrance, Einträge gleiten versetzt herein. Pfeil: Feder. */
+  .nav-sub {
+    display: grid; grid-template-rows: 0fr;
+    transition: grid-template-rows 200ms var(--ease-exit);
+  }
+  .nav-disclosure[data-open] .nav-sub {
+    grid-template-rows: 1fr;
+    transition: grid-template-rows 350ms var(--ease-entrance);
+  }
+  .nav-sub li {
+    opacity: 0; transform: translateY(-0.375rem);
+    transition: opacity 150ms var(--ease-exit), transform 150ms var(--ease-exit);
+  }
+  .nav-disclosure[data-open] .nav-sub li {
+    opacity: 1; transform: none;
+    transition: opacity 300ms var(--ease-entrance), transform 400ms var(--ease-entrance);
+  }
+  /* Versatz per nth-child: Inline-style (--i) blockiert die CSP der App. */
+  .nav-disclosure[data-open] .nav-sub li:nth-child(2) { transition-delay: 35ms; }
+  .nav-disclosure[data-open] .nav-sub li:nth-child(3) { transition-delay: 70ms; }
+  .nav-disclosure[data-open] .nav-sub li:nth-child(4) { transition-delay: 105ms; }
+  .nav-disclosure[data-open] .nav-sub li:nth-child(5) { transition-delay: 140ms; }
+  .nav-disclosure[data-open] .nav-sub li:nth-child(n+6) { transition-delay: 175ms; }
+  .nav-chevron { transition: transform 600ms var(--ease-spring); }
+  .nav-disclosure[data-open] .nav-chevron { transform: rotate(180deg); }
+  .nav-subitem {
+    display: flex; align-items: center; gap: 0.625rem;
+    margin-top: 0.125rem; padding: 0.4375rem 0.75rem; border-radius: 0.75rem;
+    font-size: 0.8125rem; font-weight: 500; color: rgb(15 23 42 / 0.7);
+    transition: background-color 200ms var(--ease-entrance), color 200ms var(--ease-entrance);
+  }
+  .nav-subitem:hover { background: rgb(255 255 255 / 0.55); color: var(--ink); }
+  .nav-subitem[aria-current="page"] { background: rgb(255 255 255 / 0.7); color: var(--ink); font-weight: 600; }
+  .nav-dot { width: 0.5rem; height: 0.5rem; border-radius: 9999px; flex: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-sub, .nav-sub li, .nav-chevron,
+    .nav-disclosure[data-open] .nav-sub, .nav-disclosure[data-open] .nav-sub li { transition: none; }
+  }
+
   .nav-group {
     padding: 1rem 0.75rem 0.375rem; font-size: 0.6875rem; font-weight: 600;
     letter-spacing: 0.06em; text-transform: uppercase; color: rgb(15 23 42 / 0.5);

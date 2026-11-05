@@ -45,8 +45,8 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
   test "Einstellungs-Tab Kommunikation verlinkt keine Newsletter-Arbeitsseiten mehr" do
     sign_in users(:admin)
     get admin_settings_communication_path
-    assert_select "a[href='#{newsletters_path}']", 0
-    assert_select "a[href='#{newsletter_subscribers_path}']", 0
+    assert_select "main a[href='#{newsletters_path}']", 0
+    assert_select "main a[href='#{newsletter_subscribers_path}']", 0
   end
 
   test "Admin erreicht jede Admin-Seite" do
@@ -150,5 +150,20 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
     assert_select "##{ActionView::RecordIdentifier.dom_id(type)} li", 10
     get holiday_types_path(alle: type.id)
     assert_select "##{ActionView::RecordIdentifier.dom_id(type)} li", 12
+  end
+
+  test "Sidebar: Admin-Dashboard klappt Übersicht und alle Bereiche auf, offen im Admin-Bereich" do
+    sign_in users(:admin)
+    get terms_path
+    assert_select ".nav-disclosure[data-open] #admin-subnav a.nav-subitem", AdminNavigation::SECTIONS.size + 1
+    assert_select "#admin-subnav a[href='#{dashboards_admin_path}']"
+    AdminNavigation::SECTIONS.each_value do |items|
+      assert_select "#admin-subnav a[href='#{public_send(items.first.path)}']"
+    end
+    assert_select "#admin-subnav a[aria-current=page]", text: I18n.t("dashboards.admin.sections.courses")
+
+    get courses_path
+    assert_select ".nav-disclosure", 1
+    assert_select ".nav-disclosure[data-open]", 0
   end
 end
