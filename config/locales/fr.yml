@@ -132,6 +132,7 @@ fr:
     courses: "Cours"
     my_profile: "Mon profil"
     admin_dashboard: "Tableau de bord admin"
+    admin_overview: "Vue d'ensemble"
     nds: "NDS / J+S"
     my_courses: "Mes cours"
     mails: "E-mails"
@@ -327,7 +328,6 @@ fr:
         title: "Aucun cours disponible"
         subtitle: "Les cours apparaîtront ici dès leur création."
       restricted_badge: "Sur invitation"
-      restricted_subtitle: "Accessible sur invitation uniquement"
     show:
       back: "Retour"
       type_default: "Cours"

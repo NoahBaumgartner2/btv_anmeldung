@@ -60,12 +60,6 @@
       id = Anker für Links von der Startseite (öffnet das Overlay direkt). %>
   <% [ [ @restricted_courses, true ], [ @public_courses, false ] ].each do |courses, restricted| %>
     <% next if courses.empty? %>
-    <% if restricted %>
-      <div class="flex items-center gap-3 mb-4">
-        <span class="inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider"><%= t("courses.index.restricted_badge") %></span>
-        <span class="text-sm text-slate-500"><%= t("courses.index.restricted_subtitle") %></span>
-      </div>
-    <% end %>
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-10">
       <% groups.call(courses).each do |category, courses_in_category| %>
         <% anchor = "#{"restricted-" if restricted}#{category.parameterize}" %>

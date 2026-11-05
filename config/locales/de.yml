@@ -173,6 +173,7 @@ de:
     courses: "Kurse"
     my_profile: "Mein Profil"
     admin_dashboard: "Admin-Dashboard"
+    admin_overview: "Übersicht"
     nds: "NDS / J+S"
     my_courses: "Meine Kurse"
     mails: "Mails"
@@ -368,7 +369,6 @@ de:
         title: "Noch keine Kurse vorhanden"
         subtitle: "Sobald Kurse erstellt werden, erscheinen sie hier."
       restricted_badge: "Auf Einladung"
-      restricted_subtitle: "Nur auf Einladung zugänglich"
     show:
       back: "Zurück"
       type_default: "Kurs"
