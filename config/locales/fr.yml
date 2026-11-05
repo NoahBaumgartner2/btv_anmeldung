@@ -784,8 +784,8 @@ fr:
         settings_club_desc: "Design, contact & mentions légales"
         settings_payments: "Paiements"
         settings_payments_desc: "Configuration SumUp & paiement"
-        settings_features: "Fonctionnalités"
-        settings_features_desc: "Interrupteurs globaux pour les fonctions de l'app"
+        settings_features: "Fonctionnalit\u00E9s & r\u00E8gles"
+        settings_features_desc: "Interrupteurs et d\u00E9lais globaux"
         terms: "Semestre/Trimestre"
         terms_desc: "Gérer les périodes des cours"
         talents: "Liste des talents"
@@ -1494,12 +1494,25 @@ fr:
         communication: "Communication"
         club: "Club"
         payments: "Paiements"
-        features: "Fonctionnalités"
+        features: "Fonctionnalit\u00E9s & r\u00E8gles"
       features:
-        title: "Paramètres des fonctionnalités"
-        desc: "Interrupteurs globaux pour les différentes fonctions de l'app."
-        trainer_self_enroll_label: "Auto-inscription gratuite pour les entraîneurs"
-        trainer_self_enroll_desc: "Permet aux entraîneurs de s'inscrire gratuitement aux entraînements. Peut aussi être désactivé par cours."
+        title: "Fonctionnalit\u00E9s & r\u00E8gles"
+        desc: "Interrupteurs et d\u00E9lais globaux. Sans modification, la valeur par d\u00E9faut s'applique."
+        save: "Enregistrer"
+        out_of_range: "%{label} doit \u00EAtre compris entre %{min} et %{max}."
+        groups:
+          trainers: "Entra\u00EEneurs"
+          registration: "Inscription & liste d'attente"
+          attendance: "Contr\u00F4le de pr\u00E9sence"
+          data: "Donn\u00E9es & protection des donn\u00E9es"
+        units:
+          days: "jours"
+          hours: "heures"
+          months: "mois"
+        entries:
+          trainer_self_enroll_enabled:
+            label: "Auto-inscription gratuite pour les entraîneurs"
+            desc: "Permet aux entraîneurs de s'inscrire gratuitement aux entraînements. Peut aussi être désactivé par cours."
       communication:
         smtp_title: "Envoi d'e-mails (SMTP)"
         smtp_desc: "Identifiants SMTP, expéditeur et URL de l'app pour les e-mails sortants."

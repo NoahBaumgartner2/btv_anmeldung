@@ -832,8 +832,8 @@ de:
         settings_club_desc: "Design, Kontakt & Rechtliches"
         settings_payments: "Zahlungen"
         settings_payments_desc: "SumUp & Payment-Setup"
-        settings_features: "Funktionen"
-        settings_features_desc: "Globale Ein-/Ausschalter für App-Funktionen"
+        settings_features: "Funktionen & Regeln"
+        settings_features_desc: "Globale Schalter und Fristen"
         trainers: "Trainer"
         trainers_desc: "Trainer verwalten & zuweisen"
         holidays: "Ferientage"
@@ -1572,7 +1572,7 @@ de:
         communication: "Kommunikation"
         club: "Verein"
         payments: "Zahlungen"
-        features: "Funktionen"
+        features: "Funktionen & Regeln"
       communication:
         smtp_title: "E-Mail-Versand (SMTP)"
         smtp_desc: "SMTP-Zugangsdaten, Absender und App-URL für ausgehende E-Mails."
@@ -1591,10 +1591,23 @@ de:
         desc: "SumUp-Zugangsdaten und Währung für Online-Zahlungen."
         actions_title: "Verbindung & Abgleich"
       features:
-        title: "Funktionseinstellungen"
-        desc: "Globale Ein-/Ausschalter für einzelne Funktionen der App."
-        trainer_self_enroll_label: "Gratis-Selbstanmeldung für Trainer"
-        trainer_self_enroll_desc: "Erlaubt Trainern, sich kostenlos für Trainings anzumelden. Kann zusätzlich pro Kurs deaktiviert werden."
+        title: "Funktionen & Regeln"
+        desc: "Globale Schalter und Fristen. Ohne \u00C4nderung gilt jeweils der Standardwert."
+        save: "Speichern"
+        out_of_range: "%{label} muss zwischen %{min} und %{max} liegen."
+        groups:
+          trainers: "Trainer:innen"
+          registration: "Anmeldung & Warteliste"
+          attendance: "Pr\u00E4senzkontrolle"
+          data: "Daten & Datenschutz"
+        units:
+          days: "Tage"
+          hours: "Stunden"
+          months: "Monate"
+        entries:
+          trainer_self_enroll_enabled:
+            label: "Gratis-Selbstanmeldung für Trainer"
+            desc: "Erlaubt Trainern, sich kostenlos für Trainings anzumelden. Kann zusätzlich pro Kurs deaktiviert werden."
     notification_preferences:
       mandatory_badge: "Immer aktiv"
       attendance_reminder_mandatory_hint: "Diese Erinnerung ist für alle Trainer verpflichtend aktiv."

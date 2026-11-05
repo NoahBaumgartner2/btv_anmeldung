@@ -784,8 +784,8 @@ en:
         settings_club_desc: "Design, contact & legal"
         settings_payments: "Payments"
         settings_payments_desc: "SumUp & payment setup"
-        settings_features: "Features"
-        settings_features_desc: "Global on/off switches for app features"
+        settings_features: "Features & rules"
+        settings_features_desc: "Global switches and deadlines"
         terms: "Semester/Quarter"
         terms_desc: "Manage date ranges for courses"
         trainers: "Trainers"
@@ -1499,12 +1499,25 @@ en:
         communication: "Communication"
         club: "Club"
         payments: "Payments"
-        features: "Features"
+        features: "Features & rules"
       features:
-        title: "Feature settings"
-        desc: "Global on/off switches for individual app features."
-        trainer_self_enroll_label: "Free self-enrolment for trainers"
-        trainer_self_enroll_desc: "Lets trainers enrol in trainings for free. Can also be disabled per course."
+        title: "Features & rules"
+        desc: "Global switches and deadlines. Unless changed, the default applies."
+        save: "Save"
+        out_of_range: "%{label} must be between %{min} and %{max}."
+        groups:
+          trainers: "Trainers"
+          registration: "Registration & waiting list"
+          attendance: "Attendance check"
+          data: "Data & privacy"
+        units:
+          days: "days"
+          hours: "hours"
+          months: "months"
+        entries:
+          trainer_self_enroll_enabled:
+            label: "Free self-enrolment for trainers"
+            desc: "Lets trainers enrol in trainings for free. Can also be disabled per course."
       communication:
         smtp_title: "Email delivery (SMTP)"
         smtp_desc: "SMTP credentials, sender and app URL for outgoing emails."
