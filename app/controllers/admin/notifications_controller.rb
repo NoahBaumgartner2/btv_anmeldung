@@ -24,16 +24,25 @@ module Admin
       # Mailer-Code (inkl. mail_enabled?-Guard) läuft erst verzögert bei .message/
       # .html_part/.decoded. Würde with_preview_mode vorher schon enden, griffe
       # der Guard trotzdem und die Vorschau einer deaktivierten Mail bliebe leer.
-      html_content = MailSetting.with_preview_mode do
+      @message = MailSetting.with_preview_mode do
         mail = NotificationPreviewBuilder.public_send(@entry.preview_method)
-        # .message löst den ActionMailer::MessageDelivery-Proxy zum echten Mail::Message auf.
-        # .decoded (statt .body.decoded) funktioniert robust für Multipart- UND Singlepart-Mails
-        # (manche Mails wie refund_failed_notice haben nur ein HTML-Template, keinen html_part).
+        # .message löst den ActionMailer::MessageDelivery-Proxy zum echten Mail::Message auf
+        # und rendert dabei (innerhalb von with_preview_mode) die Vorlage.
         message = mail.respond_to?(:message) ? mail.message : mail
-        part = message.html_part || message
-        part.decoded
+        message.tap(&:encoded)
       end
-      render html: html_content.html_safe, layout: false
+      # .decoded (statt .body.decoded) funktioniert robust für Multipart- UND Singlepart-Mails
+      # (manche Mails wie refund_failed_notice haben nur ein HTML-Template, keinen html_part).
+      mail_doc = Nokogiri::HTML((@message.html_part || @message).decoded)
+      @mail_body_style = mail_doc.at("body")&.[]("style")
+      @mail_body_html  = mail_doc.at("body")&.inner_html.to_s
+
+      # Mail-HTML arbeitet mit Inline-Styles (wie jedes Mailprogramm sie anzeigt). Die
+      # App-CSP verbietet sie; nur für diese Vorschau: Inline-Styles ja, Skripte nein.
+      # Die CSP-Middleware überschreibt einen bereits gesetzten Header nicht.
+      response.headers["Content-Security-Policy"] =
+        "default-src 'none'; style-src 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; base-uri 'none'; form-action 'none'"
+      render :preview, layout: false
     rescue => e
       Rails.logger.error "[Admin::NotificationsController] Vorschau-Fehler für #{@entry.key}: #{e.class}: #{e.message}"
       render plain: "Vorschau konnte nicht geladen werden: #{e.message}", status: :unprocessable_entity

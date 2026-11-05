@@ -826,6 +826,8 @@ de:
       links:
         settings_communication: "Kommunikation"
         settings_communication_desc: "E-Mail-Versand, Systemmails & Newsletter-API"
+        notifications: "Benachrichtigungen"
+        notifications_desc: "Automatische E-Mails ein-/ausschalten und als Vorschau ansehen"
         settings_club: "Verein"
         settings_club_desc: "Design, Kontakt & Rechtliches"
         settings_payments: "Zahlungen"
@@ -1569,8 +1571,6 @@ de:
       communication:
         smtp_title: "E-Mail-Versand (SMTP)"
         smtp_desc: "SMTP-Zugangsdaten, Absender und App-URL für ausgehende E-Mails."
-        system_mails_title: "System-Benachrichtigungen"
-        system_mails_desc: "Lege fest, welche automatischen E-Mails der Verein versendet."
         infomaniak_title: "Newsletter-API (Infomaniak)"
         infomaniak_desc: "API-Zugangsdaten für den Newsletter-Versand über Infomaniak."
         links_title: "Persönliche Einstellungen"
@@ -1623,7 +1623,9 @@ de:
       mandatory_badge: "Immer aktiv"
       attendance_reminder_mandatory_hint: "Diese Erinnerung ist für alle Trainer verpflichtend aktiv."
     notifications:
-      back: "← Kommunikation"
+      preview:
+        to: "an %{recipients}"
+        sample_hint: "Vorschau mit Beispieldaten \u2013 so sieht die Mail im Postfach aus."
       title: "Benachrichtigungszentrale"
       subtitle: "Alle automatischen E-Mails des Systems an einem Ort: ein-/ausschalten, sehen wer sie bekommt, und eine Vorschau des Inhalts ansehen."
       enabled: "Aktiv"

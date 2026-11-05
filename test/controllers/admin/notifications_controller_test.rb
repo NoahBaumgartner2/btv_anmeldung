@@ -32,6 +32,20 @@ class Admin::NotificationsControllerTest < ActionDispatch::IntegrationTest
     assert_match "Max Muster", response.body
   end
 
+  test "preview sieht aus wie im Mailprogramm: Kopf mit Betreff/An und Inline-Styles erlaubt" do
+    get preview_admin_notification_path("registration_confirmation")
+    assert_response :success
+
+    csp = response.headers["Content-Security-Policy"]
+    assert_includes csp, "style-src 'unsafe-inline'", "Inline-Styles der Mail müssen wirken"
+    assert_no_match(/script-src/, csp)
+    assert_includes csp, "default-src 'none'", "Skripte bleiben verboten"
+
+    assert_select "h1.mail-subject", text: /\S/
+    assert_select ".mail-to", text: /@/
+    assert_select "main table[style]", { minimum: 1 }, "Mail-Layout mit Inline-Styles fehlt"
+  end
+
   # Regression: manche Mails (z.B. refund_failed_notice) haben nur ein HTML-Template,
   # keinen expliziten html_part → mail.html_part ist nil. Deckt jeden Katalog-Eintrag ab,
   # nicht nur den einen Multipart-Fall oben.

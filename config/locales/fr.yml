@@ -778,6 +778,8 @@ fr:
       links:
         settings_communication: "Communication"
         settings_communication_desc: "Envoi d'e-mails, mails système & API newsletter"
+        notifications: "Notifications"
+        notifications_desc: "Activer/d\u00E9sactiver les e-mails automatiques et les pr\u00E9visualiser"
         settings_club: "Club"
         settings_club_desc: "Design, contact & mentions légales"
         settings_payments: "Paiements"
@@ -1527,8 +1529,6 @@ fr:
       communication:
         smtp_title: "Envoi d'e-mails (SMTP)"
         smtp_desc: "Identifiants SMTP, expéditeur et URL de l'app pour les e-mails sortants."
-        system_mails_title: "Notifications système"
-        system_mails_desc: "Choisissez quels e-mails automatiques le club envoie."
         infomaniak_title: "API Newsletter (Infomaniak)"
         infomaniak_desc: "Identifiants API pour l'envoi de newsletters via Infomaniak."
         links_title: "Paramètres personnels"

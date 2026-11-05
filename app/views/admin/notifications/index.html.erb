@@ -1,9 +1,9 @@
 <div class="max-w-4xl mx-auto mt-8 sm:mt-10 mb-16 px-4">
 
+  <%= render "admin/shared/section_header" %>
+
   <div class="mb-6">
-    <%= link_to t("admin.notifications.back"), admin_settings_communication_path,
-          class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition" %>
-    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2"><%= t("admin.notifications.title") %></h1>
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("admin.notifications.title") %></h2>
     <p class="text-gray-500 mt-1 text-sm"><%= t("admin.notifications.subtitle") %></p>
   </div>
 
@@ -72,7 +72,7 @@
               <div data-modal-target="dialog"
                    data-action="click->modal#backdropClose"
                    class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
-                <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[85vh] flex flex-col overflow-hidden">
+                <div class="bg-white rounded-2xl shadow-xl w-full max-w-3xl h-[90vh] flex flex-col overflow-hidden">
                   <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 shrink-0">
                     <p class="text-sm font-bold text-gray-800" data-notification-preview-target="title"></p>
                     <button type="button" data-action="click->modal#close"
@@ -82,7 +82,7 @@
                       </svg>
                     </button>
                   </div>
-                  <iframe data-notification-preview-target="frame" class="flex-1 w-full" title="<%= t('admin.notifications.preview_btn') %>"></iframe>
+                  <iframe data-notification-preview-target="frame" class="flex-1 w-full min-h-0 border-0" sandbox="allow-same-origin allow-popups allow-popups-to-escape-sandbox" title="<%= t('admin.notifications.preview_btn') %>"></iframe>
                 </div>
               </div>
             </li>
