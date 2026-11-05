@@ -264,6 +264,18 @@ fr:
     training_value_label: "Valeur par entraînement"
     training_value_hint: "Pour les remboursements automatiques (CHF par entraînement)"
     index:
+      recommendations:
+        heading: "Recommandations"
+        title: "Recommand\u00E9 pour %{name}"
+        subtitle: "Adapt\u00E9 \u00E0 l'\u00E2ge, places disponibles"
+        spots:
+          one: "encore 1 place"
+          other: "encore %{count} places"
+        reasons:
+          also_attended: "Souvent suivi avec %{category}"
+          continue: "Suite de %{category}"
+          age_popular: "Appr\u00E9ci\u00E9 \u00E0 l'\u00E2ge de %{name}"
+          age_fit: "Adapt\u00E9 \u00E0 l'\u00E2ge de %{name}"
       tile:
         count:
           one: "%{count} cours"

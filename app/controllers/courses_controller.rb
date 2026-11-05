@@ -28,6 +28,13 @@ class CoursesController < ApplicationController
     end
     @public_courses = @public_courses.sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
     @category_records = CourseCategory.with_attached_image.index_by(&:name)
+    # Empfehlungen pro Kind (nur Familien): passendes Alter, freie Plätze, gewichtet
+    # danach, welche Kurse Kinder mit ähnlicher Kurshistorie besuchen.
+    @recommendations = if current_user && !current_user.admin?
+      CourseRecommender.call(participants: current_user.participants.to_a, courses: @restricted_courses + @public_courses)
+    else
+      {}
+    end
   end
 
   # GET /courses/1 or /courses/1.json

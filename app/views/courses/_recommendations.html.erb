@@ -1,0 +1,43 @@
+<%# Kursempfehlungen pro Kind (CourseRecommender). Locals: recommendations ({ participant => [Recommendation] }) %>
+<section aria-labelledby="recommendations-title" class="mb-8">
+  <h2 id="recommendations-title" class="sr-only"><%= t("courses.index.recommendations.heading") %></h2>
+  <div class="space-y-6">
+    <% recommendations.each do |child, recs| %>
+      <div>
+        <div class="flex items-baseline justify-between gap-3 mb-3">
+          <h3 class="text-lg font-bold text-slate-900"><%= t("courses.index.recommendations.title", name: child.first_name) %></h3>
+          <p class="hidden sm:block text-sm text-slate-500"><%= t("courses.index.recommendations.subtitle") %></p>
+        </div>
+        <%# Handy: seitlich wischbare Reihe pro Kind (kompakt bei mehreren Kindern); ab sm Raster. %>
+        <div class="flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-1 px-1 pb-2 sm:grid sm:grid-cols-2 lg:grid-cols-3 sm:overflow-visible sm:mx-0 sm:px-0 sm:pb-0">
+          <% recs.each do |rec| %>
+            <% course = rec.course %>
+            <% day_time = course_day_and_time(course) %>
+            <% remaining = course.spots_remaining %>
+            <article class="group relative flex flex-col gap-2 rounded-2xl bg-white border border-slate-200/80 p-4 shadow-sm transition-shadow hover:shadow-md snap-start shrink-0 w-[85%] sm:w-auto">
+              <p class="inline-flex items-center gap-1.5 self-start rounded-full bg-primary-50 text-primary-700 px-2.5 py-1 text-xs font-semibold">
+                <%= ui_icon(:star, "w-3.5 h-3.5") %>
+                <%= t("courses.index.recommendations.reasons.#{rec.reason}", category: rec.related_category, name: child.first_name) %>
+              </p>
+              <div class="min-w-0">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500"><%= course.category_name %></p>
+                <h4 class="font-bold text-slate-900 leading-snug">
+                  <%= link_to course.title, course_path(course), class: "after:absolute after:inset-0 after:rounded-2xl focus:outline-none focus-visible:after:ring-2 focus-visible:after:ring-primary-500" %>
+                </h4>
+              </div>
+              <div class="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-slate-600">
+                <% if day_time %>
+                  <span class="font-semibold text-slate-900 tabular-nums"><%= day_time.join(" ") %></span>
+                <% end %>
+                <% if course.age_range_label %><span><%= course.age_range_label %></span><% end %>
+                <% if remaining %>
+                  <span class="text-green-700 font-medium"><%= t("courses.index.recommendations.spots", count: remaining) %></span>
+                <% end %>
+              </div>
+            </article>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>

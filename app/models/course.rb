@@ -26,8 +26,12 @@ class Course < ApplicationRecord
   CARD_VARIANT = { resize_to_fill: [ 800, 500 ], format: :webp }.freeze
 
   # Gleiche Gruppierung wie Kursübersicht und Kurskategorien.
-  def category_name
+  def self.category_name_for(category, title)
     category.presence || title.to_s.split("(").first.to_s.strip
+  end
+
+  def category_name
+    self.class.category_name_for(category, title)
   end
 
   # category: vorgeladener CourseCategory-Datensatz (vermeidet N+1 in Listen).
