@@ -1510,6 +1510,9 @@ fr:
           hours: "heures"
           months: "mois"
         entries:
+          mail_log_retention_months:
+            label: "Conserver le journal des e-mails"
+            desc: "Les entr\u00E9es du journal sont ensuite supprim\u00E9es automatiquement (protection des donn\u00E9es). Par d\u00E9faut : 12 mois."
           trainer_self_enroll_enabled:
             label: "Auto-inscription gratuite pour les entraîneurs"
             desc: "Permet aux entraîneurs de s'inscrire gratuitement aux entraînements. Peut aussi être désactivé par cours."

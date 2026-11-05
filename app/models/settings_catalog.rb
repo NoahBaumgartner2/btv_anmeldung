@@ -15,7 +15,8 @@ class SettingsCatalog
   end
 
   ENTRIES = [
-    Entry.new(key: :trainer_self_enroll_enabled, type: :boolean, default: true, group: :trainers)
+    Entry.new(key: :trainer_self_enroll_enabled, type: :boolean, default: true, group: :trainers),
+    Entry.new(key: :mail_log_retention_months, type: :integer, default: 12, group: :data, min: 1, max: 60, unit: :months)
   ].freeze
 
   def self.fetch(key) = ENTRIES.find { |entry| entry.key == key.to_sym } || raise(KeyError, "Unbekannte Einstellung: #{key}")

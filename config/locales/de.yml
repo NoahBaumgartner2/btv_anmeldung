@@ -1605,6 +1605,9 @@ de:
           hours: "Stunden"
           months: "Monate"
         entries:
+          mail_log_retention_months:
+            label: "Mail-Protokoll aufbewahren"
+            desc: "Danach werden Eintr\u00E4ge im Mail-Protokoll automatisch gel\u00F6scht (Datenschutz). Standard: 12 Monate."
           trainer_self_enroll_enabled:
             label: "Gratis-Selbstanmeldung für Trainer"
             desc: "Erlaubt Trainern, sich kostenlos für Trainings anzumelden. Kann zusätzlich pro Kurs deaktiviert werden."

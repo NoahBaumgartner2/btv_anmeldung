@@ -1515,6 +1515,9 @@ en:
           hours: "hours"
           months: "months"
         entries:
+          mail_log_retention_months:
+            label: "Keep mail log"
+            desc: "Entries in the mail log are deleted automatically after this period (privacy). Default: 12 months."
           trainer_self_enroll_enabled:
             label: "Free self-enrolment for trainers"
             desc: "Lets trainers enrol in trainings for free. Can also be disabled per course."

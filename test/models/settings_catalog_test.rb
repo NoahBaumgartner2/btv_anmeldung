@@ -25,4 +25,19 @@ class SettingsCatalogTest < ActiveSupport::TestCase
   test "unbekannte Einstellung wirft einen Fehler" do
     assert_raises(KeyError) { FeatureSetting.value(:gibt_es_nicht) }
   end
+
+  test "Zahlenwert wird gespeichert, ausserhalb der Grenzen abgelehnt" do
+    setting = FeatureSetting.current
+    assert_equal 12, setting.value(:mail_log_retention_months)
+
+    setting.assign_catalog(ActionController::Parameters.new("mail_log_retention_months" => "3").permit!)
+    assert setting.save
+    assert_equal 3, FeatureSetting.value(:mail_log_retention_months)
+    assert_equal 3.months, MailLog.retention
+
+    %w[0 61 abc].each do |raw|
+      setting.assign_catalog(ActionController::Parameters.new("mail_log_retention_months" => raw).permit!)
+      assert_not setting.valid?, raw
+    end
+  end
 end

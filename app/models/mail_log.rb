@@ -1,7 +1,8 @@
 # Eine versendete Mail (ohne Inhalt). trainer_ids hält fest, wer beim Versand für den Kurs
 # oder das Training eingeteilt war: Spätere Wechsel ändern nichts daran, wer sie sieht.
 class MailLog < ApplicationRecord
-  RETENTION = 12.months
+  # Aufbewahrungsdauer, einstellbar unter Einstellungen › Funktionen & Regeln.
+  def self.retention = FeatureSetting.value(:mail_log_retention_months).months
 
   # Was Trainer:innen sehen dürfen. Neue Mailarten sind automatisch nur für Admins sichtbar,
   # genau wie Zahlungs-, Rückerstattungs- und interne Admin-Mails.
