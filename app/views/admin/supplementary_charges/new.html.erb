@@ -76,7 +76,7 @@
 
     <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants") %>
 
-    <div class="flex gap-3">
+    <div class="flex flex-col sm:flex-row gap-3">
       <button type="submit"
               class="flex-1 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-3 px-4 rounded-full text-sm transition cursor-pointer min-h-11"
               data-turbo-confirm="Nachforderung(en) jetzt erstellen?">

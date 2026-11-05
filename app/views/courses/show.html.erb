@@ -176,7 +176,7 @@
       <% if already_self_registered %>
         <span class="btn min-h-12 px-6 flex-1 md:flex-none bg-slate-100 text-slate-500 cursor-default">Du bist bereits angemeldet</span>
       <% elsif trainer.self_participant.nil? || trainer.self_participant.date_of_birth.blank? %>
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 max-w-xs">
+        <div class="basis-full md:basis-auto bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-800 md:max-w-xs">
           <p class="font-semibold mb-1">Profil unvollständig</p>
           <p><%= link_to "Profil vervollständigen", my_profile_path, class: "underline font-semibold" %>, um dich selbst für Trainings anzumelden (für die Altersprüfung wird dein Geburtsdatum benötigt).</p>
         </div>
@@ -187,7 +187,7 @@
               class: "btn btn-primary min-h-12 px-6 flex-1 md:flex-none" %>
       <% end %>
     <% elsif user_signed_in? && (current_user.admin? || Trainer.exists?(user: current_user)) %>
-      <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 max-w-xs">
+      <div class="basis-full md:basis-auto bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-800 md:max-w-xs">
         <p class="font-semibold mb-1">Anmeldung nicht möglich</p>
         <p>Als Trainer oder Admin kannst du keine Kinder über dieses Formular anmelden. Bitte erstelle ein separates Eltern-Konto mit einer anderen E-Mail-Adresse.</p>
       </div>
