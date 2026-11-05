@@ -7,12 +7,12 @@
       <p class="text-gray-500 mt-1 text-sm">Alle als Talent markierten Teilnehmenden über alle Kurse hinweg.</p>
     </div>
     <%= link_to "← Admin-Dashboard", dashboards_admin_path,
-          class: "shrink-0 bg-white border border-gray-300 py-2 px-4 rounded-lg shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
+          class: "shrink-0 bg-white border border-slate-200 py-2 px-4 rounded-full shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
   </div>
 
   <% if @talented_registrations.any? %>
     <%# Mobile: Cards %>
-    <div class="sm:hidden bg-white rounded-2xl shadow-sm border border-gray-200 divide-y divide-gray-100 mb-6">
+    <div class="sm:hidden bg-white rounded-3xl shadow-sm border border-slate-200/80 divide-y divide-gray-100 mb-6">
       <% @talented_registrations.each do |reg| %>
         <% p = reg.participant %>
         <div class="p-4">
@@ -32,7 +32,7 @@
     </div>
 
     <%# Desktop: Tabelle %>
-    <div class="hidden sm:block bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="hidden sm:block bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
@@ -68,7 +68,7 @@
       </table>
     </div>
   <% else %>
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 py-16 text-center">
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 py-16 text-center">
       <p class="text-4xl mb-4">☆</p>
       <p class="text-gray-600 font-semibold">Noch keine Talente markiert.</p>
       <p class="text-gray-400 text-sm mt-1">Sobald Kursleiter*innen Teilnehmende als Talent markieren, erscheinen sie hier.</p>
