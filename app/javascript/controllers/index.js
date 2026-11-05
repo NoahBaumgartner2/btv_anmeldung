@@ -5,7 +5,6 @@ import ConfirmUnsubscribeController from "controllers/confirm_unsubscribe_contro
 import ExportTypeController from "controllers/export_type_controller"
 import DeleteAccountController from "controllers/delete_account_controller"
 import ModalController from "controllers/modal_controller"
-import MobileMenuController from "controllers/mobile_menu_controller"
 import DatepickerController from "controllers/datepicker_controller"
 import DateRangeController from "controllers/date_range_controller"
 import CookieConsentController from "controllers/cookie_consent_controller"
@@ -39,7 +38,6 @@ application.register("confirm-unsubscribe", ConfirmUnsubscribeController)
 application.register("export-type", ExportTypeController)
 application.register("delete-account", DeleteAccountController)
 application.register("modal", ModalController)
-application.register("mobile-menu", MobileMenuController)
 application.register("datepicker", DatepickerController)
 application.register("date-range", DateRangeController)
 application.register("cookie-consent", CookieConsentController)

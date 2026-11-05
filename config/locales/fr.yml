@@ -134,6 +134,13 @@ fr:
     login: "Se connecter"
     register: "S'inscrire"
     logout: "Déconnexion"
+    more: "Plus"
+    menu: "Menu"
+    groups:
+      general: "Général"
+      training: "Entraînement"
+      admin: "Administration"
+      account: "Compte"
 
   language:
     de: "Deutsch"

@@ -134,6 +134,13 @@ en:
     login: "Sign in"
     register: "Register"
     logout: "Logout"
+    more: "More"
+    menu: "Menu"
+    groups:
+      general: "General"
+      training: "Training"
+      admin: "Administration"
+      account: "Account"
 
   language:
     de: "Deutsch"

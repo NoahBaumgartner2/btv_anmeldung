@@ -175,6 +175,13 @@ de:
     login: "Anmelden"
     register: "Registrieren"
     logout: "Logout"
+    more: "Mehr"
+    menu: "Menü"
+    groups:
+      general: "Allgemein"
+      training: "Training"
+      admin: "Verwaltung"
+      account: "Konto"
 
   language:
     de: "Deutsch"
