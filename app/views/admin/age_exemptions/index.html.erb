@@ -19,19 +19,19 @@
   <%= form_with url: admin_age_exemptions_path, method: :get, class: "flex flex-col sm:flex-row gap-2 mb-6" do %>
     <%= select_tag :term_id,
           options_from_collection_for_select(@terms, :id, :name, @term&.id),
-          class: "flex-1 rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+          class: "flex-1 rounded-xl border border-slate-900/15 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 bg-white" %>
     <button type="submit"
-            class="shrink-0 rounded-lg px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold cursor-pointer transition min-h-11">
+            class="shrink-0 rounded-full px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold cursor-pointer transition min-h-11">
       Anzeigen
     </button>
   <% end %>
 
   <% if @term.nil? %>
-    <div class="bg-white border border-gray-200 rounded-xl py-12 text-center">
+    <div class="bg-white border border-slate-200/80 rounded-3xl py-12 text-center">
       <p class="text-sm text-gray-500">Noch keine Zeiträume erfasst.</p>
     </div>
   <% elsif @groups.empty? %>
-    <div class="bg-white border border-gray-200 rounded-xl py-12 text-center">
+    <div class="bg-white border border-slate-200/80 rounded-3xl py-12 text-center">
       <p class="text-sm text-gray-500">
         In <%= @term.name %> überschreitet niemand das Höchstalter.
       </p>

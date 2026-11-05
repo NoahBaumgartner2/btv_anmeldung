@@ -1,7 +1,7 @@
 <div class="w-full">
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
     <h1 class="font-bold text-xl sm:text-3xl text-gray-800"><%= t('trainers.index.title') %></h1>
-    <%= link_to t('trainers.index.new_trainer'), new_trainer_path, class: "w-full sm:w-auto text-center rounded-lg py-2.5 px-4 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-medium transition shadow-sm min-h-11" %>
+    <%= link_to t('trainers.index.new_trainer'), new_trainer_path, class: "w-full sm:w-auto text-center rounded-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-medium transition shadow-sm min-h-11" %>
   </div>
 
   <%= render "tabs", active: :substitutes %>
@@ -13,10 +13,10 @@
     <div>
       <label for="month" class="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wide"><%= t('trainers.substitutes.month_label') %></label>
       <input type="month" name="month" id="month" value="<%= @month %>"
-             class="rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500">
+             class="rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20">
     </div>
     <button type="submit"
-            class="bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer min-h-11">
+            class="bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white text-sm font-bold py-2 px-4 rounded-full transition cursor-pointer min-h-11">
       <%= t('trainers.substitutes.filter_btn') %>
     </button>
     <% if @month.present? %>

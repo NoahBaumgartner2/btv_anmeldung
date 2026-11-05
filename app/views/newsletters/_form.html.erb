@@ -11,14 +11,14 @@
 
     <%# Speichern-Formular (eigenständig, kein Nesting) %>
     <%= form_with model: newsletter do |f| %>
-      <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5 space-y-4">
+      <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm p-5 space-y-4">
         <h2 class="font-bold text-gray-900 border-b border-gray-100 pb-3"><%= t('newsletters.form.section_settings') %></h2>
 
         <div>
           <%= f.label :title, t('newsletters.form.label_title'), class: "block text-xs font-bold text-gray-600 mb-1" %>
           <%= f.text_field :title, placeholder: "z.B. Sommer-Newsletter 2026",
                 autocomplete: "off",
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none" %>
+                class: "block w-full rounded-xl border border-slate-900/15 px-3 py-2.5 text-sm focus:ring-2 focus:ring-slate-900/20 focus:outline-none" %>
           <p class="text-xs text-gray-400 mt-1"><%= t('newsletters.form.title_hint') %></p>
         </div>
 
@@ -26,7 +26,7 @@
           <%= f.label :subject, t('newsletters.form.label_subject'), class: "block text-xs font-bold text-gray-600 mb-1" %>
           <%= f.text_field :subject, placeholder: "z.B. Neue Kurse im Herbst!",
                 autocomplete: "off",
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:outline-none" %>
+                class: "block w-full rounded-xl border border-slate-900/15 px-3 py-2.5 text-sm focus:ring-2 focus:ring-slate-900/20 focus:outline-none" %>
         </div>
 
         <div class="pt-1">
@@ -40,7 +40,7 @@
 
     <%# Versenden (eigenständiges button_to — kein Nesting) %>
     <% if newsletter.persisted? && newsletter.draft? %>
-      <div class="bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+      <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm p-5">
         <h2 class="font-bold text-gray-900 mb-1"><%= t('newsletters.form.section_send') %></h2>
         <p class="text-xs text-gray-500 mb-4">
           <%= t('newsletters.form.send_description', count: NewsletterSubscriber.subscribed.count) %>
@@ -49,14 +49,14 @@
               send_newsletter_newsletter_path(newsletter),
               method: :post,
               data: { turbo_confirm: t('newsletters.form.send_confirm') },
-              class: "cursor-pointer w-full bg-primary-600 hover:bg-primary-700 text-white font-bold text-sm py-3 rounded-xl transition" %>
+              class: "cursor-pointer w-full bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm py-3 rounded-full transition" %>
       </div>
     <% end %>
 
     <%# Vorschau %>
     <% if newsletter.persisted? %>
       <a href="<%= preview_newsletter_path(newsletter) %>" target="_blank"
-         class="flex items-center justify-center gap-2 w-full bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 font-bold text-sm py-3 rounded-xl transition">
+         class="flex items-center justify-center gap-2 w-full bg-white border border-slate-200/80 hover:bg-gray-50 text-gray-600 font-bold text-sm py-3 rounded-3xl transition">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
         </svg>
@@ -68,7 +68,7 @@
 
   <%# ── Rechte Spalte: Editor ────────────────────────────────────────── %>
   <div class="lg:col-span-3">
-    <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="bg-white border border-slate-200/80 rounded-3xl shadow-sm overflow-hidden">
 
       <%# Tab-Leiste %>
       <div class="flex border-b border-gray-200 bg-gray-50">

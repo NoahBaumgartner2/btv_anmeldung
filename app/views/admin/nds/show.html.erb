@@ -12,7 +12,7 @@
 
 
   <%# ── Schritt 1 ──────────────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">1</span>
       <div>
@@ -28,10 +28,10 @@
             <%= f.select :course_id,
                   options_for_select([["Alle J+S-Kurse", ""]].concat(@courses.map { |c| [c.title, c.id] })),
                   {},
-                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+                  class: "w-full rounded-xl border border-slate-900/15 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <%= f.submit "CSV herunterladen",
-                class: "shrink-0 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+                class: "shrink-0 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full text-sm transition shadow-sm cursor-pointer" %>
         </div>
       <% end %>
       <p class="text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mt-3">
@@ -41,7 +41,7 @@
   </div>
 
   <%# ── Schritt 2 ──────────────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-gray-300 text-gray-600 text-xs font-extrabold flex items-center justify-center">2</span>
       <div>
@@ -68,7 +68,7 @@
   </div>
 
   <%# ── Schritt 3 ──────────────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-gray-300 text-gray-600 text-xs font-extrabold flex items-center justify-center">3</span>
       <div>
@@ -134,7 +134,7 @@
   <% end %>
 
   <%# ── Schritt 4 ──────────────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">4</span>
       <div>
@@ -151,7 +151,7 @@
                   class: "block w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 file:cursor-pointer cursor-pointer" %>
           </div>
           <%= f.submit "CSV importieren & abgleichen",
-                class: "bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+                class: "bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full text-sm transition shadow-sm cursor-pointer" %>
         </div>
       <% end %>
       <p class="text-xs text-gray-500 mt-3">
@@ -162,7 +162,7 @@
   </div>
 
   <%# ── Schritt 5 – Präsenzkontrolle prüfen ───────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">5</span>
       <div>
@@ -179,21 +179,21 @@
                   options_for_select([["Alle J+S-Kurse", ""]].concat(@courses.map { |c| [c.title, c.id] }),
                                      @attendance_check&.dig(:course_id)),
                   {},
-                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+                  class: "w-full rounded-xl border border-slate-900/15 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <div>
             <%= f.label :date_from, "Von", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_from,
                   value: (@attendance_check&.dig(:date_from) || Date.today.beginning_of_month).iso8601,
                   data: { controller: "datepicker" },
-                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+                  class: "w-full rounded-xl border border-slate-900/15 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <div>
             <%= f.label :date_to, "Bis", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_to,
                   value: (@attendance_check&.dig(:date_to) || Date.today).iso8601,
                   data: { controller: "datepicker" },
-                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+                  class: "w-full rounded-xl border border-slate-900/15 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <div class="flex items-end">
             <%= f.submit "Präsenzkontrolle prüfen",
@@ -251,7 +251,7 @@
   </div>
 
   <%# ── Schritt 6 – AWK exportieren ────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-primary-600 text-white text-xs font-extrabold flex items-center justify-center">6</span>
       <div>
@@ -267,25 +267,25 @@
             <%= f.select :course_id,
                   options_for_select([["J+S-Kurs auswählen …", ""]].concat(@courses.map { |c| [c.title, c.id] })),
                   {},
-                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+                  class: "w-full rounded-xl border border-slate-900/15 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <div>
             <%= f.label :date_from, "Von", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_from,
                   value: Date.today.beginning_of_month.iso8601,
                   data: { controller: "datepicker" },
-                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+                  class: "w-full rounded-xl border border-slate-900/15 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <div>
             <%= f.label :date_to, "Bis", class: "block text-xs font-semibold text-gray-600 mb-1" %>
             <%= f.date_field :date_to,
                   value: Date.today.iso8601,
                   data: { controller: "datepicker" },
-                  class: "w-full rounded-lg border border-gray-300 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
+                  class: "w-full rounded-xl border border-slate-900/15 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" %>
           </div>
           <div class="flex items-end">
             <%= f.submit "AWK-CSV herunterladen",
-                  class: "w-full bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition shadow-sm cursor-pointer" %>
+                  class: "w-full bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-4 rounded-full text-sm transition shadow-sm cursor-pointer" %>
           </div>
         </div>
       <% end %>
@@ -297,7 +297,7 @@
   </div>
 
   <%# ── Schritt 7 ──────────────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-4">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-4">
     <div class="px-6 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-3">
       <span class="shrink-0 w-7 h-7 rounded-full bg-gray-300 text-gray-600 text-xs font-extrabold flex items-center justify-center">7</span>
       <div>

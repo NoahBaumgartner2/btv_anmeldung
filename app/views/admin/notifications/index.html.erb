@@ -15,7 +15,7 @@
   <% @grouped.each do |category, entries| %>
     <section class="mb-8">
       <h2 class="text-lg font-bold text-gray-900 mb-1"><%= t("admin.notifications.categories.#{category}") %></h2>
-      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mt-3">
+      <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mt-3">
         <ul class="divide-y divide-gray-100">
           <% entries.each do |entry| %>
             <% enabled = @mail_setting.notification_enabled?(entry.key) %>

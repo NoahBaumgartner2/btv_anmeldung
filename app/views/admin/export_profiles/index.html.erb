@@ -9,7 +9,7 @@
       <p class="text-gray-500 mt-1 text-sm"><%= t('admin.export_profiles.index.subtitle') %></p>
     </div>
     <%= link_to new_admin_export_profile_path,
-          class: "shrink-0 inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition min-h-11" do %>
+          class: "shrink-0 inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full shadow-sm text-sm transition min-h-11" do %>
       <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
       </svg>
@@ -21,7 +21,7 @@
   <% if @export_profiles.any? %>
     <div class="space-y-3">
       <% @export_profiles.each do |profile| %>
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
           <div class="px-5 py-4 flex items-start justify-between gap-4">
             <div class="min-w-0">
               <div class="flex items-center gap-2 flex-wrap mb-1.5">
@@ -99,7 +99,7 @@
       <% end %>
     </div>
   <% else %>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm py-16 text-center">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm py-16 text-center">
       <div class="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
@@ -108,7 +108,7 @@
       <p class="text-sm font-semibold text-gray-700 mb-1"><%= t('admin.export_profiles.index.empty_title') %></p>
       <p class="text-xs text-gray-400 mb-5"><%= t('admin.export_profiles.index.empty_body') %></p>
       <%= link_to t('admin.export_profiles.index.empty_btn'), new_admin_export_profile_path,
-            class: "inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition" %>
+            class: "inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-bold py-2 px-4 rounded-full text-sm transition" %>
     </div>
   <% end %>
 

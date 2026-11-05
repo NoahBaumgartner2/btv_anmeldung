@@ -10,7 +10,7 @@
   </div>
 
   <%# ── Kontoinformationen ─────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-5">
     <div class="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gray-50">
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide"><%= t('accounts.show.section_info') %></p>
     </div>
@@ -35,7 +35,7 @@
   </div>
 
   <%# ── Newsletter ─────────────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-5">
     <div class="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gray-50">
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide"><%= t('accounts.show.section_newsletter') %></p>
     </div>
@@ -52,7 +52,7 @@
       </div>
       <% if @newsletter_subscribed %>
         <%= button_to unsubscribe_newsletter_account_path, method: :post,
-              class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-700 font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" do %>
+              class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-white border border-slate-200 hover:bg-gray-50 active:bg-gray-100 text-gray-700 font-bold py-2.5 px-5 rounded-full shadow-sm text-sm transition cursor-pointer min-h-11" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
           </svg>
@@ -60,7 +60,7 @@
         <% end %>
       <% else %>
         <%= button_to subscribe_newsletter_account_path, method: :post,
-              class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" do %>
+              class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full shadow-sm text-sm transition cursor-pointer min-h-11" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
           </svg>
@@ -71,7 +71,7 @@
   </div>
 
   <%# ── Foto-Einverständnis ──────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-5">
     <div class="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gray-50">
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide"><%= t('accounts.show.section_photo_consent') %></p>
     </div>
@@ -89,7 +89,7 @@
       </div>
       <% if @photo_consent %>
         <%= button_to revoke_photo_consent_account_path, method: :post,
-              class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-700 font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" do %>
+              class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-white border border-slate-200 hover:bg-gray-50 active:bg-gray-100 text-gray-700 font-bold py-2.5 px-5 rounded-full shadow-sm text-sm transition cursor-pointer min-h-11" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
           </svg>
@@ -97,7 +97,7 @@
         <% end %>
       <% else %>
         <%= button_to grant_photo_consent_account_path, method: :post,
-              class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" do %>
+              class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full shadow-sm text-sm transition cursor-pointer min-h-11" do %>
           <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
@@ -108,7 +108,7 @@
   </div>
 
   <%# ── Daten exportieren ──────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden mb-5">
+  <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden mb-5">
     <div class="px-4 sm:px-6 py-4 border-b border-gray-100 bg-gray-50">
       <p class="text-xs font-bold text-gray-500 uppercase tracking-wide"><%= t('accounts.show.section_export') %></p>
     </div>
@@ -118,7 +118,7 @@
         <p class="text-xs text-gray-500 leading-relaxed"><%= t('accounts.show.export_body') %></p>
       </div>
       <%= link_to export_account_path,
-            class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm text-sm transition min-h-11" do %>
+            class: "shrink-0 w-full sm:w-auto justify-center inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-5 rounded-full shadow-sm text-sm transition min-h-11" do %>
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
         </svg>
@@ -207,7 +207,7 @@
         <textarea data-delete-account-target="reasonText"
                   rows="2"
                   placeholder="Dein Feedback…"
-                  class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
+                  class="block w-full rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400 resize-none"></textarea>
       </div>
 
       <div class="flex gap-3">
@@ -215,7 +215,7 @@
                 data-delete-account-target="nextButton"
                 data-action="click->delete-account#next"
                 disabled
-                class="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
+                class="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white font-bold py-2.5 px-4 rounded-full text-sm transition min-h-11">
           <%= t('accounts.show.next_step') %>
         </button>
         <button type="button"
@@ -261,7 +261,7 @@
       <div class="flex gap-3">
         <button type="button"
                 data-action="click->delete-account#next"
-                class="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">
+                class="flex-1 bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold py-2.5 px-4 rounded-full text-sm transition min-h-11">
           <%= t('accounts.show.delete_anyway') %>
         </button>
         <button type="button"
@@ -298,12 +298,12 @@
                 placeholder: t('accounts.show.password_placeholder'),
                 required: true,
                 autocomplete: "current-password",
-                class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400" %>
+                class: "block w-full rounded-xl border border-slate-900/15 px-3 py-2.5 text-base sm:text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400" %>
         </div>
 
         <div class="flex gap-3">
           <%= f.submit t('accounts.show.confirm_delete'),
-                class: "flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-xl text-sm transition cursor-pointer shadow-sm" %>
+                class: "flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded-full text-sm transition cursor-pointer shadow-sm" %>
           <button type="button"
                   data-action="click->delete-account#close"
                   class="flex-1 bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 font-bold py-2.5 px-4 rounded-xl text-sm transition min-h-11">

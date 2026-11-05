@@ -10,7 +10,7 @@
   </div>
 
   <%= form_with url: admin_notification_preferences_path, method: :patch do %>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
       <ul class="divide-y divide-gray-100">
         <% rows = [
           [ "cancel_notice",          "Abmeldung von Kurs",       "Wenn ein Teilnehmer sich vom Kurs abmeldet (Kurs dem du als Trainer zugewiesen bist)", "trainer" ],
@@ -73,7 +73,7 @@
 
     <div class="mt-6">
       <%= submit_tag "Speichern",
-            class: "w-full sm:w-auto bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold py-2.5 px-6 rounded-xl shadow-sm text-sm transition cursor-pointer min-h-11" %>
+            class: "w-full sm:w-auto bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold py-2.5 px-6 rounded-full shadow-sm text-sm transition cursor-pointer min-h-11" %>
     </div>
   <% end %>
 

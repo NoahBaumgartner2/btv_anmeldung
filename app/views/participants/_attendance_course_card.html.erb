@@ -1,6 +1,6 @@
 <%# Ein Kurs mit seinen Trainings. Erwartet `entry` und `status_styles` (siehe _attendance_history). %>
 <% course = entry.course %>
-<details class="group bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden <%= "border-l-4 border-l-green-600" if entry.active? %>" <%= "open" if entry.active? %>>
+<details class="group bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden <%= "border-l-4 border-l-green-600" if entry.active? %>" <%= "open" if entry.active? %>>
   <summary class="flex items-start gap-3 p-4 sm:p-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden hover:bg-gray-50 transition">
     <svg class="w-5 h-5 mt-0.5 text-gray-400 shrink-0 transition-transform group-open:rotate-90" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>

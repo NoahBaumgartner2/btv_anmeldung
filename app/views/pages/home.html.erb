@@ -6,7 +6,7 @@
 <%# ══════════════════════════════════════════════════════════════════════════ %>
 <%# Hero                                                                       %>
 <%# ══════════════════════════════════════════════════════════════════════════ %>
-<section class="bg-primary-600 text-white">
+<section class="text-white">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 py-20 sm:py-28 text-center">
 
     <% if cs.logo.attached? %>
@@ -18,15 +18,15 @@
     <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4 leading-tight">
       <%= cs.club_name.presence || t("pages.home.title") %>
     </h1>
-    <p class="text-primary-100 text-lg sm:text-xl max-w-2xl mx-auto mb-10">
+    <p class="text-white/80 text-lg sm:text-xl max-w-2xl mx-auto mb-10">
       <%= t("pages.home.hero.subtitle") %>
     </p>
 
     <div class="flex flex-col sm:flex-row justify-center gap-3">
       <%= link_to t("pages.home.hero.register"), new_user_registration_path,
-            class: "bg-white text-primary-700 font-bold px-7 py-3.5 rounded-xl shadow-md hover:bg-primary-50 transition text-base" %>
+            class: "btn bg-white text-slate-900 hover:bg-slate-100 min-h-12 px-7 text-base shadow-md" %>
       <%= link_to t("nav.login"), new_user_session_path,
-            class: "bg-primary-700 text-white font-bold px-7 py-3.5 rounded-xl border border-primary-400 hover:bg-primary-800 transition text-base" %>
+            class: "btn min-h-12 px-7 text-base text-white border border-white/40 bg-white/10 hover:bg-white/20" %>
     </div>
   </div>
 </section>
@@ -34,7 +34,7 @@
 <%# ══════════════════════════════════════════════════════════════════════════ %>
 <%# So funktioniert's                                                           %>
 <%# ══════════════════════════════════════════════════════════════════════════ %>
-<section class="bg-white py-16 sm:py-20 border-t border-gray-100">
+<section class="panel rounded-3xl mx-3 sm:mx-5 mb-6 py-16 sm:py-20">
   <div class="max-w-4xl mx-auto px-4 sm:px-6">
 
     <div class="text-center mb-12">
@@ -96,7 +96,7 @@
 
     <div class="text-center mt-12">
       <%= link_to t("pages.home.how_it_works.cta"), new_user_registration_path,
-            class: "inline-block bg-primary-600 hover:bg-primary-700 active:bg-primary-800 text-white font-bold px-8 py-3.5 rounded-xl shadow-sm transition text-sm min-h-11" %>
+            class: "inline-block bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold px-8 py-3.5 rounded-full shadow-sm transition text-sm min-h-11" %>
     </div>
 
   </div>
@@ -105,7 +105,7 @@
 <%# ══════════════════════════════════════════════════════════════════════════ %>
 <%# Kursübersicht                                                               %>
 <%# ══════════════════════════════════════════════════════════════════════════ %>
-<section class="bg-gray-50 py-16 sm:py-20">
+<section class="panel rounded-3xl mx-3 sm:mx-5 mb-6 py-16 sm:py-20">
   <div class="max-w-5xl mx-auto px-4 sm:px-6">
 
     <div class="text-center mb-10">
@@ -114,16 +114,22 @@
     </div>
 
     <% active_courses = @courses.select { |c| c.registration_mode == "single_session" || (c.end_date.nil? || c.end_date >= Date.today) } %>
+    <% category_images = CourseCategory.with_attached_image.to_h { |c| [ c.name, c.image ] } %>
     <% categories = active_courses.group_by { |c| c.category.presence || c.title.split("(").first.strip }.sort %>
 
     <% if categories.any? %>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         <% categories.each do |category, courses_in_category| %>
           <%= link_to courses_path(anchor: category.parameterize),
-                class: "bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col overflow-hidden hover:shadow-md hover:border-gray-300 transition" do %>
+                class: "bg-white rounded-3xl shadow-sm border border-slate-200/80 flex flex-col overflow-hidden hover:shadow-md hover:border-gray-300 transition" do %>
 
             <%# Farbstreifen oben %>
-            <div class="h-1.5 bg-primary-600"></div>
+            <% cat_image = category_images[category] %>
+            <% if cat_image&.attached? %>
+              <%= image_tag cat_image.variant(Course::CARD_VARIANT), alt: "", loading: "lazy", class: "w-full aspect-[16/9] object-cover" %>
+            <% else %>
+              <div class="h-1.5 bg-primary-600"></div>
+            <% end %>
 
             <div class="p-5 flex-1 flex flex-col">
               <h3 class="font-bold text-gray-900 text-base mb-1"><%= category %></h3>
@@ -140,7 +146,7 @@
                 <% end %>
               </div>
 
-              <span class="mt-auto block text-center text-xs font-bold py-2 px-4 rounded-lg transition bg-primary-600 text-white hover:bg-primary-700">
+              <span class="mt-auto block text-center text-xs font-bold py-2 px-4 rounded-full transition bg-slate-900 text-white hover:bg-slate-800">
                 <%= t("pages.home.courses.view_category") %>
               </span>
             </div>
@@ -154,7 +160,7 @@
       </div>
 
     <% else %>
-      <div class="text-center py-16 bg-white rounded-2xl border border-gray-200">
+      <div class="text-center py-16 bg-white rounded-3xl border border-slate-200/80">
         <p class="text-gray-500"><%= t("pages.home.courses.empty") %></p>
       </div>
     <% end %>
@@ -165,7 +171,7 @@
 <%# ══════════════════════════════════════════════════════════════════════════ %>
 <%# Footer                                                                      %>
 <%# ══════════════════════════════════════════════════════════════════════════ %>
-<footer class="bg-gray-900 text-gray-400 py-10">
+<footer class="text-white/70 py-10">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center">
     <% if cs.logo.attached? %>
       <%= image_tag cs.logo, class: "h-10 w-auto object-contain mx-auto mb-3 opacity-80", alt: cs.club_name.presence || "Logo" %>

@@ -71,7 +71,7 @@
 
     <div data-controller="modal" class="shrink-0 w-full sm:w-auto">
       <button type="button" data-action="click->modal#open"
-              class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white border border-gray-300 shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition py-2.5 px-4 rounded-lg min-h-11">
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white border border-slate-200 shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition py-2.5 px-4 rounded-full min-h-11">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
           <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -160,7 +160,7 @@
       </p>
       <% if current_user.admin? %>
         <%= button_to "Wieder aktivieren", reactivate_course_path(@course),
-              class: "shrink-0 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer" %>
+              class: "shrink-0 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold py-2 px-4 rounded-full transition cursor-pointer" %>
       <% end %>
     </div>
   <% end %>
@@ -196,25 +196,25 @@
         </div>
       </div>
       <%= link_to t("courses.manage.open_attendance"), training_session_path(live_session),
-            class: "shrink-0 w-full sm:w-auto text-center bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-2.5 px-5 rounded-lg text-sm transition min-h-11" %>
+            class: "shrink-0 w-full sm:w-auto text-center bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold py-2.5 px-5 rounded-full text-sm transition min-h-11" %>
     </div>
   <% end %>
 
   <%# ── Stats ─────────────────────────────────────────────────────────────── %>
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 sm:mb-8">
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-4 text-center">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-3 sm:p-4 text-center">
       <p class="text-xl sm:text-2xl font-extrabold text-green-600"><%= confirmed_count %></p>
       <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.confirmed") %></p>
     </div>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-4 text-center">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-3 sm:p-4 text-center">
       <p class="text-xl sm:text-2xl font-extrabold text-orange-500"><%= waitlist_count %></p>
       <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.waitlist") %></p>
     </div>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-4 text-center">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-3 sm:p-4 text-center">
       <p class="text-xl sm:text-2xl font-extrabold text-gray-900"><%= total_count %></p>
       <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.sessions_label") %></p>
     </div>
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-3 sm:p-4 text-center">
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm p-3 sm:p-4 text-center">
       <p class="text-xl sm:text-2xl font-extrabold text-primary-600"><%= upcoming_count %></p>
       <p class="text-xs font-semibold text-gray-500 mt-0.5 uppercase tracking-wide"><%= t("courses.manage.upcoming") %></p>
     </div>
@@ -239,7 +239,7 @@
     _can_manually_enroll = current_user.admin? || _ct&.can_manually_enroll?
   %>
   <% if _can_manually_enroll %>
-    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl overflow-hidden mb-6 sm:mb-8"
+    <div class="bg-white shadow-sm ring-1 ring-slate-200/80 rounded-3xl overflow-hidden mb-6 sm:mb-8"
          data-controller="manual-enroll">
       <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
         <h2 class="text-base sm:text-lg font-bold text-gray-900">Kind manuell anmelden</h2>
@@ -263,7 +263,7 @@
                       options_from_collection_for_select(@trial_sessions, :id, ->(s) { I18n.l(s.start_time) }),
                       prompt: t("course_registrations.form.trial_session_prompt"),
                       data: { "manual-enroll-target": "trialSessionSelect", action: "change->manual-enroll#syncTrialSession" },
-                      class: "block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+                      class: "block w-full rounded-xl border border-slate-900/15 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 bg-white" %>
               <% else %>
                 <div class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-sm text-gray-600">
                   <%= t("course_registrations.form.trial_no_sessions") %>
@@ -298,7 +298,7 @@
             <%= number_field_tag :abo_remaining_entries_display, nil,
                   min: 0,
                   data: { "manual-enroll-target": "aboEntriesDisplay", action: "input->manual-enroll#syncAboEntries" },
-                  class: "block w-full sm:w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" %>
+                  class: "block w-full sm:w-40 rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 bg-white" %>
           </div>
         <% end %>
 
@@ -309,13 +309,13 @@
           <button type="button"
                   data-action="click->manual-enroll#showSearch"
                   data-manual-enroll-target="searchTab"
-                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition <%= _show_create ? "bg-gray-100 text-gray-600 hover:bg-gray-200" : "bg-primary-600 text-white" %>">
+                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition <%= _show_create ? "bg-gray-100 text-gray-600 hover:bg-gray-200" : "bg-slate-900 text-white" %>">
             Bestehende Familie suchen
           </button>
           <button type="button"
                   data-action="click->manual-enroll#showCreate"
                   data-manual-enroll-target="createTab"
-                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition <%= _show_create ? "bg-primary-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200" %>">
+                  class="flex-1 py-2 px-4 rounded-lg text-sm font-bold transition <%= _show_create ? "bg-slate-900 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200" %>">
             Neue Familie erstellen
           </button>
         </div>
@@ -326,7 +326,7 @@
                  placeholder="Name oder E-Mail der Eltern / des Kindes..."
                  data-manual-enroll-target="searchInput"
                  data-action="input->manual-enroll#search"
-                 class="block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500 mb-3">
+                 class="block w-full rounded-xl border border-slate-900/15 px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20 mb-3">
 
           <div class="mb-3">
             <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.participants"), form_id: "manual-enroll-form" %>
@@ -363,7 +363,7 @@
   <% end %>
 
   <%# ── Teilnehmende ────────────────────────────────────────────────────── %>
-  <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl mb-6 sm:mb-8">
+  <div class="bg-white shadow-sm ring-1 ring-slate-200/80 rounded-3xl mb-6 sm:mb-8">
     <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
       <h2 class="text-base sm:text-lg font-bold text-gray-900">
         <%= t("courses.manage.participants_title") %>
@@ -378,7 +378,7 @@
         <input type="text"
                id="participants-search"
                placeholder="Teilnehmer suchen..."
-               class="block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+               class="block w-full rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20"
                oninput="filterParticipants(this.value)">
       </div>
     <% end %>
@@ -498,7 +498,7 @@
 
   <%# ── Zugriffsverwaltung (nur für restricted + admin) ─────────────────── %>
   <% if @course.restricted? && current_user.admin? %>
-    <div class="bg-white shadow-sm ring-1 ring-gray-200 rounded-2xl overflow-hidden mb-6 sm:mb-8">
+    <div class="bg-white shadow-sm ring-1 ring-slate-200/80 rounded-3xl overflow-hidden mb-6 sm:mb-8">
       <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100">
         <h2 class="text-base sm:text-lg font-bold text-gray-900">Zugriffsverwaltung</h2>
         <p class="text-sm font-medium text-gray-400 mt-0.5">Benutzer mit Zugriff auf diesen Kurs</p>
@@ -539,9 +539,9 @@
             <%= f.email_field :email,
                   placeholder: "E-Mail-Adresse",
                   required: true,
-                  class: "flex-1 min-w-0 rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-primary-500" %>
+                  class: "flex-1 min-w-0 rounded-xl border border-slate-900/15 px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-900/20" %>
             <%= f.submit "Zugriff erteilen",
-                  class: "shrink-0 bg-primary-600 hover:bg-primary-700 text-white text-sm font-bold py-2 px-4 rounded-lg transition cursor-pointer" %>
+                  class: "shrink-0 bg-slate-900 hover:bg-slate-800 text-white text-sm font-bold py-2 px-4 rounded-full transition cursor-pointer" %>
           </div>
           <%= render "shared/send_mail_checkbox", text: t("shared.send_mail.recipient") %>
         <% end %>
@@ -550,7 +550,7 @@
   <% end %>
 
   <%# ── Sessions ────────────────────────────────────────────────────────── %>
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+  <div class="bg-white rounded-3xl shadow-sm border border-slate-200/80 overflow-hidden">
     <div class="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-100 flex justify-between items-center">
       <h2 class="text-base sm:text-lg font-bold text-gray-900"><%= t("courses.manage.trainings_title") %></h2>
       <span class="text-sm text-gray-400 font-medium"><%= t("courses.manage.dates_count", count: total_count) %></span>
@@ -644,7 +644,7 @@
             <div class="flex items-center gap-2 shrink-0 sm:ml-0 ml-14">
               <% if is_live %>
                 <%= link_to t("courses.manage.attendance_control"), training_session_path(session),
-                      class: "bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-sm font-bold py-2 px-4 rounded-lg transition min-h-11 flex items-center" %>
+                      class: "bg-green-600 hover:bg-green-700 active:bg-green-800 text-white text-sm font-bold py-2 px-4 rounded-full transition min-h-11 flex items-center" %>
               <% else %>
                 <%= link_to t("courses.manage.attendance_control"), training_session_path(session),
                       class: "bg-gray-100 hover:bg-gray-200 active:bg-gray-300 text-gray-700 text-sm font-bold py-2 px-4 rounded-lg transition min-h-11 flex items-center" %>
