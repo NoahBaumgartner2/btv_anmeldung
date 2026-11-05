@@ -14,12 +14,12 @@
 
 <div class="max-w-7xl mx-auto mt-6 sm:mt-10 mb-16 px-4">
 
+  <%= render "admin/shared/section_header" %>
+
   <%# ── Header ────────────────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 sm:mb-8 gap-4">
     <div>
-      <%= link_to t('dashboards.stats.back'), dashboards_admin_path,
-            class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition min-h-11 inline-flex items-center" %>
-      <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900 mt-1 sm:mt-2"><%= t('dashboards.stats.title') %></h1>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t('dashboards.stats.title') %></h2>
       <p class="text-gray-500 mt-1 text-sm sm:text-base"><%= t('dashboards.stats.subtitle') %></p>
     </div>
   </div>

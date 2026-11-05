@@ -75,6 +75,16 @@ module ApplicationHelper
     sections
   end
 
+  # Bereich und Seite der Kommandozentrale zur aktuellen Seite (für den
+  # Bereichskopf mit Tabs). active: Item-Key erzwingen, sonst per Pfad.
+  def admin_section_for_current_page(active = nil)
+    AdminNavigation::SECTIONS.each do |section, items|
+      item = items.find { |i| active ? i.key == active : request.path == send(i.path) }
+      return [ section, item ] if item
+    end
+    nil
+  end
+
   def nav_current?(path)
     request.path == path || request.path.start_with?("#{path}/")
   end

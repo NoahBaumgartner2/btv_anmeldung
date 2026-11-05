@@ -3,9 +3,7 @@ en:
 
   course_categories:
     index:
-      header_label: "Management"
       title: "Course categories"
-      back_to_dashboard: "Back to dashboard"
       summary: "%{courses} courses · %{recipients} recipients"
       compose_button: "Compose email"
       modal_title: "Email to category “%{category}”"
@@ -893,7 +891,6 @@ en:
     stats:
       title: "Statistics"
       subtitle: "Overview of all trainings, sessions, and attendance."
-      back: "← Command Centre"
       all_courses: "All courses"
       courses_selected:
         one: "1 course selected"
@@ -1495,14 +1492,7 @@ en:
 
   admin:
     settings:
-      title: "Settings"
       subtitle: "Central configuration for the club."
-      back: "← Command center"
-      tabs:
-        communication: "Communication"
-        club: "Club"
-        payments: "Payments"
-        features: "Features & rules"
       features:
         title: "Features & rules"
         desc: "Global switches and deadlines. Unless changed, the default applies."
@@ -1659,7 +1649,6 @@ en:
         cancel: "Cancel"
     export_profiles:
       index:
-        back: "← Command Centre"
         title: "Export profiles"
         subtitle: "Reusable templates for participant lists and attendance lists."
         new_btn: "New profile"
@@ -1681,7 +1670,6 @@ en:
         title: "Edit export profile"
     nds:
       show:
-        back: "← Command Centre"
         title: "NDS / J+S Data Exchange"
         subtitle: "Workflow for the BASPO Jugend+Sport data exchange."
 
@@ -1837,7 +1825,6 @@ en:
 
   newsletters:
     index:
-      admin_label: "Admin"
       title: "Mailing Centre"
       subscribers_link: "Recipients list"
       new_newsletter: "+ New newsletter"
@@ -1884,7 +1871,6 @@ en:
 
   newsletter_subscribers:
     index:
-      back: "← Mailing Centre"
       title: "Recipients list"
       stat_subscribed: "subscribed"
       stat_unsubscribed: "unsubscribed"

@@ -1,17 +1,15 @@
 # Zentrales Verzeichnis aller Admin-Seiten, gruppiert nach Bereichen der
 # Kommandozentrale (Kurse, Personen & Finanzen, Kommunikation, Auswertung,
-# Einstellungen). Einstellungen enthalten nur Konfiguration. Einzige Quelle für den Schnellzugriff (dashboards/admin)
-# und die Tabs des Einstellungs-Hubs (admin/settings/_tabs).
+# Einstellungen). Einstellungen enthalten nur Konfiguration.
+# Einzige Quelle für den Schnellzugriff (dashboards/admin) und die Bereichs-Tabs
+# oben auf jeder Admin-Seite (admin/shared/_section_header).
 #
 # Neue Admin-Seite = 1 Item hier + Texte unter dashboards.admin.links.<key>(_desc).
 #
 # path:  Name des Route-Helpers (wird in der View aufgelöst)
 # icon:  SVG-Pfad (Heroicons outline); Farbe kommt vom Bereich (SECTION_TONES)
-# tab:   Schlüssel des Einstellungs-Tabs (nur Bereich :settings)
 class AdminNavigation
-  Item = Data.define(:key, :path, :icon, :tab) do
-    def initialize(key:, path:, icon:, tab: nil) = super
-  end
+  Item = Data.define(:key, :path, :icon)
 
   # Eine Farbe pro Bereich: alle Seiten eines Bereichs teilen sie.
   SECTION_TONES = {
@@ -78,13 +76,13 @@ class AdminNavigation
                icon: "M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z")
     ],
     settings: [
-      Item.new(key: :settings_communication, path: :admin_settings_communication_path, tab: :communication,
+      Item.new(key: :settings_communication, path: :admin_settings_communication_path,
                icon: "M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"),
-      Item.new(key: :settings_club, path: :admin_settings_club_path, tab: :club,
+      Item.new(key: :settings_club, path: :admin_settings_club_path,
                icon: "M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"),
-      Item.new(key: :settings_payments, path: :admin_settings_payments_path, tab: :payments,
+      Item.new(key: :settings_payments, path: :admin_settings_payments_path,
                icon: "M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"),
-      Item.new(key: :settings_features, path: :admin_settings_features_path, tab: :features,
+      Item.new(key: :settings_features, path: :admin_settings_features_path,
                icon: "M13 10V3L4 14h7v7l9-11h-7z")
     ]
   }.freeze

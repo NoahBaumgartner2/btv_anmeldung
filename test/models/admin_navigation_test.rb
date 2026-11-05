@@ -11,7 +11,6 @@ class AdminNavigationTest < ActiveSupport::TestCase
           %W[dashboards.admin.links.#{item.key} dashboards.admin.links.#{item.key}_desc dashboards.admin.sections.#{section}].each do |key|
             assert I18n.exists?(key, locale), "Text #{locale}.#{key} fehlt"
           end
-          assert I18n.exists?("admin.settings.tabs.#{item.tab}", locale), "Tab-Text #{locale} #{item.tab} fehlt" if item.tab
         end
       end
     end

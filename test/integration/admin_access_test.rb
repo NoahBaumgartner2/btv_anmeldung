@@ -106,4 +106,25 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
       assert_select "a[href='#{public_send(helper)}']", { minimum: 1 }, "Link #{helper} fehlt"
     end
   end
+
+  test "jede Bereichsseite zeigt Zurück zur Kommandozentrale und die Tabs ihres Bereichs" do
+    sign_in users(:admin)
+    AdminNavigation::SECTIONS.each do |section, items|
+      items.each do |item|
+        get public_send(item.path)
+        assert_response :success, item.key
+        assert_select "a[href='#{dashboards_admin_path}']", { minimum: 1 }, "Zurück-Link fehlt auf #{item.key}"
+        nav = "nav[aria-label='#{I18n.t("dashboards.admin.sections.#{section}")}']"
+        assert_select "#{nav} a", items.size, "Tabs fehlen auf #{item.key}"
+        assert_select "#{nav} a[aria-current=page][href='#{public_send(item.path)}']", 1, "aktiver Tab fehlt auf #{item.key}"
+      end
+    end
+  end
+
+  test "Trainer:innen sehen im Mail-Protokoll keinen Admin-Bereichskopf" do
+    sign_in users(:one)
+    get mail_logs_path
+    assert_response :success
+    assert_select "nav[aria-label='#{I18n.t("dashboards.admin.sections.communication")}']", 0
+  end
 end

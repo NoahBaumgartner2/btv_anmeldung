@@ -3,9 +3,7 @@ de:
 
   course_categories:
     index:
-      header_label: "Verwaltung"
       title: "Kurskategorien"
-      back_to_dashboard: "Zurück zum Dashboard"
       summary: "%{courses} Kurse · %{recipients} Empfänger"
       compose_button: "E-Mail verfassen"
       modal_title: "E-Mail an Kategorie „%{category}“"
@@ -951,7 +949,6 @@ de:
     stats:
       title: "Statistiken"
       subtitle: "Übersicht über alle Trainings, Sessions und Anwesenheiten."
-      back: "← Kommandozentrale"
       all_courses: "Alle Kurse"
       courses_selected:
         one: "1 Kurs ausgewählt"
@@ -1568,14 +1565,7 @@ de:
 
   admin:
     settings:
-      title: "Einstellungen"
       subtitle: "Zentrale Konfiguration des Vereins."
-      back: "← Kommandozentrale"
-      tabs:
-        communication: "Kommunikation"
-        club: "Verein"
-        payments: "Zahlungen"
-        features: "Funktionen & Regeln"
       communication:
         smtp_title: "E-Mail-Versand (SMTP)"
         smtp_desc: "SMTP-Zugangsdaten, Absender und App-URL für ausgehende E-Mails."
@@ -1751,7 +1741,6 @@ de:
         cancel: "Abbrechen"
     export_profiles:
       index:
-        back: "← Kommandozentrale"
         title: "Exportprofile"
         subtitle: "Wiederverwendbare Vorlagen für Teilnehmerlisten und Anwesenheitslisten."
         new_btn: "Neues Profil"
@@ -1773,7 +1762,6 @@ de:
         title: "Exportprofil bearbeiten"
     nds:
       show:
-        back: "← Kommandozentrale"
         title: "NDS / J+S Datenaustausch"
         subtitle: "Workflow für den BASPO Jugend+Sport Datenaustausch – Personenimport und Anwesenheitskontrolle (AWK)."
 
@@ -2060,7 +2048,6 @@ de:
 
   newsletters:
     index:
-      admin_label: "Admin"
       title: "Mailing-Zentrale"
       subscribers_link: "Empfängerliste"
       new_newsletter: "+ Neuer Newsletter"
@@ -2107,7 +2094,6 @@ de:
 
   newsletter_subscribers:
     index:
-      back: "← Mailing-Zentrale"
       title: "Empfängerliste"
       stat_subscribed: "angemeldet"
       stat_unsubscribed: "abgemeldet"

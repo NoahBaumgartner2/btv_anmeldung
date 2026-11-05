@@ -3,9 +3,7 @@ fr:
 
   course_categories:
     index:
-      header_label: "Gestion"
       title: "Catégories de cours"
-      back_to_dashboard: "Retour au tableau de bord"
       summary: "%{courses} cours · %{recipients} destinataires"
       compose_button: "Rédiger l'e-mail"
       modal_title: "E-mail à la catégorie « %{category} »"
@@ -892,7 +890,6 @@ fr:
     stats:
       title: "Statistiques"
       subtitle: "Vue d'ensemble de tous les entraînements, sessions et présences."
-      back: "← Centre de commande"
       all_courses: "Tous les cours"
       courses_selected:
         one: "1 cours sélectionné"
@@ -1490,14 +1487,7 @@ fr:
 
   admin:
     settings:
-      title: "Paramètres"
       subtitle: "Configuration centrale du club."
-      back: "← Centre de commande"
-      tabs:
-        communication: "Communication"
-        club: "Club"
-        payments: "Paiements"
-        features: "Fonctionnalit\u00E9s & r\u00E8gles"
       features:
         title: "Fonctionnalit\u00E9s & r\u00E8gles"
         desc: "Interrupteurs et d\u00E9lais globaux. Sans modification, la valeur par d\u00E9faut s'applique."
@@ -1654,7 +1644,6 @@ fr:
         cancel: "Annuler"
     export_profiles:
       index:
-        back: "← Centre de commande"
         title: "Profils d'exportation"
         subtitle: "Modèles réutilisables pour les listes de participants et les listes de présence."
         new_btn: "Nouveau profil"
@@ -1676,7 +1665,6 @@ fr:
         title: "Modifier le profil d'exportation"
     nds:
       show:
-        back: "← Centre de commande"
         title: "NDS / J+S Échange de données"
         subtitle: "Workflow pour l'échange de données BASPO Jeunesse+Sport – Import de personnes et contrôle de présence (AWK)."
 
@@ -1832,7 +1820,6 @@ fr:
 
   newsletters:
     index:
-      admin_label: "Admin"
       title: "Centre de messagerie"
       subscribers_link: "Liste des destinataires"
       new_newsletter: "+ Nouveau newsletter"
@@ -1879,7 +1866,6 @@ fr:
 
   newsletter_subscribers:
     index:
-      back: "← Centre de messagerie"
       title: "Liste des destinataires"
       stat_subscribed: "inscrits"
       stat_unsubscribed: "désinscrits"

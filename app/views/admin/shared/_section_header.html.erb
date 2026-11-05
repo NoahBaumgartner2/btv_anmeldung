@@ -1,0 +1,29 @@
+<%# Kopf jeder Admin-Seite: „← Kommandozentrale“, Bereichstitel und Tabs aller
+    Seiten des Bereichs (aus AdminNavigation). Nur für Admins.
+    Locals: active (optional, Item-Key, sonst per Pfad), subtitle (optional) %>
+<% section, current = admin_section_for_current_page(local_assigns[:active]) %>
+<% if section && current_user&.admin? %>
+  <div class="mb-6">
+    <%= link_to dashboards_admin_path,
+          class: "inline-flex items-center gap-1.5 text-sm font-semibold text-gray-500 hover:text-gray-800 transition" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+      </svg>
+      <%= t("dashboards.admin.title") %>
+    <% end %>
+    <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mt-2"><%= t("dashboards.admin.sections.#{section}") %></h1>
+    <% if local_assigns[:subtitle].present? %>
+      <p class="text-gray-500 mt-1 text-sm"><%= subtitle %></p>
+    <% end %>
+  </div>
+  <div class="border-b border-gray-200 mb-8">
+    <nav class="-mb-px flex gap-1 sm:gap-2 overflow-x-auto" aria-label="<%= t("dashboards.admin.sections.#{section}") %>">
+      <% AdminNavigation.items(section).each do |item| %>
+        <% is_active = item == current %>
+        <%= link_to t("dashboards.admin.links.#{item.key}"), send(item.path),
+              "aria-current": (is_active ? "page" : nil),
+              class: "shrink-0 whitespace-nowrap px-3 sm:px-4 py-3 text-sm font-bold border-b-2 transition min-h-11 #{is_active ? 'border-primary-600 text-primary-700' : 'border-transparent text-gray-500 hover:text-gray-800 hover:border-gray-300'}" %>
+      <% end %>
+    </nav>
+  </div>
+<% end %>
