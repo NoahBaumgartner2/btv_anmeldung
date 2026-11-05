@@ -1,0 +1,39 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "82504dd5469bfaaf125bee5fc5ef2935cc5d86f485d53f7a914a061a72fa10e8",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/admin/notifications/preview.html.erb",
+      "line": 38,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "Nokogiri.HTML((MailSetting.with_preview_mode do\n mail = NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method)\nmessage = if NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method).respond_to?(:message) then\n  NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method).message\nelse\n  NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method)\nend\n(NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method).message or NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method)).tap(&:encoded)\n end.html_part or MailSetting.with_preview_mode do\n mail = NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method)\nmessage = if NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method).respond_to?(:message) then\n  NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method).message\nelse\n  NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method)\nend\n(NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method).message or NotificationPreviewBuilder.public_send(NotificationCatalog.find(params[:id]).preview_method)).tap(&:encoded)\n end).decoded).at(\"body\").inner_html.to_s",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Admin::NotificationsController",
+          "method": "preview",
+          "line": 45,
+          "file": "app/controllers/admin/notifications_controller.rb",
+          "rendered": {
+            "name": "admin/notifications/preview",
+            "file": "app/views/admin/notifications/preview.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "admin/notifications/preview"
+      },
+      "user_input": "MailSetting.with_preview_mode",
+      "confidence": "Weak",
+      "cwe_id": [
+        79
+      ],
+      "note": "Mail-Vorschau im Admin: gerendert wird die eigene Mail-Vorlage mit Beispieldaten (NotificationPreviewBuilder), Werte sind beim Rendern escaped. html_safe ist nötig, damit die Inline-Styles der Mail erhalten bleiben (sanitize würde style entfernen). Absicherung: eigene CSP default-src none (keine Skripte), iframe mit sandbox, nur für Admins."
+    }
+  ],
+  "brakeman_version": "8.1.0"
+}
