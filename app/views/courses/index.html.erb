@@ -1,335 +1,84 @@
 <% content_for :title, t("courses.index.title") %>
+<%
+  groups = ->(courses) { courses.group_by(&:category_name).sort }
+  all_courses = @restricted_courses + @public_courses
+  filter_days = all_courses.flat_map { |c| course_weekdays(c) }.uniq.sort_by { |d| (d - 1) % 7 }
+  filter_locations = all_courses.map(&:location).compact_blank.uniq.sort
+%>
 
-<div class="max-w-6xl mx-auto w-full px-4 sm:px-6 mt-6 sm:mt-10 mb-16">
+<div class="max-w-6xl mx-auto w-full" data-controller="course-filter">
 
-  <%# ── Header ─────────────────────────────────────────────────────────── %>
-  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 sm:mb-10 gap-4">
+  <%# ── Kopf ───────────────────────────────────────────────────────────── %>
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 gap-4">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight"><%= t("courses.index.title") %></h1>
-      <p class="text-gray-500 mt-1 text-sm sm:text-base"><%= t("courses.index.subtitle") %></p>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight"><%= t("courses.index.title") %></h1>
+      <p class="text-slate-600 mt-1 text-sm sm:text-base"><%= t("courses.index.subtitle") %></p>
     </div>
     <% if current_user&.admin? %>
-      <%= link_to t("courses.index.new_course"), new_course_path,
-            class: "w-full sm:w-auto shrink-0 inline-flex items-center justify-center bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-5 rounded-lg shadow-sm transition text-sm min-h-[44px]" %>
+      <%= link_to t("courses.index.new_course"), new_course_path, class: "btn btn-primary w-full sm:w-auto" %>
     <% end %>
   </div>
 
-  <%# ── Leistungssport (restricted) ───────────────────────────────────── %>
-  <% if @restricted_courses.any? %>
-    <div class="mb-6">
-      <div class="flex items-center gap-3 mb-4">
-        <span class="inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider"><%= t("courses.index.restricted_badge") %></span>
-        <span class="text-sm text-gray-400"><%= t("courses.index.restricted_subtitle") %></span>
-      </div>
-      <% @restricted_courses.group_by { |c| c.category.presence || c.title.split("(").first.strip }.sort.each do |category, courses_in_category| %>
-        <details id="restricted-<%= category.parameterize %>" class="group bg-white rounded-2xl shadow-sm border border-red-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">
-          <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 sm:px-5 py-4 min-h-[56px] hover:bg-red-50 transition select-none">
-            <div class="flex items-center gap-3 min-w-0">
-              <span class="text-gray-400 transition-transform duration-200 group-open:rotate-90 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-4 w-4">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                </svg>
-              </span>
-              <div class="min-w-0">
-                <h2 class="text-base sm:text-lg font-bold text-gray-900"><%= category %></h2>
-                <p class="text-xs text-gray-400 mt-0.5">
-                  <%= t("courses.index.slots_available", count: courses_in_category.count) %>
-                </p>
-              </div>
-            </div>
-
-            <%# Schnell-Info: Wochentage + alle Orte (nur ≥ md – auf Mobile zu eng) %>
-            <div class="hidden md:flex flex-wrap items-center justify-end gap-1.5 shrink-0 max-w-[55%]">
-              <% category_weekday_names(courses_in_category).each do |day| %>
-                <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-primary-50 text-primary-700"><%= day %></span>
-              <% end %>
-              <% category_locations(courses_in_category).each do |loc| %>
-                <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2.5 py-1 rounded-full"><%= loc %></span>
-              <% end %>
-            </div>
-          </summary>
-          <div class="border-t border-red-100 bg-red-50/30 p-4 sm:p-5">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <% courses_in_category.each do |course| %>
-                <%
-                  is_full         = course.full?
-                  is_single       = course.registration_mode == "single_session"
-                  remaining       = course.spots_remaining
-                  waitlist_count  = course.waitlist_count
-                %>
-                <article class="flex flex-col bg-white rounded-2xl border border-red-200 shadow-sm hover:shadow-md hover:border-red-300 transition overflow-hidden">
-                  <div class="p-5 flex-1 flex flex-col">
-                    <div class="flex flex-wrap items-center gap-2 mb-3 min-h-[24px]">
-                      <span class="inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-2.5 py-1 rounded-full">Eingeschränkt</span>
-                      <%# Drop-In-Kurse: Limit ist pro Training separat, ein Kurs-weiter Wert wäre
-                          hier irreführend - Plätze werden erst bei der Terminauswahl angezeigt. %>
-                      <% unless is_single %>
-                        <% if is_full %>
-                          <span class="inline-flex items-center bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                            <%= t("courses.index.status.full") %>
-                          </span>
-                        <% elsif remaining && remaining <= 3 %>
-                          <span class="inline-flex items-center bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">
-                            <%= t("courses.index.status.spots_last", count: remaining) %>
-                          </span>
-                        <% elsif remaining %>
-                          <span class="inline-flex items-center bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                            <%= t("courses.index.status.spots_free", count: remaining) %>
-                          </span>
-                        <% end %>
-                        <% if waitlist_count > 0 %>
-                          <span class="inline-flex items-center bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold px-2.5 py-1 rounded-full">
-                            <%= t("courses.index.status.waitlist", count: waitlist_count) %>
-                          </span>
-                        <% end %>
-                      <% end %>
-                    </div>
-                    <h3 class="text-lg sm:text-xl font-extrabold text-gray-900 leading-snug mb-3 break-words">
-                      <%= course.title %>
-                    </h3>
-                    <dl class="space-y-2 text-sm text-gray-600 mb-5">
-                      <% if course.location.present? %>
-                        <div class="flex items-start gap-2">
-                          <svg class="h-4 w-4 mt-0.5 shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                          </svg>
-                          <dd class="break-words"><%= course.location %></dd>
-                        </div>
-                      <% end %>
-                      <div class="flex items-start gap-2">
-                        <svg class="h-4 w-4 mt-0.5 shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                        </svg>
-                        <dd class="break-words">
-                          <% if course.abo? %>
-                            <%= t("courses.index.date.abo") %>
-                          <% elsif course.start_date && course.end_date %>
-                            <%= course.start_date.strftime("%-d. %b %Y") %> – <%= course.end_date.strftime("%-d. %b %Y") %>
-                          <% else %>
-                            <%= t("courses.index.date.tba") %>
-                          <% end %>
-                        </dd>
-                      </div>
-                      <% if (weekly_time = course_weekly_time(course)) %>
-                        <div class="flex items-start gap-2">
-                          <svg class="h-4 w-4 mt-0.5 shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          </svg>
-                          <dd class="break-words"><%= weekly_time %></dd>
-                        </div>
-                      <% end %>
-                    </dl>
-                    <div class="mt-auto pt-4 border-t border-gray-100">
-                      <div class="flex items-baseline justify-between gap-3 mb-4">
-                        <span class="text-2xl font-extrabold text-gray-900 break-words">
-                          <% if course.late_registration_deduction_cents.positive? %>
-                            <span class="block text-sm font-semibold text-gray-400 line-through"><%= course.price_display %></span>
-                          <% end %>
-                          <%= course.effective_price_display %>
-                        </span>
-                        <% if current_user&.admin? %>
-                          <%= link_to t("courses.index.actions.manage"), manage_course_path(course),
-                                class: "shrink-0 inline-flex items-center justify-center text-xs font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition min-h-[36px]" %>
-                        <% end %>
-                      </div>
-                      <%= link_to t("courses.index.actions.register"), course_path(course),
-                            class: "block w-full text-center text-sm font-bold bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
-                    </div>
-                  </div>
-                </article>
-              <% end %>
-            </div>
-          </div>
-        </details>
+  <%# ── Filter Wann & Wo (läuft beim Scrollen mit) ─────────────────────── %>
+  <% if filter_days.size > 1 || filter_locations.size > 1 %>
+    <div class="lg:sticky lg:top-4 z-20 mb-8 glass-strong rounded-2xl p-2.5 sm:p-3 space-y-2">
+      <% [ [ :weekday, filter_days, ->(d) { t("date.abbr_day_names")[d] } ],
+           [ :location, filter_locations, ->(l) { l } ] ].each do |key, values, label| %>
+        <% next if values.size < 2 %>
+        <div class="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] -mx-1 px-1" role="group" aria-label="<%= t("courses.index.filter.#{key}") %>">
+          <span class="shrink-0 w-10 text-xs font-semibold uppercase tracking-wide text-slate-500"><%= t("courses.index.filter.#{key}_short") %></span>
+          <% values.each do |v| %>
+            <button type="button" class="chip" aria-pressed="false"
+                    data-course-filter-target="chip" data-key="<%= key %>" data-value="<%= v %>"
+                    data-action="course-filter#toggle"><%= label.call(v) %></button>
+          <% end %>
+        </div>
       <% end %>
+      <div class="flex items-center justify-between gap-3 px-1" data-course-filter-target="status" hidden>
+        <span class="text-xs font-medium text-slate-600" data-course-filter-target="count" data-template="<%= t("courses.index.filter.count", visible: "%{visible}", total: "%{total}") %>"></span>
+        <button type="button" class="text-xs font-semibold text-slate-900 underline underline-offset-2 cursor-pointer"
+                data-action="course-filter#reset"><%= t("courses.index.filter.reset") %></button>
+      </div>
     </div>
   <% end %>
 
-  <%# ── Kategorien ──────────────────────────────────────────────────────── %>
-  <% if @public_courses.any? %>
-    <% @public_courses.group_by { |c| c.category.presence || c.title.split("(").first.strip }.sort.each do |category, courses_in_category| %>
-
-      <details id="<%= category.parameterize %>" class="group bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden mb-4 [&_summary::-webkit-details-marker]:hidden">
-
-        <%# ── Kategorie-Header (Touch-Target ≥ 44px) ────────────────────── %>
-        <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 sm:px-5 py-4 min-h-[56px] hover:bg-gray-50 transition select-none">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="text-gray-400 transition-transform duration-200 group-open:rotate-90 shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-4 w-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-              </svg>
-            </span>
-            <div class="min-w-0">
-              <h2 class="text-base sm:text-lg font-bold text-gray-900"><%= category %></h2>
-              <p class="text-xs text-gray-400 mt-0.5">
-                <%= t("courses.index.slots_available", count: courses_in_category.count) %>
-              </p>
-            </div>
-          </div>
-
-          <%# Schnell-Info: Wochentage + alle Orte (nur ≥ md – auf Mobile zu eng) %>
-          <div class="hidden md:flex flex-wrap items-center justify-end gap-1.5 shrink-0 max-w-[55%]">
-            <% category_weekday_names(courses_in_category).each do |day| %>
-              <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-primary-50 text-primary-700"><%= day %></span>
-            <% end %>
-            <% category_locations(courses_in_category).each do |loc| %>
-              <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2.5 py-1 rounded-full"><%= loc %></span>
-            <% end %>
-          </div>
-        </summary>
-
-        <%# ── Kurs-Cards (Mobile: 1 Spalte, Tablet: 2, Desktop: 3) ────── %>
-        <div class="border-t border-gray-100 bg-gray-50/40 p-4 sm:p-5">
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <% courses_in_category.each do |course| %>
-              <%
-                is_full         = course.full?
-                is_single       = course.registration_mode == "single_session"
-                remaining       = course.spots_remaining
-                waitlist_count  = course.waitlist_count
-              %>
-
-              <article class="flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-gray-300 transition overflow-hidden">
-                <div class="p-5 flex-1 flex flex-col">
-
-                  <%# ── Status-Badges ───────────────────────────────── %>
-                  <div class="flex flex-wrap items-center gap-2 mb-3 min-h-[24px]">
-                    <% if is_single %>
-                      <span class="inline-flex items-center bg-secondary-100 text-secondary-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                        <%= t("courses.index.status.drop_in") %>
-                      </span>
-                    <% end %>
-                    <%# Drop-In-Kurse: Limit ist pro Training separat, ein Kurs-weiter Wert wäre
-                        hier irreführend - Plätze werden erst bei der Terminauswahl angezeigt. %>
-                    <% unless is_single %>
-                    <% if is_full %>
-                      <span class="inline-flex items-center bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                        <%= t("courses.index.status.full") %>
-                      </span>
-                    <% elsif remaining && remaining <= 3 %>
-                      <span class="inline-flex items-center bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-1 rounded-full">
-                        <%= t("courses.index.status.spots_last", count: remaining) %>
-                      </span>
-                    <% elsif remaining %>
-                      <span class="inline-flex items-center bg-green-100 text-green-700 text-xs font-bold px-2.5 py-1 rounded-full">
-                        <%= t("courses.index.status.spots_free", count: remaining) %>
-                      </span>
-                    <% end %>
-                    <% if waitlist_count > 0 %>
-                      <span class="inline-flex items-center bg-orange-50 text-orange-700 border border-orange-200 text-xs font-bold px-2.5 py-1 rounded-full">
-                        <%= t("courses.index.status.waitlist", count: waitlist_count) %>
-                      </span>
-                    <% end %>
-                    <% end %>
-                    <% if course.age_restricted? %>
-                      <span class="inline-flex items-center bg-gray-100 text-gray-600 text-xs font-bold px-2.5 py-1 rounded-full">
-                        <%= course.age_range_label %>
-                      </span>
-                    <% end %>
-                  </div>
-
-                  <%# ── Titel ─────────────────────────────────────── %>
-                  <h3 class="text-lg sm:text-xl font-extrabold text-gray-900 leading-snug mb-3 break-words">
-                    <%= course.title %>
-                  </h3>
-
-                  <%# ── Metadaten ─────────────────────────────────── %>
-                  <dl class="space-y-2 text-sm text-gray-600 mb-5">
-                    <% if course.location.present? %>
-                      <div class="flex items-start gap-2">
-                        <svg class="h-4 w-4 mt-0.5 shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                        <dd class="break-words"><%= course.location %></dd>
-                      </div>
-                    <% end %>
-
-                    <div class="flex items-start gap-2">
-                      <svg class="h-4 w-4 mt-0.5 shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                      </svg>
-                      <dd class="break-words">
-                        <% if is_single %>
-                          <%= t("courses.index.date.single_session") %>
-                        <% elsif course.abo? %>
-                          <%= t("courses.index.date.abo") %>
-                        <% elsif course.start_date && course.end_date %>
-                          <%= course.start_date.strftime("%-d. %b %Y") %> – <%= course.end_date.strftime("%-d. %b %Y") %>
-                        <% else %>
-                          <%= t("courses.index.date.tba") %>
-                        <% end %>
-                      </dd>
-                    </div>
-
-                    <% if (weekly_time = course_weekly_time(course)) %>
-                      <div class="flex items-start gap-2">
-                        <svg class="h-4 w-4 mt-0.5 shrink-0 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <dd class="break-words"><%= weekly_time %></dd>
-                      </div>
-                    <% end %>
-
-                  </dl>
-
-                  <%# ── Preis + CTA (am Card-Boden, Cards in einer Reihe gleich hoch) ── %>
-                  <div class="mt-auto pt-4 border-t border-gray-100">
-                    <div class="flex items-baseline justify-between gap-3 mb-4">
-                      <span class="text-2xl font-extrabold text-gray-900 break-words">
-                        <% if course.late_registration_deduction_cents.positive? %>
-                          <span class="block text-sm font-semibold text-gray-400 line-through"><%= course.price_display %></span>
-                        <% end %>
-                        <%= course.effective_price_display %>
-                      </span>
-                      <% if current_user&.admin? %>
-                        <%= link_to t("courses.index.actions.manage"), manage_course_path(course),
-                              class: "shrink-0 inline-flex items-center justify-center text-xs font-bold text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition min-h-[36px]" %>
-                      <% end %>
-                    </div>
-
-                    <% if is_single %>
-                      <%= link_to t("courses.index.actions.view_dates"), course_path(course),
-                            class: "block w-full text-center text-sm font-bold bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
-                    <% elsif is_full %>
-                      <%= link_to t("courses.index.actions.join_waitlist"), course_path(course),
-                            class: "block w-full text-center text-sm font-bold bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
-                    <% else %>
-                      <%= link_to t("courses.index.actions.register"), course_path(course),
-                            class: "block w-full text-center text-sm font-bold bg-secondary-600 hover:bg-secondary-700 text-white px-4 py-3 rounded-lg transition shadow-sm min-h-[44px]" %>
-                    <% end %>
-                  </div>
-
-                </div>
-              </article>
-            <% end %>
-          </div>
-        </div>
-
-      </details>
-
-    <% end %>
-  <% else %>
-    <% unless @restricted_courses.any? %>
-      <div class="bg-white p-8 sm:p-12 rounded-2xl border border-gray-200 shadow-sm text-center">
-        <h3 class="text-lg font-bold text-gray-900 mb-1"><%= t("courses.index.empty.title") %></h3>
-        <p class="text-gray-500 text-sm"><%= t("courses.index.empty.subtitle") %></p>
+  <%# ── Kategorien (offen; id = Anker für Links von der Startseite) ───── %>
+  <% [ [ @restricted_courses, true ], [ @public_courses, false ] ].each do |courses, restricted| %>
+    <% next if courses.empty? %>
+    <% if restricted %>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="inline-flex items-center bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider"><%= t("courses.index.restricted_badge") %></span>
+        <span class="text-sm text-slate-500"><%= t("courses.index.restricted_subtitle") %></span>
       </div>
+    <% end %>
+    <% groups.call(courses).each do |category, courses_in_category| %>
+      <section id="<%= "restricted-" if restricted %><%= category.parameterize %>" data-course-filter-target="group" class="scroll-mt-28 lg:scroll-mt-32 mb-10">
+        <div class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-4">
+          <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight"><%= category %></h2>
+          <p class="text-sm text-slate-500">
+            <%= t("courses.index.slots_available", count: courses_in_category.size) %>
+            <% if (days = category_weekday_names(courses_in_category)).any? %> · <%= days.join(", ") %><% end %>
+          </p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+          <% courses_in_category.each do |course| %>
+            <%= render "courses/card", course: course, restricted: restricted,
+                  category_record: @category_records[course.category_name] %>
+          <% end %>
+        </div>
+      </section>
     <% end %>
   <% end %>
 
-</div>
+  <div data-course-filter-target="empty" hidden class="rounded-3xl bg-white/70 p-8 text-center">
+    <p class="font-bold text-slate-900"><%= t("courses.index.filter.empty") %></p>
+    <button type="button" class="btn btn-primary mt-4" data-action="course-filter#reset"><%= t("courses.index.filter.reset") %></button>
+  </div>
 
-<script>
-  document.addEventListener("DOMContentLoaded", function() {
-    const hash = window.location.hash.slice(1);
-    if (hash) {
-      const el = document.getElementById(hash);
-      if (el && el.tagName === "DETAILS") {
-        el.open = true;
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    }
-  });
-</script>
+  <% if all_courses.empty? %>
+    <div class="bg-white p-8 sm:p-12 rounded-3xl border border-slate-200 shadow-sm text-center">
+      <h3 class="text-lg font-bold text-slate-900 mb-1"><%= t("courses.index.empty.title") %></h3>
+      <p class="text-slate-500 text-sm"><%= t("courses.index.empty.subtitle") %></p>
+    </div>
+  <% end %>
+</div>

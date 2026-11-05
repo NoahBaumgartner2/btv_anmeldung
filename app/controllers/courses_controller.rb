@@ -10,7 +10,7 @@ class CoursesController < ApplicationController
     today = Date.current
     not_ended = ->(c) { !c.deactivated? && (c.end_date.blank? || c.end_date >= today) }
 
-    all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users, :training_sessions)
+    all_restricted = Course.where(restricted: true).includes(:course_registrations, :permitted_users, :training_sessions).with_attached_photo
     @restricted_courses = if current_user&.admin?
       all_restricted.select(&not_ended)
     elsif current_user
@@ -20,13 +20,14 @@ class CoursesController < ApplicationController
     end
     @restricted_courses = @restricted_courses.sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
 
-    public_scope = Course.where(restricted: false).includes(:course_registrations, :training_sessions)
+    public_scope = Course.where(restricted: false).includes(:course_registrations, :training_sessions).with_attached_photo
     @public_courses = if current_user&.admin?
       public_scope.select(&not_ended)
     else
       public_scope.select { |c| not_ended.call(c) && c.registration_window_open_for?(current_user) }
     end
     @public_courses = @public_courses.sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }
+    @category_records = CourseCategory.with_attached_image.index_by(&:name)
   end
 
   # GET /courses/1 or /courses/1.json

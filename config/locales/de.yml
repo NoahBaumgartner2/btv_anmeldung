@@ -306,6 +306,18 @@ de:
     training_value_label: "Wert pro Training"
     training_value_hint: "Für automatische Rückerstattungen (CHF pro Training)"
     index:
+      filter:
+        count: "%{visible} von %{total} Kursen"
+        weekday: "Nach Wochentag filtern"
+        weekday_short: "Tag"
+        location: "Nach Ort filtern"
+        location_short: "Ort"
+        reset: "Filter zurücksetzen"
+        empty: "Kein Kurs passt zu diesem Tag und Ort."
+      card:
+        location: "Ort"
+        period: "Zeitraum"
+        open_map: "Adresse in Google Maps öffnen"
       title: "Kursangebot"
       subtitle: "Wähle die passende Kategorie und melde dich direkt an."
       new_course: "+ Neuen Kurs erstellen"

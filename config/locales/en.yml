@@ -265,6 +265,18 @@ en:
     training_value_label: "Value per training"
     training_value_hint: "For automatic refunds (CHF per training)"
     index:
+      filter:
+        count: "%{visible} of %{total} courses"
+        weekday: "Filter by weekday"
+        weekday_short: "Day"
+        location: "Filter by location"
+        location_short: "Place"
+        reset: "Reset filters"
+        empty: "No course matches this day and location."
+      card:
+        location: "Location"
+        period: "Period"
+        open_map: "Open address in Google Maps"
       title: "Courses"
       subtitle: "Choose a category and register directly."
       new_course: "+ Create new course"

@@ -1,0 +1,127 @@
+<%# Kurskarte für die Kursübersicht. Die ganze Karte führt zur Kursseite
+    (Stretched Link am Titel); Verwalten und Karten-Link liegen mit z-10 darüber.
+    locals: course, category_record (vorgeladen), restricted %>
+<%
+  is_single = course.registration_mode == "single_session"
+  is_full   = course.full?
+  remaining = course.spots_remaining
+  waitlist  = course.waitlist_count
+  image     = course.card_image(category_record)
+  day_time  = course_day_and_time(course)
+  cta_label = if is_single then t("courses.index.actions.view_dates")
+              elsif is_full then t("courses.index.actions.join_waitlist")
+              else t("courses.index.actions.register") end
+%>
+<article data-course-filter-target="card"
+         data-weekdays="<%= course_weekdays(course).join(" ") %>"
+         data-location="<%= course.location %>"
+         class="group relative flex flex-col bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden transition-[transform,box-shadow] duration-300 ease-entrance hover:-translate-y-1 hover:shadow-xl focus-within:ring-2 focus-within:ring-slate-900">
+
+  <%# ── Foto mit „Wann“ (wichtigster Entscheid für Eltern) und Plätzen ── %>
+  <div class="relative aspect-[16/10] overflow-hidden bg-gradient-to-br from-secondary-300 via-secondary-500 to-primary-400">
+    <% if image %>
+      <%= image_tag image, alt: "", loading: "lazy",
+            class: "absolute inset-0 w-full h-full object-cover transition-transform duration-500 ease-entrance group-hover:scale-[1.04]" %>
+    <% end %>
+
+    <% if day_time %>
+      <span class="sr-only"><%= course_weekly_time(course) %></span>
+      <div class="absolute left-3 top-3 flex items-stretch rounded-xl overflow-hidden shadow-md text-sm tabular-nums" aria-hidden="true">
+        <span class="px-2.5 py-1.5 bg-slate-900 text-white font-bold"><%= day_time.first %></span>
+        <span class="px-2.5 py-1.5 bg-white/95 text-slate-900 font-semibold"><%= day_time.last %></span>
+      </div>
+    <% end %>
+
+    <% if current_user&.admin? %>
+      <%= link_to t("courses.index.actions.manage"), manage_course_path(course),
+            class: "absolute left-3 bottom-3 z-10 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold text-slate-900 shadow-sm hover:bg-white transition-colors" %>
+    <% end %>
+
+    <div class="absolute right-3 top-3">
+      <% if is_single %>
+        <span class="inline-flex rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-secondary-700 shadow-sm"><%= t("courses.index.status.drop_in") %></span>
+      <% elsif is_full %>
+        <span class="inline-flex rounded-full bg-orange-500 px-2.5 py-1 text-xs font-bold text-white shadow-sm"><%= t("courses.index.status.full") %></span>
+      <% elsif remaining && remaining <= 3 %>
+        <span class="inline-flex rounded-full bg-amber-400 px-2.5 py-1 text-xs font-bold text-amber-950 shadow-sm"><%= t("courses.index.status.spots_last", count: remaining) %></span>
+      <% elsif remaining %>
+        <span class="inline-flex rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-green-700 shadow-sm"><%= t("courses.index.status.spots_free", count: remaining) %></span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="p-5 flex-1 flex flex-col gap-3">
+    <h3 class="text-lg font-extrabold text-slate-900 leading-snug break-words">
+      <%= link_to course.title, course_path(course), class: "after:absolute after:inset-0 after:content-[''] focus:outline-none" %>
+    </h3>
+
+    <dl class="space-y-2 text-sm text-slate-600">
+      <% if course.location.present? %>
+        <div class="flex items-start gap-2">
+          <dt class="sr-only"><%= t("courses.index.card.location") %></dt>
+          <svg class="h-4 w-4 mt-0.5 shrink-0 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          <dd class="min-w-0">
+            <span class="block font-semibold text-slate-900 break-words"><%= course.location %></span>
+            <% if course.location_address.present? %>
+              <%= link_to course.location_address,
+                    "https://www.google.com/maps/search/?api=1&query=#{URI.encode_www_form_component(course.location_address)}",
+                    target: "_blank", rel: "noopener",
+                    title: t("courses.index.card.open_map"),
+                    class: "relative z-10 text-slate-500 underline decoration-slate-300 underline-offset-2 hover:text-slate-900 hover:decoration-slate-900 break-words" %>
+            <% end %>
+          </dd>
+        </div>
+      <% end %>
+
+      <div class="flex items-start gap-2">
+        <dt class="sr-only"><%= t("courses.index.card.period") %></dt>
+        <svg class="h-4 w-4 mt-0.5 shrink-0 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <dd class="break-words">
+          <% if is_single %>
+            <%= t("courses.index.date.single_session") %>
+          <% elsif course.abo? %>
+            <%= t("courses.index.date.abo") %>
+          <% elsif course.start_date && course.end_date %>
+            <%= l(course.start_date.to_date, format: "%-d. %b") %> – <%= l(course.end_date.to_date, format: "%-d. %b %Y") %>
+          <% else %>
+            <%= t("courses.index.date.tba") %>
+          <% end %>
+        </dd>
+      </div>
+    </dl>
+
+    <% if restricted || course.age_restricted? || (!is_single && waitlist > 0) %>
+      <div class="flex flex-wrap gap-1.5">
+        <% if restricted %>
+          <span class="inline-flex rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700"><%= t("courses.index.restricted_badge") %></span>
+        <% end %>
+        <% if course.age_restricted? %>
+          <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600"><%= course.age_range_label %></span>
+        <% end %>
+        <% if !is_single && waitlist > 0 %>
+          <span class="inline-flex rounded-full bg-orange-50 px-2.5 py-1 text-xs font-bold text-orange-700"><%= t("courses.index.status.waitlist", count: waitlist) %></span>
+        <% end %>
+      </div>
+    <% end %>
+
+    <div class="mt-auto pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+      <span class="text-lg font-extrabold text-slate-900 whitespace-nowrap tabular-nums">
+        <% if course.late_registration_deduction_cents.positive? %>
+          <span class="block text-xs font-semibold text-slate-400 line-through"><%= course.price_display %></span>
+        <% end %>
+        <%= course.effective_price_display %>
+      </span>
+      <div class="flex items-center">
+        <span class="inline-flex items-center gap-1 whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold text-white <%= is_full && !is_single ? "bg-orange-500" : "bg-slate-900" %>" aria-hidden="true">
+          <%= cta_label %>
+          <svg class="h-4 w-4 transition-transform duration-300 ease-entrance group-hover:translate-x-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        </span>
+      </div>
+    </div>
+  </div>
+</article>

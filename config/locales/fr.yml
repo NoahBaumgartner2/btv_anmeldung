@@ -265,6 +265,18 @@ fr:
     training_value_label: "Valeur par entraînement"
     training_value_hint: "Pour les remboursements automatiques (CHF par entraînement)"
     index:
+      filter:
+        count: "%{visible} cours sur %{total}"
+        weekday: "Filtrer par jour"
+        weekday_short: "Jour"
+        location: "Filtrer par lieu"
+        location_short: "Lieu"
+        reset: "Réinitialiser les filtres"
+        empty: "Aucun cours ne correspond à ce jour et à ce lieu."
+      card:
+        location: "Lieu"
+        period: "Période"
+        open_map: "Ouvrir l’adresse dans Google Maps"
       title: "Cours"
       subtitle: "Choisissez une catégorie et inscrivez-vous directement."
       new_course: "+ Créer un nouveau cours"
