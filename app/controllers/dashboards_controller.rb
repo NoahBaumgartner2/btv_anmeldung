@@ -5,22 +5,9 @@ class DashboardsController < ApplicationController
 
   def admin
     authorize_admin!
-    all_courses = Course.includes(:course_registrations, :term).order(start_date: :asc)
-
-    @courses          = all_courses.reject(&:ended?)
-    archived_courses  = all_courses.select(&:ended?)
-
-    # Archiv gruppiert nach Zeitraum (Term, z.B. "HS2026") – der beim Erstellen
-    # angegebene Semester-/Quartals-Zeitraum, nicht zu verwechseln mit
-    # registration_mode (Anmelde-Kadenz). Kurse ohne Term (Alt-Kurse ohne
-    # Zeitraum-Zuordnung) landen in einer eigenen Sammel-Gruppe, neuester
-    # Zeitraum zuerst.
-    archived_by_term = archived_courses
-      .group_by(&:term)
-      .sort_by { |term, _courses| term&.start_date || Date.new(0) }
-      .reverse
-    # Neueste 3 Zeiträume pro Stufe, ältere über „Mehr anzeigen“.
-    @archived_courses_by_term, @archive_more = load_more(archived_by_term, per: 3, param: :archive_page)
+    # Nur laufende Kurse; beendete/deaktivierte stehen auf der Archiv-Seite.
+    @courses = Course.not_archived.includes(:course_registrations, :term).order(start_date: :asc).to_a
+    @archived_count = Course.archived.count
 
     @course_categories = @courses.map(&:category).compact_blank.uniq.sort
     @course_registration_modes = @courses.map(&:registration_mode).compact_blank.uniq
@@ -63,6 +50,31 @@ class DashboardsController < ApplicationController
     else
       @participants = Participant.none
     end
+  end
+
+  # Archiv: beendete und deaktivierte Kurse mit Suche und Filtern, nach Zeitraum
+  # gruppiert (neuester zuerst), je 30 Kurse pro Stufe.
+  def archive
+    authorize_admin!
+    scope = Course.archived.left_joins(:term).includes(:term, :course_registrations)
+
+    @q = params[:q].to_s.strip
+    scope = scope.where("courses.title ILIKE ?", "%#{Course.sanitize_sql_like(@q)}%") if @q.present?
+    case params[:term_id]
+    when "none" then scope = scope.where(term_id: nil)
+    when /\A\d+\z/ then scope = scope.where(term_id: params[:term_id])
+    end
+    scope = scope.where(category: params[:category]) if params[:category].present?
+    scope = scope.where.not(deactivated_at: nil) if params[:status] == "deactivated"
+    scope = scope.where(deactivated_at: nil) if params[:status] == "ended"
+
+    direction = params[:sort] == "oldest" ? "ASC" : "DESC"
+    scope = scope.order(Arel.sql("terms.start_date #{direction} NULLS LAST, courses.end_date #{direction} NULLS LAST, courses.id #{direction}"))
+
+    @filtered = %i[q term_id category status].any? { |key| params[key].present? }
+    @terms = Term.order(start_date: :desc)
+    @categories = Course.archived.where.not(category: [ nil, "" ]).distinct.order(:category).pluck(:category)
+    @courses, @courses_more = load_more(scope, per: 30)
   end
 
   def export_participants

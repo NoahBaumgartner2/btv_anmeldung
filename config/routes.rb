@@ -10,6 +10,7 @@ Rails.application.routes.draw do
   get  "dashboards/talents", as: "talents_dashboard"
   get  "dashboards/open_attendances", as: "open_attendances_dashboard"
   get  "dashboards/open_payments", as: "open_payments_dashboard"
+  get  "dashboards/archive", as: "archive_dashboard"
   get  "dashboards/export_participants", as: "export_participants_dashboard"
 
 
