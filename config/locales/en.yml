@@ -264,6 +264,18 @@ en:
     training_value_label: "Value per training"
     training_value_hint: "For automatic refunds (CHF per training)"
     index:
+      recommendations:
+        heading: "Recommendations"
+        title: "Recommended for %{name}"
+        subtitle: "Right age, places available"
+        spots:
+          one: "1 place left"
+          other: "%{count} places left"
+        reasons:
+          also_attended: "Often taken with %{category}"
+          continue: "Continuation of %{category}"
+          age_popular: "Popular at %{name}'s age"
+          age_fit: "Fits %{name}'s age"
       tile:
         count:
           one: "%{count} course"

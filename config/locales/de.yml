@@ -305,6 +305,18 @@ de:
     training_value_label: "Wert pro Training"
     training_value_hint: "Für automatische Rückerstattungen (CHF pro Training)"
     index:
+      recommendations:
+        heading: "Empfehlungen"
+        title: "Empfehlungen f\u00FCr %{name}"
+        subtitle: "Passend zum Alter, mit freien Pl\u00E4tzen"
+        spots:
+          one: "noch 1 Platz frei"
+          other: "noch %{count} Pl\u00E4tze frei"
+        reasons:
+          also_attended: "Oft zusammen mit %{category} besucht"
+          continue: "Weiterf\u00FChrung von %{category}"
+          age_popular: "Beliebt im Alter von %{name}"
+          age_fit: "Passt zum Alter von %{name}"
       tile:
         count:
           one: "%{count} Kurs"

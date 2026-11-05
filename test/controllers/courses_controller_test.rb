@@ -925,4 +925,24 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
                     "zugewiesene Trainer:innen stehen oben"
     assert_select "input#trainer_#{trainers(:two).id}[checked]"
   end
+
+  test "Kursübersicht zeigt Familien Empfehlungen pro Kind, Admins nicht" do
+    child = participants(:parent_only_child)
+    open_course = Course.new(title: "Empfohlener Kurs", category: "Empfehlung", registration_type: "semester",
+                             registration_mode: "semester", has_payment: false, has_ticketing: false,
+                             allows_holiday_deduction: false, end_date: 3.months.from_now)
+    open_course.save!(validate: false)
+
+    sign_in users(:parent_only)
+    get courses_path
+    assert_response :success
+    assert_select "section[aria-labelledby=recommendations-title]"
+    assert_match I18n.t("courses.index.recommendations.title", name: child.first_name), response.body
+    assert_select "section[aria-labelledby=recommendations-title] a[href='#{course_path(open_course)}']"
+    sign_out users(:parent_only)
+
+    sign_in users(:admin)
+    get courses_path
+    assert_select "section[aria-labelledby=recommendations-title]", 0
+  end
 end

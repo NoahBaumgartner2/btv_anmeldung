@@ -19,6 +19,8 @@
     <% end %>
   </div>
 
+  <%= render "courses/recommendations", recommendations: @recommendations if @recommendations.present? %>
+
   <%# ── Filter Wann & Wo: Tage als Segment-Leiste, Ort als Auswahl (skaliert auf
       beliebig viele Orte). Desktop eine Zeile und beim Scrollen mitlaufend. %>
   <% if filter_days.size > 1 || filter_locations.size > 1 %>
