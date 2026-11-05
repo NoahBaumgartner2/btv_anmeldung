@@ -328,7 +328,6 @@ fr:
         title: "Aucun cours disponible"
         subtitle: "Les cours apparaîtront ici dès leur création."
       restricted_badge: "Sur invitation"
-      restricted_subtitle: "Accessible sur invitation uniquement"
     show:
       back: "Retour"
       type_default: "Cours"

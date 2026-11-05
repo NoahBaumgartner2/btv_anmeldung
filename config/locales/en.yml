@@ -328,7 +328,6 @@ en:
         title: "No courses yet"
         subtitle: "Once courses are created, they will appear here."
       restricted_badge: "By Invitation"
-      restricted_subtitle: "Accessible by invitation only"
     show:
       back: "Back"
       type_default: "Course"
