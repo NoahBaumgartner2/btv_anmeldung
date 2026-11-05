@@ -97,7 +97,7 @@
           <%= f.search_field :q, value: params[:q],
                 placeholder: t('newsletter_subscribers.index.search_placeholder'),
                 autofocus: params[:q].present?,
-                class: "flex-1 rounded-xl border border-slate-900/15 px-3 py-2.5 text-base sm:text-sm focus:ring-2 focus:ring-slate-900/20 focus:outline-none" %>
+                class: "flex-1 min-w-0 rounded-xl border border-slate-900/15 px-3 py-2.5 text-base sm:text-sm focus:ring-2 focus:ring-slate-900/20 focus:outline-none" %>
           <button type="submit"
                   class="cursor-pointer bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm px-4 py-2 rounded-full transition">
             <%= t('newsletter_subscribers.index.search_btn') %>
