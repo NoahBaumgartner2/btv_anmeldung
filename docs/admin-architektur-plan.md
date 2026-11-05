@@ -209,3 +209,43 @@ B. **Alle Fristen aus 1.4 werden einstellbar:** Schnupper-Ablauf, Nachrück-Zahl
    Min/Max-Grenze, Default = heutiger Wert, je Regel ein Commit (Schritt 6).
 C. **Kacheln „Handlungsbedarf“:** offene Präsenzkontrollen, offene Nachforderungen,
    Zahlung ausstehend, Newsletter-Entwürfe. Jede Kachel nur sichtbar, wenn > 0.
+
+---
+
+## 5. Umsetzungsstand (05.11.2026, Branch `design`)
+
+| Schritt | Commit | Ergebnis |
+|---|---|---|
+| 0 Absicherungstest | `61333fb` | `test/integration/admin_access_test.rb` |
+| 1 Admin::BaseController | `6f20f48` | + Terms/Trainers prüfen Admin vor dem Laden |
+| – fehlende EN/FR-Texte | `fd3656c` | „translation missing“ im Admin-Bereich behoben |
+| 2 AdminNavigation | `49496d8` | `admin.html.erb` 537 → 30 Zeilen, HTML identisch |
+| 3 Neue Bereiche | `4034b98` | Einstellungen nur noch Konfiguration |
+| 4 Handlungsbedarf | `235652e` | 4 Kacheln + Liste „Offene Zahlungen“ |
+| 5 SettingsCatalog | `e9c3ec2` | Seite „Funktionen & Regeln“, JSONB `feature_settings.rules` |
+| 6.1 Mail-Protokoll | `374f4b8` | 1–60 Monate |
+| 6.2 Präsenzkontrolle | `6bfb58e` | 0–24 h / 1–168 h / 1–60 Tage |
+| 6.3 Warteliste | `478d274` | 1–30 Tage, Mail nennt den Wert |
+| 6.4 Schnupperfrist | `6edacc7` | 1–30 Tage, Mail/Formular/Hinweis nennen den Wert |
+
+Bewusst weggelassen: eigene Bereichsseiten (`/admin/bereich/:id`). Die Karten auf der
+Kommandozentrale zeigen bereits alle Seiten eines Bereichs, eine Zwischenseite wäre
+ein zusätzlicher Klick. `Admin::DashboardOverview` als eigene Klasse: Die Kennzahlen
+haben nur einen Nutzer und stehen im Controller.
+
+## 6. Offene Fragen (gesammelt für den Schluss)
+
+1. **Wartelisten-Mail nennt eine falsche Zahlungsfrist.** Rückt jemand in einen
+   Bezahlkurs nach (ohne Schnupper-Wahl), steht in der Mail „Du hast nun eine Woche
+   Zeit, um zu bezahlen“ (`course_registration_mailer/waitlist_promoted.*.erb`).
+   Tatsächlich verfällt die Anmeldung nach **48 Stunden** (`course_registration.rb`,
+   `set_payment_expiry`). Was gilt: Text auf 48 h korrigieren, Frist auf 7 Tage
+   verlängern, oder auch diese Frist einstellbar machen?
+2. **„Zahlung ausstehend“** zählt bestätigte und nachgerückte Plätze ohne Zahlung in
+   laufenden Bezahlkursen. Nicht gezählt: laufende Online-Zahlungen („ausstehend“,
+   verfallen automatisch), Schnupperplätze und beendete Kurse. Passt diese Abgrenzung?
+3. **Bereichsnamen:** „Personen & Finanzen“ fasst Trainer, Altersübersicht,
+   Nachforderungen und Offene Zahlungen zusammen. Passt der Name, oder lieber zwei
+   Bereiche?
+4. **Merge nach `staging`**: Alles liegt auf `design`. Soll es jetzt nach `staging`
+   (Testumgebung), damit du es dort durchklicken kannst?
