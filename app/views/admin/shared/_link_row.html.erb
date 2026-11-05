@@ -1,19 +1,12 @@
-<%# Link-Zeile einer Admin-Seite. Locals: item (AdminNavigation::Item), badge (Zahl, nur > 0 sichtbar) %>
-<% tone = AdminNavigation.tone(item) %>
+<%# Link-Zeile einer Admin-Seite. Locals: item (AdminNavigation::Item), tone (Farbschema des Bereichs), badge (Zahl, nur > 0 sichtbar) %>
 <% show_badge = badge.to_i.positive? %>
 <%= link_to send(item.path),
       class: "group flex items-center gap-3.5 px-4 py-3.5 #{tone[:row]} transition min-h-12" do %>
-  <% if item.emoji %>
-    <div class="shrink-0 w-9 h-9 rounded-xl <%= tone[:box] %> flex items-center justify-center transition text-lg leading-none">
-      <%= item.emoji %>
-    </div>
-  <% else %>
-    <div class="shrink-0 w-9 h-9 rounded-xl <%= tone[:box] %> flex items-center justify-center transition">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 <%= tone[:icon] %>" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="<%= item.icon %>"/>
-      </svg>
-    </div>
-  <% end %>
+  <div class="shrink-0 w-9 h-9 rounded-xl <%= tone[:box] %> flex items-center justify-center transition">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 <%= tone[:icon] %>" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="<%= item.icon %>"/>
+    </svg>
+  </div>
   <div class="min-w-0">
     <p class="text-sm font-bold text-gray-800 <%= tone[:title] %> transition"><%= t("dashboards.admin.links.#{item.key}") %></p>
     <p class="text-xs text-gray-400 truncate"><%= t("dashboards.admin.links.#{item.key}_desc") %></p>

@@ -89,7 +89,7 @@
       <%# Erfolg %>
       <% if r[:updated] > 0 %>
         <div class="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-5 py-3.5">
-          <span class="text-base leading-none mt-0.5">✅</span>
+          <span class="mt-0.5 text-green-600"><%= ui_icon(:check_circle, "w-5 h-5") %></span>
           <p class="text-sm font-semibold text-green-800">
             <%= r[:updated] %> Teilnehmende aktualisiert
           </p>
@@ -100,7 +100,7 @@
       <% if r[:not_found_count] > 0 %>
         <div class="rounded-xl border border-yellow-200 bg-yellow-50 px-5 py-3.5">
           <div class="flex items-start gap-3 mb-2">
-            <span class="text-base leading-none mt-0.5">⚠️</span>
+            <span class="mt-0.5 text-amber-600"><%= ui_icon(:warning, "w-5 h-5") %></span>
             <p class="text-sm font-semibold text-yellow-800">
               <%= r[:not_found_count] %> Teilnehmende nicht gefunden <span class="font-normal">(AHV nicht in unserer DB)</span>
             </p>
@@ -117,7 +117,7 @@
       <% if r[:errors].any? %>
         <div class="rounded-xl border border-red-200 bg-red-50 px-5 py-3.5">
           <div class="flex items-start gap-3 mb-2">
-            <span class="text-base leading-none mt-0.5">❌</span>
+            <span class="mt-0.5 text-red-600"><%= ui_icon(:x_circle, "w-5 h-5") %></span>
             <p class="text-sm font-semibold text-red-800">
               <%= r[:errors].size %> Fehler beim Import
             </p>

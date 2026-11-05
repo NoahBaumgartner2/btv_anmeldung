@@ -6,7 +6,7 @@
   </div>
   <div class="divide-y divide-gray-50">
     <% AdminNavigation.items(section).each do |item| %>
-      <%= render "admin/shared/link_row", item: item, badge: local_assigns.fetch(:badges, {})[item.key] %>
+      <%= render "admin/shared/link_row", item: item, tone: AdminNavigation.tone(section), badge: local_assigns.fetch(:badges, {})[item.key] %>
     <% end %>
   </div>
 </div>

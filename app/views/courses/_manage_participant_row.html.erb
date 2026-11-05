@@ -6,10 +6,10 @@
                   <span class="ml-1.5 inline-flex items-center bg-indigo-100 text-indigo-700 text-xs font-bold px-2 py-0.5 rounded-full" title="Über Abo gebucht (Abo-ID: <%= reg.abo_source_registration_id %>)">Abo</span>
                 <% end %>
                 <% if @course.allows_talent_marking? && reg.talent_flag? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
-                  <span class="text-amber-400 ml-1" title="<%= reg.talent_note.presence || 'Talent' %>">⭐</span>
+                  <span class="text-amber-400 ml-1" title="<%= reg.talent_note.presence || 'Talent' %>"><%= ui_icon(:star_solid, "w-4 h-4 -mt-0.5") %></span>
                 <% end %>
                 <% if @course.age_restricted? && reg.status != "storniert" && !@course.accepts_participant_age?(p) %>
-                  <span class="ml-1.5 inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full" title="Alter passt nicht zur Kursbeschränkung: <%= @course.age_range_label %>">⚠ Alter</span>
+                  <span class="ml-1.5 inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full" title="Alter passt nicht zur Kursbeschränkung: <%= @course.age_range_label %>"><%= ui_icon(:warning, "w-3.5 h-3.5") %> Alter</span>
                 <% end %>
                 <% if reg.status == "ausstehend" && reg.sumup_checkout_id.present? && !reg.payment_cleared? %>
                   <span class="ml-1.5 inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full">
@@ -342,7 +342,7 @@
                       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-left">
                         <div class="flex items-center gap-3 mb-4">
                           <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center shrink-0 text-xl">
-                            <%= reg.talent_flag? ? "⭐" : "☆" %>
+                            <span class="<%= reg.talent_flag? ? "text-amber-400" : "text-gray-400" %>"><%= ui_icon(reg.talent_flag? ? :star_solid : :star, "w-5 h-5") %></span>
                           </div>
                           <h3 class="text-lg font-extrabold text-gray-900"><%= reg.talent_flag? ? "Markierung entfernen?" : "Als Talent markieren" %></h3>
                         </div>
