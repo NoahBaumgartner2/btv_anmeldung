@@ -8,7 +8,7 @@
       <p class="text-gray-500 mt-1 text-sm"><%= t('holiday_types.index.subtitle') %></p>
     </div>
     <%= link_to t('holiday_types.index.new_type'), new_holiday_type_path,
-          class: "shrink-0 w-full sm:w-auto text-center bg-red-600 py-2.5 px-4 shadow-sm text-sm font-bold rounded-full text-white hover:bg-red-700 active:bg-red-800 transition min-h-11" %>
+          class: "btn btn-primary shrink-0 w-full sm:w-auto min-h-11" %>
   </div>
 
   <% if @holiday_types.any? %>

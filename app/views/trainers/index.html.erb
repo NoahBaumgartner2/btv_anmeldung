@@ -23,8 +23,8 @@
               <p class="text-xs text-gray-500 mb-3"><%= trainer.phone %></p>
             <% end %>
             <div class="flex gap-2 mt-2">
-              <%= link_to t('trainers.index.show'), trainer, class: "flex-1 text-center text-primary-600 font-medium bg-primary-50 active:bg-primary-100 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
-              <%= link_to t('trainers.index.edit'), edit_trainer_path(trainer), class: "flex-1 text-center text-orange-500 font-medium bg-orange-50 active:bg-orange-100 py-2.5 rounded-lg text-sm min-h-11 leading-6 transition" %>
+              <%= link_to t('trainers.index.show'), trainer, class: "btn btn-secondary border-slate-200 min-h-11 flex-1" %>
+              <%= link_to t('trainers.index.edit'), edit_trainer_path(trainer), class: "btn btn-secondary border-slate-200 min-h-11 flex-1" %>
             </div>
           </div>
         <% end %>
