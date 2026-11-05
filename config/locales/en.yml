@@ -765,6 +765,10 @@ en:
         settings_payments_desc: "SumUp & payment setup"
         settings_data: "Data & Exports"
         settings_data_desc: "Export profiles, reports & NDS"
+        settings_features: "Features"
+        settings_features_desc: "Global on/off switches for app features"
+        terms: "Semester/Quarter"
+        terms_desc: "Manage date ranges for courses"
         trainers: "Trainers"
         trainers_desc: "Manage & assign trainers"
         holidays: "Holidays"
@@ -1475,6 +1479,12 @@ en:
         club: "Club"
         payments: "Payments"
         data: "Data & Exports"
+        features: "Features"
+      features:
+        title: "Feature settings"
+        desc: "Global on/off switches for individual app features."
+        trainer_self_enroll_label: "Free self-enrolment for trainers"
+        trainer_self_enroll_desc: "Lets trainers enrol in trainings for free. Can also be disabled per course."
       communication:
         smtp_title: "Email delivery (SMTP)"
         smtp_desc: "SMTP credentials, sender and app URL for outgoing emails."
