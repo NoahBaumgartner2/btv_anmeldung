@@ -331,13 +331,13 @@
           <%= t("courses.show.trainer_area.title") %>
         </h2>
 
-        <div class="flex flex-wrap gap-2">
+        <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
           <% if current_user.admin? %>
-            <%= link_to t("courses.show.trainer_area.manage"), manage_course_path(@course), class: "bg-slate-900 text-white text-sm font-bold py-2.5 px-4 rounded-full shadow-sm hover:bg-slate-800 active:bg-slate-950 transition min-h-11 flex items-center" %>
+            <%= link_to t("courses.show.trainer_area.manage"), manage_course_path(@course), class: "bg-slate-900 text-white text-sm font-bold py-2.5 px-3 sm:px-4 whitespace-nowrap rounded-full shadow-sm hover:bg-slate-800 active:bg-slate-950 transition min-h-11 w-full sm:w-auto inline-flex items-center justify-center text-center" %>
           <% end %>
-          <%= link_to t("courses.show.trainer_area.new_session"), new_training_session_path(course_id: @course.id), class: "bg-white border border-slate-200 text-gray-700 text-sm font-bold py-2.5 px-4 rounded-full shadow-sm hover:bg-gray-50 active:bg-gray-100 transition min-h-11 flex items-center" %>
+          <%= link_to t("courses.show.trainer_area.new_session"), new_training_session_path(course_id: @course.id), class: "bg-white border border-slate-200 text-gray-700 text-sm font-bold py-2.5 px-3 sm:px-4 whitespace-nowrap rounded-full shadow-sm hover:bg-gray-50 active:bg-gray-100 transition min-h-11 w-full sm:w-auto inline-flex items-center justify-center text-center" %>
           <% if current_user.admin? && !@course.deactivated? %>
-            <%= link_to t("courses.show.trainer_area.edit"), edit_course_path(@course), class: "bg-white border border-slate-200 text-gray-700 text-sm font-bold py-2.5 px-4 rounded-full shadow-sm hover:bg-gray-50 active:bg-gray-100 transition min-h-11 flex items-center" %>
+            <%= link_to t("courses.show.trainer_area.edit"), edit_course_path(@course), class: "bg-white border border-slate-200 text-gray-700 text-sm font-bold py-2.5 px-3 sm:px-4 whitespace-nowrap rounded-full shadow-sm hover:bg-gray-50 active:bg-gray-100 transition min-h-11 w-full sm:w-auto inline-flex items-center justify-center text-center" %>
             <%= render 'delete_modal', course: @course %>
           <% end %>
         </div>
