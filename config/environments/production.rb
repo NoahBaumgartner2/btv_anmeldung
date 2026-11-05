@@ -91,6 +91,13 @@ Rails.application.configure do
   # Allow requests from your specific domain
   config.hosts << "btvbern-anmeldung.ch"
   config.hosts << "test.btvbern-anmeldung.ch"
+  config.hosts << "design.btvbern-anmeldung.ch"
+
+  # Design-Umgebung: enthält echt aussehende Adressen, darf also nie Mails versenden.
+  if ENV["SANDBOX_ENV"] == "true"
+    config.action_mailer.perform_deliveries = false
+    config.action_dispatch.default_headers["X-Robots-Tag"] = "noindex, nofollow"
+  end
 
   # Skip DNS rebinding protection for the default health check endpoint.
   # This is CRITICAL for Kamal to know the app is running.
