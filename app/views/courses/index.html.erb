@@ -56,44 +56,12 @@
       <% groups.call(courses).each do |category, courses_in_category| %>
         <% anchor = "#{"restricted-" if restricted}#{category.parameterize}" %>
         <% record = @category_records[category] %>
-        <% locations = category_locations(courses_in_category) %>
+        <% days = courses_in_category.flat_map { |c| course_weekdays(c) }.uniq.sort_by { |d| (d - 1) % 7 } %>
         <div id="<%= anchor %>" data-course-filter-target="group" class="scroll-mt-28">
           <button type="button" data-action="course-filter#open" data-course-filter-dialog-param="dlg-<%= anchor %>"
                   aria-haspopup="dialog"
                   class="group flex h-full w-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white text-left shadow-sm transition-[transform,box-shadow] duration-300 ease-entrance hover:-translate-y-1 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 cursor-pointer">
-            <div class="relative aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-secondary-300 via-secondary-500 to-primary-400">
-              <% if record&.image&.attached? %>
-                <%= image_tag record.image.variant(Course::CARD_VARIANT), alt: "", loading: "lazy",
-                      class: "absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-entrance group-hover:scale-[1.04]" %>
-              <% end %>
-              <span class="absolute right-3 top-3 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-slate-900 shadow-sm"
-                    data-group-count data-one="<%= t("courses.index.tile.count.one") %>" data-other="<%= t("courses.index.tile.count.other") %>">
-                <%= t("courses.index.tile.count", count: courses_in_category.size) %>
-              </span>
-              <% if restricted %>
-                <span class="absolute left-3 top-3 rounded-full bg-red-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm"><%= t("courses.index.restricted_badge") %></span>
-              <% end %>
-            </div>
-            <div class="flex flex-1 flex-col gap-3 p-5">
-              <h2 class="text-xl font-extrabold tracking-tight text-slate-900"><%= category %></h2>
-              <% if (days = courses_in_category.flat_map { |c| course_weekdays(c) }.uniq.sort_by { |d| (d - 1) % 7 }).any? %>
-                <div class="flex flex-wrap gap-1.5" aria-label="<%= t("courses.index.filter.weekday_short") %>">
-                  <% days.each do |d| %>
-                    <span class="rounded-lg bg-slate-900 px-2 py-0.5 text-xs font-bold text-white"><%= t("date.abbr_day_names")[d] %></span>
-                  <% end %>
-                </div>
-              <% end %>
-              <% if locations.any? %>
-                <p class="flex items-start gap-1.5 text-sm text-slate-600">
-                  <svg class="h-4 w-4 mt-0.5 shrink-0 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                  <span><%= locations.join(" · ") %></span>
-                </p>
-              <% end %>
-              <span class="mt-auto inline-flex items-center gap-1 self-start rounded-full bg-slate-900 px-3.5 py-2 text-sm font-semibold text-white">
-                <%= t("courses.index.tile.open") %>
-                <svg class="h-4 w-4 transition-transform duration-300 ease-entrance group-hover:translate-x-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-              </span>
-            </div>
+            <%= render "courses/category_tile_body", category: category, courses_in_category: courses_in_category, record: record, restricted: restricted %>
           </button>
 
           <dialog id="dlg-<%= anchor %>" class="course-dialog" aria-labelledby="dlg-<%= anchor %>-title"

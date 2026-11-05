@@ -15,7 +15,7 @@ class PagesController < ApplicationController
     end
 
     @courses = Course.includes(:course_registrations, :training_sessions)
-                     .where(deactivated_at: nil)
+                     .where(deactivated_at: nil, restricted: false) # Kurse auf Einladung nicht öffentlich zeigen
                      .where("end_date >= ? OR end_date IS NULL OR registration_mode = ?", Date.today, "single_session")
                      .select { |c| c.registration_window_open_for?(nil) }
                      .sort_by { |c| c.weekly_sort_key + [ c.title.to_s ] }

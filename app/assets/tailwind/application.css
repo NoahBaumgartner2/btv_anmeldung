@@ -73,8 +73,9 @@
 
 /* Fester Hintergrund als eigene Ebene: background-attachment: fixed ruckelt auf iOS. */
 .app-bg { position: relative; isolation: isolate; color: var(--ink); }
-.app-bg::before {
-  content: ""; position: fixed; inset: 0; z-index: -1;
+.app-bg::before { content: ""; position: fixed; inset: 0; z-index: -1; }
+/* .brand-bg: derselbe Verlauf als normale Fläche (z.B. Vollbild-Scanner). */
+.app-bg::before, .brand-bg {
   /* Nur Vereinsfarben auf neutral-dunkler Basis. Gemischt in oklab (gerade Linie
      zwischen zwei Farben): oklch würde z.B. Gelb→Blau über Grün interpolieren. */
   background-color: color-mix(in oklab, var(--color-primary) 18%, #0c0a0a);

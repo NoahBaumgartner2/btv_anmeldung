@@ -22,74 +22,74 @@
 
   <%# ══ 1. Permission-Gate (initialer Zustand vor User-Geste) ═══════════ %>
   <div id="permission-gate"
-       class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-gray-950 px-6 text-center">
-    <div class="w-20 h-20 rounded-full bg-primary-600/20 border-2 border-primary-500 flex items-center justify-center mb-6">
-      <svg class="w-10 h-10 text-primary-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+       class="absolute inset-0 z-30 flex flex-col items-center justify-center brand-bg px-6 text-center">
+    <div class="w-20 h-20 rounded-full bg-[var(--color-secondary)] text-[var(--color-on-secondary)] shadow-lg flex items-center justify-center mb-6">
+      <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
       </svg>
     </div>
     <h1 class="text-xl sm:text-2xl font-extrabold mb-2 break-words max-w-sm"><%= course.title %></h1>
-    <p class="text-sm text-gray-400 mb-1 break-words max-w-sm">
+    <p class="text-sm text-white/70 mb-1 break-words max-w-sm">
       <% if session.start_time %>
         <%= I18n.l(session.start_time, format: "%-d. %B %Y") %> · <%= session.start_time.strftime("%H:%M") %> Uhr
       <% end %>
     </p>
-    <p class="text-base text-gray-200 mt-6 max-w-sm">
+    <p class="text-base text-white/90 mt-6 max-w-sm">
       Wir benötigen Zugriff auf die Kamera, um QR-Tickets der Teilnehmenden zu scannen.
     </p>
-    <p class="text-xs text-gray-500 mt-2 max-w-sm">
+    <p class="text-xs text-white/60 mt-2 max-w-sm">
       Beim Starten wirst du nach der Kamera-Berechtigung gefragt.
     </p>
 
     <button type="button"
             id="start-camera-btn"
-            class="mt-8 w-full max-w-xs inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-extrabold py-4 px-6 rounded-2xl shadow-lg transition text-base min-h-[56px] cursor-pointer">
+            class="mt-8 w-full max-w-xs inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 font-extrabold py-4 px-6 rounded-full shadow-lg transition text-base min-h-[56px] cursor-pointer">
       <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 001.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
       </svg>
       Kamera starten
     </button>
-    <p class="text-xs text-gray-500 mt-3 max-w-sm text-center">
+    <p class="text-xs text-white/60 mt-3 max-w-sm text-center">
       Falls die Kamera nicht funktioniert: Seite neu laden und nochmals probieren.
     </p>
 
     <%= link_to training_session_path(session),
-          class: "mt-3 w-full max-w-xs inline-flex items-center justify-center text-sm text-gray-300 hover:text-white font-semibold py-3 min-h-[44px] transition" do %>
+          class: "mt-3 w-full max-w-xs inline-flex items-center justify-center text-sm text-white/80 hover:text-white font-semibold py-3 min-h-[44px] transition" do %>
       Manuelle Checkliste verwenden →
     <% end %>
 
     <%= link_to training_session_path(session),
-          class: "mt-1 inline-flex items-center justify-center text-xs text-gray-500 hover:text-gray-300 font-medium py-2 px-3 min-h-[36px] transition" do %>
+          class: "mt-1 inline-flex items-center justify-center text-xs text-white/60 hover:text-white font-medium py-2 px-3 min-h-[36px] transition" do %>
       Abbrechen
     <% end %>
   </div>
 
   <%# ══ 2. Permission-Error-Bildschirm ═══════════════════════════════════ %>
   <div id="permission-error"
-       class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center bg-gray-950 px-6 text-center">
-    <div class="w-20 h-20 rounded-full bg-red-600/20 border-2 border-red-500 flex items-center justify-center mb-6">
-      <svg class="w-10 h-10 text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+       class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center brand-bg px-6 text-center">
+    <div class="w-20 h-20 rounded-full bg-red-600 shadow-lg flex items-center justify-center mb-6">
+      <svg class="w-10 h-10 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
       </svg>
     </div>
     <h2 class="text-xl font-extrabold mb-2">Kamera-Zugriff fehlgeschlagen</h2>
-    <p id="permission-error-text" class="text-sm text-gray-300 mb-1 max-w-sm break-words">
+    <p id="permission-error-text" class="text-sm text-white/80 mb-1 max-w-sm break-words">
       Wir konnten die Kamera nicht starten.
     </p>
-    <p class="text-xs text-gray-500 mb-6 max-w-sm">
+    <p class="text-xs text-white/60 mb-6 max-w-sm">
       Du kannst die Anwesenheit auch manuell über die Checkliste erfassen.
     </p>
 
     <%= link_to training_session_path(session),
-          class: "w-full max-w-xs inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-extrabold py-4 px-6 rounded-2xl shadow-lg transition text-base min-h-[56px]" do %>
+          class: "w-full max-w-xs inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-100 active:bg-slate-200 text-slate-900 font-extrabold py-4 px-6 rounded-full shadow-lg transition text-base min-h-[56px]" do %>
       Zur manuellen Checkliste
     <% end %>
 
     <button type="button"
             id="retry-camera-btn"
-            class="mt-3 w-full max-w-xs inline-flex items-center justify-center text-sm text-gray-300 hover:text-white font-semibold py-3 min-h-[44px] transition cursor-pointer">
+            class="mt-3 w-full max-w-xs inline-flex items-center justify-center text-sm text-white/80 hover:text-white font-semibold py-3 min-h-[44px] transition cursor-pointer">
       Erneut versuchen
     </button>
   </div>
@@ -101,10 +101,10 @@
   <div id="scan-overlay"
        class="hidden absolute inset-0 z-10 pointer-events-none flex items-center justify-center">
     <div class="relative w-64 h-64 sm:w-72 sm:h-72">
-      <span class="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-white rounded-tl-2xl"></span>
-      <span class="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-white rounded-tr-2xl"></span>
-      <span class="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-white rounded-bl-2xl"></span>
-      <span class="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-white rounded-br-2xl"></span>
+      <span class="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-[var(--color-secondary)] rounded-tl-2xl"></span>
+      <span class="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-[var(--color-secondary)] rounded-tr-2xl"></span>
+      <span class="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-[var(--color-secondary)] rounded-bl-2xl"></span>
+      <span class="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-[var(--color-secondary)] rounded-br-2xl"></span>
     </div>
   </div>
 
@@ -114,7 +114,7 @@
     <div class="flex items-start justify-between gap-3">
       <div class="min-w-0 flex-1">
         <p class="font-extrabold text-base sm:text-lg break-words leading-tight"><%= course.title %></p>
-        <p class="text-xs text-gray-300 mt-0.5 break-words">
+        <p class="text-xs text-white/80 mt-0.5 break-words">
           <% if session.start_time %>
             <%= I18n.l(session.start_time, format: "%-d. %B %Y") %> · <%= session.start_time.strftime("%H:%M") %> Uhr
           <% end %>
@@ -131,8 +131,8 @@
       </button>
     </div>
 
-    <div class="mt-3 inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm rounded-full px-3.5 py-1.5">
-      <svg class="w-4 h-4 text-green-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+    <div class="mt-3 inline-flex items-center gap-2 bg-[var(--color-secondary)] text-[var(--color-on-secondary)] shadow-lg rounded-full px-3.5 py-1.5">
+      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
       </svg>
       <span class="text-sm font-bold">
@@ -144,11 +144,11 @@
   <%# ══ 6. Bottom-Overlay: Hinweis + Manuelle Checkliste ════════════════ %>
   <div id="bottom-overlay"
        class="hidden absolute bottom-0 inset-x-0 z-20 bg-gradient-to-t from-black/90 via-black/55 to-transparent px-4 pt-14 pb-[max(1rem,env(safe-area-inset-bottom))]">
-    <p class="text-center text-sm text-gray-200 mb-3 font-medium">
+    <p class="text-center text-sm text-white/90 mb-3 font-medium">
       QR-Code des Tickets in den Rahmen halten
     </p>
     <%= link_to training_session_path(session),
-          class: "block w-full text-center bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-sm border border-white/20 text-white font-bold text-sm rounded-xl transition min-h-[48px] inline-flex items-center justify-center gap-2 py-3" do %>
+          class: "block w-full text-center bg-white/15 hover:bg-white/25 active:bg-white/30 backdrop-blur-sm border border-white/20 text-white font-bold text-sm rounded-full transition min-h-[48px] inline-flex items-center justify-center gap-2 py-3" do %>
       <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
       </svg>
@@ -159,7 +159,7 @@
   <%# ══ 7. Erfolgs-Splash (kurzer grüner Overlay nach Scan) ═════════════ %>
   <div id="success-splash"
        class="hidden absolute inset-0 z-40 flex flex-col items-center justify-center bg-green-600/95 text-white text-center px-6">
-    <div class="w-28 h-28 rounded-full bg-white/25 flex items-center justify-center mb-4 animate-pulse">
+    <div class="w-28 h-28 rounded-full bg-white text-green-600 shadow-xl flex items-center justify-center mb-4">
       <svg class="w-16 h-16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
       </svg>
@@ -171,7 +171,7 @@
   <%# ══ 8. Fehler-Splash (kurzer roter Overlay) ════════════════════════ %>
   <div id="error-splash"
        class="hidden absolute inset-0 z-40 flex flex-col items-center justify-center bg-red-600/95 text-white text-center px-6">
-    <div class="w-24 h-24 rounded-full bg-white/25 flex items-center justify-center mb-4">
+    <div class="w-24 h-24 rounded-full bg-white text-red-600 shadow-xl flex items-center justify-center mb-4">
       <svg class="w-14 h-14" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
       </svg>
