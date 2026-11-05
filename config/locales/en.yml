@@ -3,9 +3,7 @@ en:
 
   course_categories:
     index:
-      header_label: "Management"
       title: "Course categories"
-      back_to_dashboard: "Back to dashboard"
       summary: "%{courses} courses · %{recipients} recipients"
       compose_button: "Compose email"
       modal_title: "Email to category “%{category}”"
@@ -155,6 +153,10 @@ en:
     switch: "Change language"
 
   mail_logs:
+    show_mail: "View email"
+    close_preview: "Close preview"
+    no_content: "No content was stored for this email."
+    no_content_hint: "Content not stored (sent before 5 Nov 2026)"
     title: "Mails"
     subtitle_admin: "All emails sent."
     subtitle_trainer: "Emails for courses you were assigned to as a trainer when they were sent. Payment and internal emails are not listed."
@@ -747,24 +749,49 @@ en:
       admin_body_html: "As an administrator you do not have a trainer profile. Your account settings can be found %{link}."
 
   dashboards:
+    open_payments:
+      title: "Open payments"
+      subtitle: "Confirmed or promoted places in running paid courses that have not been paid yet."
+      since: "since %{date}"
+      empty_title: "No open payments."
+      empty_text: "All places in running courses are paid."
     admin:
       title: "Command Centre"
       new_course: "New course"
       sections:
-        management: "Management"
+        courses: "Courses"
+        people: "People & Finance"
         communication: "Communication"
-        configuration: "Configuration"
         analysis: "Analysis"
         settings: "Settings"
+      action_items:
+        title: "Needs attention"
+        all_done: "Nothing open \u2013 all done."
+        open_attendances:
+          one: "open attendance check"
+          other: "open attendance checks"
+        open_charges:
+          one: "open supplementary charge"
+          other: "open supplementary charges"
+        open_payments:
+          one: "payment outstanding"
+          other: "payments outstanding"
+        newsletter_drafts:
+          one: "newsletter draft"
+          other: "newsletter drafts"
       links:
         settings_communication: "Communication"
-        settings_communication_desc: "Email, system mails & newsletter"
+        settings_communication_desc: "Email delivery, system mails & newsletter API"
+        notifications: "Notifications"
+        notifications_desc: "Switch automatic emails on/off and preview them"
         settings_club: "Club"
         settings_club_desc: "Design, contact & legal"
         settings_payments: "Payments"
         settings_payments_desc: "SumUp & payment setup"
-        settings_data: "Data & Exports"
-        settings_data_desc: "Export profiles, reports & NDS"
+        settings_features: "Features & rules"
+        settings_features_desc: "Global switches and deadlines"
+        terms: "Semester/Quarter"
+        terms_desc: "Manage date ranges for courses"
         trainers: "Trainers"
         trainers_desc: "Manage & assign trainers"
         holidays: "Holidays"
@@ -777,14 +804,6 @@ en:
         stats_desc: "Reports & analytics"
         talents: "Talent list"
         talents_desc: "Participants marked as talent"
-        email_settings: "Email settings"
-        email_settings_desc: "SMTP & sender config"
-        payments: "Payments"
-        payments_desc: "SumUp & payment setup"
-        newsletter_api: "Newsletter API"
-        newsletter_api_desc: "Infomaniak API credentials"
-        club_design: "Club design"
-        club_design_desc: "Logo, colours & name"
         export_profiles: "Export profiles"
         export_profiles_desc: "Manage export templates"
         course_categories: "Course categories"
@@ -793,6 +812,16 @@ en:
         supplementary_charges_desc: "Request an additional amount afterwards"
         age_exemptions: "Age overview"
         age_exemptions_desc: "Who is ageing out of a course? Grant exemptions"
+        open_payments: "Open payments"
+        open_payments_desc: "Unpaid places in running courses"
+        newsletter_subscribers: "Subscribers"
+        newsletter_subscribers_desc: "Manage newsletter recipients"
+        mail_logs: "Mail log"
+        mail_logs_desc: "Look up all sent emails"
+        reports: "Reports"
+        reports_desc: "BTV numbers, sports fund, Krabbel-Gym"
+        nds: "NDS / J+S"
+        nds_desc: "Data exchange with J+S"
       table:
         course: "Course"
         category: "Category"
@@ -868,7 +897,6 @@ en:
     stats:
       title: "Statistics"
       subtitle: "Overview of all trainings, sessions, and attendance."
-      back: "← Command Centre"
       all_courses: "All courses"
       courses_selected:
         one: "1 course selected"
@@ -1262,7 +1290,10 @@ en:
       unsubscribed_by_parents: "Unsubscribed"
       status_unsubscribed: "Unsubscribed"
       status_absent: "Absent"
-      attendance_not_yet_possible: "Attendance can only be recorded from 1 hour before the training starts."
+      attendance_not_yet_possible:
+        zero: "Attendance can only be recorded once the training starts."
+        one: "Attendance can only be recorded from 1 hour before the training starts."
+        other: "Attendance can only be recorded from %{count} hours before the training starts."
       attendance_not_yet: "Not yet available"
       attendance_cancelled: "Cancelled"
       mark_absent_aria: "Mark %{name} as absent"
@@ -1467,26 +1498,49 @@ en:
 
   admin:
     settings:
-      title: "Settings"
       subtitle: "Central configuration for the club."
-      back: "← Command center"
-      tabs:
-        communication: "Communication"
-        club: "Club"
-        payments: "Payments"
-        data: "Data & Exports"
+      features:
+        title: "Features & rules"
+        desc: "Global switches and deadlines. Unless changed, the default applies."
+        save: "Save"
+        out_of_range: "%{label} must be between %{min} and %{max}."
+        groups:
+          trainers: "Trainers"
+          registration: "Registration & waiting list"
+          attendance: "Attendance check"
+          data: "Data & privacy"
+        units:
+          days: "days"
+          hours: "hours"
+          months: "months"
+        entries:
+          trial_expiry_days:
+            label: "Trial place reserved for"
+            desc: "Days after the trial training until a regular registration is required; afterwards the place expires automatically. Also stated in the email and form. Default: 5 days."
+          waitlist_offer_days:
+            label: "Deadline after moving up from the waiting list"
+            desc: "How long families have to choose trial or registration before the place moves on. Also stated in the email. Default: 5 days."
+          attendance_admin_alert_days:
+            label: "Notify admin after"
+            desc: "If the attendance check is still open this long after the training ends, the admin is notified. Default: 7 days."
+          attendance_trainer_reminder_hours:
+            label: "Remind trainers after"
+            desc: "If the attendance check is still open this long after the training ends, trainers get a reminder. Default: 24 hours."
+          attendance_opens_before_hours:
+            label: "Attendance check opens before training"
+            desc: "When trainers can start recording attendance. 0 = only from the start. Default: 1 hour."
+          mail_log_retention_months:
+            label: "Keep mail log"
+            desc: "Entries in the mail log are deleted automatically after this period (privacy). Default: 12 months."
+          trainer_self_enroll_enabled:
+            label: "Free self-enrolment for trainers"
+            desc: "Lets trainers enrol in trainings for free. Can also be disabled per course."
       communication:
         smtp_title: "Email delivery (SMTP)"
         smtp_desc: "SMTP credentials, sender and app URL for outgoing emails."
-        system_mails_title: "System notifications"
-        system_mails_desc: "Choose which automatic emails the club sends."
         infomaniak_title: "Newsletter API (Infomaniak)"
         infomaniak_desc: "API credentials for sending newsletters via Infomaniak."
-        links_title: "More communication"
-        newsletter_label: "Mailing center"
-        newsletter_desc: "Create & send newsletters"
-        subscribers_label: "Subscribers"
-        subscribers_desc: "Manage newsletter subscribers"
+        links_title: "Personal settings"
         notifications_label: "My notifications"
         notifications_desc: "Set your personal email notifications"
       club:
@@ -1496,15 +1550,6 @@ en:
         title: "Payment settings"
         desc: "SumUp credentials and currency for online payments."
         actions_title: "Connection & sync"
-      data:
-        title: "Data & Exports"
-        desc: "Export profiles, reports and the NDS/J+S data exchange."
-        export_profiles_label: "Export profiles"
-        export_profiles_desc: "Manage export templates"
-        reports_label: "Reports"
-        reports_desc: "Analyses & statistics"
-        nds_label: "NDS / J+S"
-        nds_desc: "Data exchange with J+S"
     notification_preferences:
       mandatory_badge: "Always active"
       attendance_reminder_mandatory_hint: "This reminder is mandatory and active for all trainers."
@@ -1608,7 +1653,6 @@ en:
         cancel: "Cancel"
     export_profiles:
       index:
-        back: "← Command Centre"
         title: "Export profiles"
         subtitle: "Reusable templates for participant lists and attendance lists."
         new_btn: "New profile"
@@ -1630,7 +1674,6 @@ en:
         title: "Edit export profile"
     nds:
       show:
-        back: "← Command Centre"
         title: "NDS / J+S Data Exchange"
         subtitle: "Workflow for the BASPO Jugend+Sport data exchange."
 
@@ -1786,7 +1829,6 @@ en:
 
   newsletters:
     index:
-      admin_label: "Admin"
       title: "Mailing Centre"
       subscribers_link: "Recipients list"
       new_newsletter: "+ New newsletter"
@@ -1833,7 +1875,6 @@ en:
 
   newsletter_subscribers:
     index:
-      back: "← Mailing Centre"
       title: "Recipients list"
       stat_subscribed: "subscribed"
       stat_unsubscribed: "unsubscribed"
@@ -1983,6 +2024,16 @@ en:
     success_notice: "Great! Family details saved. Now add the first person."
 
   shared:
+    mail_preview:
+      to: "to %{recipients}"
+      more_recipients:
+        one: "and 1 other"
+        other: "and %{count} others"
+      sample_hint: "Preview with sample data \u2013 this is how the email looks in the inbox."
+    load_more:
+      show_all: "Show all %{count}"
+      button: "Show more"
+      shown: "Showing %{shown} of %{total}"
     access_denied: "Access denied."
     send_mail:
       participants: "Send email to participants"

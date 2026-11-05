@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   get  "dashboards/stats"
   get  "dashboards/talents", as: "talents_dashboard"
   get  "dashboards/open_attendances", as: "open_attendances_dashboard"
+  get  "dashboards/open_payments", as: "open_payments_dashboard"
   get  "dashboards/export_participants", as: "export_participants_dashboard"
 
 
@@ -58,7 +59,8 @@ Rails.application.routes.draw do
     get "einstellungen/kommunikation", to: "settings#communication", as: :settings_communication
     get "einstellungen/verein",        to: "settings#club",          as: :settings_club
     get "einstellungen/zahlungen",     to: "settings#payments",      as: :settings_payments
-    get "einstellungen/daten",         to: "settings#data",          as: :settings_data
+    # Daten & Exporte ist jetzt der Bereich „Auswertung“ der Kommandozentrale.
+    get "einstellungen/daten",         to: redirect("/dashboards/admin#bereich-analysis"), as: :settings_data
     get "einstellungen/funktionen",    to: "settings#features",      as: :settings_features
   end
 
@@ -80,6 +82,7 @@ Rails.application.routes.draw do
   get "my_profile", to: "participants#my_profile", as: :my_profile
   get "my_trainings", to: "participants#my_trainings", as: :my_trainings
   get "mails", to: "mail_logs#index", as: :mail_logs
+  get "mails/:id/vorschau", to: "mail_logs#preview", as: :mail_log_preview
 
   resources :participants
 

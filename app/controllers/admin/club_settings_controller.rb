@@ -1,9 +1,6 @@
 module Admin
-  class ClubSettingsController < ApplicationController
+  class ClubSettingsController < BaseController
     include SettingsLoadable
-
-    before_action :authenticate_user!
-    before_action :authorize_admin!
 
     # Vereinseinstellungen leben jetzt im Verein-Tab des Einstellungs-Hubs.
     def show

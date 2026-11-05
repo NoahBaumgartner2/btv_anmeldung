@@ -14,12 +14,12 @@
 
 <div class="max-w-7xl mx-auto mt-6 sm:mt-10 mb-16 px-4">
 
+  <%= render "admin/shared/section_header" %>
+
   <%# ── Header ────────────────────────────────────────────────────────────── %>
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-6 sm:mb-8 gap-4">
     <div>
-      <%= link_to t('dashboards.stats.back'), dashboards_admin_path,
-            class: "text-sm font-semibold text-gray-500 hover:text-gray-800 transition min-h-11 inline-flex items-center" %>
-      <h1 class="text-2xl sm:text-4xl font-extrabold text-gray-900 mt-1 sm:mt-2"><%= t('dashboards.stats.title') %></h1>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t('dashboards.stats.title') %></h2>
       <p class="text-gray-500 mt-1 text-sm sm:text-base"><%= t('dashboards.stats.subtitle') %></p>
     </div>
   </div>
@@ -84,7 +84,7 @@
         </div>
 
         <div class="max-h-72 overflow-y-auto divide-y divide-gray-50 py-1">
-          <% @courses.each do |course| %>
+          <% @filter_courses.each do |course| %>
             <label class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition min-h-11">
               <%= f.check_box :course_ids,
                     { multiple: true,
@@ -105,7 +105,7 @@
   <% end %>
 
   <%# ── Kurs-Sektionen ─────────────────────────────────────────────────────── %>
-  <% filtered_courses = @selected_course_ids.any? ? @courses.select { |c| @selected_course_ids.include?(c.id) } : @courses %>
+  <% filtered_courses = @courses %>
 
   <% if filtered_courses.empty? %>
     <div class="bg-white rounded-3xl border border-slate-200/80 p-12 text-center text-gray-400 text-sm">
@@ -267,5 +267,7 @@
       </details>
     </div>
   <% end %>
+
+  <%= render "shared/load_more", info: @courses_more %>
 
 </div>

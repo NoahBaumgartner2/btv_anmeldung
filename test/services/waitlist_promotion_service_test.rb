@@ -59,6 +59,14 @@ class WaitlistPromotionServiceTest < ActiveSupport::TestCase
     end
 
     assert_equal "ausstehend", waitlisted.reload.status
+    # Mail „Platz frei“ verspricht eine Woche Zeit zum Bezahlen.
+    assert_in_delta 7.days.from_now, waitlisted.payment_expires_at, 1.minute
+  end
+
+  test "normale Online-Zahlung behält die 48h-Frist" do
+    registration = course_registrations(:one)
+    registration.update!(status: "ausstehend")
+    assert_in_delta 48.hours.from_now, registration.payment_expires_at, 1.minute
   end
 
   test "ausstehend belegt KEINEN Platz: Wartender wird trotz offenem Checkout hochgestuft" do

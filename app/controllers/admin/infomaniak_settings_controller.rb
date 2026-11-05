@@ -1,9 +1,6 @@
 module Admin
-  class InfomaniakSettingsController < ApplicationController
+  class InfomaniakSettingsController < BaseController
     include SettingsLoadable
-
-    before_action :authenticate_user!
-    before_action :authorize_admin!
 
     # Infomaniak-Einstellungen leben jetzt im Kommunikation-Tab des Einstellungs-Hubs.
     def show

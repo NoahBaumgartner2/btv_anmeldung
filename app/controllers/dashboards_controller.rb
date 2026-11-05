@@ -15,10 +15,12 @@ class DashboardsController < ApplicationController
     # registration_mode (Anmelde-Kadenz). Kurse ohne Term (Alt-Kurse ohne
     # Zeitraum-Zuordnung) landen in einer eigenen Sammel-Gruppe, neuester
     # Zeitraum zuerst.
-    @archived_courses_by_term = archived_courses
+    archived_by_term = archived_courses
       .group_by(&:term)
       .sort_by { |term, _courses| term&.start_date || Date.new(0) }
       .reverse
+    # Neueste 3 Zeiträume pro Stufe, ältere über „Mehr anzeigen“.
+    @archived_courses_by_term, @archive_more = load_more(archived_by_term, per: 3, param: :archive_page)
 
     @course_categories = @courses.map(&:category).compact_blank.uniq.sort
     @course_registration_modes = @courses.map(&:registration_mode).compact_blank.uniq
@@ -33,6 +35,19 @@ class DashboardsController < ApplicationController
     @courses = @courses.first(@course_limit)
 
     @export_profiles = ExportProfile.order(:name)
+    @nav_badges = {
+      export_profiles: @export_profiles.size,
+      newsletters: Newsletter.drafts.count,
+      newsletter_subscribers: NewsletterSubscriber.subscribed.count
+    }
+
+    # Handlungsbedarf: nur Kacheln mit Wert > 0 werden angezeigt.
+    @action_items = [
+      { key: :open_attendances, count: TrainingSession.attendance_open.count, path: open_attendances_dashboard_path, tone: :red },
+      { key: :open_charges, count: SupplementaryCharge.where(status: "offen").count, path: admin_supplementary_charges_path, tone: :amber },
+      { key: :open_payments, count: CourseRegistration.payment_open.count, path: open_payments_dashboard_path, tone: :indigo },
+      { key: :newsletter_drafts, count: @nav_badges[:newsletters], path: newsletters_path, tone: :gray }
+    ].select { |item| item[:count].positive? }
 
     q = params[:q].to_s.strip
     if q.length >= 2
@@ -82,11 +97,18 @@ class DashboardsController < ApplicationController
 
     now = Time.current
 
-    @courses = Course.includes(
+    # Kursfilter: alle Titel (leicht). Kurs-Karten: nur ausgewählte bzw. die
+    # neuesten, je 10 pro Stufe – sonst lädt die Seite mit den Jahren alle
+    # Trainings und Anwesenheiten aller Kurse.
+    @filter_courses = Course.order(start_date: :desc).select(:id, :title)
+    @selected_course_ids = Array(params[:course_ids]).map(&:to_i).select(&:positive?)
+    cards = Course.includes(
       { trainers: :user },
       training_sessions: :attendances,
       course_registrations: :participant
     ).order(start_date: :desc)
+    cards = cards.where(id: @selected_course_ids) if @selected_course_ids.any?
+    @courses, @courses_more = load_more(cards, per: 10, param: :course_page)
 
     # Globale Kennzahlen
     all_sessions = TrainingSession.all
@@ -98,30 +120,31 @@ class DashboardsController < ApplicationController
     @present_count  = non_canceled_attendances.where(status: "anwesend").count
     @absent_count   = non_canceled_attendances.where(status: "abwesend").count
     @excused_count  = non_canceled_attendances.where(status: "abgemeldet").count
-
-    # Kurs-Filter (Multi-Select)
-    @selected_course_ids = Array(params[:course_ids]).map(&:to_i).select(&:positive?)
   end
 
   def talents
     authorize_admin!
-    @talented_registrations = CourseRegistration
+    @talented_registrations, @talents_more = load_more(CourseRegistration
       .joins(:course, :participant)
       .where(talent_flag: true)
       .where(courses: { allows_talent_marking: true })
       .includes(:course, :participant)
-      .order("courses.title, participants.last_name, participants.first_name")
+      .order("courses.title, participants.last_name, participants.first_name"), per: 50)
   end
 
   def open_attendances
     authorize_admin!
 
-    @open_sessions = TrainingSession
-      .where(is_canceled: false, attendance_confirmed_at: nil, course: Course.where(deactivated_at: nil))
-      .where.not(end_time: nil)
-      .where("end_time < ?", Time.current)
+    @open_sessions, @open_sessions_more = load_more(TrainingSession.attendance_open
       .includes(course: { course_trainers: { trainer: :user } })
-      .order(:start_time)
+      .order(:start_time), per: 50)
+  end
+
+  def open_payments
+    authorize_admin!
+    @open_registrations, @open_registrations_more = load_more(CourseRegistration.payment_open
+      .includes(:course, participant: :user)
+      .order("courses.title", :created_at), per: 50)
   end
 
   def trainer

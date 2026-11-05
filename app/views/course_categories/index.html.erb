@@ -1,11 +1,10 @@
 <div class="max-w-3xl mx-auto w-full px-4 mt-6 sm:mt-8 mb-16">
+
+  <%= render "admin/shared/section_header" %>
   <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 gap-4">
     <div>
-      <span class="text-red-600 font-bold text-sm tracking-wider uppercase mb-1 block"><%= t("course_categories.index.header_label") %></span>
-      <h1 class="font-extrabold text-2xl sm:text-3xl text-gray-900"><%= t("course_categories.index.title") %></h1>
+      <h2 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t("course_categories.index.title") %></h2>
     </div>
-    <%= link_to t("course_categories.index.back_to_dashboard"), dashboards_admin_path,
-          class: "bg-white border border-slate-200 py-2 px-4 rounded-full shadow-sm text-sm font-bold text-gray-700 hover:bg-gray-50 transition" %>
   </div>
 
   <p class="text-sm text-gray-600 mb-6 max-w-2xl"><%= t("course_categories.index.intro") %></p>

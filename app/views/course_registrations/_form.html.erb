@@ -98,7 +98,7 @@
               <div class="mt-2 pt-2 border-t border-blue-200 space-y-1">
                 <% age_warnings.each do |p| %>
                   <div class="flex items-start gap-2 text-xs">
-                    <span class="text-blue-900">⚠</span>
+                    <span class="text-blue-900"><%= ui_icon(:warning, "w-4 h-4 -mt-0.5") %></span>
                     <div>
                       <span class="font-semibold"><%= p.first_name %> <%= p.last_name %></span>
                       <% if (opens_on = course.registration_opens_on(p)) %>
@@ -197,7 +197,7 @@
             data-action="click->trial-check#submitTrial"
             class="hidden w-full sm:w-auto flex-col justify-center items-center py-3 sm:py-2 px-5 shadow-sm text-base sm:text-sm font-bold rounded-full text-white bg-amber-500 hover:bg-amber-600 transition min-h-[44px]">
       Erstes Training schnuppern
-      <span class="text-xs font-normal opacity-80">Kostenlos · Platz bis 5 Tage nach dem Training gesichert</span>
+      <span class="text-xs font-normal opacity-80">Kostenlos · Platz bis <%= FeatureSetting.value(:trial_expiry_days) %> Tage nach dem Training gesichert</span>
     </button>
     <button type="submit"
             data-trial-check-target="submitBtn"

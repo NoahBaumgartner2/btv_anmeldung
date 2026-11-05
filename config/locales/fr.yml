@@ -3,9 +3,7 @@ fr:
 
   course_categories:
     index:
-      header_label: "Gestion"
       title: "Catégories de cours"
-      back_to_dashboard: "Retour au tableau de bord"
       summary: "%{courses} cours · %{recipients} destinataires"
       compose_button: "Rédiger l'e-mail"
       modal_title: "E-mail à la catégorie « %{category} »"
@@ -155,6 +153,10 @@ fr:
     switch: "Changer de langue"
 
   mail_logs:
+    show_mail: "Voir l'e-mail"
+    close_preview: "Fermer l'aper\u00E7u"
+    no_content: "Aucun contenu n'a \u00E9t\u00E9 enregistr\u00E9 pour cet e-mail."
+    no_content_hint: "Contenu non enregistré (envoi avant le 5.11.2026)"
     title: "E-mails"
     subtitle_admin: "Tous les e-mails envoyés."
     subtitle_trainer: "E-mails des cours auxquels vous étiez affecté·e comme entraîneur·e lors de l'envoi. Les e-mails de paiement et internes ne sont pas listés."
@@ -747,24 +749,51 @@ fr:
       admin_body_html: "En tant qu'administrateur, vous n'avez pas de profil entraîneur. Vos paramètres de compte se trouvent %{link}."
 
   dashboards:
+    open_payments:
+      title: "Paiements en attente"
+      subtitle: "Places confirm\u00E9es ou attribu\u00E9es depuis la liste d'attente dans des cours payants en cours, pas encore pay\u00E9es."
+      since: "depuis le %{date}"
+      empty_title: "Aucun paiement en attente."
+      empty_text: "Toutes les places des cours en cours sont pay\u00E9es."
     admin:
       title: "Centre de commande"
       new_course: "Nouveau cours"
       sections:
-        management: "Gestion"
+        courses: "Cours"
+        people: "Personnes & finances"
         communication: "Communication"
-        configuration: "Configuration"
         analysis: "Analyse"
         settings: "Paramètres"
+      action_items:
+        title: "\u00C0 traiter"
+        all_done: "Rien en attente \u2013 tout est fait."
+        open_attendances:
+          one: "contr\u00F4le de pr\u00E9sence ouvert"
+          other: "contr\u00F4les de pr\u00E9sence ouverts"
+        open_charges:
+          one: "suppl\u00E9ment ouvert"
+          other: "suppl\u00E9ments ouverts"
+        open_payments:
+          one: "paiement en attente"
+          other: "paiements en attente"
+        newsletter_drafts:
+          one: "brouillon de newsletter"
+          other: "brouillons de newsletter"
       links:
         settings_communication: "Communication"
-        settings_communication_desc: "E-mail, mails système & newsletter"
+        settings_communication_desc: "Envoi d'e-mails, mails système & API newsletter"
+        notifications: "Notifications"
+        notifications_desc: "Activer/d\u00E9sactiver les e-mails automatiques et les pr\u00E9visualiser"
         settings_club: "Club"
         settings_club_desc: "Design, contact & mentions légales"
         settings_payments: "Paiements"
         settings_payments_desc: "Configuration SumUp & paiement"
-        settings_data: "Données & exports"
-        settings_data_desc: "Profils d'export, rapports & NDS"
+        settings_features: "Fonctionnalit\u00E9s & r\u00E8gles"
+        settings_features_desc: "Interrupteurs et d\u00E9lais globaux"
+        terms: "Semestre/Trimestre"
+        terms_desc: "Gérer les périodes des cours"
+        talents: "Liste des talents"
+        talents_desc: "Participants marqués comme talents"
         trainers: "Entraîneurs"
         trainers_desc: "Gérer et assigner les entraîneurs"
         holidays: "Jours fériés"
@@ -775,14 +804,6 @@ fr:
         newsletters_desc: "Créer et envoyer des newsletters"
         stats: "Statistiques"
         stats_desc: "Rapports et analyses"
-        email_settings: "Paramètres email"
-        email_settings_desc: "Config. SMTP & expéditeur"
-        payments: "Paiements"
-        payments_desc: "Configuration SumUp"
-        newsletter_api: "API Newsletter"
-        newsletter_api_desc: "Identifiants API Infomaniak"
-        club_design: "Design du club"
-        club_design_desc: "Logo, couleurs & nom"
         export_profiles: "Profils d'export"
         export_profiles_desc: "Gérer les modèles d'export"
         course_categories: "Catégories de cours"
@@ -791,6 +812,16 @@ fr:
         supplementary_charges_desc: "Demander un montant supplémentaire après coup"
         age_exemptions: "Aperçu des âges"
         age_exemptions_desc: "Qui dépasse la limite d'âge ? Accorder des dérogations"
+        open_payments: "Paiements en attente"
+        open_payments_desc: "Places impay\u00E9es dans les cours en cours"
+        newsletter_subscribers: "Abonnés"
+        newsletter_subscribers_desc: "Gérer les destinataires de la newsletter"
+        mail_logs: "Journal des e-mails"
+        mail_logs_desc: "Consulter tous les e-mails envoyés"
+        reports: "Rapports"
+        reports_desc: "Effectifs BTV, fonds du sport, Krabbel-Gym"
+        nds: "NDS / J+S"
+        nds_desc: "Échange de données avec J+S"
       table:
         course: "Cours"
         category: "Catégorie"
@@ -865,7 +896,6 @@ fr:
     stats:
       title: "Statistiques"
       subtitle: "Vue d'ensemble de tous les entraînements, sessions et présences."
-      back: "← Centre de commande"
       all_courses: "Tous les cours"
       courses_selected:
         one: "1 cours sélectionné"
@@ -1255,7 +1285,10 @@ fr:
       unsubscribed_by_parents: "Désinscrit"
       status_unsubscribed: "Désinscrit"
       status_absent: "Absent"
-      attendance_not_yet_possible: "La présence ne peut être enregistrée qu'à partir d'une heure avant le début de l'entraînement."
+      attendance_not_yet_possible:
+        zero: "La présence ne peut être enregistrée qu'à partir du début de l'entraînement."
+        one: "La présence ne peut être enregistrée qu'à partir d'une heure avant le début de l'entraînement."
+        other: "La présence ne peut être enregistrée qu'à partir de %{count} heures avant le début de l'entraînement."
       attendance_not_yet: "Pas encore possible"
       attendance_cancelled: "Annulé"
       mark_absent_aria: "Marquer %{name} comme absent"
@@ -1460,26 +1493,49 @@ fr:
 
   admin:
     settings:
-      title: "Paramètres"
       subtitle: "Configuration centrale du club."
-      back: "← Centre de commande"
-      tabs:
-        communication: "Communication"
-        club: "Club"
-        payments: "Paiements"
-        data: "Données & exports"
+      features:
+        title: "Fonctionnalit\u00E9s & r\u00E8gles"
+        desc: "Interrupteurs et d\u00E9lais globaux. Sans modification, la valeur par d\u00E9faut s'applique."
+        save: "Enregistrer"
+        out_of_range: "%{label} doit \u00EAtre compris entre %{min} et %{max}."
+        groups:
+          trainers: "Entra\u00EEneurs"
+          registration: "Inscription & liste d'attente"
+          attendance: "Contr\u00F4le de pr\u00E9sence"
+          data: "Donn\u00E9es & protection des donn\u00E9es"
+        units:
+          days: "jours"
+          hours: "heures"
+          months: "mois"
+        entries:
+          trial_expiry_days:
+            label: "Place d'essai r\u00E9serv\u00E9e pendant"
+            desc: "Jours apr\u00E8s l'entra\u00EEnement d'essai jusqu'\u00E0 ce qu'une inscription r\u00E9guli\u00E8re soit n\u00E9cessaire ; ensuite la place expire automatiquement. Indiqu\u00E9 aussi dans l'e-mail et le formulaire. Par d\u00E9faut : 5 jours."
+          waitlist_offer_days:
+            label: "D\u00E9lai apr\u00E8s sortie de la liste d'attente"
+            desc: "D\u00E9lai pour choisir entre essai et inscription avant que la place ne passe \u00E0 la personne suivante. Indiqu\u00E9 aussi dans l'e-mail. Par d\u00E9faut : 5 jours."
+          attendance_admin_alert_days:
+            label: "Notifier l'admin apr\u00E8s"
+            desc: "Si le contr\u00F4le de pr\u00E9sence est encore ouvert ce temps apr\u00E8s la fin, l'admin est inform\u00E9. Par d\u00E9faut : 7 jours."
+          attendance_trainer_reminder_hours:
+            label: "Rappel aux entra\u00EEneurs apr\u00E8s"
+            desc: "Si le contr\u00F4le de pr\u00E9sence est encore ouvert ce temps apr\u00E8s la fin, les entra\u00EEneurs re\u00E7oivent un rappel. Par d\u00E9faut : 24 heures."
+          attendance_opens_before_hours:
+            label: "Le contr\u00F4le de pr\u00E9sence s'ouvre avant l'entra\u00EEnement"
+            desc: "\u00C0 partir de quand les entra\u00EEneurs peuvent saisir les pr\u00E9sences. 0 = seulement au d\u00E9but. Par d\u00E9faut : 1 heure."
+          mail_log_retention_months:
+            label: "Conserver le journal des e-mails"
+            desc: "Les entr\u00E9es du journal sont ensuite supprim\u00E9es automatiquement (protection des donn\u00E9es). Par d\u00E9faut : 12 mois."
+          trainer_self_enroll_enabled:
+            label: "Auto-inscription gratuite pour les entraîneurs"
+            desc: "Permet aux entraîneurs de s'inscrire gratuitement aux entraînements. Peut aussi être désactivé par cours."
       communication:
         smtp_title: "Envoi d'e-mails (SMTP)"
         smtp_desc: "Identifiants SMTP, expéditeur et URL de l'app pour les e-mails sortants."
-        system_mails_title: "Notifications système"
-        system_mails_desc: "Choisissez quels e-mails automatiques le club envoie."
         infomaniak_title: "API Newsletter (Infomaniak)"
         infomaniak_desc: "Identifiants API pour l'envoi de newsletters via Infomaniak."
-        links_title: "Autres communications"
-        newsletter_label: "Centre d'envoi"
-        newsletter_desc: "Créer & envoyer des newsletters"
-        subscribers_label: "Abonnés"
-        subscribers_desc: "Gérer les abonnés à la newsletter"
+        links_title: "Paramètres personnels"
         notifications_label: "Mes notifications"
         notifications_desc: "Configurer vos notifications e-mail personnelles"
       club:
@@ -1489,15 +1545,6 @@ fr:
         title: "Paramètres de paiement"
         desc: "Identifiants SumUp et devise pour les paiements en ligne."
         actions_title: "Connexion & synchronisation"
-      data:
-        title: "Données & exports"
-        desc: "Profils d'export, rapports et l'échange de données NDS/J+S."
-        export_profiles_label: "Profils d'export"
-        export_profiles_desc: "Gérer les modèles d'export"
-        reports_label: "Rapports"
-        reports_desc: "Analyses & statistiques"
-        nds_label: "NDS / J+S"
-        nds_desc: "Échange de données avec J+S"
     notification_preferences:
       mandatory_badge: "Toujours actif"
       attendance_reminder_mandatory_hint: "Ce rappel est obligatoire et actif pour tous les entraîneurs."
@@ -1601,7 +1648,6 @@ fr:
         cancel: "Annuler"
     export_profiles:
       index:
-        back: "← Centre de commande"
         title: "Profils d'exportation"
         subtitle: "Modèles réutilisables pour les listes de participants et les listes de présence."
         new_btn: "Nouveau profil"
@@ -1623,7 +1669,6 @@ fr:
         title: "Modifier le profil d'exportation"
     nds:
       show:
-        back: "← Centre de commande"
         title: "NDS / J+S Échange de données"
         subtitle: "Workflow pour l'échange de données BASPO Jeunesse+Sport – Import de personnes et contrôle de présence (AWK)."
 
@@ -1779,7 +1824,6 @@ fr:
 
   newsletters:
     index:
-      admin_label: "Admin"
       title: "Centre de messagerie"
       subscribers_link: "Liste des destinataires"
       new_newsletter: "+ Nouveau newsletter"
@@ -1826,7 +1870,6 @@ fr:
 
   newsletter_subscribers:
     index:
-      back: "← Centre de messagerie"
       title: "Liste des destinataires"
       stat_subscribed: "inscrits"
       stat_unsubscribed: "désinscrits"
@@ -1976,6 +2019,16 @@ fr:
     success_notice: "Super ! Données familiales enregistrées. Ajoutez maintenant la première personne."
 
   shared:
+    mail_preview:
+      to: "\u00E0 %{recipients}"
+      more_recipients:
+        one: "et 1 autre personne"
+        other: "et %{count} autres personnes"
+      sample_hint: "Aper\u00E7u avec des donn\u00E9es d'exemple \u2013 voici l'e-mail tel qu'il appara\u00EEt dans la bo\u00EEte de r\u00E9ception."
+    load_more:
+      show_all: "Afficher les %{count}"
+      button: "Afficher plus"
+      shown: "%{shown} sur %{total} affichés"
     access_denied: "Accès refusé."
     send_mail:
       participants: "Envoyer l'e-mail aux participants"

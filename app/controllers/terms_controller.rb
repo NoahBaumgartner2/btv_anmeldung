@@ -1,10 +1,10 @@
 class TermsController < ApplicationController
-  before_action :set_term, only: %i[ edit update destroy ]
   before_action :authorize_admin!
+  before_action :set_term, only: %i[ edit update destroy ]
 
   # GET /terms
   def index
-    @terms = Term.order(start_date: :desc)
+    @terms, @terms_more = load_more(Term.order(start_date: :desc), per: 20)
   end
 
   # GET /terms/new

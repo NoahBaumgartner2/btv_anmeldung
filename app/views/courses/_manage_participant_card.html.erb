@@ -9,11 +9,11 @@
                     <span class="ml-1 inline-flex items-center bg-indigo-100 text-indigo-700 text-xs font-bold px-1.5 py-0.5 rounded-full">Abo</span>
                   <% end %>
                   <% if @course.allows_talent_marking? && reg.talent_flag? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
-                    <span class="text-amber-400" title="<%= reg.talent_note.presence || 'Talent' %>">⭐</span>
+                    <span class="text-amber-400" title="<%= reg.talent_note.presence || 'Talent' %>"><%= ui_icon(:star_solid, "w-4 h-4 -mt-0.5") %></span>
                   <% end %>
                 </p>
                 <% if @course.age_restricted? && reg.status != "storniert" && !@course.accepts_participant_age?(p) %>
-                  <span class="mt-1 inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full">⚠ Alter passt nicht (<%= @course.age_range_label %>)</span>
+                  <span class="mt-1 inline-flex items-center gap-1 bg-orange-100 text-orange-700 text-xs font-bold px-2 py-0.5 rounded-full"><%= ui_icon(:warning, "w-3.5 h-3.5") %> Alter passt nicht (<%= @course.age_range_label %>)</span>
                 <% end %>
                 <% if reg.status == "ausstehend" && reg.sumup_checkout_id.present? && !reg.payment_cleared? %>
                   <span class="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full mt-1">
@@ -270,7 +270,7 @@
               <% if @course.allows_talent_marking? && (current_user.admin? || @course.trainers.exists?(user_id: current_user.id)) %>
                 <details class="relative">
                   <summary class="flex items-center justify-center w-11 h-11 rounded-lg <%= reg.talent_flag? ? 'bg-amber-100' : 'bg-gray-100' %> cursor-pointer list-none" title="Talent markieren">
-                    <span class="text-lg leading-none"><%= reg.talent_flag? ? "⭐" : "☆" %></span>
+                    <span class="leading-none <%= reg.talent_flag? ? "text-amber-400" : "text-gray-400" %>"><%= ui_icon(reg.talent_flag? ? :star_solid : :star, "w-5 h-5") %></span>
                   </summary>
                   <div class="absolute left-0 z-10 mt-1 w-56 bg-white border border-slate-200/80 rounded-3xl shadow-lg p-3">
                     <%= form_with url: toggle_talent_course_path(@course), method: :post, local: true do |f| %>

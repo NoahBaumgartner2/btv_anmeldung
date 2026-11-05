@@ -3,9 +3,7 @@ de:
 
   course_categories:
     index:
-      header_label: "Verwaltung"
       title: "Kurskategorien"
-      back_to_dashboard: "Zurück zum Dashboard"
       summary: "%{courses} Kurse · %{recipients} Empfänger"
       compose_button: "E-Mail verfassen"
       modal_title: "E-Mail an Kategorie „%{category}“"
@@ -196,6 +194,10 @@ de:
     switch: "Sprache wechseln"
 
   mail_logs:
+    show_mail: "Mail ansehen"
+    close_preview: "Vorschau schliessen"
+    no_content: "F\u00FCr diese Mail wurde kein Inhalt gespeichert."
+    no_content_hint: "Inhalt nicht gespeichert (Versand vor dem 5.11.2026)"
     title: "Mails"
     subtitle_admin: "Alle versendeten Mails."
     subtitle_trainer: "Mails zu Kursen, bei denen du beim Versand als Trainer:in eingeteilt warst. Zahlungs- und interne Mails sind hier nicht aufgeführt."
@@ -795,26 +797,47 @@ de:
       browse_courses: "Kurse durchsuchen"
 
   dashboards:
+    open_payments:
+      title: "Offene Zahlungen"
+      subtitle: "Best\u00E4tigte oder nachger\u00FCckte Pl\u00E4tze in laufenden, kostenpflichtigen Kursen, die noch nicht bezahlt sind."
+      since: "seit %{date}"
+      empty_title: "Keine offenen Zahlungen."
+      empty_text: "Alle Pl\u00E4tze in laufenden Kursen sind bezahlt."
     admin:
       title: "Kommandozentrale"
       new_course: "Neuer Kurs"
       sections:
-        management: "Verwaltung"
+        courses: "Kurse"
+        people: "Personen & Finanzen"
         communication: "Kommunikation"
-        configuration: "Konfiguration"
         analysis: "Auswertung"
         settings: "Einstellungen"
+      action_items:
+        title: "Handlungsbedarf"
+        all_done: "Nichts offen \u2013 alles erledigt."
+        open_attendances:
+          one: "offene Pr\u00E4senzkontrolle"
+          other: "offene Pr\u00E4senzkontrollen"
+        open_charges:
+          one: "offene Nachforderung"
+          other: "offene Nachforderungen"
+        open_payments:
+          one: "Zahlung ausstehend"
+          other: "Zahlungen ausstehend"
+        newsletter_drafts:
+          one: "Newsletter-Entwurf"
+          other: "Newsletter-Entw\u00FCrfe"
       links:
         settings_communication: "Kommunikation"
-        settings_communication_desc: "E-Mail, System-Mails & Newsletter"
+        settings_communication_desc: "E-Mail-Versand, Systemmails & Newsletter-API"
+        notifications: "Benachrichtigungen"
+        notifications_desc: "Automatische E-Mails ein-/ausschalten und als Vorschau ansehen"
         settings_club: "Verein"
         settings_club_desc: "Design, Kontakt & Rechtliches"
         settings_payments: "Zahlungen"
         settings_payments_desc: "SumUp & Payment-Setup"
-        settings_data: "Daten & Exporte"
-        settings_data_desc: "Exportprofile, Berichte & NDS"
-        settings_features: "Funktionen"
-        settings_features_desc: "Globale Ein-/Ausschalter für App-Funktionen"
+        settings_features: "Funktionen & Regeln"
+        settings_features_desc: "Globale Schalter und Fristen"
         trainers: "Trainer"
         trainers_desc: "Trainer verwalten & zuweisen"
         holidays: "Ferientage"
@@ -829,14 +852,6 @@ de:
         stats_desc: "Auswertungen & Berichte"
         talents: "Talentliste"
         talents_desc: "Als Talent markierte Teilnehmende"
-        email_settings: "E-Mail-Einstellungen"
-        email_settings_desc: "SMTP & Absender konfigurieren"
-        payments: "Zahlungen"
-        payments_desc: "SumUp & Payment-Setup"
-        newsletter_api: "Newsletter-API"
-        newsletter_api_desc: "Infomaniak API-Zugangsdaten"
-        club_design: "Vereinsdesign"
-        club_design_desc: "Logo, Farben & Name"
         export_profiles: "Exportprofile"
         export_profiles_desc: "Export-Vorlagen verwalten"
         course_categories: "Kurskategorien"
@@ -845,6 +860,16 @@ de:
         supplementary_charges_desc: "Zusätzlichen Betrag nachträglich verlangen"
         age_exemptions: "Altersübersicht"
         age_exemptions_desc: "Wer wächst aus dem Kurs heraus? Ausnahmen erteilen"
+        open_payments: "Offene Zahlungen"
+        open_payments_desc: "Unbezahlte Pl\u00E4tze in laufenden Kursen"
+        newsletter_subscribers: "Abonnenten"
+        newsletter_subscribers_desc: "Newsletter-Empfänger verwalten"
+        mail_logs: "Mail-Protokoll"
+        mail_logs_desc: "Alle versendeten E-Mails nachschlagen"
+        reports: "Berichte"
+        reports_desc: "BTV-Teilnehmerzahl, Sportfonds, Krabbel-Gym"
+        nds: "NDS / J+S"
+        nds_desc: "Datenaustausch mit J+S"
       table:
         course: "Kurs"
         category: "Kategorie"
@@ -930,7 +955,6 @@ de:
     stats:
       title: "Statistiken"
       subtitle: "Übersicht über alle Trainings, Sessions und Anwesenheiten."
-      back: "← Kommandozentrale"
       all_courses: "Alle Kurse"
       courses_selected:
         one: "1 Kurs ausgewählt"
@@ -1333,7 +1357,10 @@ de:
       unsubscribed_by_parents: "Abgemeldet"
       status_unsubscribed: "Abgemeldet"
       status_absent: "Abwesend"
-      attendance_not_yet_possible: "Anwesenheit kann erst ab 1 Stunde vor Trainingsbeginn erfasst werden."
+      attendance_not_yet_possible:
+        zero: "Anwesenheit kann erst ab Trainingsbeginn erfasst werden."
+        one: "Anwesenheit kann erst ab 1 Stunde vor Trainingsbeginn erfasst werden."
+        other: "Anwesenheit kann erst ab %{count} Stunden vor Trainingsbeginn erfasst werden."
       attendance_not_yet: "Noch nicht möglich"
       attendance_cancelled: "Abgesagt"
       mark_absent_aria: "%{name} als abwesend markieren"
@@ -1544,27 +1571,13 @@ de:
 
   admin:
     settings:
-      title: "Einstellungen"
       subtitle: "Zentrale Konfiguration des Vereins."
-      back: "← Kommandozentrale"
-      tabs:
-        communication: "Kommunikation"
-        club: "Verein"
-        payments: "Zahlungen"
-        data: "Daten & Exporte"
-        features: "Funktionen"
       communication:
         smtp_title: "E-Mail-Versand (SMTP)"
         smtp_desc: "SMTP-Zugangsdaten, Absender und App-URL für ausgehende E-Mails."
-        system_mails_title: "System-Benachrichtigungen"
-        system_mails_desc: "Lege fest, welche automatischen E-Mails der Verein versendet."
         infomaniak_title: "Newsletter-API (Infomaniak)"
         infomaniak_desc: "API-Zugangsdaten für den Newsletter-Versand über Infomaniak."
-        links_title: "Weitere Kommunikation"
-        newsletter_label: "Mailing-Zentrale"
-        newsletter_desc: "Newsletter erstellen & versenden"
-        subscribers_label: "Abonnenten"
-        subscribers_desc: "Newsletter-Abonnenten verwalten"
+        links_title: "Persönliche Einstellungen"
         notifications_label: "Meine Benachrichtigungen"
         notifications_desc: "Persönliche E-Mail-Benachrichtigungen einstellen"
       club:
@@ -1574,25 +1587,46 @@ de:
         title: "Zahlungseinstellungen"
         desc: "SumUp-Zugangsdaten und Währung für Online-Zahlungen."
         actions_title: "Verbindung & Abgleich"
-      data:
-        title: "Daten & Exporte"
-        desc: "Exportprofile, Berichte und der NDS-/J+S-Datenaustausch."
-        export_profiles_label: "Exportprofile"
-        export_profiles_desc: "Export-Vorlagen verwalten"
-        reports_label: "Berichte"
-        reports_desc: "Auswertungen & Statistiken"
-        nds_label: "NDS / J+S"
-        nds_desc: "Datenaustausch mit J+S"
       features:
-        title: "Funktionseinstellungen"
-        desc: "Globale Ein-/Ausschalter für einzelne Funktionen der App."
-        trainer_self_enroll_label: "Gratis-Selbstanmeldung für Trainer"
-        trainer_self_enroll_desc: "Erlaubt Trainern, sich kostenlos für Trainings anzumelden. Kann zusätzlich pro Kurs deaktiviert werden."
+        title: "Funktionen & Regeln"
+        desc: "Globale Schalter und Fristen. Ohne \u00C4nderung gilt jeweils der Standardwert."
+        save: "Speichern"
+        out_of_range: "%{label} muss zwischen %{min} und %{max} liegen."
+        groups:
+          trainers: "Trainer:innen"
+          registration: "Anmeldung & Warteliste"
+          attendance: "Pr\u00E4senzkontrolle"
+          data: "Daten & Datenschutz"
+        units:
+          days: "Tage"
+          hours: "Stunden"
+          months: "Monate"
+        entries:
+          trial_expiry_days:
+            label: "Schnupperplatz gesichert bis"
+            desc: "Tage nach dem Schnuppertraining, bis eine regul\u00E4re Anmeldung n\u00F6tig ist; danach verf\u00E4llt der Platz automatisch. Steht auch in Mail und Anmeldeformular. Standard: 5 Tage."
+          waitlist_offer_days:
+            label: "Frist nach Nachr\u00FCcken von der Warteliste"
+            desc: "So lange haben Familien Zeit, sich f\u00FCr Schnuppern oder Anmelden zu entscheiden, bevor der Platz weitergeht. Steht auch in der Mail. Standard: 5 Tage."
+          attendance_admin_alert_days:
+            label: "Meldung an Admin nach"
+            desc: "Ist die Pr\u00E4senzkontrolle nach Trainingsende so lange offen, wird der Admin informiert. Standard: 7 Tage."
+          attendance_trainer_reminder_hours:
+            label: "Erinnerung an Trainer:innen nach"
+            desc: "Ist die Pr\u00E4senzkontrolle nach Trainingsende so lange offen, erhalten die Trainer:innen eine Erinnerung. Standard: 24 Stunden."
+          attendance_opens_before_hours:
+            label: "Pr\u00E4senzkontrolle \u00F6ffnet vor Trainingsbeginn"
+            desc: "Ab wann Trainer:innen die Anwesenheit erfassen k\u00F6nnen. 0 = erst ab Trainingsbeginn. Standard: 1 Stunde."
+          mail_log_retention_months:
+            label: "Mail-Protokoll aufbewahren"
+            desc: "Danach werden Eintr\u00E4ge im Mail-Protokoll automatisch gel\u00F6scht (Datenschutz). Standard: 12 Monate."
+          trainer_self_enroll_enabled:
+            label: "Gratis-Selbstanmeldung für Trainer"
+            desc: "Erlaubt Trainern, sich kostenlos für Trainings anzumelden. Kann zusätzlich pro Kurs deaktiviert werden."
     notification_preferences:
       mandatory_badge: "Immer aktiv"
       attendance_reminder_mandatory_hint: "Diese Erinnerung ist für alle Trainer verpflichtend aktiv."
     notifications:
-      back: "← Kommunikation"
       title: "Benachrichtigungszentrale"
       subtitle: "Alle automatischen E-Mails des Systems an einem Ort: ein-/ausschalten, sehen wer sie bekommt, und eine Vorschau des Inhalts ansehen."
       enabled: "Aktiv"
@@ -1710,7 +1744,6 @@ de:
         cancel: "Abbrechen"
     export_profiles:
       index:
-        back: "← Kommandozentrale"
         title: "Exportprofile"
         subtitle: "Wiederverwendbare Vorlagen für Teilnehmerlisten und Anwesenheitslisten."
         new_btn: "Neues Profil"
@@ -1732,7 +1765,6 @@ de:
         title: "Exportprofil bearbeiten"
     nds:
       show:
-        back: "← Kommandozentrale"
         title: "NDS / J+S Datenaustausch"
         subtitle: "Workflow für den BASPO Jugend+Sport Datenaustausch – Personenimport und Anwesenheitskontrolle (AWK)."
 
@@ -1800,7 +1832,7 @@ de:
         recipient: "Eltern der betroffenen Anmeldung"
       trial_expired:
         name: "Schnupperfrist abgelaufen"
-        description: "Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Frist (Training + 5 Tage) automatisch storniert wurde."
+        description: "Wird verschickt, wenn ein Schnupperplatz nach Ablauf der Schnupperfrist (Training + eingestellte Tage) automatisch storniert wurde."
         recipient: "Eltern des Schnupper-Teilnehmers"
       payment_receipt:
         name: "Zahlungsbeleg"
@@ -2019,7 +2051,6 @@ de:
 
   newsletters:
     index:
-      admin_label: "Admin"
       title: "Mailing-Zentrale"
       subscribers_link: "Empfängerliste"
       new_newsletter: "+ Neuer Newsletter"
@@ -2066,7 +2097,6 @@ de:
 
   newsletter_subscribers:
     index:
-      back: "← Mailing-Zentrale"
       title: "Empfängerliste"
       stat_subscribed: "angemeldet"
       stat_unsubscribed: "abgemeldet"
@@ -2216,6 +2246,16 @@ de:
     success_notice: "Super! Familiendaten gespeichert. Jetzt die erste Person erfassen."
 
   shared:
+    mail_preview:
+      to: "an %{recipients}"
+      more_recipients:
+        one: "und 1 weitere Person"
+        other: "und %{count} weitere Personen"
+      sample_hint: "Vorschau mit Beispieldaten \u2013 so sieht die Mail im Postfach aus."
+    load_more:
+      show_all: "Alle %{count} anzeigen"
+      button: "Mehr anzeigen"
+      shown: "%{shown} von %{total} angezeigt"
     access_denied: "Zugriff verweigert."
     send_mail:
       participants: "E-Mail an die Teilnehmenden senden"

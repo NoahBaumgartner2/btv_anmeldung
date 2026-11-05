@@ -8,14 +8,10 @@
 # können. Betrag/Beschreibung/Erklärtext gelten für alle ausgewählten
 # Personen; pro Person entsteht eine eigene Nachforderung samt Mail.
 module Admin
-  class SupplementaryChargesController < ApplicationController
-    before_action :authenticate_user!
-    before_action :authorize_admin!
-
+  class SupplementaryChargesController < BaseController
     def index
-      @charges = SupplementaryCharge.includes(:participant, :course)
-        .order(created_at: :desc)
-        .limit(100)
+      @charges, @charges_more = load_more(SupplementaryCharge.includes(:participant, :course)
+        .order(created_at: :desc), per: 50)
     end
 
     def new

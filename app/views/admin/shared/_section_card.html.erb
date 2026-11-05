@@ -1,0 +1,12 @@
+<%# Bereichs-Karte im Schnellzugriff der Kommandozentrale.
+    Locals: section (Schlüssel aus AdminNavigation::SECTIONS), badges ({ item_key => Zahl }, optional) %>
+<div id="bereich-<%= section %>" class="scroll-mt-24 bg-white border border-slate-200/80 rounded-3xl shadow-sm overflow-hidden">
+  <div class="px-4 py-2.5 bg-gray-50 border-b border-gray-100">
+    <p class="text-xs font-bold text-gray-400 uppercase tracking-wider"><%= t("dashboards.admin.sections.#{section}") %></p>
+  </div>
+  <div class="divide-y divide-gray-50">
+    <% AdminNavigation.items(section).each do |item| %>
+      <%= render "admin/shared/link_row", item: item, tone: AdminNavigation.tone(section), badge: local_assigns.fetch(:badges, {})[item.key] %>
+    <% end %>
+  </div>
+</div>

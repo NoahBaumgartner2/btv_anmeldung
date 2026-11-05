@@ -1,12 +1,12 @@
 class TrainersController < ApplicationController
-  before_action :set_trainer, only: %i[ show edit update destroy update_profile update_courses ]
   before_action :authenticate_user!
   before_action :authorize_admin!, except: [ :update_profile ]
+  before_action :set_trainer, only: %i[ show edit update destroy update_profile update_courses ]
   around_action :with_assignment_mail_choice, only: [ :update_courses ]
 # GET /trainers or /trainers.json
 def index
     # .includes lädt die verknüpften Tabellen direkt mit, das macht die Seite extrem schnell!
-    @trainers = Trainer.includes(:user, :courses).all
+    @trainers, @trainers_more = load_more(Trainer.includes(:user, :courses).order(:id), per: 50)
   end
 
   def show

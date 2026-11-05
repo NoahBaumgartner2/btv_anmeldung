@@ -133,6 +133,56 @@ class MailLogsControllerTest < ActionDispatch::IntegrationTest
     assert_select "main ul li", 51
   end
 
+  test "Admin sieht die versendete Mail mit erstem Empfänger und Anzahl weiterer" do
+    @mine.update!(html_body: %(<table style="background:#f4f4f5"><tr><td>Inhalt der Mail</td></tr></table>),
+                  from_address: "BTV <noreply@example.com>", recipients: [ "eltern@example.com", "zweite@example.com" ])
+    sign_in users(:admin)
+    get mail_log_preview_path(@mine)
+
+    assert_response :success
+    assert_includes response.headers["Content-Security-Policy"], "style-src 'unsafe-inline'"
+    assert_select "h1.mail-subject", "Geheimer Betreff"
+    assert_select ".mail-to", text: /eltern@example\.com/
+    assert_select ".mail-to", text: /1 weitere Person/
+    assert_select "main table[style]", 1
+    assert_match "Inhalt der Mail", response.body
+  end
+
+  test "Trainer:in sieht den Inhalt, aber statt Adresse die Empfänger-Rolle" do
+    @mine.update!(html_body: "<p>Inhalt der Mail</p>")
+    sign_in @trainer.user
+    get mail_log_preview_path(@mine)
+
+    assert_response :success
+    assert_match "Inhalt der Mail", response.body
+    assert_match "Eltern von Max Muster", response.body
+    assert_no_match "eltern@example.com", response.body
+  end
+
+  test "Vorschau nur für sichtbare Mails mit Inhalt" do
+    @foreign.update!(html_body: "<p>x</p>")
+    sign_in @trainer.user
+    get mail_log_preview_path(@foreign)
+    assert_response :not_found
+
+    sign_in @trainer.user # die Fehlerseite oben beendet im Test die Sitzung
+    get mail_log_preview_path(@older)
+    assert_response :not_found, "alter Eintrag ohne Inhalt"
+
+    sign_in users(:parent_only)
+    get mail_log_preview_path(@foreign)
+    assert_response :redirect
+  end
+
+  test "Liste zeigt „Mail ansehen“ nur bei gespeichertem Inhalt" do
+    @mine.update!(html_body: "<p>x</p>")
+    sign_in @trainer.user
+    get mail_logs_path
+    assert_select "[data-preview-url='#{mail_log_preview_path(@mine)}']", 1
+    assert_select "[data-preview-url='#{mail_log_preview_path(@older)}']", 0
+    assert_match I18n.t("mail_logs.no_content_hint"), response.body
+  end
+
   private
 
   def log(kind, title, course_id, trainer_ids, at, **attrs)

@@ -1,10 +1,7 @@
 require "csv"
 
 module Admin
-  class ReportsController < ApplicationController
-    before_action :authenticate_user!
-    before_action :authorize_admin!
-
+  class ReportsController < BaseController
     def show
       @courses = Course.order(:title)
       @krabbel_courses = Course.where(category: "Krabbel Gym").order(:title)

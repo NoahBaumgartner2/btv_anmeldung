@@ -1,7 +1,9 @@
-# Eine versendete Mail (ohne Inhalt). trainer_ids hält fest, wer beim Versand für den Kurs
+# Eine versendete Mail mit ihrem HTML-Inhalt (für die Vorschau „was genau gesendet
+# wurde“; Einträge vor Nov. 2026 haben keinen Inhalt). trainer_ids hält fest, wer beim Versand für den Kurs
 # oder das Training eingeteilt war: Spätere Wechsel ändern nichts daran, wer sie sieht.
 class MailLog < ApplicationRecord
-  RETENTION = 12.months
+  # Aufbewahrungsdauer, einstellbar unter Einstellungen › Funktionen & Regeln.
+  def self.retention = FeatureSetting.value(:mail_log_retention_months).months
 
   # Was Trainer:innen sehen dürfen. Neue Mailarten sind automatisch nur für Admins sichtbar,
   # genau wie Zahlungs-, Rückerstattungs- und interne Admin-Mails.
@@ -40,6 +42,7 @@ class MailLog < ApplicationRecord
     recipients = Array(message.to)
     create!(
       kind: kind, subject: message.subject, recipients: recipients,
+      from_address: message[:from].to_s, html_body: html_content(message),
       audience: audience_for(recipients, parent || participant&.user),
       course_id: course&.id, course_title: course&.title,
       training_session_id: session&.id, session_start: session&.start_time,
@@ -47,6 +50,16 @@ class MailLog < ApplicationRecord
       trainer_ids: ((course&.trainer_ids || []) + [ session&.substitute_trainer_id ]).compact.uniq
     )
   end
+
+  # HTML der Mail wie im Postfach; reine Textmails als vorformatierter Text.
+  def self.html_content(message)
+    return message.html_part.decoded if message.html_part
+    return message.decoded if message.mime_type == "text/html"
+
+    text = (message.text_part || message).decoded
+    %(<pre style="white-space:pre-wrap;font:14px/1.6 Arial,Helvetica,sans-serif;margin:24px;color:#111827">#{ERB::Util.html_escape(text)}</pre>)
+  end
+  private_class_method :html_content
 
   def self.audience_for(recipients, parent)
     if parent.respond_to?(:email) && recipients.include?(parent.email) then "parent"

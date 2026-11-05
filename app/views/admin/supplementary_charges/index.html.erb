@@ -1,6 +1,8 @@
 <div class="max-w-5xl mx-auto w-full">
+
+  <%= render "admin/shared/section_header" %>
   <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
-    <h1 class="font-bold text-2xl sm:text-3xl text-gray-900">Nachforderungen</h1>
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Nachforderungen</h2>
     <%= link_to "+ Neue Nachforderung", new_admin_supplementary_charge_path,
           class: "bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-full text-sm transition" %>
   </div>
@@ -46,4 +48,5 @@
       </tbody>
     </table>
   </div>
+  <%= render "shared/load_more", info: @charges_more %>
 </div>
