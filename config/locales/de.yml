@@ -171,6 +171,7 @@ de:
         other: "hat die falsche Länge (muss genau %{count} Zeichen haben)"
 
   nav:
+    account_settings: "Kontoeinstellungen"
     courses: "Kurse"
     my_profile: "Mein Profil"
     admin_dashboard: "Admin-Dashboard"

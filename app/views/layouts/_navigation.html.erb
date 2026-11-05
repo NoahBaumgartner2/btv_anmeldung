@@ -30,6 +30,11 @@
   </nav>
 
   <div class="space-y-3 pt-3 border-t border-white/60">
+    <% if user_signed_in? %>
+      <%= link_to account_path, class: "nav-item", aria: { current: ("page" if nav_current?(account_path)) } do %>
+        <%= nav_icon(:account_settings) %><span class="truncate"><%= t("nav.account_settings") %></span>
+      <% end %>
+    <% end %>
     <%= render "shared/language_switcher" %>
     <% if user_signed_in? %>
       <div class="flex items-center gap-3 pl-1">
@@ -91,6 +96,11 @@
         <% end %>
       <% end %>
     </div>
+  <% end %>
+  <% if user_signed_in? %>
+    <%= link_to account_path, class: "nav-item text-base mb-3", aria: { current: ("page" if nav_current?(account_path)) } do %>
+      <%= nav_icon(:account_settings) %><span><%= t("nav.account_settings") %></span>
+    <% end %>
   <% end %>
   <div class="flex items-center justify-between gap-3 px-1">
     <%= render "shared/language_switcher" %>

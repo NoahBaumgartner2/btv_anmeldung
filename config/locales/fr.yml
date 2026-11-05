@@ -130,6 +130,7 @@ fr:
         other: "%{count} erreurs ont empêché ce %{resource} d'être sauvegardé :"
 
   nav:
+    account_settings: "Paramètres du compte"
     courses: "Cours"
     my_profile: "Mon profil"
     admin_dashboard: "Tableau de bord admin"
