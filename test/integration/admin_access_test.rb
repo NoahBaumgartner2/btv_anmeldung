@@ -155,7 +155,7 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
   test "Sidebar: Admin-Dashboard klappt Übersicht und alle Bereiche auf, offen im Admin-Bereich" do
     sign_in users(:admin)
     get terms_path
-    assert_select ".nav-disclosure[data-open] #admin-subnav a.nav-subitem", AdminNavigation::SECTIONS.size + 1
+    assert_select ".nav-disclosure[data-nav-disclosure-open-value=true] #admin-subnav a.nav-subitem", AdminNavigation::SECTIONS.size + 1
     assert_select "#admin-subnav a[href='#{dashboards_admin_path}']"
     AdminNavigation::SECTIONS.each_value do |items|
       assert_select "#admin-subnav a[href='#{public_send(items.first.path)}']"
@@ -164,6 +164,7 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
 
     get courses_path
     assert_select ".nav-disclosure", 1
-    assert_select ".nav-disclosure[data-open]", 0
+    assert_select ".nav-disclosure[data-nav-disclosure-open-value=false]", 1
+    assert_select ".nav-disclosure > .nav-item a[href='#{dashboards_admin_path}']"
   end
 end
