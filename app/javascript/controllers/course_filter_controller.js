@@ -39,15 +39,23 @@ export default class extends Controller {
     const days = selected("weekday")
     const locations = selected("location")
 
+    // Tag-Leiste im Overlay wirkt nur auf die Kurse dieses Overlays.
+    const dialogDays = (card) => Array.from(card.closest("dialog")?.querySelectorAll(
+      "[data-key=dialog-weekday][aria-pressed=true]") || []).map((c) => c.dataset.value)
+
     let visible = 0
+    const globalMatch = new Set()
     this.cardTargets.forEach((card) => {
-      const dayOk = days.length === 0 || card.dataset.weekdays.split(" ").some((d) => days.includes(d))
+      const weekdays = card.dataset.weekdays.split(" ")
+      const dayOk = days.length === 0 || weekdays.some((d) => days.includes(d))
       const locationOk = locations.length === 0 || locations.includes(card.dataset.location)
-      card.hidden = !(dayOk && locationOk)
-      if (!card.hidden) visible++
+      const inDialog = dialogDays(card)
+      const dialogOk = inDialog.length === 0 || weekdays.some((d) => inDialog.includes(d))
+      if (dayOk && locationOk) { globalMatch.add(card); visible++ }
+      card.hidden = !(dayOk && locationOk && dialogOk)
     })
     this.groupTargets.forEach((group) => {
-      const count = this.cardTargets.filter((card) => !card.hidden && group.contains(card)).length
+      const count = this.cardTargets.filter((card) => globalMatch.has(card) && group.contains(card)).length
       group.hidden = count === 0
       const badge = group.querySelector("[data-group-count]")
       if (badge) badge.textContent = (count === 1 ? badge.dataset.one : badge.dataset.other).replace("%{count}", count)
