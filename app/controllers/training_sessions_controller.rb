@@ -177,7 +177,7 @@ class TrainingSessionsController < ApplicationController
 
     unless @training_session.attendance_open?
       return redirect_to @training_session,
-                         alert: t("training_sessions.show.attendance_not_yet_possible")
+                         alert: t("training_sessions.show.attendance_not_yet_possible", count: FeatureSetting.value(:attendance_opens_before_hours))
     end
 
     # Wir fangen jetzt die ID der Kursanmeldung auf
@@ -251,7 +251,7 @@ class TrainingSessionsController < ApplicationController
 
     unless @training_session.attendance_open?
       return redirect_to @training_session,
-                         alert: t("training_sessions.show.attendance_not_yet_possible")
+                         alert: t("training_sessions.show.attendance_not_yet_possible", count: FeatureSetting.value(:attendance_opens_before_hours))
     end
 
     @training_session.confirm_attendance!(current_user)

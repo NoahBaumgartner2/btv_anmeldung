@@ -1,6 +1,6 @@
 ⚠️ Anwesenheit nicht erfasst
 
-Für folgende Trainingseinheit wurde die Anwesenheit nicht erfasst (mehr als 7 Tage überfällig):
+Für folgende Trainingseinheit wurde die Anwesenheit nicht erfasst (mehr als <%= FeatureSetting.value(:attendance_admin_alert_days) %> Tage überfällig):
 
 Kurs:  <%= @course.title %>
 Datum: <%= format_session_range(@training_session.start_time, @training_session.end_time) %>

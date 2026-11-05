@@ -1282,7 +1282,10 @@ fr:
       unsubscribed_by_parents: "Désinscrit"
       status_unsubscribed: "Désinscrit"
       status_absent: "Absent"
-      attendance_not_yet_possible: "La présence ne peut être enregistrée qu'à partir d'une heure avant le début de l'entraînement."
+      attendance_not_yet_possible:
+        zero: "La présence ne peut être enregistrée qu'à partir du début de l'entraînement."
+        one: "La présence ne peut être enregistrée qu'à partir d'une heure avant le début de l'entraînement."
+        other: "La présence ne peut être enregistrée qu'à partir de %{count} heures avant le début de l'entraînement."
       attendance_not_yet: "Pas encore possible"
       attendance_cancelled: "Annulé"
       mark_absent_aria: "Marquer %{name} comme absent"
@@ -1510,6 +1513,15 @@ fr:
           hours: "heures"
           months: "mois"
         entries:
+          attendance_admin_alert_days:
+            label: "Notifier l'admin apr\u00E8s"
+            desc: "Si le contr\u00F4le de pr\u00E9sence est encore ouvert ce temps apr\u00E8s la fin, l'admin est inform\u00E9. Par d\u00E9faut : 7 jours."
+          attendance_trainer_reminder_hours:
+            label: "Rappel aux entra\u00EEneurs apr\u00E8s"
+            desc: "Si le contr\u00F4le de pr\u00E9sence est encore ouvert ce temps apr\u00E8s la fin, les entra\u00EEneurs re\u00E7oivent un rappel. Par d\u00E9faut : 24 heures."
+          attendance_opens_before_hours:
+            label: "Le contr\u00F4le de pr\u00E9sence s'ouvre avant l'entra\u00EEnement"
+            desc: "\u00C0 partir de quand les entra\u00EEneurs peuvent saisir les pr\u00E9sences. 0 = seulement au d\u00E9but. Par d\u00E9faut : 1 heure."
           mail_log_retention_months:
             label: "Conserver le journal des e-mails"
             desc: "Les entr\u00E9es du journal sont ensuite supprim\u00E9es automatiquement (protection des donn\u00E9es). Par d\u00E9faut : 12 mois."

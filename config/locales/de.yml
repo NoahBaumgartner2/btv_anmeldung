@@ -1354,7 +1354,10 @@ de:
       unsubscribed_by_parents: "Abgemeldet"
       status_unsubscribed: "Abgemeldet"
       status_absent: "Abwesend"
-      attendance_not_yet_possible: "Anwesenheit kann erst ab 1 Stunde vor Trainingsbeginn erfasst werden."
+      attendance_not_yet_possible:
+        zero: "Anwesenheit kann erst ab Trainingsbeginn erfasst werden."
+        one: "Anwesenheit kann erst ab 1 Stunde vor Trainingsbeginn erfasst werden."
+        other: "Anwesenheit kann erst ab %{count} Stunden vor Trainingsbeginn erfasst werden."
       attendance_not_yet: "Noch nicht möglich"
       attendance_cancelled: "Abgesagt"
       mark_absent_aria: "%{name} als abwesend markieren"
@@ -1605,6 +1608,15 @@ de:
           hours: "Stunden"
           months: "Monate"
         entries:
+          attendance_admin_alert_days:
+            label: "Meldung an Admin nach"
+            desc: "Ist die Pr\u00E4senzkontrolle nach Trainingsende so lange offen, wird der Admin informiert. Standard: 7 Tage."
+          attendance_trainer_reminder_hours:
+            label: "Erinnerung an Trainer:innen nach"
+            desc: "Ist die Pr\u00E4senzkontrolle nach Trainingsende so lange offen, erhalten die Trainer:innen eine Erinnerung. Standard: 24 Stunden."
+          attendance_opens_before_hours:
+            label: "Pr\u00E4senzkontrolle \u00F6ffnet vor Trainingsbeginn"
+            desc: "Ab wann Trainer:innen die Anwesenheit erfassen k\u00F6nnen. 0 = erst ab Trainingsbeginn. Standard: 1 Stunde."
           mail_log_retention_months:
             label: "Mail-Protokoll aufbewahren"
             desc: "Danach werden Eintr\u00E4ge im Mail-Protokoll automatisch gel\u00F6scht (Datenschutz). Standard: 12 Monate."

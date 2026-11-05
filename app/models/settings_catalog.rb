@@ -16,6 +16,9 @@ class SettingsCatalog
 
   ENTRIES = [
     Entry.new(key: :trainer_self_enroll_enabled, type: :boolean, default: true, group: :trainers),
+    Entry.new(key: :attendance_opens_before_hours, type: :integer, default: 1, group: :attendance, min: 0, max: 24, unit: :hours),
+    Entry.new(key: :attendance_trainer_reminder_hours, type: :integer, default: 24, group: :attendance, min: 1, max: 168, unit: :hours),
+    Entry.new(key: :attendance_admin_alert_days, type: :integer, default: 7, group: :attendance, min: 1, max: 60, unit: :days),
     Entry.new(key: :mail_log_retention_months, type: :integer, default: 12, group: :data, min: 1, max: 60, unit: :months)
   ].freeze
 

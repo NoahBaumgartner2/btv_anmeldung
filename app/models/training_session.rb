@@ -28,10 +28,11 @@ class TrainingSession < ApplicationRecord
 
   # Präsenzkontrolle darf schon vor Trainingsbeginn geöffnet werden, damit
   # Trainer:innen frühzeitig da sein und bereits Anwesenheiten erfassen können.
-  ATTENDANCE_OPENS_BEFORE = 1.hour
+  # Fristen einstellbar unter Einstellungen › Funktionen & Regeln.
+  def self.attendance_opens_before = FeatureSetting.value(:attendance_opens_before_hours).hours
 
   def attendance_open?
-    start_time.present? && start_time <= ATTENDANCE_OPENS_BEFORE.from_now
+    start_time.present? && start_time <= self.class.attendance_opens_before.from_now
   end
 
   def attendance_recorded?
@@ -51,11 +52,11 @@ class TrainingSession < ApplicationRecord
   end
 
   def needs_trainer_reminder?
-    end_time.present? && end_time < 24.hours.ago && trainer_reminded_at.nil? && !attendance_recorded?
+    end_time.present? && end_time < FeatureSetting.value(:attendance_trainer_reminder_hours).hours.ago && trainer_reminded_at.nil? && !attendance_recorded?
   end
 
   def needs_admin_notification?
-    end_time.present? && end_time < 7.days.ago && admin_notified_at.nil? && !attendance_recorded?
+    end_time.present? && end_time < FeatureSetting.value(:attendance_admin_alert_days).days.ago && admin_notified_at.nil? && !attendance_recorded?
   end
 
   # Bei Drop-In-Kursen ist die Teilnehmerzahl pro Training individuell

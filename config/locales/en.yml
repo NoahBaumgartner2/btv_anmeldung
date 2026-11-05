@@ -1287,7 +1287,10 @@ en:
       unsubscribed_by_parents: "Unsubscribed"
       status_unsubscribed: "Unsubscribed"
       status_absent: "Absent"
-      attendance_not_yet_possible: "Attendance can only be recorded from 1 hour before the training starts."
+      attendance_not_yet_possible:
+        zero: "Attendance can only be recorded once the training starts."
+        one: "Attendance can only be recorded from 1 hour before the training starts."
+        other: "Attendance can only be recorded from %{count} hours before the training starts."
       attendance_not_yet: "Not yet available"
       attendance_cancelled: "Cancelled"
       mark_absent_aria: "Mark %{name} as absent"
@@ -1515,6 +1518,15 @@ en:
           hours: "hours"
           months: "months"
         entries:
+          attendance_admin_alert_days:
+            label: "Notify admin after"
+            desc: "If the attendance check is still open this long after the training ends, the admin is notified. Default: 7 days."
+          attendance_trainer_reminder_hours:
+            label: "Remind trainers after"
+            desc: "If the attendance check is still open this long after the training ends, trainers get a reminder. Default: 24 hours."
+          attendance_opens_before_hours:
+            label: "Attendance check opens before training"
+            desc: "When trainers can start recording attendance. 0 = only from the start. Default: 1 hour."
           mail_log_retention_months:
             label: "Keep mail log"
             desc: "Entries in the mail log are deleted automatically after this period (privacy). Default: 12 months."

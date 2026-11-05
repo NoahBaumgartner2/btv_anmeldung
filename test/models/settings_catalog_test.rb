@@ -40,4 +40,22 @@ class SettingsCatalogTest < ActiveSupport::TestCase
       assert_not setting.valid?, raw
     end
   end
+
+  test "Präsenz-Fristen folgen den eingestellten Werten" do
+    FeatureSetting.current.update!(rules: { "attendance_opens_before_hours" => 0,
+                                            "attendance_trainer_reminder_hours" => 48,
+                                            "attendance_admin_alert_days" => 3 })
+    session = training_sessions(:one)
+
+    session.assign_attributes(start_time: 30.minutes.from_now)
+    assert_not session.attendance_open?, "0 Stunden: erst ab Beginn"
+
+    session.assign_attributes(start_time: 30.hours.ago, end_time: 30.hours.ago, trainer_reminded_at: nil,
+                              admin_notified_at: nil, attendance_confirmed_at: nil, is_canceled: false)
+    assert_not session.needs_trainer_reminder?, "48 Stunden noch nicht erreicht"
+
+    session.assign_attributes(end_time: 4.days.ago)
+    assert session.needs_trainer_reminder?
+    assert session.needs_admin_notification?, "3 Tage überschritten"
+  end
 end
