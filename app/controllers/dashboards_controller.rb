@@ -39,6 +39,14 @@ class DashboardsController < ApplicationController
       newsletter_subscribers: NewsletterSubscriber.subscribed.count
     }
 
+    # Handlungsbedarf: nur Kacheln mit Wert > 0 werden angezeigt.
+    @action_items = [
+      { key: :open_attendances, count: TrainingSession.attendance_open.count, path: open_attendances_dashboard_path, tone: :red },
+      { key: :open_charges, count: SupplementaryCharge.where(status: "offen").count, path: admin_supplementary_charges_path, tone: :amber },
+      { key: :open_payments, count: CourseRegistration.payment_open.count, path: open_payments_dashboard_path, tone: :indigo },
+      { key: :newsletter_drafts, count: @nav_badges[:newsletters], path: newsletters_path, tone: :gray }
+    ].select { |item| item[:count].positive? }
+
     q = params[:q].to_s.strip
     if q.length >= 2
       pattern = "%#{q}%"
@@ -121,12 +129,16 @@ class DashboardsController < ApplicationController
   def open_attendances
     authorize_admin!
 
-    @open_sessions = TrainingSession
-      .where(is_canceled: false, attendance_confirmed_at: nil, course: Course.where(deactivated_at: nil))
-      .where.not(end_time: nil)
-      .where("end_time < ?", Time.current)
+    @open_sessions = TrainingSession.attendance_open
       .includes(course: { course_trainers: { trainer: :user } })
       .order(:start_time)
+  end
+
+  def open_payments
+    authorize_admin!
+    @open_registrations = CourseRegistration.payment_open
+      .includes(:course, participant: :user)
+      .order("courses.title", :created_at)
   end
 
   def trainer

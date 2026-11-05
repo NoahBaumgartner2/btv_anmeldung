@@ -15,6 +15,18 @@ class CourseRegistration < ApplicationRecord
   OCCUPYING_STATUSES = %w[bestätigt schnuppern platz_frei].freeze
   ENROLLED_STATUSES  = %w[bestätigt ausstehend].freeze
 
+  # Unbezahlte Plätze in laufenden, kostenpflichtigen Kursen, bei denen der Admin
+  # nachfassen kann: bestätigt ohne Zahlung (z.B. manuell eingetragen) und von der
+  # Warteliste nachgerückt (platz_frei). Nicht enthalten: "ausstehend" (Online-
+  # Zahlung läuft, verfällt automatisch) und "schnuppern" (gratis).
+  scope :payment_open, -> {
+    joins(:course)
+      .where(payment_cleared: false, status: %w[bestätigt platz_frei])
+      .where(courses: { has_payment: true, deactivated_at: nil })
+      .where("courses.price_cents > 0")
+      .where("courses.end_date IS NULL OR courses.end_date >= ?", Date.current)
+  }
+
   # Anmeldungen ohne training_session_id gelten für JEDE Session des Kurses NUR
   # bei Semester-Anmeldungen (Teilnehmer:in kommt wöchentlich). Abo-Pässe
   # (abo_entries_total gesetzt) haben ebenfalls kein training_session_id, sind

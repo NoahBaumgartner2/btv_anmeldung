@@ -9,7 +9,7 @@ class AdminAccessTest < ActionDispatch::IntegrationTest
   ADMIN_ONLY_PAGES = %i[
     dashboards_admin_path dashboards_stats_path talents_dashboard_path open_attendances_dashboard_path
     admin_settings_path admin_settings_communication_path admin_settings_club_path
-    admin_settings_payments_path admin_settings_features_path
+    admin_settings_payments_path admin_settings_features_path open_payments_dashboard_path
     admin_export_profiles_path new_admin_export_profile_path admin_nds_path admin_reports_path
     admin_supplementary_charges_path new_admin_supplementary_charge_path
     admin_age_exemptions_path admin_notifications_path

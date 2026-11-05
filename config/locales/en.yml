@@ -747,6 +747,12 @@ en:
       admin_body_html: "As an administrator you do not have a trainer profile. Your account settings can be found %{link}."
 
   dashboards:
+    open_payments:
+      title: "Open payments"
+      subtitle: "Confirmed or promoted places in running paid courses that have not been paid yet."
+      since: "since %{date}"
+      empty_title: "No open payments."
+      empty_text: "All places in running courses are paid."
     admin:
       title: "Command Centre"
       new_course: "New course"
@@ -756,6 +762,21 @@ en:
         communication: "Communication"
         analysis: "Analysis"
         settings: "Settings"
+      action_items:
+        title: "Needs attention"
+        all_done: "Nothing open \u2013 all done."
+        open_attendances:
+          one: "open attendance check"
+          other: "open attendance checks"
+        open_charges:
+          one: "open supplementary charge"
+          other: "open supplementary charges"
+        open_payments:
+          one: "payment outstanding"
+          other: "payments outstanding"
+        newsletter_drafts:
+          one: "newsletter draft"
+          other: "newsletter drafts"
       links:
         settings_communication: "Communication"
         settings_communication_desc: "Email delivery, system mails & newsletter API"
@@ -787,6 +808,8 @@ en:
         supplementary_charges_desc: "Request an additional amount afterwards"
         age_exemptions: "Age overview"
         age_exemptions_desc: "Who is ageing out of a course? Grant exemptions"
+        open_payments: "Open payments"
+        open_payments_desc: "Unpaid places in running courses"
         newsletter_subscribers: "Subscribers"
         newsletter_subscribers_desc: "Manage newsletter recipients"
         mail_logs: "Mail log"

@@ -14,6 +14,28 @@
     <% end %>
   </div>
 
+  <%# ── Handlungsbedarf: nur Kacheln mit offenem Wert ─────────────────────── %>
+  <section aria-labelledby="action-items-title" class="mb-6 sm:mb-8">
+    <h2 id="action-items-title" class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 px-1"><%= t("dashboards.admin.action_items.title") %></h2>
+    <% if @action_items.any? %>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        <% @action_items.each do |item| %>
+          <% tone = AdminNavigation::TONES.fetch(item[:tone]) %>
+          <%= link_to item[:path], data: { turbo_frame: "_top" },
+                class: "group flex items-center gap-3 bg-white border border-slate-200/80 rounded-3xl shadow-sm px-4 py-3.5 #{tone[:row]} transition min-h-16" do %>
+            <span class="shrink-0 min-w-11 h-11 px-2 rounded-2xl <%= tone[:box] %> <%= tone[:icon] %> flex items-center justify-center text-lg font-extrabold tabular-nums"><%= item[:count] %></span>
+            <span class="text-sm font-bold text-gray-800 <%= tone[:title] %> leading-snug transition"><%= t("dashboards.admin.action_items.#{item[:key]}", count: item[:count]) %></span>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="inline-flex items-center gap-2 text-sm font-semibold text-green-700 bg-green-50 border border-green-100 rounded-2xl px-4 py-3">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+        <%= t("dashboards.admin.action_items.all_done") %>
+      </p>
+    <% end %>
+  </section>
+
   <%# ── Schnellzugriff (Bereiche aus AdminNavigation) ──────────────────── %>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 sm:mb-10">
     <% AdminNavigation::SECTIONS.each_key do |section| %>

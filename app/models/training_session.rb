@@ -13,6 +13,13 @@ class TrainingSession < ApplicationRecord
   # buchbar bis zu ihrem Ende (end_time), nicht nur bis zum Start. Fehlt
   # end_time, gilt start_time als Referenz.
   scope :not_past, -> { where("COALESCE(end_time, start_time) >= ?", Time.current) }
+  # Vergangene Trainings aktiver Kurse ohne abgeschlossene Präsenzkontrolle
+  # (Kommandozentrale: Kachel + Liste „Offene Präsenzkontrollen“).
+  scope :attendance_open, -> {
+    where(is_canceled: false, attendance_confirmed_at: nil, course: Course.where(deactivated_at: nil))
+      .where.not(end_time: nil)
+      .where("end_time < ?", Time.current)
+  }
 
   def past?
     reference = end_time || start_time

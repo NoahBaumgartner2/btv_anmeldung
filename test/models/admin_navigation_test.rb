@@ -4,7 +4,7 @@ class AdminNavigationTest < ActiveSupport::TestCase
   test "jede Admin-Seite hat Route, Farbschema und Texte in allen Sprachen" do
     AdminNavigation::SECTIONS.each do |section, items|
       items.each do |item|
-        assert Rails.application.routes.named_routes.key?(item.path.to_s.delete_suffix("_path").to_sym), "Route #{item.path} fehlt"
+        assert_kind_of String, Rails.application.routes.url_helpers.public_send(item.path), "Route #{item.path} fehlt"
         assert AdminNavigation::TONES.key?(item.tone), "Farbschema #{item.tone} fehlt"
         assert item.icon || item.emoji, "#{item.key} braucht icon oder emoji"
         I18n.available_locales.each do |locale|

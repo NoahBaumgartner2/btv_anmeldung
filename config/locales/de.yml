@@ -795,6 +795,12 @@ de:
       browse_courses: "Kurse durchsuchen"
 
   dashboards:
+    open_payments:
+      title: "Offene Zahlungen"
+      subtitle: "Best\u00E4tigte oder nachger\u00FCckte Pl\u00E4tze in laufenden, kostenpflichtigen Kursen, die noch nicht bezahlt sind."
+      since: "seit %{date}"
+      empty_title: "Keine offenen Zahlungen."
+      empty_text: "Alle Pl\u00E4tze in laufenden Kursen sind bezahlt."
     admin:
       title: "Kommandozentrale"
       new_course: "Neuer Kurs"
@@ -804,6 +810,21 @@ de:
         communication: "Kommunikation"
         analysis: "Auswertung"
         settings: "Einstellungen"
+      action_items:
+        title: "Handlungsbedarf"
+        all_done: "Nichts offen \u2013 alles erledigt."
+        open_attendances:
+          one: "offene Pr\u00E4senzkontrolle"
+          other: "offene Pr\u00E4senzkontrollen"
+        open_charges:
+          one: "offene Nachforderung"
+          other: "offene Nachforderungen"
+        open_payments:
+          one: "Zahlung ausstehend"
+          other: "Zahlungen ausstehend"
+        newsletter_drafts:
+          one: "Newsletter-Entwurf"
+          other: "Newsletter-Entw\u00FCrfe"
       links:
         settings_communication: "Kommunikation"
         settings_communication_desc: "E-Mail-Versand, Systemmails & Newsletter-API"
@@ -835,6 +856,8 @@ de:
         supplementary_charges_desc: "Zusätzlichen Betrag nachträglich verlangen"
         age_exemptions: "Altersübersicht"
         age_exemptions_desc: "Wer wächst aus dem Kurs heraus? Ausnahmen erteilen"
+        open_payments: "Offene Zahlungen"
+        open_payments_desc: "Unbezahlte Pl\u00E4tze in laufenden Kursen"
         newsletter_subscribers: "Abonnenten"
         newsletter_subscribers_desc: "Newsletter-Empfänger verwalten"
         mail_logs: "Mail-Protokoll"

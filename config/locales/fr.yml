@@ -747,6 +747,12 @@ fr:
       admin_body_html: "En tant qu'administrateur, vous n'avez pas de profil entraîneur. Vos paramètres de compte se trouvent %{link}."
 
   dashboards:
+    open_payments:
+      title: "Paiements en attente"
+      subtitle: "Places confirm\u00E9es ou attribu\u00E9es depuis la liste d'attente dans des cours payants en cours, pas encore pay\u00E9es."
+      since: "depuis le %{date}"
+      empty_title: "Aucun paiement en attente."
+      empty_text: "Toutes les places des cours en cours sont pay\u00E9es."
     admin:
       title: "Centre de commande"
       new_course: "Nouveau cours"
@@ -756,6 +762,21 @@ fr:
         communication: "Communication"
         analysis: "Analyse"
         settings: "Paramètres"
+      action_items:
+        title: "\u00C0 traiter"
+        all_done: "Rien en attente \u2013 tout est fait."
+        open_attendances:
+          one: "contr\u00F4le de pr\u00E9sence ouvert"
+          other: "contr\u00F4les de pr\u00E9sence ouverts"
+        open_charges:
+          one: "suppl\u00E9ment ouvert"
+          other: "suppl\u00E9ments ouverts"
+        open_payments:
+          one: "paiement en attente"
+          other: "paiements en attente"
+        newsletter_drafts:
+          one: "brouillon de newsletter"
+          other: "brouillons de newsletter"
       links:
         settings_communication: "Communication"
         settings_communication_desc: "Envoi d'e-mails, mails système & API newsletter"
@@ -787,6 +808,8 @@ fr:
         supplementary_charges_desc: "Demander un montant supplémentaire après coup"
         age_exemptions: "Aperçu des âges"
         age_exemptions_desc: "Qui dépasse la limite d'âge ? Accorder des dérogations"
+        open_payments: "Paiements en attente"
+        open_payments_desc: "Places impay\u00E9es dans les cours en cours"
         newsletter_subscribers: "Abonnés"
         newsletter_subscribers_desc: "Gérer les destinataires de la newsletter"
         mail_logs: "Journal des e-mails"
