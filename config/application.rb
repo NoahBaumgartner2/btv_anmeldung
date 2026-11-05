@@ -37,5 +37,11 @@ module BtvAnmeldung
     # sending-quota hits) instead of silently losing the mail - see
     # app/jobs/mail_delivery_job.rb.
     config.action_mailer.delivery_job = "MailDeliveryJob"
+
+    # Bilder direkt und dauerhaft cachebar ausliefern. Der Standard (Redirect auf
+    # eine 5 Minuten gültige, immer neu geprüfte URL) braucht pro Bild und Aufruf
+    # zwei Anfragen; scheitert eine im Mobilnetz, bleibt das Bild defekt.
+    # Nur Kategoriebilder und Vereinslogo sind Anhänge, beide sind öffentlich.
+    config.active_storage.resolve_model_to_route = :rails_storage_proxy
   end
 end

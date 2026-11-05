@@ -32,6 +32,22 @@ class CourseCategoriesControllerTest < ActionDispatch::IntegrationTest
     assert category.reload.image.attached?
   end
 
+  test "Kategoriebild kommt als kleine Variante und dauerhaft cachebar" do
+    sign_in @admin
+    category = CourseCategory.create!(name: "Bildkategorie")
+    category.image.attach(io: File.open(file_fixture("test_image.png")), filename: "test_image.png", content_type: "image/png")
+
+    get course_categories_path
+    src = css_select("img[src*='active_storage']").first["src"]
+    assert_includes src, "/representations/proxy/"
+
+    get src
+    assert_response :success
+    assert_equal "image/webp", response.media_type
+    assert_includes response.headers["Cache-Control"], "public"
+    assert_not_includes response.headers["Cache-Control"], "max-age=0"
+  end
+
   test "destroy_image entfernt das Bild" do
     sign_in @admin
     category = CourseCategory.create!(name: "Bildkategorie")
