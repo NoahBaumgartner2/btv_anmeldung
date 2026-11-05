@@ -79,6 +79,7 @@ class Course < ApplicationRecord
   before_save :clean_payment_methods
   before_save :clear_dates_for_abo
   before_save :clear_rollover_fields_without_term
+  before_save :clear_coordinates_on_address_change
   before_destroy :stop_auto_rollover_of_previous_course
 
   # Gibt die tatsächlich nutzbaren Zahlungsmethoden zurück (bereinigt, mit Fallback)
@@ -523,6 +524,14 @@ class Course < ApplicationRecord
   def clear_rollover_fields_without_term
     return if term_id.present?
     self.auto_rollover = false
+  end
+
+  # GeocodeCoursesJob holt die Koordinaten der neuen Adresse beim nächsten Lauf.
+  # Verlängerte Kurse bringen ihre Koordinaten mit und behalten sie.
+  def clear_coordinates_on_address_change
+    return unless location_address_changed? && !latitude_changed?
+
+    self.latitude = self.longitude = nil
   end
 
   def max_age_must_be_greater_than_or_equal_to_min_age

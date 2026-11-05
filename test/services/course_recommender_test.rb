@@ -83,4 +83,59 @@ class CourseRecommenderTest < ActiveSupport::TestCase
     result = recommend([ course("Nur Kleinkinder", category: "Krabbelgym", max_age: 2) ], children: [ @child, no_dob ])
     assert_empty result
   end
+
+  BERN = { latitude: 46.948, longitude: 7.447 }.freeze
+  BIEL = { latitude: 47.157, longitude: 7.278 }.freeze
+
+  test "zeigt pro Kategorie den nächsten Kurs, auch wenn ein weiter entfernter mehr Plätze hat" do
+    @child.update_column(:zip_code, "3008")
+    far = course("Turnen Biel", category: "Turnen", max_participants: 50, **BIEL)
+    near = course("Turnen Bern", category: "Turnen", max_participants: 5, **BERN)
+
+    assert_equal near, recommend([ far, near ])[@child].first.course
+  end
+
+  test "bei gleicher Entfernung entscheiden die freien Plätze" do
+    @child.update_column(:zip_code, "3008")
+    small = course("Turnen klein", category: "Turnen", max_participants: 5, **BERN)
+    large = course("Turnen gross", category: "Turnen", max_participants: 50, **BERN)
+
+    assert_equal large, recommend([ small, large ])[@child].first.course
+  end
+
+  test "Nähe entscheidet zwischen sonst gleichen Kategorien" do
+    @child.update_column(:zip_code, "3008")
+    far = course("A Biel", category: "A", **BIEL)
+    near = course("Z Bern", category: "Z", **BERN)
+
+    recommendations = recommend([ far, near ])[@child]
+    assert_equal [ near, far ], recommendations.map(&:course)
+    assert_equal :age_fit, recommendations.first.reason
+  end
+
+  test "Nähe schlägt keine stärkeren Signale wie die Weiterführung" do
+    @child.update_column(:zip_code, "3008")
+    register(@child, course("Turnen alt", category: "Turnen", ended: true))
+    far = course("Turnen Biel", category: "Turnen", **BIEL)
+    near = course("Pilates Bern", category: "Pilates", **BERN)
+
+    assert_equal far, recommend([ far, near ])[@child].first.course
+  end
+
+  test "ohne PLZ des Kindes zählt die PLZ der Eltern" do
+    @parent.update_column(:zip_code, "3008")
+    far = course("Turnen Biel", category: "Turnen", **BIEL)
+    near = course("Turnen Bern", category: "Turnen", **BERN)
+
+    assert_equal near, recommend([ far, near ])[@child].first.course
+  end
+
+  test "ohne bekannte PLZ gelten weiter die freien Plätze" do
+    @child.update_column(:zip_code, "0000")
+    @parent.update_column(:zip_code, nil)
+    near = course("Turnen Bern", category: "Turnen", max_participants: 5, **BERN)
+    far = course("Turnen Biel", category: "Turnen", max_participants: 50, **BIEL)
+
+    assert_equal far, recommend([ near, far ])[@child].first.course
+  end
 end
