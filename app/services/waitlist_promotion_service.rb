@@ -2,6 +2,7 @@
 # Genutzt von CourseRegistrationsController nach cancel, trainer_cancel und destroy.
 class WaitlistPromotionService
   MAX_PROMOTIONS_PER_CALL = 10
+  PAYMENT_DAYS_AFTER_PROMOTION = 7
 
   # Stündlicher Sweep (ExpirePendingPaymentsJob): rückt Wartelisten in Kursen
   # nach, die freie Plätze haben, ohne dass eine Stornierung das Nachrücken
@@ -84,7 +85,10 @@ class WaitlistPromotionService
         else
           # Abo-Buchungen sind immer vorausbezahlt – niemals auf "ausstehend" setzen.
           new_status = (paid_course && !next_in_line.abo_booking?) ? "ausstehend" : "bestätigt"
-          next_in_line.update!(status: new_status)
+          # Nachgerückte Familien haben eine Woche Zeit zum Bezahlen (so steht es auch
+          # in der Mail „Platz frei“), statt der 48 h einer normalen Online-Zahlung.
+          next_in_line.update!(status: new_status,
+                               payment_expires_at: (PAYMENT_DAYS_AFTER_PROMOTION.days.from_now if new_status == "ausstehend"))
         end
         promoted << next_in_line
       end

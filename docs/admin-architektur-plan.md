@@ -233,19 +233,11 @@ Kommandozentrale zeigen bereits alle Seiten eines Bereichs, eine Zwischenseite w
 ein zusätzlicher Klick. `Admin::DashboardOverview` als eigene Klasse: Die Kennzahlen
 haben nur einen Nutzer und stehen im Controller.
 
-## 6. Offene Fragen (gesammelt für den Schluss)
+## 6. Entscheide zu den Schlussfragen (05.11.2026)
 
-1. **Wartelisten-Mail nennt eine falsche Zahlungsfrist.** Rückt jemand in einen
-   Bezahlkurs nach (ohne Schnupper-Wahl), steht in der Mail „Du hast nun eine Woche
-   Zeit, um zu bezahlen“ (`course_registration_mailer/waitlist_promoted.*.erb`).
-   Tatsächlich verfällt die Anmeldung nach **48 Stunden** (`course_registration.rb`,
-   `set_payment_expiry`). Was gilt: Text auf 48 h korrigieren, Frist auf 7 Tage
-   verlängern, oder auch diese Frist einstellbar machen?
-2. **„Zahlung ausstehend“** zählt bestätigte und nachgerückte Plätze ohne Zahlung in
-   laufenden Bezahlkursen. Nicht gezählt: laufende Online-Zahlungen („ausstehend“,
-   verfallen automatisch), Schnupperplätze und beendete Kurse. Passt diese Abgrenzung?
-3. **Bereichsnamen:** „Personen & Finanzen“ fasst Trainer, Altersübersicht,
-   Nachforderungen und Offene Zahlungen zusammen. Passt der Name, oder lieber zwei
-   Bereiche?
-4. **Merge nach `staging`**: Alles liegt auf `design`. Soll es jetzt nach `staging`
-   (Testumgebung), damit du es dort durchklicken kannst?
+1. Nachrücken in einen Bezahlkurs: Zahlungsfrist **7 Tage** (wie in der Mail
+   versprochen) statt 48 h. Normale Online-Zahlungen behalten 48 h. Die Mail
+   „Zahlung abgelaufen“ sagt jetzt „nicht rechtzeitig“ statt fest „48 Stunden“.
+2. Abgrenzung „Zahlung ausstehend“: passt so.
+3. Bereichsname „Personen & Finanzen“: passt so.
+4. Merge nach `staging`: noch offen.

@@ -273,7 +273,11 @@ class CourseRegistration < ApplicationRecord
   #   gilt die zugesicherte Frist "Schnuppertraining + Schnupperfrist". Eine 48h-Untergrenze
   #   verhindert eine sofortige Stornierung, falls die Konversion erst spät erfolgt.
   # - Reguläre Anmeldungen ohne Schnupperhintergrund erhalten die übliche 48h-Frist.
+  # - Wird payment_expires_at im selben Update ausdrücklich gesetzt (z.B. Nachrücken
+  #   von der Warteliste, 7 Tage), gilt dieser Wert.
   def set_payment_expiry
+    return if will_save_change_to_payment_expires_at? && payment_expires_at.present?
+
     self.payment_expires_at =
       if trial_expires_at.present?
         [ trial_expires_at, 48.hours.from_now ].max
