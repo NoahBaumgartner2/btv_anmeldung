@@ -42,6 +42,11 @@ class Course < ApplicationRecord
     deactivated? || (end_date.present? && end_date.to_date < Date.current)
   end
 
+  # Dieselbe Regel wie ended?, als Abfrage: deaktiviert oder Enddatum vor heute
+  # (Zeitzone der App). Kommandozentrale = not_archived, Archiv-Seite = archived.
+  scope :archived, -> { where.not(deactivated_at: nil).or(where("courses.end_date < ?", Time.current.beginning_of_day)) }
+  scope :not_archived, -> { where(deactivated_at: nil).where("courses.end_date IS NULL OR courses.end_date >= ?", Time.current.beginning_of_day) }
+
   # ── Deaktivieren (Einfrieren) ──────────────────────────────────────────────
   # Alternative zum Löschen: der Kurs verschwindet aus allen Listen und Abläufen,
   # Anmeldungen, Trainings und Anwesenheiten bleiben für J+S erhalten und lassen

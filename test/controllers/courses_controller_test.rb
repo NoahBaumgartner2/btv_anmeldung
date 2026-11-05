@@ -912,4 +912,17 @@ class CoursesControllerTest < ActionDispatch::IntegrationTest
       post send_custom_email_course_path(course), params: { subject: "Info", body: "Text" }
     end
   end
+
+  test "Trainer-Auswahl im Kursformular: Suchfeld, Zähler, zugewiesene zuerst" do
+    sign_in users(:admin)
+    get edit_course_path(courses(:two)) # zugewiesen: Beat Trainer (two), nicht: Anna Trainerin (one)
+
+    assert_response :success
+    assert_select "input#trainer-search[data-action='input->trainer-permission#filter']"
+    assert_select "[data-trainer-permission-target=count]"
+    names = css_select("[data-trainer-permission-target=row] .truncate").map { |n| n.text.strip }
+    assert_operator names.index(trainers(:two).full_name), :<, names.index(trainers(:one).full_name),
+                    "zugewiesene Trainer:innen stehen oben"
+    assert_select "input#trainer_#{trainers(:two).id}[checked]"
+  end
 end

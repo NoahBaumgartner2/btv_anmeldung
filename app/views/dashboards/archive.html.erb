@@ -1,0 +1,96 @@
+<%
+  input = "block w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm bg-white min-h-11 focus:outline-none focus:ring-2 focus:ring-primary-500"
+  select_input = "#{input} select-chevron"
+  label = "block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1.5"
+%>
+<div class="max-w-5xl mx-auto mt-6 sm:mt-10 mb-16 px-4">
+
+  <%= render "admin/shared/section_header" %>
+
+  <div class="mb-6">
+    <h2 class="text-xl sm:text-2xl font-bold text-gray-900"><%= t(".title") %></h2>
+    <p class="text-gray-500 mt-1 text-sm"><%= t(".subtitle") %></p>
+  </div>
+
+  <%# ── Filter ─────────────────────────────────────────────────────────── %>
+  <%= form_with url: archive_dashboard_path, method: :get, class: "stat-card sm:p-5 mb-6" do %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div class="sm:col-span-2 lg:col-span-1">
+        <label for="q" class="<%= label %>"><%= t(".search") %></label>
+        <%= search_field_tag :q, @q, placeholder: t(".search_placeholder"), class: input %>
+      </div>
+      <div>
+        <label for="term_id" class="<%= label %>"><%= t(".term") %></label>
+        <%= select_tag :term_id,
+              options_for_select([ [ t(".no_term"), "none" ] ] + @terms.map { |term| [ term.name, term.id ] }, params[:term_id]),
+              include_blank: t(".all_terms"), class: select_input %>
+      </div>
+      <div>
+        <label for="category" class="<%= label %>"><%= t(".category") %></label>
+        <%= select_tag :category, options_for_select(@categories, params[:category]),
+              include_blank: t(".all_categories"), class: select_input %>
+      </div>
+      <div>
+        <label for="status" class="<%= label %>"><%= t(".status") %></label>
+        <%= select_tag :status,
+              options_for_select([ [ t(".status_ended"), "ended" ], [ t(".status_deactivated"), "deactivated" ] ], params[:status]),
+              include_blank: t(".status_all"), class: select_input %>
+      </div>
+      <div>
+        <label for="sort" class="<%= label %>"><%= t(".sort") %></label>
+        <%= select_tag :sort,
+              options_for_select([ [ t(".newest"), "newest" ], [ t(".oldest"), "oldest" ] ], params[:sort]), class: select_input %>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center justify-end gap-3 mt-4">
+      <% if @filtered %>
+        <%= link_to t(".reset"), archive_dashboard_path,
+              class: "text-sm font-medium text-gray-600 hover:text-gray-900 underline-offset-2 hover:underline min-h-11 inline-flex items-center px-2" %>
+      <% end %>
+      <button type="submit" class="bg-slate-900 hover:bg-slate-800 active:bg-slate-950 text-white font-bold px-5 rounded-full text-sm transition cursor-pointer min-h-11"><%= t(".submit") %></button>
+    </div>
+  <% end %>
+
+  <p class="text-sm font-medium text-gray-600 mb-3" aria-live="polite"><%= t(".count", count: @courses_more.total) %></p>
+
+  <%# ── Kurse, nach Zeitraum gruppiert ──────────────────────────────────── %>
+  <% if @courses.any? %>
+    <div class="space-y-6">
+      <% @courses.to_a.chunk_while { |a, b| a.term_id == b.term_id }.each do |group| %>
+        <% term = group.first.term %>
+        <section class="bg-white shadow-sm ring-1 ring-slate-200/80 rounded-3xl overflow-hidden">
+          <h3 class="px-4 sm:px-5 py-2.5 bg-gray-50 border-b border-gray-100 text-xs font-bold text-gray-500 uppercase tracking-wider">
+            <%= term&.name || t(".no_term") %>
+          </h3>
+          <ul class="divide-y divide-gray-100">
+            <% group.each do |course| %>
+              <li class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4 px-4 sm:px-5 py-3.5">
+                <div class="min-w-0">
+                  <p class="text-sm font-bold text-gray-800 break-words">
+                    <%= course.title %>
+                    <% if course.deactivated? %>
+                      <span class="ml-1 align-middle inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold bg-gray-100 text-gray-500"><%= t(".deactivated_badge") %></span>
+                    <% end %>
+                  </p>
+                  <p class="text-xs text-gray-500 mt-0.5">
+                    <%= [ course.category.presence, course.registration_type_label,
+                          (t(".ended", date: l(course.end_date.to_date)) if course.end_date.present?),
+                          t(".participants", count: course.occupied_spots) ].compact.join(" · ") %>
+                  </p>
+                </div>
+                <%= link_to t("dashboards.admin.table.manage"), manage_course_path(course),
+                      class: "shrink-0 self-start sm:self-center text-slate-900 font-bold bg-white border border-slate-200 hover:bg-slate-50 px-3 py-1.5 rounded-full text-sm min-h-9 inline-flex items-center" %>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+      <% end %>
+    </div>
+    <%= render "shared/load_more", info: @courses_more %>
+  <% else %>
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm py-12 px-6 text-center">
+      <p class="font-semibold text-gray-800"><%= t(@filtered ? ".no_results" : ".empty") %></p>
+    </div>
+  <% end %>
+
+</div>

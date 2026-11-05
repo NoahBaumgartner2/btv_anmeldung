@@ -17,7 +17,7 @@
     <% end %>
   </div>
   <div class="border-b border-gray-200 mb-8">
-    <nav class="-mb-px flex gap-1 sm:gap-2 overflow-x-auto" aria-label="<%= t("dashboards.admin.sections.#{section}") %>">
+    <nav class="-mb-px flex gap-1 sm:gap-2 overflow-x-auto" data-controller="active-tab" aria-label="<%= t("dashboards.admin.sections.#{section}") %>">
       <% AdminNavigation.items(section).each do |item| %>
         <% is_active = item == current %>
         <%= link_to t("dashboards.admin.links.#{item.key}"), send(item.path),

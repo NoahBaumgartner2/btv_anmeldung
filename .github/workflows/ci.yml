@@ -91,9 +91,21 @@ jobs:
       #   options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
+      # Der Azure-Ubuntu-Spiegel liefert die Pakete zeitweise mit ~35 kB/s (4–5 min).
+      # Die .deb-Dateien kommen deshalb aus dem Actions-Cache; apt lädt nur Neueres nach.
+      - name: Cache apt packages
+        uses: actions/cache@v6
+        with:
+          path: ~/apt-cache
+          key: apt-${{ runner.os }}-${{ runner.arch }}-libpq-dev-libvips42-v1
+
       - name: Install packages
         timeout-minutes: 6
-        run: sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 update && sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 install --no-install-recommends -y libpq-dev libvips42
+        run: |
+          mkdir -p ~/apt-cache/partial
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 update
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 -o Dir::Cache::Archives="$HOME/apt-cache" install --no-install-recommends -y libpq-dev libvips42
+          sudo chown -R "$(id -u):$(id -g)" ~/apt-cache
 
       - name: Checkout code
         uses: actions/checkout@v7
@@ -132,9 +144,21 @@ jobs:
       #   options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
+      # Der Azure-Ubuntu-Spiegel liefert die Pakete zeitweise mit ~35 kB/s (4–5 min).
+      # Die .deb-Dateien kommen deshalb aus dem Actions-Cache; apt lädt nur Neueres nach.
+      - name: Cache apt packages
+        uses: actions/cache@v6
+        with:
+          path: ~/apt-cache
+          key: apt-${{ runner.os }}-${{ runner.arch }}-libpq-dev-libvips42-v1
+
       - name: Install packages
         timeout-minutes: 6
-        run: sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 update && sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 install --no-install-recommends -y libpq-dev libvips42
+        run: |
+          mkdir -p ~/apt-cache/partial
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 update
+          sudo apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=20 -o Dir::Cache::Archives="$HOME/apt-cache" install --no-install-recommends -y libpq-dev libvips42
+          sudo chown -R "$(id -u):$(id -g)" ~/apt-cache
 
       - name: Checkout code
         uses: actions/checkout@v7

@@ -149,12 +149,17 @@ class DashboardsControllerTest < ActionDispatch::IntegrationTest
     get dashboards_admin_path
 
     assert_response :success
-    # In der Haupt-Kursübersicht (Tabelle) darf der beendete Kurs nicht mehr auftauchen,
-    # im Archiv-Bereich (unter dem Term-Namen) aber schon.
+    # Die Kommandozentrale zeigt nur laufende Kurse und verlinkt das Archiv,
+    # die eigene Archiv-Seite zeigt den beendeten Kurs unter dem Term-Namen.
     assert_select "table td", text: "Läuft noch"
-    assert_select "table td", text: "Ist beendet", count: 0
+    assert_no_match "Ist beendet", response.body
+    assert_select "a[href='#{archive_dashboard_path}']", { minimum: 1 }
+
+    get archive_dashboard_path
+    assert_response :success
     assert_match "Ist beendet", response.body
     assert_match terms(:one).name, response.body
+    assert_no_match "Läuft noch", response.body
   end
 
   test "Kommandozentrale filtert Kurse nach Semester/Quartal" do
