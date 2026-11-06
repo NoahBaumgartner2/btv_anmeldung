@@ -29,6 +29,7 @@ import TrainingActionsController from "controllers/training_actions_controller"
 import AutoSubmitController from "controllers/auto_submit_controller"
 import ActiveTabController from "controllers/active_tab_controller"
 import NavDisclosureController from "controllers/nav_disclosure_controller"
+import DialogController from "controllers/dialog_controller"
 import InputFormatController from "controllers/input_format_controller"
 import AddressSplitController from "controllers/address_split_controller"
 import TabsController from "controllers/tabs_controller"
@@ -65,6 +66,7 @@ application.register("training-actions", TrainingActionsController)
 application.register("auto-submit", AutoSubmitController)
 application.register("active-tab", ActiveTabController)
 application.register("nav-disclosure", NavDisclosureController)
+application.register("dialog", DialogController)
 application.register("input-format", InputFormatController)
 application.register("address-split", AddressSplitController)
 application.register("tabs", TabsController)
