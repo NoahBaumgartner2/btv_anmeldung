@@ -152,4 +152,18 @@ class TrainingSessionTest < ActiveSupport::TestCase
 
     assert_equal 10, session.effective_max_participants
   end
+
+  test "attendance_open: vergangenes Training ohne Leiter und ohne Teilnehmende braucht keine Präsenzkontrolle" do
+    course = Course.new(title: "Leerer Kurs", registration_type: "semester", has_payment: false, has_ticketing: false)
+    course.save!(validate: false)
+    session = TrainingSession.create!(course: course, start_time: 2.days.ago, end_time: 2.days.ago + 1.hour)
+    assert_not_includes TrainingSession.attendance_open, session
+
+    trainer_session = TrainingSession.create!(course: course, start_time: 2.days.ago, end_time: 2.days.ago + 1.hour,
+      substitute_trainer: trainers(:one))
+    assert_includes TrainingSession.attendance_open, trainer_session
+
+    CourseRegistration.new(course: course, participant: participants(:one), status: "bestätigt").save!(validate: false)
+    assert_includes TrainingSession.attendance_open, session
+  end
 end

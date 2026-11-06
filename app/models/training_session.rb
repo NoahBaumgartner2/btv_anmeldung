@@ -19,6 +19,20 @@ class TrainingSession < ApplicationRecord
     where(is_canceled: false, attendance_confirmed_at: nil, course: Course.where(deactivated_at: nil))
       .where.not(end_time: nil)
       .where("end_time < ?", Time.current)
+      .needs_attendance
+  }
+  # Ohne Leiter (Kurstrainer oder Ersatz) und ohne Teilnehmende gibt es nichts
+  # zu kontrollieren. Teilnehmende wie #occupied_spots, dazu erfasste Anwesenheiten.
+  scope :needs_attendance, -> {
+    where(<<~SQL, CourseRegistration::OCCUPYING_STATUSES)
+      training_sessions.substitute_trainer_id IS NOT NULL
+      OR EXISTS (SELECT 1 FROM course_trainers ct WHERE ct.course_id = training_sessions.course_id)
+      OR EXISTS (SELECT 1 FROM attendances a WHERE a.training_session_id = training_sessions.id)
+      OR EXISTS (SELECT 1 FROM course_registrations cr
+                 WHERE cr.course_id = training_sessions.course_id AND cr.status IN (?)
+                   AND (cr.training_session_id = training_sessions.id
+                        OR (cr.training_session_id IS NULL AND cr.abo_entries_total IS NULL)))
+    SQL
   }
 
   def past?
