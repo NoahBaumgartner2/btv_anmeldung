@@ -38,7 +38,7 @@
 
     <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wide mb-3"><%= t("participants.show.attendance.active_title", count: active.size) %></h3>
     <% if active.any? %>
-      <div class="space-y-3">
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <%= render partial: "attendance_course_card", collection: active, as: :entry, locals: { status_styles: status_styles } %>
       </div>
     <% else %>
@@ -56,7 +56,7 @@
             <span class="block text-xs text-gray-500 mt-0.5"><%= t("participants.show.attendance.archive_hint") %></span>
           </span>
         </summary>
-        <div class="space-y-3 p-3 sm:p-4 pt-0 sm:pt-0">
+        <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 p-3 sm:p-4 pt-0 sm:pt-0">
           <%= render partial: "attendance_course_card", collection: archived, as: :entry, locals: { status_styles: status_styles } %>
         </div>
       </details>

@@ -62,7 +62,8 @@ class ParticipantsControllerTest < ActionDispatch::IntegrationTest
     get participant_url(@participant)
     assert_response :success
     assert_select "section[aria-labelledby=attendance-history-title]" do
-      assert_select "a[href=?]", training_session_path(session)
+      assert_select "button[data-action='dialog#open']"
+      assert_select "dialog.course-dialog a[href=?]", training_session_path(session)
     end
     assert_match I18n.t("participants.show.attendance.statuses.present"), response.body
 
